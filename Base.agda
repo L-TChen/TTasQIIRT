@@ -1,8 +1,10 @@
 -- {-# OPTIONS --cubical --exact-split #-}
+{-# OPTIONS --exact-split --rewriting #-}
 module DTT-QIIRT.Base where
 
 -- open import Cubical.Core.Primitives
 import Relation.Binary.PropositionalEquality as Eq
+open import Agda.Builtin.Equality.Rewrite
 open Eq using (_≡_; refl; subst; sym; cong)
 open Eq.≡-Reasoning
 
@@ -26,53 +28,72 @@ variable
     t t' s s' : Tm _ _
 
 data Sub where
-    ∅    :                                  Sub Δ ∅
-    _‣_  : (σ : Sub Δ Γ) → Tm Δ (A [ σ ]ᵀ) → Sub Δ (Γ ‣ A)
-    idS  :                                  Sub Δ Δ
-    _⨾_  : Sub Δ Γ       → Sub Θ Δ          → Sub Θ Γ
-    π₁   :                Sub Δ (Γ ‣ A)    → Sub Δ Γ
+  ∅
+    ---------
+    : Sub Δ ∅
+  _‣_
+    : (σ : Sub Δ Γ) (t : Tm Δ (A [ σ ]ᵀ))
+    ---------------------------------
+    → Sub Δ (Γ ‣ A)
+  idS
+    : Sub Δ Δ
+  _⨾_
+    : (σ : Sub Δ Γ) (δ : Sub Θ Δ)
+    → Sub Θ Γ
+  π₁
+   : (σ : Sub Δ (Γ ‣ A))
+   → Sub Δ Γ
 
 data Ty where
-    U  :                              Ty Γ
-    El : (u : Tm Γ U)               → Ty Γ
-    Π  : (A : Ty Γ)(B : Ty (Γ ‣ A)) → Ty Γ
+  U
+    : Ty Γ
+  El
+    : (u : Tm Γ U)
+    --------------
+    → Ty Γ
+  Π
+    : (A : Ty Γ) (B : Ty (Γ ‣ A))
+    ------------------------------
+    → Ty Γ
 
 infix 30 ƛ_
 infix 30 _·vz
 data Tm where
     π₂   : (σ : Sub Δ (Γ ‣ A))          → Tm Δ (A [ π₁ σ ]ᵀ)
     ƛ_   : Tm (Γ ‣ A) B                 → Tm Γ (Π A B)
-    _·vz  : Tm Γ (Π A B)                 → Tm (Γ ‣ A) B
+    _·vz  : Tm Γ (Π A B)                → Tm (Γ ‣ A) B
     _[_] : Tm Γ A       → (σ : Sub Δ Γ) → Tm Δ (A [ σ ]ᵀ)
 
 -- type substitution as recursion
 _↑_ : (σ : Sub Δ Γ)(A : Ty Γ) → Sub (Δ ‣ A [ σ ]ᵀ) (Γ ‣ A)
 
 {-# TERMINATING #-}
-U [ σ ]ᵀ = U
+U [ σ ]ᵀ        = U
 
-El u [ idS ]ᵀ = El u
+El u [ idS ]ᵀ   = El u
 El u [ σ ⨾ τ ]ᵀ = El u [ σ ]ᵀ [ τ ]ᵀ
-El u [ σ ]ᵀ = El (u [ σ ])
+El u [ σ ]ᵀ     = El (u [ σ ])
 
-Π A B [ idS ]ᵀ = Π A B
+Π A B [ idS ]ᵀ   = Π A B
 Π A B [ σ ⨾ τ ]ᵀ = Π A B [ σ ]ᵀ [ τ ]ᵀ
-Π A B [ σ ]ᵀ = Π (A [ σ ]ᵀ) (B [ σ ↑ A ]ᵀ)
+Π A B [ σ ]ᵀ     = Π (A [ σ ]ᵀ) (B [ σ ↑ A ]ᵀ)
 
-σ ↑ U = (σ ⨾ π₁ idS) ‣ π₂ idS
-σ ↑ El _ = (σ ⨾ π₁ idS) ‣ π₂ idS
+σ ↑ U     = (σ ⨾ π₁ idS) ‣ π₂ idS
+σ ↑ El _  = (σ ⨾ π₁ idS) ‣ π₂ idS
 σ ↑ Π _ _ = (σ ⨾ π₁ idS) ‣ π₂ idS
 
 -- equalities of types
 _[idS]ᵀ : (A : Ty Γ) → A [ idS ]ᵀ ≡ A
-U [idS]ᵀ = refl
-El u [idS]ᵀ = refl
+U     [idS]ᵀ = refl
+El u  [idS]ᵀ = refl
 Π A B [idS]ᵀ = refl
 
 _[⨾]ᵀ : (A : Ty Γ){σ : Sub Δ Γ}{τ : Sub Θ Δ} → A [ σ ⨾ τ ]ᵀ ≡ A [ σ ]ᵀ [ τ ]ᵀ
-U [⨾]ᵀ = refl
-El u [⨾]ᵀ = refl
+U     [⨾]ᵀ = refl
+El u  [⨾]ᵀ = refl
 Π A B [⨾]ᵀ = refl
+
+{-# REWRITE _[idS]ᵀ _[⨾]ᵀ #-}
 
 -- equalities of substitutions
 postulate
@@ -84,21 +105,26 @@ postulate
     ηπ : {σ : Sub Δ (Γ ‣ A)} → π₁ σ ‣ π₂ σ ≡ σ
     η∅ : {σ : Sub Δ ∅} → σ ≡ ∅
 
-idS↑ : (A : Ty Γ) → subst (λ σ → Sub (Γ ‣ σ) (Γ ‣ A)) (A [idS]ᵀ) (idS ↑ A) ≡ idS
-idS↑ U =
-        (idS ⨾ π₁ idS) ‣ π₂ idS
-    ≡⟨ cong (_‣ π₂ idS) (idS⨾ π₁ idS) ⟩
-        π₁ idS ‣ π₂ idS
-    ≡⟨ ηπ ⟩
-        idS
-    ∎
-idS↑ (El _) = {!   !}
-idS↑ (Π _ _) = {!   !}
+idS↑ : (A : Ty Γ) → idS ↑ A ≡ idS
+idS↑ U       =
+    (idS ⨾ π₁ idS) ‣ π₂ idS
+  ≡⟨ cong (_‣ π₂ idS) (idS⨾ π₁ idS) ⟩
+      π₁ idS ‣ π₂ idS
+  ≡⟨ ηπ ⟩
+      idS
+  ∎
+idS↑ (El u)  = {!!}
+idS↑ (Π A B) = {!!}
 
-Π[] : {A : Ty Γ}{B : Ty (Γ ‣ A)}{σ : Sub Δ Γ} → Π A B [ σ ]ᵀ ≡ Π (A [ σ ]ᵀ) (B [ σ ↑ A ]ᵀ)
-Π[] {A = A} {B} {σ = idS} = {!   !}
+{-# REWRITE idS↑ #-}
+
+Π[] : {A : Ty Γ}{B : Ty (Γ ‣ A)}{σ : Sub Δ Γ}
+  → Π A B [ σ ]ᵀ ≡ Π (A [ σ ]ᵀ) (B [ σ ↑ A ]ᵀ)
+Π[] {A = A} {B} {σ = idS} = refl
 Π[] {σ = σ ⨾ τ} = {!   !}
-Π[] {σ = σ} = {!   !}
+Π[] {σ = ∅}     = refl
+Π[] {σ = σ ‣ t} = refl
+Π[] {σ = π₁ σ}  = refl
 
 -- reduction relation of terms
 data _⟶⟨_⟩_ : Tm Γ A → A ≡ B → Tm Γ B → Set where
