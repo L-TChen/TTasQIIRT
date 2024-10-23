@@ -79,33 +79,73 @@ data Tm where
 -- type substitution as recursion
 _↑_ : (σ : Sub Δ Γ)(A : Ty Γ) → Sub (Δ ‣ A [ σ ]ᵀ) (Γ ‣ A)
 
+-- {-# TERMINATING #-}
+-- U [ σ ]ᵀ        = U
+-- 
+-- El u [ idS ]ᵀ   = El u
+-- El u [ σ ⨾ τ ]ᵀ = El u [ σ ]ᵀ [ τ ]ᵀ
+-- El u [ σ ]ᵀ     = El (u [ σ ])
+-- 
+-- Π A B [ idS ]ᵀ   = Π A B
+-- Π A B [ σ ⨾ τ ]ᵀ = Π A B [ σ ]ᵀ [ τ ]ᵀ
+-- Π A B [ σ ]ᵀ     = Π (A [ σ ]ᵀ) (B [ σ ↑ A ]ᵀ)
+-- 
+-- σ ↑ U     = (σ ⨾ π₁ idS) ‣ π₂ idS
+-- σ ↑ El _  = (σ ⨾ π₁ idS) ‣ π₂ idS
+-- σ ↑ Π _ _ = (σ ⨾ π₁ idS) ‣ π₂ idS
+-- 
+-- -- equalities of types
+-- _[idS]ᵀ : (A : Ty Γ) → A [ idS ]ᵀ ≡ A
+-- U     [idS]ᵀ = refl
+-- El u  [idS]ᵀ = refl
+-- Π A B [idS]ᵀ = refl
+-- 
+-- _[⨾]ᵀ : (A : Ty Γ){σ : Sub Δ Γ}{τ : Sub Θ Δ} → A [ σ ⨾ τ ]ᵀ ≡ A [ σ ]ᵀ [ τ ]ᵀ
+-- U     [⨾]ᵀ = refl
+-- El u  [⨾]ᵀ = refl
+-- Π A B [⨾]ᵀ = refl
+-- 
+-- {-# REWRITE _[idS]ᵀ _[⨾]ᵀ #-}
+
+-- equalities for type substitution
 {-# TERMINATING #-}
-U [ σ ]ᵀ        = U
+A [ idS   ]ᵀ     = A
+A [ σ ⨾ τ ]ᵀ     = A [ σ ]ᵀ [ τ ]ᵀ
+U     [ ∅ ]ᵀ     = U
+El u  [ ∅ ]ᵀ     = El (u [ ∅ ])
+Π A B [ ∅ ]ᵀ     = Π (A [ ∅ ]ᵀ) (B [ ∅ ↑ A ]ᵀ)
+U     [ σ ‣ t ]ᵀ = U
+El u  [ σ ‣ t ]ᵀ = El (u [ σ ‣ t ])
+Π A B [ σ ‣ t ]ᵀ = Π (A [ σ ‣ t ]ᵀ) (B [ (σ ‣ t) ↑ A ]ᵀ)
+U     [ π₁ σ ]ᵀ  = U
+El u  [ π₁ σ ]ᵀ  = El (u [ π₁ σ ])
+Π A B [ π₁ σ ]ᵀ  = Π (A [ π₁ σ ]ᵀ) (B [ π₁ σ ↑ A ]ᵀ)
 
-El u [ idS ]ᵀ   = El u
-El u [ σ ⨾ τ ]ᵀ = El u [ σ ]ᵀ [ τ ]ᵀ
-El u [ σ ]ᵀ     = El (u [ σ ])
+σ ↑ A    = (σ ⨾ π₁ idS) ‣ π₂ idS
 
-Π A B [ idS ]ᵀ   = Π A B
-Π A B [ σ ⨾ τ ]ᵀ = Π A B [ σ ]ᵀ [ τ ]ᵀ
-Π A B [ σ ]ᵀ     = Π (A [ σ ]ᵀ) (B [ σ ↑ A ]ᵀ)
+U[σ]=U : (σ : Sub Γ Δ)
+  → U [ σ ]ᵀ ≡ U
+U[σ]=U ∅       = refl
+U[σ]=U (σ ‣ t) = refl
+U[σ]=U idS     = refl
+U[σ]=U (σ ⨾ τ) =
+  U [ σ ]ᵀ [ τ ]ᵀ
+    ≡⟨  cong (_[ τ ]ᵀ) (U[σ]=U σ) ⟩
+  U [ τ ]ᵀ
+    ≡⟨ U[σ]=U τ ⟩
+  U
+    ∎
+U[σ]=U (π₁ σ)  = refl
 
-σ ↑ U     = (σ ⨾ π₁ idS) ‣ π₂ idS
-σ ↑ El _  = (σ ⨾ π₁ idS) ‣ π₂ idS
-σ ↑ Π _ _ = (σ ⨾ π₁ idS) ‣ π₂ idS
+{-# REWRITE U[σ]=U #-}
 
--- equalities of types
-_[idS]ᵀ : (A : Ty Γ) → A [ idS ]ᵀ ≡ A
-U     [idS]ᵀ = refl
-El u  [idS]ᵀ = refl
-Π A B [idS]ᵀ = refl
-
-_[⨾]ᵀ : (A : Ty Γ){σ : Sub Δ Γ}{τ : Sub Θ Δ} → A [ σ ⨾ τ ]ᵀ ≡ A [ σ ]ᵀ [ τ ]ᵀ
-U     [⨾]ᵀ = refl
-El u  [⨾]ᵀ = refl
-Π A B [⨾]ᵀ = refl
-
-{-# REWRITE _[idS]ᵀ _[⨾]ᵀ #-}
+El[σ] : (u : Tm Γ U) (σ : Sub Δ Γ)
+  → El u [ σ ]ᵀ ≡ El (u [ σ ])
+El[σ] u idS     = {!!} -- we need this two equations for term substitution
+El[σ] u (σ ⨾ τ) = {!!} -- 
+El[σ] u ∅       = refl
+El[σ] u (σ ‣ t) = refl
+El[σ] u (π₁ σ)  = refl
 
 -- equalities of substitutions
 postulate
@@ -122,7 +162,8 @@ postulate
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ]ᵀ)}{τ : Sub Θ Δ}
     → (_‣_ {A = A} σ t) ⨾ τ ≡ (σ ⨾ τ) ‣ t [ τ ]
   βπ₁
-    : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ]ᵀ)} → π₁ (_‣_ {A = A} σ t) ≡ σ
+    : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ]ᵀ)}
+    → π₁ (_‣_ {A = A} σ t) ≡ σ
   ηπ
     : {σ : Sub Δ (Γ ‣ A)}
     → π₁ σ ‣ π₂ σ ≡ σ
@@ -141,11 +182,11 @@ idS↑ U       =
 idS↑ (El u)  = {!!}
 idS↑ (Π A B) = {!!}
 
-{-# REWRITE idS↑ #-}
+-- {-# REWRITE idS↑ #-}
 
 Π[] : {A : Ty Γ}{B : Ty (Γ ‣ A)}(σ : Sub Δ Γ)
   → Π A B [ σ ]ᵀ ≡ Π (A [ σ ]ᵀ) (B [ σ ↑ A ]ᵀ)
-Π[] idS     = refl
+Π[] idS     = {!!} 
 Π[] (σ ⨾ τ) = {!   !}
 Π[] ∅       = refl
 Π[] (σ ‣ t) = refl
@@ -162,7 +203,7 @@ vs : Tm Γ A → Tm (Γ ‣ B) (A [ wk ]ᵀ)
 vs x = x [ wk ]
 
 vz:= : Tm Γ A → Sub Γ (Γ ‣ A)
-vz:= {Γ} {A} t = idS ‣ subst (Tm Γ) (sym (A [idS]ᵀ)) t
+vz:= {Γ} {A} t = idS ‣ t -- subst (Tm Γ) (sym (A [idS]ᵀ)) t
 
 _·_ : Tm Γ (Π A B) → (s : Tm Γ A) → Tm Γ (B [ vz:= s ]ᵀ)
 t · s = (t ·vz) [ vz:= s ]
