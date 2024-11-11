@@ -6,7 +6,7 @@ module DTT-QIIRT.Base where
 open import Data.Product
 -- open import Agda.Builtin.Equality.Rewrite
 open import Relation.Binary.PropositionalEquality as Eq
-  using (_≡_; refl; sym; cong; cong₂; module ≡-Reasoning) renaming (subst to tr)
+  using (_≡_; refl; sym; trans; cong; cong₂; module ≡-Reasoning) renaming (subst to tr)
 open ≡-Reasoning
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
@@ -44,7 +44,7 @@ data Sub where
     → Sub Δ (Γ ‣ A)
   idS
     : Sub Δ Δ
-  _⨾_
+  _∘_
     : {Γ Δ Θ : Ctx}
     → (σ : Sub Δ Γ) (δ : Sub Θ Δ)
     → Sub Θ Γ
@@ -86,16 +86,16 @@ _↑_ : (σ : Sub Δ Γ)(A : Ty Γ) → Sub (Δ ‣ A [ σ ]) (Γ ‣ A)
 U [ σ ]        = U
 
 El u [ idS ]   = El u
-El u [ σ ⨾ τ ] = El u [ σ ] [ τ ]
+El u [ σ ∘ τ ] = El u [ σ ] [ τ ]
 El u [ σ ]     = El (u [ σ ]tm)
 
 Π A B [ idS ]   = Π A B
-Π A B [ σ ⨾ τ ] = Π A B [ σ ] [ τ ]
+Π A B [ σ ∘ τ ] = Π A B [ σ ] [ τ ]
 Π A B [ σ ]     = Π (A [ σ ]) (B [ σ ↑ A ])
 
-σ ↑ U     = (σ ⨾ π₁ idS) ‣ π₂ idS
-σ ↑ El _  = (σ ⨾ π₁ idS) ‣ π₂ idS
-σ ↑ Π _ _ = (σ ⨾ π₁ idS) ‣ π₂ idS
+σ ↑ U     = (σ ∘ π₁ idS) ‣ π₂ idS
+σ ↑ El _  = (σ ∘ π₁ idS) ‣ π₂ idS
+σ ↑ Π _ _ = (σ ∘ π₁ idS) ‣ π₂ idS
 
 -- equalities of types
 _[idS] : (A : Ty Γ) → A [ idS ] ≡ A
@@ -103,23 +103,23 @@ U     [idS] = refl
 El u  [idS] = refl
 Π A B [idS] = refl
 
-_[⨾] : (A : Ty Γ){σ : Sub Δ Γ}{τ : Sub Θ Δ} → A [ σ ⨾ τ ] ≡ A [ σ ] [ τ ]
-U     [⨾] = refl
-El u  [⨾] = refl
-Π A B [⨾] = refl
+_[∘] : (A : Ty Γ){σ : Sub Δ Γ}{τ : Sub Θ Δ} → A [ σ ∘ τ ] ≡ A [ σ ] [ τ ]
+U     [∘] = refl
+El u  [∘] = refl
+Π A B [∘] = refl
 
--- {-# REWRITE _[idS] _[⨾] #-}
+-- {-# REWRITE _[idS] _[∘] #-}
 
 _[_]t : {Γ Δ : Ctx} {A : Ty Γ} (t : Tm Γ A) (σ : Sub Δ Γ)
   → Tm Δ (A [ σ ])
 
 -- t [ idS   ]t  = t
--- t [ σ ⨾ τ ]t  = t [ σ ]t [ τ ]t
+-- t [ σ ∘ τ ]t  = t [ σ ]t [ τ ]t
 -- t [ ∅ ]t      = t [ ∅ ]tm
 -- t [ σ ‣ τ ]t  = t [ σ ‣ τ ]tm
 -- t [ π₁ σ ]t   = t [ π₁ σ ]tm
 _[_]t {Γ} {_} {A} t idS = tr (Tm Γ) (sym (A [idS])) t
-_[_]t {_} {Δ} {A} t (σ ⨾ τ) = tr (Tm Δ) (sym (A [⨾])) (t [ σ ]t [ τ ]t)
+_[_]t {_} {Δ} {A} t (σ ∘ τ) = tr (Tm Δ) (sym (A [∘])) (t [ σ ]t [ τ ]t)
 t [ ∅     ]t = t [ ∅ ]tm
 t [ σ ‣ s ]t = t [ σ ‣ s ]tm
 t [ π₁ σ  ]t = t [ π₁ σ ]tm
@@ -129,7 +129,7 @@ t [ π₁ σ  ]t = t [ π₁ σ ]tm
 -- pattern matching on substitutions first
 {-# TERMINATING #-}
 A [ idS   ]     = A
-A [ σ ⨾ τ ]     = A [ σ ] [ τ ]
+A [ σ ∘ τ ]     = A [ σ ] [ τ ]
 U     [ ∅ ]     = U
 El u  [ ∅ ]     = El (u [ ∅ ]t)
 Π A B [ ∅ ]     = Π (A [ ∅ ]) (B [ ∅ ↑ A ])
@@ -140,10 +140,10 @@ U     [ π₁ σ ]  = U
 El u  [ π₁ σ ]  = El (u [ π₁ σ ]t)
 Π A B [ π₁ σ ]  = Π (A [ π₁ σ ]) (B [ π₁ σ ↑ A ])
 
-σ ↑ A = (σ ⨾ π₁ idS) ‣ π₂ idS
+σ ↑ A = (σ ∘ π₁ idS) ‣ π₂ idS
 
 t [ idS   ]t  = t
-t [ σ ⨾ τ ]t  = t [ σ ]t [ τ ]t
+t [ σ ∘ τ ]t  = t [ σ ]t [ τ ]t
 t [ ∅ ]t      = t [ ∅ ]tm
 t [ σ ‣ τ ]t  = t [ σ ‣ τ ]tm
 t [ π₁ σ ]t   = t [ π₁ σ ]tm
@@ -153,7 +153,7 @@ U[σ]=U : (σ : Sub Γ Δ)
 U[σ]=U ∅       = refl
 U[σ]=U (σ ‣ t) = refl
 U[σ]=U idS     = refl
-U[σ]=U (σ ⨾ τ) =
+U[σ]=U (σ ∘ τ) =
   U [ σ ] [ τ ]
     ≡⟨  cong (_[ τ ]) (U[σ]=U σ) ⟩
   U [ τ ]
@@ -168,7 +168,7 @@ U[σ]=U (π₁ σ)  = refl
 El[σ] : (u : Tm Γ U) (σ : Sub Δ Γ)
   → El u [ σ ] ≡ El (u [ σ ]t)
 El[σ] u idS     = refl
-El[σ] u (_⨾_ {Γ} {Δ} {Θ} σ τ) =
+El[σ] u (_∘_ {Γ} {Δ} {Θ} σ τ) =
   El u [ σ ] [ τ ]
     ≡⟨ (cong (_[ τ ])) (El[σ] u σ) ⟩
   El (u [ σ ]t) [ τ ]
@@ -183,18 +183,18 @@ El[σ] u (π₁ σ)  = refl
 
 -- equalities of substitutions
 postulate
-  idS⨾_ 
+  idS∘_ 
     : (σ : Sub Δ Γ)
-    → idS ⨾ σ ≡ σ
-  _⨾idS
+    → idS ∘ σ ≡ σ
+  _∘idS
     : (σ : Sub Δ Γ)
-    → σ ⨾ idS ≡ σ
+    → σ ∘ idS ≡ σ
   assocS
     : {σ : Sub Δ Γ}{τ : Sub Θ Δ}{υ : Sub Φ Θ}
-    → (σ ⨾ τ) ⨾ υ ≡ σ ⨾ (τ ⨾ υ)
-  ‣⨾
+    → (σ ∘ τ) ∘ υ ≡ σ ∘ (τ ∘ υ)
+  ‣∘
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}
-    → (_‣_ {A = A} σ t) ⨾ τ ≡ (σ ⨾ τ) ‣ tr (Tm Θ) (sym (A [⨾])) (t [ τ ]t)
+    → (_‣_ {A = A} σ t) ∘ τ ≡ (σ ∘ τ) ‣ tr (Tm Θ) (sym (A [∘])) (t [ τ ]t)
   βπ₁
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
     → π₁ (_‣_ {A = A} σ t) ≡ σ
@@ -238,34 +238,90 @@ apd₂R f refl = refl
 
 idS↑ : (A : Ty Γ) → tr (λ A' → Sub (Γ ‣ A') (Γ ‣ A)) (A [idS]) (idS ↑ A) ≡ idS
 idS↑ U =
-    (idS ⨾ π₁ idS) ‣ π₂ idS
-  ≡⟨ cong (_‣ π₂ idS) (idS⨾ π₁ idS) ⟩
+    (idS ∘ π₁ idS) ‣ π₂ idS
+  ≡⟨ cong (_‣ π₂ idS) (idS∘ π₁ idS) ⟩
     π₁ idS ‣ π₂ idS
   ≡⟨ ηπ ⟩
     idS
   ∎
 idS↑ {Γ} (El u) =
-    _‣_ {Γ ‣ El u} {Γ} {El u} (idS ⨾ π₁ idS) (π₂ idS)
-  ≡⟨ apd₂R (_‣_ {Γ ‣ El u} {Γ} {El u}) (idS⨾ π₁ idS) ⟩
-    π₁ idS ‣ tr (λ σ → Tm (Γ ‣ El u) (El u [ σ ])) (idS⨾ π₁ idS) (π₂ {A = El u [ idS ]} idS)
-  ≡⟨ cong (π₁ idS ‣_) (tr-conv (idS⨾ π₁ idS)) ⟩
-    π₁ idS ‣ conv (cong (λ σ → Tm (Γ ‣ El u) (El u [ σ ])) (idS⨾ π₁ idS)) (π₂ idS)
-  ≡⟨ cong (π₁ idS ‣_) (conv-unique (cong (λ σ → Tm (Γ ‣ El u) (El u [ σ ])) (idS⨾ π₁ idS)) refl (π₂ idS)) ⟩
+    _‣_ {Γ ‣ El u} {Γ} {El u} (idS ∘ π₁ idS) (π₂ idS)
+  ≡⟨ apd₂R (_‣_ {Γ ‣ El u} {Γ} {El u}) (idS∘ π₁ idS) ⟩
+    π₁ idS ‣ tr (λ σ → Tm (Γ ‣ El u) (El u [ σ ])) (idS∘ π₁ idS) (π₂ {A = El u [ idS ]} idS)
+  ≡⟨ cong (π₁ idS ‣_) (tr-conv (idS∘ π₁ idS)) ⟩
+    π₁ idS ‣ conv (cong (λ σ → Tm (Γ ‣ El u) (El u [ σ ])) (idS∘ π₁ idS)) (π₂ idS)
+  ≡⟨ cong (π₁ idS ‣_) (conv-unique (cong (λ σ → Tm (Γ ‣ El u) (El u [ σ ])) (idS∘ π₁ idS)) refl (π₂ idS)) ⟩
     π₁ idS ‣ π₂ {A = El u} idS
   ≡⟨ ηπ ⟩
     idS
   ∎
 idS↑ {Γ} (Π A B) =
-    _‣_ {Γ ‣ Π A B} {Γ} {Π A B} (idS ⨾ π₁ idS) (π₂ idS)
-  ≡⟨ apd₂R (_‣_ {Γ ‣ Π A B} {Γ} {Π A B}) (idS⨾ π₁ idS) ⟩
-    π₁ idS ‣ tr (λ σ → Tm (Γ ‣ Π A B) (Π A B [ σ ])) (idS⨾ π₁ idS) (π₂ {A = Π A B [ idS ]} idS)
-  ≡⟨ cong (π₁ idS ‣_) (tr-conv (idS⨾ π₁ idS)) ⟩
-    π₁ idS ‣ conv (cong (λ σ → Tm (Γ ‣ Π A B) (Π A B [ σ ])) (idS⨾ π₁ idS)) (π₂ idS)
-  ≡⟨ cong (π₁ idS ‣_) (conv-unique (cong (λ σ → Tm (Γ ‣ Π A B) (Π A B [ σ ])) (idS⨾ π₁ idS)) refl (π₂ idS)) ⟩
+    _‣_ {Γ ‣ Π A B} {Γ} {Π A B} (idS ∘ π₁ idS) (π₂ idS)
+  ≡⟨ apd₂R (_‣_ {Γ ‣ Π A B} {Γ} {Π A B}) (idS∘ π₁ idS) ⟩
+    π₁ idS ‣ tr (λ σ → Tm (Γ ‣ Π A B) (Π A B [ σ ])) (idS∘ π₁ idS) (π₂ {A = Π A B [ idS ]} idS)
+  ≡⟨ cong (π₁ idS ‣_) (tr-conv (idS∘ π₁ idS)) ⟩
+    π₁ idS ‣ conv (cong (λ σ → Tm (Γ ‣ Π A B) (Π A B [ σ ])) (idS∘ π₁ idS)) (π₂ idS)
+  ≡⟨ cong (π₁ idS ‣_) (conv-unique (cong (λ σ → Tm (Γ ‣ Π A B) (Π A B [ σ ])) (idS∘ π₁ idS)) refl (π₂ idS)) ⟩
     π₁ idS ‣ π₂ {A = Π A B} idS
   ≡⟨ ηπ ⟩
     idS
   ∎
+
+π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
+π₁∘ {A = A} {Θ} σ τ =
+    π₁ (σ ∘ τ)
+  ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) (sym ηπ) ⟩
+    π₁ ((π₁ σ ‣ π₂ σ) ∘ τ)
+  ≡⟨ cong π₁ ‣∘ ⟩
+    π₁ ((π₁ σ ∘ τ) ‣ tr (Tm Θ) (sym (A [∘])) (π₂ σ [ τ ]t))
+  ≡⟨ βπ₁ {σ = π₁ σ ∘ τ} ⟩
+    π₁ σ ∘ τ
+  ∎
+
+π₁idS∘ : {A : Ty Γ}(σ : Sub Δ (Γ ‣ A)) → π₁ idS ∘ σ ≡ π₁ σ
+π₁idS∘ σ =
+    π₁ idS ∘ σ
+  ≡⟨ sym (π₁∘ idS σ) ⟩
+    π₁ (idS ∘ σ)
+  ≡⟨ cong π₁ (idS∘ σ) ⟩
+    π₁ σ
+  ∎
+
+π₂∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₂ (σ ∘ τ) ≡ tr (Tm Θ) (sym (trans (cong (A [_]) (π₁∘ σ τ)) (A [∘]))) (π₂ σ [ τ ]t)
+π₂∘ {_} {_} {A} {Θ} σ τ = 
+    π₂ (σ ∘ τ)
+  ≡⟨ sym (apd (λ σ' → π₂ (σ' ∘ τ)) ηπ) ⟩
+    tr (λ σ' → Tm Θ (A [ π₁ (σ' ∘ τ) ])) ηπ (π₂ {A = A} ((π₁ σ ‣ π₂ σ) ∘ τ))
+  ≡⟨ cong (tr (λ σ' → Tm Θ (A [ π₁ (σ' ∘ τ) ])) ηπ) (cong π₂ (‣∘ {σ = π₁ σ} {π₂ σ} {τ})) ⟩
+    {!   !}
+
+π₂idS[]t : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])} → π₂ {Γ ‣ A} idS [ σ ‣ t ]t ≡ tr (Tm Δ) (trans (cong (A [_]) (sym (trans (π₁idS∘ (σ ‣ t)) βπ₁))) (A [∘])) t
+π₂idS[]t = {!   !}
+
+∘↑ : {Γ Δ Θ : Ctx}(σ : Sub Δ Γ)(τ : Sub Θ Δ)(A : Ty Γ)
+   → (σ ↑ A) ∘ tr (λ A' → Sub (Θ ‣ A') (Δ ‣ A [ σ ])) (sym (A [∘])) (τ ↑ A [ σ ])
+      ≡
+     (σ ∘ τ) ↑ A
+∘↑ {Γ} {Δ} {Θ} σ τ U =
+    (((σ ∘ π₁ idS) ‣ π₂ idS) ∘ (τ ↑ U))
+  ≡⟨ ‣∘ ⟩
+    ((σ ∘ π₁ idS) ∘ (τ ↑ U)) ‣ π₂ idS [ τ ↑ U ]tm
+  ≡⟨ cong (_‣ π₂ idS [ τ ↑ U ]tm) assocS ⟩
+    (σ ∘ (π₁ idS ∘ (τ ↑ U))) ‣ π₂ idS [ τ ↑ U ]tm
+  ≡⟨ cong (λ τ' → (σ ∘ τ') ‣ π₂ idS [ τ ↑ U ]tm) (π₁idS∘ (τ ↑ U)) ⟩
+    (σ ∘ π₁ ((τ ∘ π₁ idS) ‣ π₂ idS)) ‣ π₂ idS [ τ ↑ U ]tm
+  ≡⟨ cong (λ τ' → (σ ∘ τ') ‣ π₂ idS [ τ ↑ U ]tm) βπ₁ ⟩
+    (σ ∘ (τ ∘ π₁ idS)) ‣ π₂ {Δ = Δ ‣ U} idS [ τ ↑ U ]tm  -- τ ↑ U : Sub (Θ ‣ U) (Δ ‣ U) ⇒ idS : Sub (Δ ‣ U) (Δ ‣ U) ⇒ π₂ idS : Tm (Δ ‣ U) (U [ π₁ idS ])
+  ≡⟨ cong (_‣ π₂ idS [ τ ↑ U ]tm) (sym assocS) ⟩
+    ((σ ∘ τ) ∘ π₁ idS) ‣ π₂ idS [ τ ↑ U ]tm
+  ≡⟨ cong (((σ ∘ τ) ∘ π₁ idS) ‣_) (π₂idS[]t {σ = τ ∘ π₁ idS} {t = π₂ idS}) ⟩
+    ((σ ∘ τ) ∘ π₁ idS) ‣ tr (Tm (Θ ‣ U)) (trans (cong (U [_]) (sym (trans (π₁idS∘ ((τ ∘ π₁ idS) ‣ π₂ idS)) βπ₁))) refl) (π₂ idS)
+  ≡⟨ cong (((σ ∘ τ) ∘ π₁ idS) ‣_) (tr-conv {Y = _} {y = π₂ idS} (sym (trans (π₁idS∘ ((τ ∘ π₁ idS) ‣ π₂ idS)) βπ₁))) ⟩
+    ((σ ∘ τ) ∘ π₁ idS) ‣ conv (cong _ (sym (trans (π₁idS∘ ((τ ∘ π₁ idS) ‣ π₂ idS)) βπ₁))) (π₂ idS)
+  ≡⟨ cong (((σ ∘ τ) ∘ π₁ idS) ‣_) {!   !} ⟩
+    {!   !}
+∘↑ σ τ (El u) = {!   !}
+∘↑ σ τ (Π A A₁) = {!   !}
 
 -- {-# REWRITE idS↑ #-}
 Π[] : {A : Ty Γ}{B : Ty (Γ ‣ A)}(σ : Sub Δ Γ)
@@ -286,7 +342,15 @@ idS↑ {Γ} (Π A B) =
       ≡⟨ B [idS] ⟩
         B
       ∎
-Π[] (σ ⨾ τ) = {!   !}
+Π[] {Γ} {_} {A} {B} (σ ∘ τ) =
+    Π A B [ σ ] [ τ ]
+  ≡⟨ cong (_[ τ ]) (Π[] σ) ⟩
+    Π (A [ σ ]) (B [ σ ↑ A ]) [ τ ]
+  ≡⟨ Π[] τ ⟩
+    Π (A [ σ ] [ τ ]) (B [ σ ↑ A ] [ τ ↑ (A [ σ ]) ])
+  ≡⟨ {!   !} ⟩
+    {!   !}
+-- Π A B [ σ ] [ τ ] = Π (A [ σ ]) (B [ σ ↑ A ])
 Π[] ∅       = refl
 Π[] (σ ‣ t) = refl
 Π[] (π₁ σ)  = refl
@@ -310,8 +374,9 @@ t · s = (t ·vz) [ vz:= s ]t
 -- -- -- -- Use equality constructor instead or postulate
 -- -- -- data _⟶⟨_⟩_ : Tm Γ A → A ≡ B → Tm Γ B → Set where
 -- -- --     [idS] : t [ idS ] ⟶⟨ A [idS]ᵀ ⟩ t  -- subst (Tm Γ) (A [idS]ᵀ) (t [ idS ]) ⟶ t
--- -- --     [⨾] : {t : Tm Γ A}{σ : Sub Δ Γ}{τ : Sub Θ Δ} → (t [ σ ⨾ τ ]) ⟶⟨ A [⨾]ᵀ ⟩ t [ σ ] [ τ ] -- subst (Tm Θ) (A [⨾]ᵀ) (t [ σ ⨾ τ ]) ⟶ t [ σ ] [ τ ]
+-- -- --     [∘] : {t : Tm Γ A}{σ : Sub Δ Γ}{τ : Sub Θ Δ} → (t [ σ ∘ τ ]) ⟶⟨ A [∘]ᵀ ⟩ t [ σ ] [ τ ] -- subst (Tm Θ) (A [∘]ᵀ) (t [ σ ∘ τ ]) ⟶ t [ σ ] [ τ ]
 -- -- --     ƛ[] : {t : Tm (Γ ‣ A) B}{σ : Sub Δ Γ} → (ƛ t) [ σ ] ⟶⟨ Π[] {A = A} ⟩ ƛ t [ σ ↑ A ] -- subst (Tm Δ) (Π[] {A = A}) ((ƛ t) [ σ ]) ⟶ ƛ t [ σ ↑ A ]
 -- -- --     βπ₂ : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ]ᵀ)} → π₂ (_‣_ {A = A} σ t) ⟶⟨ cong (A [_]ᵀ) βπ₁ ⟩ t -- subst (λ τ → Tm Δ (A [ τ ]ᵀ)) βπ₁ (π₂ (_‣_ {A = A} σ t)) ⟶ t
 -- -- --     βΠ : {t : Tm (Γ ‣ A) B} → (ƛ t) ·vz ⟶⟨ refl ⟩ t
 -- -- --     ηΠ : {t : Tm Γ (Π A B)} → ƛ (t ·vz) ⟶⟨ refl ⟩ t
+ 
