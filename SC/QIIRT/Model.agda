@@ -1,12 +1,7 @@
 -- Model of Substitution Calculus
 module SC.QIIRT.Model where
 
-open import Agda.Primitive
-open import Data.Unit
-open import Data.Product
-open import Relation.Binary.PropositionalEquality as Eq
-  using (_≡_; refl; sym; trans; cong; cong₂; module ≡-Reasoning) renaming (subst to tr)
-open ≡-Reasoning
+open import Prelude
 open import SC.QIIRT.Base
 
 record Pdc : Set₁ where
@@ -80,5 +75,13 @@ record IH (P : Pdc) : Set where
         (Pt : PTm PΓ PA t)(Pσ : PSub PΔ PΓ σ)
       ---------------------------------------
       → PTm PΔ (PA [ Pσ ]P) (t [ σ ]tm)
+    
+    -- induction on equalities
+    PU[] 
+      : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{Pσ : PSub PΔ PΓ σ}
+        (PU' : PTy PΓ U)
+      -------------------
+      → PU' [ Pσ ]P ≡ PU
+
     
         

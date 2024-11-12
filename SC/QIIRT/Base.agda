@@ -3,12 +3,8 @@
 -- Formalizing Substitution Calculus as QIIRT
 module SC.QIIRT.Base where
 
+open import Prelude
 -- open import Cubical.Core.Primitives
-open import Data.Unit
-open import Data.Product
-open import Relation.Binary.PropositionalEquality as Eq
-  using (_≡_; refl; sym; trans; cong; cong₂; module ≡-Reasoning) renaming (subst to tr)
-open ≡-Reasoning
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 
@@ -153,8 +149,3 @@ vz:= {Γ} {U} t = idS ‣ t -- pattern matching on type
 -- -- -- data _⟶⟨_⟩_ : Tm Γ A → A ≡ B → Tm Γ B → Set where
 -- -- --     [idS] : t [ idS ] ⟶⟨ A [idS]ᵀ ⟩ t  -- subst (Tm Γ) (A [idS]ᵀ) (t [ idS ]) ⟶ t
 -- -- --     [∘] : {t : Tm Γ A}{σ : Sub Δ Γ}{τ : Sub Θ Δ} → (t [ σ ∘ τ ]) ⟶⟨ A [∘]ᵀ ⟩ t [ σ ] [ τ ] -- subst (Tm Θ) (A [∘]ᵀ) (t [ σ ∘ τ ]) ⟶ t [ σ ] [ τ ]
--- -- --     ƛ[] : {t : Tm (Γ ‣ A) B}{σ : Sub Δ Γ} → (ƛ t) [ σ ] ⟶⟨ Π[] {A = A} ⟩ ƛ t [ σ ↑ A ] -- subst (Tm Δ) (Π[] {A = A}) ((ƛ t) [ σ ]) ⟶ ƛ t [ σ ↑ A ]
--- -- --     βπ₂ : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ]ᵀ)} → π₂ (_‣_ {A = A} σ t) ⟶⟨ cong (A [_]ᵀ) βπ₁ ⟩ t -- subst (λ τ → Tm Δ (A [ τ ]ᵀ)) βπ₁ (π₂ (_‣_ {A = A} σ t)) ⟶ t
--- -- --     βΠ : {t : Tm (Γ ‣ A) B} → (ƛ t) ·vz ⟶⟨ refl ⟩ t
--- -- --     ηΠ : {t : Tm Γ (Π A B)} → ƛ (t ·vz) ⟶⟨ refl ⟩ t
- 
