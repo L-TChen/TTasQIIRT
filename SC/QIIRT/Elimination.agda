@@ -5,7 +5,7 @@ open import Prelude
 open import SC.QIIRT.Base
 open import SC.QIIRT.Model
 
-module elim (P : Pdc)(indP : IH P) where
+module elim {i j}(P : Pdc {i} {j})(indP : IH P) where
   open Pdc P
   open IH indP
 
@@ -18,7 +18,7 @@ module elim (P : Pdc)(indP : IH P) where
   ElimSub : (σ : Sub Δ Γ) → PSub (ElimCtx Δ) (ElimCtx Γ) σ
   ElimTm : (t : Tm Γ A) → PTm (ElimCtx Γ) (ElimTy A) t 
   ElimTy[] : (A : Ty Γ)(σ : Sub Δ Γ) → ElimTy A [ ElimSub σ ]P ≡ ElimTy (A [ σ ])
-  ElimTy[] U σ = PU[] PU
+  ElimTy[] U σ = PU[]
   ElimSub ∅ = ∅Sub
   ElimSub {Δ} (_‣_ {A = A} σ t) = ElimSub σ ‣Sub tr (λ y → PTm (ElimCtx Δ) y t) (sym (ElimTy[] A σ)) (ElimTm t)
   ElimSub idS = PidS

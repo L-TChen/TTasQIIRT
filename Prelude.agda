@@ -1,5 +1,6 @@
 module Prelude where
 
+open import Agda.Primitive public
 open import Data.Unit public
 open import Data.Product public
 open import Relation.Binary.PropositionalEquality as Eq

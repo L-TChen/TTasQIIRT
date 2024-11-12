@@ -4,18 +4,18 @@ module SC.QIIRT.Model where
 open import Prelude
 open import SC.QIIRT.Base
 
-record Pdc : Set₁ where
+record Pdc {i j} : Set (lsuc (i ⊔ j)) where
   field
     PCtx
-      : Ctx → Set
+      : Ctx → Set i
     PTy
-      : PCtx Γ → Ty Γ → Set
+      : PCtx Γ → Ty Γ → Set i
     PSub
-      : PCtx Δ → PCtx Γ → Sub Δ Γ → Set
+      : PCtx Δ → PCtx Γ → Sub Δ Γ → Set j
     PTm
-      : (PΓ : PCtx Γ) → PTy PΓ A → Tm Γ A → Set
+      : (PΓ : PCtx Γ) → PTy PΓ A → Tm Γ A → Set j
 
-record IH (P : Pdc) : Set where
+record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
   open Pdc P
   field
     -- induction on type substitution
@@ -79,9 +79,6 @@ record IH (P : Pdc) : Set where
     -- induction on equalities
     PU[] 
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{Pσ : PSub PΔ PΓ σ}
-        (PU' : PTy PΓ U)
       -------------------
-      → PU' [ Pσ ]P ≡ PU
-
-    
+      → PU [ Pσ ]P ≡ PU
         
