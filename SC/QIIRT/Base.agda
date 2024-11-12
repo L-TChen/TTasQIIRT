@@ -1,10 +1,10 @@
--- {-# OPTIONS --cubical #-}
+{-# OPTIONS --cubical #-}
 -- {-# OPTIONS --exact-split --rewriting -vtc.cover.splittree:10 #-}
 -- Formalizing Substitution Calculus as QIIRT
 module SC.QIIRT.Base where
 
-open import Prelude
--- open import Cubical.Core.Primitives
+-- open import Prelude 
+open import Cubical.Core.Primitives hiding (Sub)
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 
@@ -17,6 +17,7 @@ data Sub : Ctx → Ctx → Set
 data Tm  : (Γ : Ctx) → Ty Γ → Set
 
 _[_]  : ∀{Δ Γ} → Ty Γ → Sub Δ Γ → Ty Δ
+_[_]t : {Γ Δ : Ctx} {A : Ty Γ} (t : Tm Γ A) (σ : Sub Δ Γ) → Tm Δ (A [ σ ])
  
 variable
     Γ Γ' Γ'' Δ Δ' Θ Θ' Φ : Ctx
@@ -30,6 +31,14 @@ data Ctx where
   _‣_
     : (Γ : Ctx) (A : Ty Γ)
     → Ctx
+
+data Ty where
+  U
+    : Ty Γ
+
+-- type substitution as recursion
+-- pattern matching on types first
+U [ σ ]        = U
 
 data Sub where
   ∅
@@ -48,33 +57,8 @@ data Sub where
   π₁
    : (σ : Sub Δ (Γ ‣ A))
    → Sub Δ Γ
-
-data Ty where
-  U
-    : Ty Γ
-
-data Tm where
-  π₂
-    : (σ : Sub Δ (Γ ‣ A))
-    → Tm Δ (A [ π₁ σ ])
-  _[_]tm
-    : Tm Γ A → (σ : Sub Δ Γ)
-    → Tm Δ (A [ σ ])
-
--- type substitution as recursion
--- pattern matching on types first
-U [ σ ]        = U
-
-_[_]t : {Γ Δ : Ctx} {A : Ty Γ} (t : Tm Γ A) (σ : Sub Δ Γ)
-      → Tm Δ (A [ σ ])
-_[_]t {Γ} {_} {U} t idS = t
-_[_]t {_} {Δ} {U} t (σ ∘ τ) = t [ σ ]t [ τ ]t
-_[_]t {A = U} t ∅ = t [ ∅ ]tm
-_[_]t {Γ} {Δ} {U} t (σ ‣ s) = t [ σ ‣ s ]tm
-_[_]t {A = U} t (π₁ σ) = t [ π₁ σ ]tm
-
--- equalities of substitutions
-postulate
+  
+  -- paths
   idS∘_ 
     : (σ : Sub Δ Γ)
     → idS ∘ σ ≡ σ
@@ -87,6 +71,28 @@ postulate
   ‣∘ -- only defined on terms of type U
     : {σ : Sub Δ Γ}{t : Tm Δ U}{τ : Sub Θ Δ}
     → (_‣_ σ t) ∘ τ ≡ (σ ∘ τ) ‣ (t [ τ ]t)
+
+data Tm where
+  π₂
+    : (σ : Sub Δ (Γ ‣ A))
+    → Tm Δ (A [ π₁ σ ])
+  _[_]tm
+    : Tm Γ A → (σ : Sub Δ Γ)
+    → Tm Δ (A [ σ ])
+
+_[_]t {Γ} {_} {U} t idS = t
+_[_]t {_} {Δ} {U} t (σ ∘ τ) = t [ σ ]t [ τ ]t
+_[_]t {A = U} t ∅ = t [ ∅ ]tm
+_[_]t {Γ} {Δ} {U} t (σ ‣ s) = t [ σ ‣ s ]tm
+_[_]t {A = U} t (π₁ σ) = t [ π₁ σ ]tm
+_[_]t {A = U} t ((idS∘ σ) i) = t [ σ ]t
+_[_]t {A = U} t ((σ ∘idS) i) = t [ σ ]t
+_[_]t {A = U} t (assocS {σ = σ} {τ} {υ} i) = t [ σ ]t [ τ ]t [ υ ]t
+_[_]t {A = U} t (‣∘ {σ = σ} {t'} {τ} i) = {!   !}
+
+
+-- equalities of substitutions
+postulate
   βπ₁
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
     → π₁ (_‣_ {A = A} σ t) ≡ σ
@@ -100,78 +106,39 @@ postulate
     : {σ : Sub Δ ∅}
     → σ ≡ ∅
 
--- coherence of postulates
-coh[idS∘] : {σ σ' : Sub Δ Γ} → idS ∘ σ ≡ idS ∘ σ' → σ ≡ σ'
-coh[idS∘] refl = refl
 
-coh[∘idS] : {σ σ' : Sub Δ Γ} → σ ∘ idS ≡ σ' ∘ idS → σ ≡ σ'
-coh[∘idS] refl = refl
+-- -- derived computation rules on composition
+-- π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
+-- π₁∘ {A = U} {Θ} σ τ =
+--     π₁ (σ ∘ τ)
+--   ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) (sym ηπ) ⟩
+--     π₁ ((π₁ σ ‣ π₂ σ) ∘ τ)
+--   ≡⟨ cong π₁ ‣∘ ⟩
+--     π₁ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]t)
+--   ≡⟨ βπ₁ {σ = π₁ σ ∘ τ} ⟩
+--     π₁ σ ∘ τ
+--   ∎
 
-coh[assocS]
-  : {σ σ' : Sub Δ Γ}{τ τ' : Sub Θ Δ}{υ υ' : Sub Φ Θ}
-  → (σ ∘ τ) ∘ υ ≡ (σ' ∘ τ') ∘ υ'
-  → σ ∘ (τ ∘ υ) ≡ σ' ∘ (τ' ∘ υ')
-coh[assocS] refl = refl
+-- π₁idS∘ : {A : Ty Γ}(σ : Sub Δ (Γ ‣ A)) → π₁ idS ∘ σ ≡ π₁ σ
+-- π₁idS∘ σ =
+--     π₁ idS ∘ σ
+--   ≡⟨ sym (π₁∘ idS σ) ⟩
+--     π₁ (idS ∘ σ)
+--   ≡⟨ cong π₁ (idS∘ σ) ⟩
+--     π₁ σ
+--   ∎
 
-coh[‣∘]
-  : {σ σ' : Sub Δ Γ}{t t' : Tm Δ U}{τ τ' : Sub Θ Δ}
-  → (σ ‣ t) ∘ τ ≡ (σ' ‣ t') ∘ τ'
-  → _≡_ {A = Sub Θ (Γ ‣ U)} ((σ ∘ τ) ‣ (t [ τ ]t)) ((σ' ∘ τ') ‣ (t' [ τ' ]t))
-coh[‣∘] refl = refl
-
-coh[βπ₁]
-  : {σ σ' : Sub Δ Γ}{t t' : Tm Δ (A [ σ ])}
-  → π₁ (_‣_ {A = A} σ t) ≡ π₁ (_‣_ {A = A} σ' t')
-  → σ ≡ σ'
-coh[βπ₁] refl = refl
-
-coh[βπ₂]
-  : {σ σ' : Sub Δ Γ}{t t' : Tm Δ (A [ σ ])}
-  → π₂ (_‣_ {A = A} σ t) ≡ π₂ (_‣_ {A = A} σ' t')
-  → t ≡ t'
-coh[βπ₂] refl = refl
-
-coh[ηπ]
-  : {σ σ' : Sub Δ (Γ ‣ A)}
-  → _≡_ {A = Sub Δ (Γ ‣ A)} (π₁ σ ‣ π₂ σ) (π₁ σ' ‣ π₂ σ')
-  → σ ≡ σ'
-coh[ηπ] refl = refl
-
-coh[η∅] : {σ σ' : Sub Δ ∅} → σ ≡ σ' → _≡_ {A = Sub Δ ∅} ∅ ∅
-coh[η∅] _ = refl
-
--- derived computation rules on composition
-π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
-π₁∘ {A = U} {Θ} σ τ =
-    π₁ (σ ∘ τ)
-  ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) (sym ηπ) ⟩
-    π₁ ((π₁ σ ‣ π₂ σ) ∘ τ)
-  ≡⟨ cong π₁ ‣∘ ⟩
-    π₁ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]t)
-  ≡⟨ βπ₁ {σ = π₁ σ ∘ τ} ⟩
-    π₁ σ ∘ τ
-  ∎
-
-π₁idS∘ : {A : Ty Γ}(σ : Sub Δ (Γ ‣ A)) → π₁ idS ∘ σ ≡ π₁ σ
-π₁idS∘ σ =
-    π₁ idS ∘ σ
-  ≡⟨ sym (π₁∘ idS σ) ⟩
-    π₁ (idS ∘ σ)
-  ≡⟨ cong π₁ (idS∘ σ) ⟩
-    π₁ σ
-  ∎
-
--- only on case when A = U
-π₂∘ : (σ : Sub Δ (Γ ‣ U))(τ : Sub Θ Δ) → π₂ (σ ∘ τ) ≡ π₂ σ [ τ ]t
-π₂∘ σ τ =
-    π₂ (σ ∘ τ)
-  ≡⟨ cong (λ σ' → π₂ (σ' ∘ τ)) (sym ηπ) ⟩
-    π₂ ((π₁ σ ‣ π₂ σ) ∘ τ)
-  ≡⟨ cong π₂ ‣∘ ⟩
-    π₂ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]t)
-  ≡⟨ βπ₂ {σ = π₁ σ ∘ τ} ⟩
-    π₂ σ [ τ ]t
-  ∎
+-- -- only on case when A = U
+-- π₂∘ : (σ : Sub Δ (Γ ‣ U))(τ : Sub Θ Δ) → π₂ (σ ∘ τ) ≡ π₂ σ [ τ ]t
+-- π₂∘ σ τ =
+--     π₂ (σ ∘ τ)
+--   ≡⟨ cong (λ σ' → π₂ (σ' ∘ τ)) (sym ηπ) ⟩
+--     π₂ ((π₁ σ ‣ π₂ σ) ∘ τ)
+--   ≡⟨ cong π₂ ‣∘ ⟩
+--     π₂ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]t)
+--   ≡⟨ βπ₂ {σ = π₁ σ ∘ τ} ⟩
+--     π₂ σ [ τ ]t
+--   ∎
 
 -- syntax abbreviations
 wk : Sub (Δ ‣ A) Δ
@@ -188,5 +155,5 @@ vz:= {Γ} {U} t = idS ‣ t -- pattern matching on type
 
 -- -- -- -- Use equality constructor instead or postulate
 -- -- -- data _⟶⟨_⟩_ : Tm Γ A → A ≡ B → Tm Γ B → Set where
--- -- --     [idS] : t [ idS ] ⟶⟨ A [idS]ᵀ ⟩ t  -- subst (Tm Γ) (A [idS]ᵀ) (t [ idS ]) ⟶ t
+-- -- --     [idS] : t [ idS ] ⟶⟨ A [idS]ᵀ ⟩ t  -- subst (Tm Γ) (A [idS]ᵀ) (t [ idS ]) ⟶ t  
 -- -- --     [∘] : {t : Tm Γ A}{σ : Sub Δ Γ}{τ : Sub Θ Δ} → (t [ σ ∘ τ ]) ⟶⟨ A [∘]ᵀ ⟩ t [ σ ] [ τ ] -- subst (Tm Θ) (A [∘]ᵀ) (t [ σ ∘ τ ]) ⟶ t [ σ ] [ τ ]
