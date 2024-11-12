@@ -100,6 +100,47 @@ postulate
     : {σ : Sub Δ ∅}
     → σ ≡ ∅
 
+-- coherence of postulates
+coh[idS∘] : {σ σ' : Sub Δ Γ} → idS ∘ σ ≡ idS ∘ σ' → σ ≡ σ'
+coh[idS∘] refl = refl
+
+coh[∘idS] : {σ σ' : Sub Δ Γ} → σ ∘ idS ≡ σ' ∘ idS → σ ≡ σ'
+coh[∘idS] refl = refl
+
+coh[assocS]
+  : {σ σ' : Sub Δ Γ}{τ τ' : Sub Θ Δ}{υ υ' : Sub Φ Θ}
+  → (σ ∘ τ) ∘ υ ≡ (σ' ∘ τ') ∘ υ'
+  → σ ∘ (τ ∘ υ) ≡ σ' ∘ (τ' ∘ υ')
+coh[assocS] refl = refl
+
+coh[‣∘]
+  : {σ σ' : Sub Δ Γ}{t t' : Tm Δ U}{τ τ' : Sub Θ Δ}
+  → (σ ‣ t) ∘ τ ≡ (σ' ‣ t') ∘ τ'
+  → _≡_ {A = Sub Θ (Γ ‣ U)} ((σ ∘ τ) ‣ (t [ τ ]t)) ((σ' ∘ τ') ‣ (t' [ τ' ]t))
+coh[‣∘] refl = refl
+
+coh[βπ₁]
+  : {σ σ' : Sub Δ Γ}{t t' : Tm Δ (A [ σ ])}
+  → π₁ (_‣_ {A = A} σ t) ≡ π₁ (_‣_ {A = A} σ' t')
+  → σ ≡ σ'
+coh[βπ₁] refl = refl
+
+coh[βπ₂]
+  : {σ σ' : Sub Δ Γ}{t t' : Tm Δ (A [ σ ])}
+  → π₂ (_‣_ {A = A} σ t) ≡ π₂ (_‣_ {A = A} σ' t')
+  → t ≡ t'
+coh[βπ₂] refl = refl
+
+coh[ηπ]
+  : {σ σ' : Sub Δ (Γ ‣ A)}
+  → _≡_ {A = Sub Δ (Γ ‣ A)} (π₁ σ ‣ π₂ σ) (π₁ σ' ‣ π₂ σ')
+  → σ ≡ σ'
+coh[ηπ] refl = refl
+
+coh[η∅] : {σ σ' : Sub Δ ∅} → σ ≡ σ' → _≡_ {A = Sub Δ ∅} ∅ ∅
+coh[η∅] _ = refl
+
+-- derived computation rules on composition
 π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
 π₁∘ {A = U} {Θ} σ τ =
     π₁ (σ ∘ τ)
