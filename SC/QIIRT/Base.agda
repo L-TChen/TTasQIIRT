@@ -4,7 +4,8 @@
 module SC.QIIRT.Base where
 
 -- open import Prelude 
-open import Cubical.Core.Primitives hiding (Sub)
+open import Cubical.Foundations.Prelude hiding (Sub)
+open import Cubical.Foundations.Function hiding (_∘_)
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 
@@ -17,7 +18,6 @@ data Sub : Ctx → Ctx → Set
 data Tm  : (Γ : Ctx) → Ty Γ → Set
 
 _[_]  : ∀{Δ Γ} → Ty Γ → Sub Δ Γ → Ty Δ
-_[_]t : {Γ Δ : Ctx} {A : Ty Γ} (t : Tm Γ A) (σ : Sub Δ Γ) → Tm Δ (A [ σ ])
  
 variable
     Γ Γ' Γ'' Δ Δ' Θ Θ' Φ : Ctx
@@ -39,6 +39,8 @@ data Ty where
 -- type substitution as recursion
 -- pattern matching on types first
 U [ σ ]        = U
+
+_[_]t : {Γ Δ : Ctx}(t : Tm Γ U)(σ : Sub Δ Γ) → Tm Δ (U [ σ ])
 
 data Sub where
   ∅
@@ -68,44 +70,54 @@ data Sub where
   assocS
     : {σ : Sub Δ Γ}{τ : Sub Θ Δ}{υ : Sub Φ Θ}
     → (σ ∘ τ) ∘ υ ≡ σ ∘ (τ ∘ υ)
-  ‣∘ -- only defined on terms of type U
-    : {σ : Sub Δ Γ}{t : Tm Δ U}{τ : Sub Θ Δ}
-    → (_‣_ σ t) ∘ τ ≡ (σ ∘ τ) ‣ (t [ τ ]t)
-
-data Tm where
-  π₂
-    : (σ : Sub Δ (Γ ‣ A))
-    → Tm Δ (A [ π₁ σ ])
-  _[_]tm
-    : Tm Γ A → (σ : Sub Δ Γ)
-    → Tm Δ (A [ σ ])
-
-_[_]t {Γ} {_} {U} t idS = t
-_[_]t {_} {Δ} {U} t (σ ∘ τ) = t [ σ ]t [ τ ]t
-_[_]t {A = U} t ∅ = t [ ∅ ]tm
-_[_]t {Γ} {Δ} {U} t (σ ‣ s) = t [ σ ‣ s ]tm
-_[_]t {A = U} t (π₁ σ) = t [ π₁ σ ]tm
-_[_]t {A = U} t ((idS∘ σ) i) = t [ σ ]t
-_[_]t {A = U} t ((σ ∘idS) i) = t [ σ ]t
-_[_]t {A = U} t (assocS {σ = σ} {τ} {υ} i) = t [ σ ]t [ τ ]t [ υ ]t
-_[_]t {A = U} t (‣∘ {σ = σ} {t'} {τ} i) = {!   !}
-
-
--- equalities of substitutions
-postulate
   βπ₁
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
     → π₁ (_‣_ {A = A} σ t) ≡ σ
-  βπ₂
-    : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
-    → π₂ (_‣_ {A = A} σ t) ≡ t
-  ηπ
-    : {σ : Sub Δ (Γ ‣ A)}
-    → π₁ σ ‣ π₂ σ ≡ σ
   η∅
     : {σ : Sub Δ ∅}
     → σ ≡ ∅
+  ‣∘ -- only defined on terms of type U
+    : {σ : Sub Δ Γ}{t : Tm Δ U}{τ : Sub Θ Δ}
+    → (_‣_ σ t) ∘ τ ≡ (σ ∘ τ) ‣ (t [ τ ]t)
+  trunc : isSet (Sub Δ Γ)
 
+data Tm where
+  π₂
+    : (σ : Sub Δ (Γ ‣ U))
+    → Tm Δ (U [ π₁ σ ])
+  _[_]tm
+    : Tm Γ U → (σ : Sub Δ Γ)
+    → Tm Δ (U [ σ ])
+  
+  -- path constructors
+  βπ₂
+    : {σ : Sub Δ Γ}{t : Tm Δ (U [ σ ])}
+    → π₂ (_‣_ {A = U} σ t) ≡ t
+  
+  link
+    : {t : Tm Γ U}{σ : Sub Δ Γ}
+    → t [ σ ]tm ≡ t [ σ ]t
+
+Sub≡ : {σ σ' : Sub Δ Γ}(t : Tm Γ U) → σ ≡ σ' → t [ σ ]tm ≡ t [ σ' ]tm
+Sub≡ t σ≡σ' i = t [ σ≡σ' i ]tm
+
+t [ idS ]t = t
+t [ σ ∘ τ ]t = t [ σ ]t [ τ ]t -- t [ σ ]t [ τ ]t
+_[_]t t ∅ = t [ ∅ ]tm
+_[_]t t (σ ‣ s) = t [ σ ‣ s ]tm
+_[_]t t (π₁ σ) = t [ π₁ σ ]tm
+t [ (idS∘ σ) i ]t = t [ σ ]t
+t [ (σ ∘idS) i ]t = t [ σ ]t
+t [ assocS {σ = σ} {τ} {υ} i ]t = t [ σ ]t [ τ ]t [ υ ]t
+t [ βπ₁ {σ = σ} {t'} i ]t = (Sub≡ t (βπ₁ {σ = σ} {t'}) ∙ link) i
+t [ η∅ {σ = σ} i ]t = (sym link ∙ Sub≡ t (η∅ {σ = σ})) i
+t [ ‣∘ {σ = σ} {t'} {τ} i ]t = {!   !} -- (sym link ∙ Sub≡ t (‣∘ {σ = σ} {t'} {τ})) i
+t [ trunc σ σ' x y i j ]t = {!   !}
+
+postulate
+  ηπ
+    : {σ : Sub Δ (Γ ‣ U)}
+    → π₁ σ ‣ π₂ σ ≡ σ
 
 -- -- derived computation rules on composition
 -- π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
@@ -144,16 +156,16 @@ postulate
 wk : Sub (Δ ‣ A) Δ
 wk = π₁ idS
 
-vz : Tm (Γ ‣ A) (A [ wk ])
+vz : Tm (Γ ‣ U) (U [ wk ])
 vz = π₂ idS
 
-vs : Tm Γ A → Tm (Γ ‣ B) (A [ wk ])
+vs : Tm Γ U → Tm (Γ ‣ U) (U [ wk ]) 
 vs x = x [ wk ]t
 
 vz:= : Tm Γ A → Sub Γ (Γ ‣ A)
 vz:= {Γ} {U} t = idS ‣ t -- pattern matching on type
 
 -- -- -- -- Use equality constructor instead or postulate
--- -- -- data _⟶⟨_⟩_ : Tm Γ A → A ≡ B → Tm Γ B → Set where
+-- -- -- data _⟶⟨_⟩_ : Tm Γ A → A ≡ B → Tm Γ B → Set where 
 -- -- --     [idS] : t [ idS ] ⟶⟨ A [idS]ᵀ ⟩ t  -- subst (Tm Γ) (A [idS]ᵀ) (t [ idS ]) ⟶ t  
 -- -- --     [∘] : {t : Tm Γ A}{σ : Sub Δ Γ}{τ : Sub Θ Δ} → (t [ σ ∘ τ ]) ⟶⟨ A [∘]ᵀ ⟩ t [ σ ] [ τ ] -- subst (Tm Θ) (A [∘]ᵀ) (t [ σ ∘ τ ]) ⟶ t [ σ ] [ τ ]
