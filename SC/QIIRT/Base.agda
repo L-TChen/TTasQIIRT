@@ -101,44 +101,59 @@ postulate
     → σ ≡ ∅
 
 -- coherence of postulates
-coh[idS∘] : {σ σ' : Sub Δ Γ} → idS ∘ σ ≡ idS ∘ σ' → σ ≡ σ'
-coh[idS∘] refl = refl
+coh[idS∘] : {σ : Sub Δ Γ}{t : Tm Γ A} → t [ idS ∘ σ ]t ≡ t [ σ ]t
+coh[idS∘] {A = U} = refl
 
-coh[∘idS] : {σ σ' : Sub Δ Γ} → σ ∘ idS ≡ σ' ∘ idS → σ ≡ σ'
-coh[∘idS] refl = refl
+coh[∘idS] : {σ : Sub Δ Γ}{t : Tm Γ A} → t [ σ ∘ idS ]t ≡ t [ σ ]t
+coh[∘idS] {A = U} = refl
 
 coh[assocS]
-  : {σ σ' : Sub Δ Γ}{τ τ' : Sub Θ Δ}{υ υ' : Sub Φ Θ}
-  → (σ ∘ τ) ∘ υ ≡ (σ' ∘ τ') ∘ υ'
-  → σ ∘ (τ ∘ υ) ≡ σ' ∘ (τ' ∘ υ')
-coh[assocS] refl = refl
+  : {σ : Sub Δ Γ}{τ : Sub Θ Δ}{υ : Sub Φ Θ}{t : Tm Γ A}
+  → t [ (σ ∘ τ) ∘ υ ]t ≡ t [ σ ∘ (τ ∘ υ) ]t
+coh[assocS] {A = U} = refl
 
 coh[‣∘]
-  : {σ σ' : Sub Δ Γ}{t t' : Tm Δ U}{τ τ' : Sub Θ Δ}
-  → (σ ‣ t) ∘ τ ≡ (σ' ‣ t') ∘ τ'
-  → _≡_ {A = Sub Θ (Γ ‣ U)} ((σ ∘ τ) ‣ (t [ τ ]t)) ((σ' ∘ τ') ‣ (t' [ τ' ]t))
-coh[‣∘] refl = refl
+  : {σ : Sub Δ Γ}{s : Tm Δ U}{τ : Sub Θ Δ}{t : Tm (Γ ‣ U) U}
+  → t [ (σ ‣ s) ∘ τ ]t ≡ t [ ((σ ∘ τ) ‣ (s [ τ ]t)) ]t
+coh[‣∘] {σ = σ} {s} {τ} {t} = 
+    t [ (σ ‣ s) ∘ τ ]t
+  ≡⟨ cong (t [_]t) (‣∘ {σ = σ} {s} {τ}) ⟩
+    t [ ((σ ∘ τ) ‣ (s [ τ ]t)) ]t
+  ∎
 
 coh[βπ₁]
-  : {σ σ' : Sub Δ Γ}{t t' : Tm Δ (A [ σ ])}
-  → π₁ (_‣_ {A = A} σ t) ≡ π₁ (_‣_ {A = A} σ' t')
-  → σ ≡ σ'
-coh[βπ₁] refl = refl
+  : {σ : Sub Δ Γ}{s : Tm Δ (A [ σ ])}{t : Tm Γ B}
+  → t [ π₁ (_‣_ {A = A} σ s) ]t ≡ t [ σ ]t
+coh[βπ₁] {A = U} {U} {σ} {s} {t} =
+    t [ π₁ (σ ‣ s) ]t
+  ≡⟨ cong (t [_]t) (βπ₁ {σ = σ} {s}) ⟩
+    t [ σ ]t
+  ∎ 
 
 coh[βπ₂]
-  : {σ σ' : Sub Δ Γ}{t t' : Tm Δ (A [ σ ])}
-  → π₂ (_‣_ {A = A} σ t) ≡ π₂ (_‣_ {A = A} σ' t')
-  → t ≡ t'
-coh[βπ₂] refl = refl
+  : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}
+  → π₂ (_‣_ {A = A} σ t) [ τ ]t ≡ t [ τ ]t
+coh[βπ₂] {A = U} {_} {σ} {t} {τ} = 
+    π₂ (σ ‣ t) [ τ ]t
+  ≡⟨ cong (_[ τ ]t) (βπ₂ {σ = σ} {t}) ⟩
+    t [ τ ]t
+  ∎
 
 coh[ηπ]
-  : {σ σ' : Sub Δ (Γ ‣ A)}
-  → _≡_ {A = Sub Δ (Γ ‣ A)} (π₁ σ ‣ π₂ σ) (π₁ σ' ‣ π₂ σ')
-  → σ ≡ σ'
-coh[ηπ] refl = refl
+  : {σ : Sub Δ (Γ ‣ A)}{t : Tm (Γ ‣ A) B}
+  → t [ (π₁ σ ‣ π₂ σ) ]t ≡ t [ σ ]t
+coh[ηπ] {B = U} {σ} {t} = 
+    t [ π₁ σ ‣ π₂ σ ]t
+  ≡⟨ cong (t [_]t) (ηπ {σ = σ}) ⟩
+    t [ σ ]t
+  ∎
 
-coh[η∅] : {σ σ' : Sub Δ ∅} → σ ≡ σ' → _≡_ {A = Sub Δ ∅} ∅ ∅
-coh[η∅] _ = refl
+coh[η∅] : {σ : Sub Δ ∅}{t : Tm ∅ A} → t [ σ ]t ≡ t [ ∅ ]t
+coh[η∅] {A = U} {σ = σ} {t} =
+    t [ σ ]t
+  ≡⟨ cong (t [_]t) (η∅ {σ = σ}) ⟩
+    t [ ∅ ]t
+  ∎
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
@@ -185,8 +200,3 @@ vs x = x [ wk ]t
 
 vz:= : Tm Γ A → Sub Γ (Γ ‣ A)
 vz:= {Γ} {U} t = idS ‣ t -- pattern matching on type
-
--- -- -- -- Use equality constructor instead or postulate
--- -- -- data _⟶⟨_⟩_ : Tm Γ A → A ≡ B → Tm Γ B → Set where
--- -- --     [idS] : t [ idS ] ⟶⟨ A [idS]ᵀ ⟩ t  -- subst (Tm Γ) (A [idS]ᵀ) (t [ idS ]) ⟶ t
--- -- --     [∘] : {t : Tm Γ A}{σ : Sub Δ Γ}{τ : Sub Θ Δ} → (t [ σ ∘ τ ]) ⟶⟨ A [∘]ᵀ ⟩ t [ σ ] [ τ ] -- subst (Tm Θ) (A [∘]ᵀ) (t [ σ ∘ τ ]) ⟶ t [ σ ] [ τ ]
