@@ -86,8 +86,8 @@ data Sub where
     : {σ : Sub Δ ∅}
     → σ ≡ ∅
   ‣∘ -- only defined on terms of type U
-    : {A : Ty Δ}{σ : Sub Δ Γ}{t : Tm Δ A}{τ : Sub Θ Δ}
-    → {!   !} -- (_‣_ σ t) ∘ τ ≡ (σ ∘ τ) ‣ (t [ τ ]tm')
+    : {A : Ty Γ}{σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}
+    → (_‣_ σ t) ∘ τ ≡ (σ ∘ τ) ‣ {! t [ τ ]tm'  !} -- (_‣_ σ t) ∘ τ ≡ (σ ∘ τ) ‣ (t [ τ ]tm')
   trunc : isSet (Sub Δ Γ)
 
 data Tm where
