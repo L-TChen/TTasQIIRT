@@ -4,12 +4,13 @@
 module SC.QIIRT.Base where
 
 open import Prelude
+-- open import Agda.Builtin.Equality.Rewrite
 -- open import Cubical.Core.Primitives
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 
 infixl 35 _[_] _[_]t _[_]tm
-infix  20 _‣_
+infix  10 _‣_
 
 data Ctx : Set
 data Ty  : Ctx → Set
@@ -63,7 +64,18 @@ data Tm where
 
 -- type substitution as recursion
 -- pattern matching on types first
-U [ σ ]        = U
+-- depends on normal forms
+-- A [ idS ] = A
+-- A [ σ ∘ τ ] = A [ σ ] [ τ ]
+-- A [ π₁ (σ ‣ _) ] = A [ σ ]
+U [ σ ] = U
+
+
+-- {-# REWRITE U[] #-}
+
+[∘] : (A : Ty Γ)(σ : Sub Δ Γ)(τ : Sub Θ Δ)
+     → A [ σ ∘ τ ] ≡ A [ σ ] [ τ ]
+[∘] U σ τ = refl
 
 _[_]t : {Γ Δ : Ctx} {A : Ty Γ} (t : Tm Γ A) (σ : Sub Δ Γ)
       → Tm Δ (A [ σ ])
@@ -85,15 +97,15 @@ postulate
   assocS
     : {σ : Sub Δ Γ}{τ : Sub Θ Δ}{υ : Sub Φ Θ}
     → (σ ∘ τ) ∘ υ ≡ σ ∘ (τ ∘ υ)
-  ‣∘ -- only defined on terms of type U
-    : {σ : Sub Δ Γ}{t : Tm Δ U}{τ : Sub Θ Δ}
-    → (_‣_ σ t) ∘ τ ≡ (σ ∘ τ) ‣ (t [ τ ]t)
+  ‣∘
+    : {A : Ty Γ}{σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}
+    → (_‣_ {A = A} σ t) ∘ τ ≡ (σ ∘ τ) ‣ tr (Tm Θ) (sym ([∘] A σ τ)) (t [ τ ]t)
   βπ₁
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
     → π₁ (_‣_ {A = A} σ t) ≡ σ
   ηπ
     : {σ : Sub Δ (Γ ‣ A)}
-    → π₁ σ ‣ π₂ σ ≡ σ
+    → σ ≡ π₁ σ ‣ π₂ σ
   η∅
     : {σ : Sub Δ ∅}
     → σ ≡ ∅
@@ -107,7 +119,7 @@ coh[idS∘] : {σ : Sub Δ Γ}{t : Tm Γ A} → t [ idS ∘ σ ]t ≡ t [ σ ]t
 coh[idS∘] {A = U} = refl
 
 coh[∘idS] : {σ : Sub Δ Γ}{t : Tm Γ A} → t [ σ ∘ idS ]t ≡ t [ σ ]t
-coh[∘idS] {A = U} = refl
+coh[∘idS] {A = U} {σ} {t} = refl
 
 coh[assocS]
   : {σ : Sub Δ Γ}{τ : Sub Θ Δ}{υ : Sub Φ Θ}{t : Tm Γ A}
@@ -115,12 +127,12 @@ coh[assocS]
 coh[assocS] {A = U} = refl
 
 coh[‣∘]
-  : {σ : Sub Δ Γ}{s : Tm Δ U}{τ : Sub Θ Δ}{t : Tm (Γ ‣ U) U}
-  → t [ (σ ‣ s) ∘ τ ]t ≡ t [ ((σ ∘ τ) ‣ (s [ τ ]t)) ]t
-coh[‣∘] {σ = σ} {s} {τ} {t} = 
+  : {σ : Sub Δ Γ}{s : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}{t : Tm (Γ ‣ A) B}
+  → t [ (σ ‣ s) ∘ τ ]t ≡ t [ (σ ∘ τ) ‣ tr (Tm Θ) (sym ([∘] A σ τ)) (s [ τ ]t) ]t
+coh[‣∘] {A = U} {Θ = Θ} {B = U} {σ = σ} {s} {τ} {t} =
     t [ (σ ‣ s) ∘ τ ]t
   ≡⟨ cong (t [_]t) (‣∘ {σ = σ} {s} {τ}) ⟩
-    t [ ((σ ∘ τ) ‣ (s [ τ ]t)) ]t
+    t [ (σ ∘ τ) ‣ tr (Tm Θ) (sym ([∘] U σ τ)) (s [ τ ]t) ]t
   ∎
 
 coh[βπ₁]
@@ -135,7 +147,7 @@ coh[βπ₁] {A = U} {U} {σ} {s} {t} =
 coh[βπ₂]
   : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}
   → π₂ (_‣_ {A = A} σ t) [ τ ]t ≡ t [ τ ]t
-coh[βπ₂] {A = U} {_} {σ} {t} {τ} = 
+coh[βπ₂] {A = U} {_} {σ} {t} {τ} =
     π₂ (σ ‣ t) [ τ ]t
   ≡⟨ cong (_[ τ ]t) (βπ₂ {σ = σ} {t}) ⟩
     t [ τ ]t
@@ -143,25 +155,28 @@ coh[βπ₂] {A = U} {_} {σ} {t} {τ} =
 
 coh[ηπ]
   : {σ : Sub Δ (Γ ‣ A)}{t : Tm (Γ ‣ A) B}
-  → t [ (π₁ σ ‣ π₂ σ) ]t ≡ t [ σ ]t
-coh[ηπ] {B = U} {σ} {t} = 
+  → t [ (π₁ σ ‣ π₂ σ) ]t ≡ tr (λ y → Tm Δ (B [ y ])) (ηπ {σ = σ}) (t [ σ ]t)
+coh[ηπ] {σ = σ} {t} =
     t [ π₁ σ ‣ π₂ σ ]t
-  ≡⟨ cong (t [_]t) (ηπ {σ = σ}) ⟩
-    t [ σ ]t
+  ≡⟨ sym (apd (t [_]t) (ηπ {σ = σ})) ⟩
+    tr _ (ηπ {σ = σ}) (t [ σ ]t)
   ∎
+  -- ≡⟨ cong (t [_]t) (ηπ {σ = σ}) ⟩
+  --   t [ σ ]t
+  -- ∎
 
-coh[η∅] : {σ : Sub Δ ∅}{t : Tm ∅ A} → t [ σ ]t ≡ t [ ∅ ]t
+coh[η∅] : {σ : Sub Δ ∅}{t : Tm ∅ A} → t [ σ ]t ≡ tr (λ y → Tm Δ (A [ y ])) (sym (η∅ {σ = σ})) (t [ ∅ ]t) --t [ ∅ ]t
 coh[η∅] {A = U} {σ = σ} {t} =
     t [ σ ]t
-  ≡⟨ cong (t [_]t) (η∅ {σ = σ}) ⟩
-    t [ ∅ ]t
+  ≡⟨ sym (apd (t [_]t) (sym (η∅ {σ = σ}))) ⟩
+    tr _ (sym η∅) (t [ ∅ ]t)
   ∎
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
 π₁∘ {A = U} {Θ} σ τ =
     π₁ (σ ∘ τ)
-  ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) (sym ηπ) ⟩
+  ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) ηπ ⟩
     π₁ ((π₁ σ ‣ π₂ σ) ∘ τ)
   ≡⟨ cong π₁ ‣∘ ⟩
     π₁ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]t)
@@ -180,9 +195,9 @@ coh[η∅] {A = U} {σ = σ} {t} =
 
 -- only on case when A = U
 π₂∘ : (σ : Sub Δ (Γ ‣ U))(τ : Sub Θ Δ) → π₂ (σ ∘ τ) ≡ π₂ σ [ τ ]t
-π₂∘ σ τ =
+π₂∘ σ τ = 
     π₂ (σ ∘ τ)
-  ≡⟨ cong (λ σ' → π₂ (σ' ∘ τ)) (sym ηπ) ⟩
+  ≡⟨ cong (λ σ' → π₂ (σ' ∘ τ)) ηπ ⟩
     π₂ ((π₁ σ ‣ π₂ σ) ∘ τ)
   ≡⟨ cong π₂ ‣∘ ⟩
     π₂ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]t)
@@ -196,9 +211,9 @@ wk = π₁ idS
 
 vz : Tm (Γ ‣ A) (A [ wk ])
 vz = π₂ idS
-
-vs : Tm Γ A → Tm (Γ ‣ B) (A [ wk ])
+-- π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
+vs : Tm Γ A → Tm (Γ ‣ B) (A [ wk ])   
 vs x = x [ wk ]t
-
+ 
 vz:= : Tm Γ A → Sub Γ (Γ ‣ A)
 vz:= {Γ} {U} t = idS ‣ t -- pattern matching on type
