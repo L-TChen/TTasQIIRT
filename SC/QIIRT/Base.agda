@@ -75,6 +75,7 @@ _[_]t {A = U} t (π₁ σ) = t [ π₁ σ ]tm
 
 -- equalities of substitutions
 postulate
+  -- equality on substitutions
   idS∘_ 
     : (σ : Sub Δ Γ)
     → idS ∘ σ ≡ σ
@@ -90,15 +91,16 @@ postulate
   βπ₁
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
     → π₁ (_‣_ {A = A} σ t) ≡ σ
-  βπ₂
-    : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
-    → π₂ (_‣_ {A = A} σ t) ≡ t
   ηπ
     : {σ : Sub Δ (Γ ‣ A)}
     → π₁ σ ‣ π₂ σ ≡ σ
   η∅
     : {σ : Sub Δ ∅}
     → σ ≡ ∅
+  -- equality on terms
+  βπ₂
+    : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
+    → π₂ (_‣_ {A = A} σ t) ≡ t
 
 -- coherence of postulates
 coh[idS∘] : {σ : Sub Δ Γ}{t : Tm Γ A} → t [ idS ∘ σ ]t ≡ t [ σ ]t
