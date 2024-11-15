@@ -9,14 +9,13 @@ open import Cubical.Foundations.Function hiding (_∘_)
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 
-infixl 35 _[_] _[_]t _[_]tm
+infixl 35 _[_] _[_]tm
 infix  20 _‣_
 
 data Ctx : Set
 data Ty  : Ctx → Set
 data Sub : Ctx → Ctx → Set
 data Tm  : (Γ : Ctx) → Ty Γ → Set
-
 _[_]  : ∀{Δ Γ} → Ty Γ → Sub Δ Γ → Ty Δ
  
 variable
@@ -25,12 +24,19 @@ variable
     t t' s s' : Tm Γ A
     σ σ' τ τ' : Sub Δ Γ
 
+_‣'_ : (Γ : Ctx) (A : Ty Γ) → Ctx
+π₁' : (σ : Sub Δ (Γ ‣' A)) → Sub Δ Γ
+π₂' : (σ : Sub Δ (Γ ‣' A)) → Tm Δ (A [ π₁' σ ])
+_[_]tm' : Tm Γ A → (σ : Sub Δ Γ) → Tm Δ (A [ σ ])
+
 data Ctx where
   ∅
     : Ctx
   _‣_
     : (Γ : Ctx) (A : Ty Γ)
     → Ctx
+
+_‣'_ = _‣_
 
 data Ty where
   U
@@ -40,7 +46,7 @@ data Ty where
 -- pattern matching on types first
 U [ σ ]        = U
 
-_[_]t : {Γ Δ : Ctx}(t : Tm Γ U)(σ : Sub Δ Γ) → Tm Δ (U [ σ ])
+-- _[_]t : {Γ Δ : Ctx}(t : Tm Γ U)(σ : Sub Δ Γ) → Tm Δ (U [ σ ])
 
 data Sub where
   ∅
@@ -73,34 +79,42 @@ data Sub where
   βπ₁
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
     → π₁ (_‣_ {A = A} σ t) ≡ σ
+  ηπ
+    : {σ : Sub Δ (Γ ‣ A)}
+    → π₁' σ ‣ π₂' σ ≡ σ
   η∅
     : {σ : Sub Δ ∅}
     → σ ≡ ∅
   ‣∘ -- only defined on terms of type U
-    : {σ : Sub Δ Γ}{t : Tm Δ U}{τ : Sub Θ Δ}
-    → (_‣_ σ t) ∘ τ ≡ (σ ∘ τ) ‣ (t [ τ ]t)
+    : {A : Ty Δ}{σ : Sub Δ Γ}{t : Tm Δ A}{τ : Sub Θ Δ}
+    → {!   !} -- (_‣_ σ t) ∘ τ ≡ (σ ∘ τ) ‣ (t [ τ ]tm')
   trunc : isSet (Sub Δ Γ)
 
 data Tm where
   π₂
-    : (σ : Sub Δ (Γ ‣ U))
-    → Tm Δ (U [ π₁ σ ])
+    : (σ : Sub Δ (Γ ‣ A))
+    → Tm Δ (A [ π₁ σ ])
   _[_]tm
-    : Tm Γ U → (σ : Sub Δ Γ)
-    → Tm Δ (U [ σ ])
+    : Tm Γ A → (σ : Sub Δ Γ)
+    → Tm Δ (A [ σ ])
   
   -- path constructors
   βπ₂
     : {σ : Sub Δ Γ}{t : Tm Δ (U [ σ ])}
     → π₂ (_‣_ {A = U} σ t) ≡ t
   
-  link
-    : {t : Tm Γ U}{σ : Sub Δ Γ}
-    → t [ σ ]tm ≡ t [ σ ]t
+  -- link
+  --   : {t : Tm Γ U}{σ : Sub Δ Γ}
+  --   → t [ σ ]tm ≡ t [ σ ]t
+
+π₁' = π₁
+π₂' = π₂
+_[_]tm' = _[_]tm
 
 Sub≡ : {σ σ' : Sub Δ Γ}(t : Tm Γ U) → σ ≡ σ' → t [ σ ]tm ≡ t [ σ' ]tm
 Sub≡ t σ≡σ' i = t [ σ≡σ' i ]tm
 
+{-
 t [ idS ]t = t
 t [ σ ∘ τ ]t = t [ σ ]t [ τ ]t -- t [ σ ]t [ τ ]t
 _[_]t t ∅ = t [ ∅ ]tm
@@ -109,15 +123,11 @@ _[_]t t (π₁ σ) = t [ π₁ σ ]tm
 t [ (idS∘ σ) i ]t = t [ σ ]t
 t [ (σ ∘idS) i ]t = t [ σ ]t
 t [ assocS {σ = σ} {τ} {υ} i ]t = t [ σ ]t [ τ ]t [ υ ]t
-t [ βπ₁ {σ = σ} {t'} i ]t = (Sub≡ t (βπ₁ {σ = σ} {t'}) ∙ link) i
-t [ η∅ {σ = σ} i ]t = (sym link ∙ Sub≡ t (η∅ {σ = σ})) i
+t [ βπ₁ {σ = σ} {t'} i ]t = {!   !} -- (Sub≡ t (βπ₁ {σ = σ} {t'}) ∙ link) i
+t [ η∅ {σ = σ} i ]t = {!   !} -- (sym link ∙ Sub≡ t (η∅ {σ = σ})) i
 t [ ‣∘ {σ = σ} {t'} {τ} i ]t = {!   !} -- (sym link ∙ Sub≡ t (‣∘ {σ = σ} {t'} {τ})) i
 t [ trunc σ σ' x y i j ]t = {!   !}
-
-postulate
-  ηπ
-    : {σ : Sub Δ (Γ ‣ U)}
-    → π₁ σ ‣ π₂ σ ≡ σ
+-}
 
 -- -- derived computation rules on composition
 -- π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
@@ -160,7 +170,7 @@ vz : Tm (Γ ‣ U) (U [ wk ])
 vz = π₂ idS
 
 vs : Tm Γ U → Tm (Γ ‣ U) (U [ wk ]) 
-vs x = x [ wk ]t
+vs x = x [ wk ]tm
 
 vz:= : Tm Γ A → Sub Γ (Γ ‣ A)
 vz:= {Γ} {U} t = idS ‣ t -- pattern matching on type
