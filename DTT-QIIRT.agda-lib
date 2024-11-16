@@ -1,0 +1,10 @@
+name: DTT-QIIRT
+include: 
+  src
+  .
+depend: 
+  standard-library
+  cubical
+
+flags:
+  --auto-inline --rewriting --exact-split --with-K
