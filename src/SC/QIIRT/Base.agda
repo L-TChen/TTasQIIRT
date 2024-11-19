@@ -1,11 +1,8 @@
--- {-# OPTIONS --cubical #-}
--- {-# OPTIONS --exact-split --rewriting -vtc.cover.splittree:10 #-}
+{-# OPTIONS -vtc.cover.splittree:10 #-}
 -- Formalizing Substitution Calculus as QIIRT
 module SC.QIIRT.Base where
 
 open import Prelude
--- open import Agda.Builtin.Equality.Rewrite
--- open import Cubical.Core.Primitives
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 
