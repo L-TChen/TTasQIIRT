@@ -27,9 +27,27 @@ StdM .IH.π₁P ⟦σ⟧ δ = proj₁ (⟦σ⟧ δ)
 StdM .IH.PU _ = ⟦U⟧
 StdM .IH.π₂P ⟦σ⟧ δ = proj₂ (⟦σ⟧ δ)
 StdM .IH._[_]tmP ⟦t⟧ ⟦σ⟧ δ = ⟦t⟧ (⟦σ⟧ δ)
-StdM .IH.PU[] {σ = σ} ⟦σ⟧ = {!   !}
-StdM .IH.P[idS] ⟦A⟧ = {!   !}
-StdM .IH.P[∘] ⟦σ⟧ ⟦τ⟧ = {!   !}
+StdM .IH.PU[] {σ = σ} ⟦σ⟧ =
+    tr _ (U[] σ) (λ _ → ⟦U⟧)
+  ≡⟨ tr-conv (U[] σ) ⟩
+    conv (cong _ (U[] σ)) (λ _ → ⟦U⟧)
+  ≡⟨ conv-unique (cong _ (U[] σ)) refl _ ⟩
+    (λ _ → ⟦U⟧)
+  ∎
+StdM .IH.P[idS] {A = A} ⟦A⟧ = 
+    tr _ ([idS] A) ⟦A⟧
+  ≡⟨ tr-conv ([idS] A) ⟩
+    conv (cong _ ([idS] A)) ⟦A⟧
+  ≡⟨ conv-unique (cong _ ([idS] A)) refl ⟦A⟧ ⟩
+    ⟦A⟧
+  ∎
+StdM .IH.P[∘] {A = A} {σ} {τ} ⟦A⟧ ⟦σ⟧ ⟦τ⟧ =
+    tr _ ([∘] A σ τ) (λ δ → ⟦A⟧ (⟦σ⟧ (⟦τ⟧ δ)))
+  ≡⟨ tr-conv ([∘] A σ τ) ⟩
+    conv (cong _ ([∘] A σ τ)) (λ δ → ⟦A⟧ (⟦σ⟧ (⟦τ⟧ δ)))
+  ≡⟨ conv-unique (cong _ ([∘] A σ τ)) refl _ ⟩
+    (λ δ → ⟦A⟧ (⟦σ⟧ (⟦τ⟧ δ)))
+  ∎
 
 open elim StdDecl StdM
 
