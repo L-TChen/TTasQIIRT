@@ -1,8 +1,9 @@
 -- {-# OPTIONS --cubical --exact-split #-}
 -- {-# OPTIONS --exact-split --rewriting -vtc.cover.splittree:10 #-}
-module DTT-QIIRT.Base where
+module Base where
 
 -- open import Cubical.Core.Primitives
+open import Prelude
 open import Data.Product
 -- open import Agda.Builtin.Equality.Rewrite
 open import Relation.Binary.PropositionalEquality as Eq
@@ -204,27 +205,6 @@ postulate
   η∅
     : {σ : Sub Δ ∅}
     → σ ≡ ∅
-
-conv : ∀{l}{A B : Set l} → A ≡ B → A → B
-conv refl a = a
-
-conv-unique : ∀{l}{A B : Set l}(p q : A ≡ B)(a : A) → conv p a ≡ conv q a
-conv-unique refl refl _ = refl
-
-tr-conv : ∀{l l'}{X : Set l}{Y : X → Set l'}{x x' : X}{y : Y x}
-        → (p : x ≡ x') → tr Y p y ≡ conv (cong Y p) y
-tr-conv refl = refl
-
-tr-comp : ∀{l l' l''}{X : Set l}{Y : X → Set l'}{Z : (x : X) → Set l''}
-           {x x' : X}{y : Y x}{y' : Y x'}
-        → (f : {x : X}(y : Y x) → Z x)(p : x ≡ x') → tr Y p y ≡ y'
-        → tr Z p (f y) ≡ f y'
-tr-comp f refl refl = refl
-
-apd : ∀{l l'}{X : Set l}{Y : X → Set l'}{x x' : X}
-    → (f : (x : X) → Y x)(p : x ≡ x')
-    → tr Y p (f x) ≡ f x'
-apd f refl = refl
 
 apd₂ : ∀{l l' l''}{X : Set l}{Y : X → Set l'}{Z : Σ X Y → Set l''}{x x' : X}{y : Y x}{y' : Y x'}
     → (f : (x : X)(y : Y x) → Z (x , y))(p : (x , y) ≡ (x' , y'))
