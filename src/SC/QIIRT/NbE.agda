@@ -7,12 +7,12 @@ open import SC.QIIRT.Base
 -- Definition of Variables and Renaming
 -- with embedding into Tm and Sub
 data Var : (Γ : Ctx) → Ty Γ → Set where
-  here : Var (Γ ‣ A) (A [ π₁ idS ])
+  here  : Var (Γ ‣ A) (A [ π₁ idS ])
   there : Var Γ A → Var (Γ ‣ B) (A [ π₁ idS ])
 
 ⌞_⌟V : Var Γ A → Tm Γ A
 ⌞ here ⌟V = π₂ idS
-⌞ there x ⌟V  = ⌞ x ⌟V [ π₁ idS ]t
+⌞ there x ⌟V  = ⌞ x ⌟V [ π₁ idS ]tm
 
 data Ren : Ctx → Ctx → Set
 ⌞_⌟R : Ren Δ Γ → Sub Δ Γ
@@ -39,7 +39,7 @@ lookupVar (_‣_ {A = U} ρ x') (there {A = U} x) = lookupVar ρ x
 -- requires A [ π₁ idS ] [ ⌞ ρ ⌟R ‣ ⌞ x ⌟V ] ≡ A [ ⌞ ρ ⌟R ] , but pattern match on U for now
 
 -- Several lemmas
-⌞lookup⌟ : (ρ : Ren Δ Γ)(x : Var Γ A) → ⌞ lookupVar ρ x ⌟V ≡ ⌞ x ⌟V [ ⌞ ρ ⌟R ]t
+⌞lookup⌟ : (ρ : Ren Δ Γ)(x : Var Γ A) → ⌞ lookupVar ρ x ⌟V ≡ ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm
 ⌞lookup⌟ (_‣_ {A = U} ρ x) here = begin
     ⌞ x ⌟V
   ≡⟨ sym (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}) ⟩
@@ -49,22 +49,22 @@ lookupVar (_‣_ {A = U} ρ x') (there {A = U} x) = lookupVar ρ x
   ≡⟨ π₂∘ idS (⌞ ρ ⌟R ‣ ⌞ x ⌟V) ⟩
     π₂ idS [ ⌞ ρ ⌟R ‣ ⌞ x ⌟V ]tm
   ≡⟨⟩
-    ⌞ here ⌟V [ ⌞ ρ ⌟R ‣ ⌞ x ⌟V ]t
+    ⌞ here ⌟V [ ⌞ ρ ⌟R ‣ ⌞ x ⌟V ]tm
   ∎
 ⌞lookup⌟ (_‣_ {A = U} ρ x') (there {A = U} x) = begin
     ⌞ lookupVar ρ x ⌟V
   ≡⟨ ⌞lookup⌟ ρ x ⟩
-    ⌞ x ⌟V [ ⌞ ρ ⌟R ]t
-  ≡⟨ cong (⌞ x ⌟V [_]t) (sym (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x' ⌟V})) ⟩
-    ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]t
-  ≡⟨ cong (⌞ x ⌟V [_]t) (cong π₁ (sym (idS∘ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V)))) ⟩
-    ⌞ x ⌟V [ π₁ (idS ∘ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V)) ]t
-  ≡⟨ cong (⌞ x ⌟V [_]t) (π₁∘ idS (⌞ ρ ⌟R ‣ ⌞ x' ⌟V)) ⟩
-    ⌞ x ⌟V [ π₁ idS ∘ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]t
+    ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm
+  ≡⟨ cong (⌞ x ⌟V [_]tm) (sym (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x' ⌟V})) ⟩
+    ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]tm
+  ≡⟨ cong (⌞ x ⌟V [_]tm) (cong π₁ (sym (idS∘ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V)))) ⟩
+    ⌞ x ⌟V [ π₁ (idS ∘ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V)) ]tm
+  ≡⟨ cong (⌞ x ⌟V [_]tm) (π₁∘ idS (⌞ ρ ⌟R ‣ ⌞ x' ⌟V)) ⟩
+    ⌞ x ⌟V [ π₁ idS ∘ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]tm
+  ≡⟨ [∘]tm ⌞ x ⌟V (π₁ idS) (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ⟩ -- would be "refl" using recursion _[_]t
+    ⌞ x ⌟V [ π₁ idS ]tm [ ⌞ ρ ⌟R ‣ ⌞ x' ⌟V ]tm
   ≡⟨⟩
-    ⌞ x ⌟V [ π₁ idS ]t [ ⌞ ρ ⌟R ‣ ⌞ x' ⌟V ]t
-  ≡⟨⟩
-    ⌞ there x ⌟V [ ⌞ ρ ⌟R ‣ ⌞ x' ⌟V ]t
+    ⌞ there x ⌟V [ ⌞ ρ ⌟R ‣ ⌞ x' ⌟V ]tm
   ∎
 
 ⌞↑⌟ : (ρ : Ren Δ Γ)(A : Ty Δ) → ⌞ ρ ↑R A ⌟R ≡ ⌞ ρ ⌟R ∘ π₁ idS
@@ -103,7 +103,7 @@ _‣_ {A = U} ρ x ⊙ ρ' = (ρ ⊙ ρ') ‣ lookupVar ρ' x
   ≡⟨ cong (_‣ ⌞ lookupVar ρ' x ⌟V) (⌞⊙⌟ ρ ρ') ⟩
     (⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R) ‣ ⌞ lookupVar ρ' x ⌟V
   ≡⟨ cong ((⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R) ‣_) (⌞lookup⌟ ρ' x) ⟩ 
-    (⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R) ‣ ⌞ x ⌟V [ ⌞ ρ' ⌟R ]t
+    (⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R) ‣ ⌞ x ⌟V [ ⌞ ρ' ⌟R ]tm
   ≡⟨ sym (‣∘ {A = U} {⌞ ρ ⌟R} {⌞ x ⌟V} {⌞ ρ' ⌟R}) ⟩
     (⌞ ρ ⌟R ‣ ⌞ x ⌟V) ∘ ⌞ ρ' ⌟R
   ∎
@@ -140,13 +140,13 @@ soundnessTm (π₂ {Δ} {A = U} (σ ∘ τ)) with reifySub σ | soundnessSub σ
 ... | eq = begin
     ⌞ lookupVar (reifySub τ) x ⌟V
   ≡⟨ ⌞lookup⌟ (reifySub τ) x ⟩
-    ⌞ x ⌟V [ ⌞ reifySub τ ⌟R ]t
-  ≡⟨ cong (⌞ x ⌟V [_]t) eq ⟩
-    ⌞ x ⌟V [ τ ]t
-  ≡⟨ cong (_[ τ ]t) (sym (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V})) ⟩
-    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V) [ τ ]t
-  ≡⟨ cong (λ y → π₂ y [ τ ]t) ⌞ρ⌟‣⌞x⌟≡σ ⟩
-    π₂ σ [ τ ]t
+    ⌞ x ⌟V [ ⌞ reifySub τ ⌟R ]tm
+  ≡⟨ cong (⌞ x ⌟V [_]tm) eq ⟩
+    ⌞ x ⌟V [ τ ]tm
+  ≡⟨ cong (_[ τ ]tm) (sym (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V})) ⟩
+    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V) [ τ ]tm
+  ≡⟨ cong (λ y → π₂ y [ τ ]tm) ⌞ρ⌟‣⌞x⌟≡σ ⟩
+    π₂ σ [ τ ]tm
   ≡⟨ sym (π₂∘ σ τ) ⟩
     π₂ (σ ∘ τ)
   ∎
@@ -170,21 +170,25 @@ soundnessTm (t [ σ ]tm) with reifyTm t | reifySub σ | soundnessTm t | soundnes
   ≡⟨ cong π₂ (sym (idS∘ σ)) ⟩
     π₂ (idS ∘ σ)
   ≡⟨ π₂∘ idS σ ⟩
-    π₂ idS [ σ ]t
-  ≡⟨ cong (_[ σ ]t) eqTm ⟩
-    {! t [ σ ]t ∎  !}
+    π₂ idS [ σ ]tm
+  ≡⟨ cong (_[ σ ]tm) eqTm ⟩
+    t [ σ ]tm
+  ∎
 ... | there {A = U} x | ρ ‣ x' | eqTm | eqSub = begin
     ⌞ lookupVar ρ x ⌟V
   ≡⟨ ⌞lookup⌟ ρ x ⟩
-    ⌞ x ⌟V [ ⌞ ρ ⌟R ]t
-  ≡⟨ cong (⌞ x ⌟V [_]t) (sym (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x' ⌟V})) ⟩
-    ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]t
-  ≡⟨ cong (λ y → ⌞ x ⌟V [ π₁ y ]t) eqSub ⟩
-    ⌞ x ⌟V [ π₁ σ ]t
-  ≡⟨ cong (⌞ x ⌟V [_]t) (sym (π₁idS∘ σ)) ⟩
-    ⌞ x ⌟V [ π₁ idS ]tm [ σ ]t
-  ≡⟨ cong (_[ σ ]t) eqTm ⟩
-    {! t [ σ ]t ∎  !}
+    ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm
+  ≡⟨ cong (⌞ x ⌟V [_]tm) (sym (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x' ⌟V})) ⟩
+    ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]tm
+  ≡⟨ cong (λ y → ⌞ x ⌟V [ π₁ y ]tm) eqSub ⟩
+    ⌞ x ⌟V [ π₁ σ ]tm
+  ≡⟨ cong (⌞ x ⌟V [_]tm) (sym (π₁idS∘ σ)) ⟩ -- would be "cong (⌞ x ⌟V [_]t) (sym (π₁idS∘ σ))" using recursion _[_]t
+    ⌞ x ⌟V [ π₁ idS ∘ σ ]tm
+  ≡⟨ [∘]tm ⌞ x ⌟V (π₁ idS) σ ⟩ -- would be "refl" using recursion _[_]t
+    ⌞ x ⌟V [ π₁ idS ]tm [ σ ]tm
+  ≡⟨ cong (_[ σ ]tm) eqTm ⟩
+    t [ σ ]tm
+  ∎
 soundnessSub ∅ = refl
 soundnessSub (σ ‣ t) = begin
     ⌞ reifySub σ ⌟R ‣ ⌞ reifyTm t ⌟V
@@ -213,14 +217,30 @@ soundnessSub (π₁ σ) with reifySub σ | soundnessSub σ
   ∎
 
 -- Inductive definition of the normal form
-data NeSub : (Δ Γ : Ctx) → Sub Δ Γ → Set where
-  idS : NeSub Δ Δ idS
-  π₁  : NeSub Δ (Γ ‣ A) σ → NeSub Δ Γ (π₁ σ)
+data NeSub (Γ : Ctx) : (Δ : Ctx) → Sub Γ Δ → Set where
+  idS : NeSub Γ Γ idS
+  π₁  : NeSub Γ (Δ ‣ A) σ → NeSub Γ Δ (π₁ σ)
 
-data NfTm : (Γ : Ctx)(A : Ty Γ) → Tm Γ A → Set where
-  π₂ : NeSub Δ (Γ ‣ A) σ → NfTm Δ (A [ π₁ σ ]) (π₂ σ)
- 
-reflectVar : (x : Var Γ A) → Σ[ t ∈ Tm Γ A ] ⌞ x ⌟V ≡ t × NfTm Γ A t
-reflectVar (here  {A = U}) = π₂ idS , refl , π₂ idS 
-reflectVar (there x) with reflectVar x
-... | t , refl , nt = {!  nt !}  
+data NfTm (Γ : Ctx) : {A : Ty Γ} → Tm Γ A → Set where
+  π₂ : NeSub Γ (Δ ‣ A) σ → NfTm Γ {A [ π₁ σ ]} (π₂ σ)
+
+test : vs {B = B'} (vs {B = B} (vz {Γ} {A})) ≡ {! π₂ (π₁ (π₁ idS)) : A [ π₁ (π₁ (π₁ idS)) ]  !} -- π₂ (π₁ (π₁ idS))
+test {Γ} {B} {B'} = {!   !}
+  -- begin
+  --   π₂ idS [ π₁ idS ]t [ π₁ idS ]t
+  -- ≡⟨ cong (_[ π₁ idS ]t) (sym (π₂∘ idS (π₁ idS))) ⟩
+  --   π₂ (idS ∘ π₁ idS) [ π₁ idS ]t
+  -- ≡⟨ cong (_[ π₁ idS ]t) (cong π₂ (idS∘ (π₁ idS))) ⟩
+  --   π₂ (π₁ idS) [ π₁ idS ]t
+  -- ≡⟨ sym (π₂∘ (π₁ idS) (π₁ idS)) ⟩
+  --   π₂ (π₁ idS ∘ π₁ idS)
+  -- ≡⟨ cong π₂ (sym (π₁∘ idS (π₁ idS))) ⟩
+  --   π₂ (π₁ (idS ∘ π₁ idS))
+  -- ≡⟨ cong (λ y → π₂ (π₁ y)) (idS∘ (π₁ idS)) ⟩
+  --   π₂ (π₁ (π₁ idS))
+  -- ∎
+
+reflectVar : (x : Var Γ A) → Σ[ B ∈ Ty Γ ] Σ[ t ∈ Tm Γ B ] Σ[ p ∈ A ≡ B ] tr (Tm Γ) p ⌞ x ⌟V ≡ t × NfTm Γ t
+reflectVar {Γ} here = {!   !}
+reflectVar {Γ} (there {A = A} x) with reflectVar x
+... | B , t , refl , ⌞x⌟≡t , π₂ σ = {!   !}

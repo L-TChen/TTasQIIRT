@@ -9,7 +9,7 @@ open import Prelude
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 
-infixl 35 _[_] _[_]t _[_]tm
+infixl 35 _[_] _[_]tm -- _[_]t
 infix  10 _‣_
 
 data Ctx : Set
@@ -72,11 +72,14 @@ U [ σ ] = U
 
 
 -- {-# REWRITE U[] #-}
+[idS] : (A : Ty Γ) → A [ idS ] ≡ A
+[idS] U = refl
 
 [∘] : (A : Ty Γ)(σ : Sub Δ Γ)(τ : Sub Θ Δ)
-     → A [ σ ∘ τ ] ≡ A [ σ ] [ τ ]
+    → A [ σ ∘ τ ] ≡ A [ σ ] [ τ ]
 [∘] U σ τ = refl
 
+{-
 _[_]t : {Γ Δ : Ctx} {A : Ty Γ} (t : Tm Γ A) (σ : Sub Δ Γ)
       → Tm Δ (A [ σ ])
 _[_]t {Γ} {_} {U} t idS = t
@@ -84,6 +87,7 @@ _[_]t {_} {Δ} {U} t (σ ∘ τ) = t [ σ ]t [ τ ]t
 _[_]t {A = U} t ∅ = t [ ∅ ]tm
 _[_]t {Γ} {Δ} {U} t (σ ‣ s) = t [ σ ‣ s ]tm
 _[_]t {A = U} t (π₁ σ) = t [ π₁ σ ]tm
+-}
 
 -- equalities of substitutions
 postulate
@@ -99,7 +103,7 @@ postulate
     → (σ ∘ τ) ∘ υ ≡ σ ∘ (τ ∘ υ)
   ‣∘
     : {A : Ty Γ}{σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}
-    → (_‣_ {A = A} σ t) ∘ τ ≡ (σ ∘ τ) ‣ tr (Tm Θ) (sym ([∘] A σ τ)) (t [ τ ]t)
+    → (_‣_ {A = A} σ t) ∘ τ ≡ (σ ∘ τ) ‣ tr (Tm Θ) (sym ([∘] A σ τ)) (t [ τ ]tm)
   βπ₁
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
     → π₁ (_‣_ {A = A} σ t) ≡ σ
@@ -110,11 +114,21 @@ postulate
     : {σ : Sub Δ ∅}
     → σ ≡ ∅
   -- equality on terms
+  [idS]tm
+    : (t : Tm Γ A)
+    → tr (Tm Γ) ([idS] A) (t [ idS ]tm) ≡ t
+  
+  [∘]tm
+    : (t : Tm Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ)
+    → tr (Tm Θ) ([∘] A σ τ) (t [ σ ∘ τ ]tm) ≡ t [ σ ]tm [ τ ]tm
+
   βπ₂
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
     → π₂ (_‣_ {A = A} σ t) ≡ t
 
 -- coherence of postulates
+
+{-
 coh[idS∘] : {σ : Sub Δ Γ}{t : Tm Γ A} → t [ idS ∘ σ ]t ≡ t [ σ ]t
 coh[idS∘] {A = U} = refl
 
@@ -155,22 +169,20 @@ coh[βπ₂] {A = U} {_} {σ} {t} {τ} =
 
 coh[ηπ]
   : {σ : Sub Δ (Γ ‣ A)}{t : Tm (Γ ‣ A) B}
-  → t [ (π₁ σ ‣ π₂ σ) ]t ≡ tr (λ y → Tm Δ (B [ y ])) (ηπ {σ = σ}) (t [ σ ]t)
+  → tr (λ y → Tm Δ (B [ y ])) (ηπ {σ = σ}) (t [ σ ]t) ≡ t [ (π₁ σ ‣ π₂ σ) ]t
 coh[ηπ] {σ = σ} {t} =
-    t [ π₁ σ ‣ π₂ σ ]t
-  ≡⟨ sym (apd (t [_]t) (ηπ {σ = σ})) ⟩
     tr _ (ηπ {σ = σ}) (t [ σ ]t)
+  ≡⟨ (apd (t [_]t) (ηπ {σ = σ})) ⟩
+    t [ π₁ σ ‣ π₂ σ ]t
   ∎
-  -- ≡⟨ cong (t [_]t) (ηπ {σ = σ}) ⟩
-  --   t [ σ ]t
-  -- ∎
 
-coh[η∅] : {σ : Sub Δ ∅}{t : Tm ∅ A} → t [ σ ]t ≡ tr (λ y → Tm Δ (A [ y ])) (sym (η∅ {σ = σ})) (t [ ∅ ]t) --t [ ∅ ]t
+coh[η∅] : {σ : Sub Δ ∅}{t : Tm ∅ A} → tr (λ y → Tm Δ (A [ y ])) (η∅ {σ = σ}) (t [ σ ]t) ≡  t [ ∅ ]t
 coh[η∅] {A = U} {σ = σ} {t} =
-    t [ σ ]t
-  ≡⟨ sym (apd (t [_]t) (sym (η∅ {σ = σ}))) ⟩
-    tr _ (sym η∅) (t [ ∅ ]t)
+    tr _ η∅ (t [ σ ]t)
+  ≡⟨ apd (t [_]t) (η∅ {σ = σ}) ⟩
+    t [ ∅ ]t
   ∎
+-}
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
@@ -179,7 +191,7 @@ coh[η∅] {A = U} {σ = σ} {t} =
   ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) ηπ ⟩
     π₁ ((π₁ σ ‣ π₂ σ) ∘ τ)
   ≡⟨ cong π₁ ‣∘ ⟩
-    π₁ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]t)
+    π₁ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]tm)
   ≡⟨ βπ₁ {σ = π₁ σ ∘ τ} ⟩
     π₁ σ ∘ τ
   ∎
@@ -194,15 +206,15 @@ coh[η∅] {A = U} {σ = σ} {t} =
   ∎
 
 -- only on case when A = U
-π₂∘ : (σ : Sub Δ (Γ ‣ U))(τ : Sub Θ Δ) → π₂ (σ ∘ τ) ≡ π₂ σ [ τ ]t
+π₂∘ : (σ : Sub Δ (Γ ‣ U))(τ : Sub Θ Δ) → π₂ (σ ∘ τ) ≡ π₂ σ [ τ ]tm
 π₂∘ σ τ = 
     π₂ (σ ∘ τ)
   ≡⟨ cong (λ σ' → π₂ (σ' ∘ τ)) ηπ ⟩
     π₂ ((π₁ σ ‣ π₂ σ) ∘ τ)
   ≡⟨ cong π₂ ‣∘ ⟩
-    π₂ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]t)
+    π₂ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]tm)
   ≡⟨ βπ₂ {σ = π₁ σ ∘ τ} ⟩
-    π₂ σ [ τ ]t
+    π₂ σ [ τ ]tm
   ∎
 
 -- syntax abbreviations
@@ -211,9 +223,10 @@ wk = π₁ idS
 
 vz : Tm (Γ ‣ A) (A [ wk ])
 vz = π₂ idS
--- π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
+
 vs : Tm Γ A → Tm (Γ ‣ B) (A [ wk ])   
-vs x = x [ wk ]t
+vs x = x [ wk ]tm
+-- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
  
 vz:= : Tm Γ A → Sub Γ (Γ ‣ A)
 vz:= {Γ} {U} t = idS ‣ t -- pattern matching on type
