@@ -217,30 +217,58 @@ soundnessSub (π₁ σ) with reifySub σ | soundnessSub σ
   ∎
 
 -- Inductive definition of the normal form
-data NeSub (Γ : Ctx) : (Δ : Ctx) → Sub Γ Δ → Set where
-  idS : NeSub Γ Γ idS
-  π₁  : NeSub Γ (Δ ‣ A) σ → NeSub Γ Δ (π₁ σ)
+data NeSub (Δ : Ctx) : (Γ : Ctx) → Sub Δ Γ → Set where
+  idS : NeSub Δ Δ idS
+  π₁  : NeSub Δ (Γ ‣ A) σ → NeSub Δ Γ (π₁ σ)
 
-data NfTm (Γ : Ctx) : {A : Ty Γ} → Tm Γ A → Set where
-  π₂ : NeSub Γ (Δ ‣ A) σ → NfTm Γ {A [ π₁ σ ]} (π₂ σ)
+data NfTm (Δ : Ctx) : Tm Δ A → Set where
+  π₂ : NeSub Δ (Γ ‣ A) σ → NfTm Δ {A [ π₁ σ ]} (π₂ σ)
 
-test : vs {B = B'} (vs {B = B} (vz {Γ} {A})) ≡ {! π₂ (π₁ (π₁ idS)) : A [ π₁ (π₁ (π₁ idS)) ]  !} -- π₂ (π₁ (π₁ idS))
-test {Γ} {B} {B'} = {!   !}
-  -- begin
-  --   π₂ idS [ π₁ idS ]t [ π₁ idS ]t
-  -- ≡⟨ cong (_[ π₁ idS ]t) (sym (π₂∘ idS (π₁ idS))) ⟩
-  --   π₂ (idS ∘ π₁ idS) [ π₁ idS ]t
-  -- ≡⟨ cong (_[ π₁ idS ]t) (cong π₂ (idS∘ (π₁ idS))) ⟩
-  --   π₂ (π₁ idS) [ π₁ idS ]t
-  -- ≡⟨ sym (π₂∘ (π₁ idS) (π₁ idS)) ⟩
-  --   π₂ (π₁ idS ∘ π₁ idS)
-  -- ≡⟨ cong π₂ (sym (π₁∘ idS (π₁ idS))) ⟩
-  --   π₂ (π₁ (idS ∘ π₁ idS))
-  -- ≡⟨ cong (λ y → π₂ (π₁ y)) (idS∘ (π₁ idS)) ⟩
-  --   π₂ (π₁ (π₁ idS))
-  -- ∎
+test : vs {B = B'} (vs {B = B} (vz {Γ} {U})) ≡ π₂ (π₁ (π₁ idS)) -- π₂ (π₁ (π₁ idS))
+test {Γ} {B} {B'} =
+  begin
+    π₂ idS [ π₁ idS ]tm [ π₁ idS ]tm
+  ≡⟨ cong (_[ π₁ idS ]tm) (sym (π₂∘ idS (π₁ idS))) ⟩
+    π₂ (idS ∘ π₁ idS) [ π₁ idS ]tm
+  ≡⟨ cong (_[ π₁ idS ]tm) (cong π₂ (idS∘ (π₁ idS))) ⟩
+    π₂ (π₁ idS) [ π₁ idS ]tm
+  ≡⟨ sym (π₂∘ (π₁ idS) (π₁ idS)) ⟩
+    π₂ (π₁ idS ∘ π₁ idS)
+  ≡⟨ cong π₂ (sym (π₁∘ idS (π₁ idS))) ⟩
+    π₂ (π₁ (idS ∘ π₁ idS))
+  ≡⟨ cong (λ y → π₂ (π₁ y)) (idS∘ (π₁ idS)) ⟩
+    π₂ (π₁ (π₁ idS))
+  ∎
 
-reflectVar : (x : Var Γ A) → Σ[ B ∈ Ty Γ ] Σ[ t ∈ Tm Γ B ] Σ[ p ∈ A ≡ B ] tr (Tm Γ) p ⌞ x ⌟V ≡ t × NfTm Γ t
-reflectVar {Γ} here = {!   !}
-reflectVar {Γ} (there {A = A} x) with reflectVar x
-... | B , t , refl , ⌞x⌟≡t , π₂ σ = {!   !}
+accVar : (x : Var Γ A)(σ : Sub Δ Γ) → Tm Δ (A [ σ ])
+accVar (here {A = U}) σ = π₂ σ
+accVar (there {A = U} {U} x) σ = accVar x (π₁ σ)
+
+accVar[]tm : (x : Var Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ) → accVar x σ [ τ ]tm ≡ tr (Tm Θ) ([∘] A σ τ) (accVar x (σ ∘ τ))
+accVar[]tm (here {A = U}) σ τ = sym (π₂∘ σ τ)
+accVar[]tm (there {A = U} {U} x) σ τ = begin
+    accVar x (π₁ σ) [ τ ]tm
+  ≡⟨ accVar[]tm x (π₁ σ) τ ⟩
+    accVar x (π₁ σ ∘ τ)
+  ≡⟨ cong (accVar x) (sym (π₁∘ σ τ)) ⟩
+    accVar x (π₁ (σ ∘ τ))
+  ∎
+
+nfVar : (x : Var Γ A) → Tm Γ A
+nfVar {A = U} x = accVar x idS
+
+soundnessNfVar : (x : Var Γ A) → ⌞ x ⌟V ≡ nfVar x
+soundnessNfVar (here {A = U}) = refl
+soundnessNfVar (there {A = U} {U} x) = begin
+    ⌞ x ⌟V [ π₁ idS ]tm
+  ≡⟨ cong (_[ π₁ idS ]tm) (soundnessNfVar x) ⟩
+    accVar x idS [ π₁ idS ]tm
+  ≡⟨ accVar[]tm x idS (π₁ idS) ⟩
+    accVar x (idS ∘ π₁ idS)
+  ≡⟨ cong (accVar x) (idS∘ π₁ idS) ⟩
+    accVar x (π₁ idS)
+  ∎
+
+NfTm[nfVar] : (x : Var Γ A) → NfTm Γ (nfVar x)
+NfTm[nfVar] (here {A = U}) = π₂ idS
+NfTm[nfVar] (there {A = U} x) = {!   !} 
