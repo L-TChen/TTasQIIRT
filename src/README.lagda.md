@@ -9,17 +9,16 @@ Here is a list of attempts we tried to strive the balence between definitional a
       <td></td>
       <td colspan=2>type substitution</td>
       <td colspan=2>term substitution</td>
-      <td>term equations (for βπ₂)</td>
-      <td>term equations</td>
-      <td>substitution equations</td>
+      <td colspan=2>term eqs</td>
+      <td>substitution eqs</td>
     </tr>
     <tr>
       <td></td>
-      <td>sub identity and composition</td>
-      <td>congruence</td>
+      <td>id and comp for subs</td>
+      <td>cong</td>
       <td>id, comp, etc</td>
-      <td>weakening</td>
-      <td></td>
+      <td>wk</td>
+      <td>βπ₂ for subs</td>
       <td></td>
       <td></td>
     </tr>
