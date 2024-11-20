@@ -81,4 +81,49 @@ record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{Pσ : PSub PΔ PΓ σ}
       -------------------
       → PU [ Pσ ]P ≡ PU
+    [PidS]
+      : {PΓ : PCtx Γ}
+      → (PA : PTy PΓ A)
+      -----------------
+      → tr (PTy PΓ) ([idS] A) (PA [ PidS ]P) ≡ PA
+    [∘P]
+      : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}
+      → (PA : PTy PΓ A)(Pσ : PSub PΔ PΓ σ)(Pτ : PSub PΘ PΔ τ)
+      -----------------------------------------------------------------
+      → tr (PTy PΘ) ([∘] A σ τ) (PA [ Pσ ∘P Pτ ]P) ≡ PA [ Pσ ]P [ Pτ ]P
+    PidS∘P_
+      : {PΓ : PCtx Γ}{PΔ : PCtx Γ}
+      → (Pσ : PSub PΔ PΓ σ)
+      ---------------------
+      → tr (PSub PΔ PΓ) (idS∘ σ) (PidS ∘P Pσ) ≡ Pσ
+    _∘PPidS
+      : {PΓ : PCtx Γ}{PΔ : PCtx Γ}
+      → (Pσ : PSub PΔ PΓ σ)
+      ---------------------
+      → tr (PSub PΔ PΓ) (σ ∘idS) (Pσ ∘P PidS) ≡ Pσ
+    PassocS
+      : {υ : Sub Φ Θ}{PΓ : PCtx Γ}{PΔ : PCtx Γ}{PΘ : PCtx Θ}{PΦ : PCtx Φ}
+      → {Pσ : PSub PΔ PΓ σ}{Pτ : PSub PΘ PΔ τ}{Pυ : PSub PΦ PΘ υ}
+      --------------------------------------------------------------
+      → tr (PSub PΦ PΓ) assocS ((Pσ ∘P Pτ) ∘P Pυ) ≡ Pσ ∘P (Pτ ∘P Pυ)
+    ‣∘P
+      : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}
+      → {PA : PTy PΓ A}{Pσ : PSub PΔ PΓ σ}{Pt : PTm PΔ (PA [ Pσ ]P) t}{Pτ : PSub PΘ PΔ τ}
+      ------------------------------------------------------------------------------------------
+      → tr (PSub PΘ (PΓ ‣Ctx PA)) ‣∘ ((Pσ ‣Sub Pt) ∘P Pτ) ≡ (Pσ ∘P Pτ) ‣Sub {!  Pt [ Pτ ]tmP !}
+    Pβπ₁
+      : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΓ A}
+      → {Pσ : PSub PΔ PΓ σ}{Pt : PTm PΔ (PA [ Pσ ]P) t}
+      ----------------------------------------------
+      → tr (PSub PΔ PΓ) βπ₁ (π₁P (Pσ ‣Sub Pt)) ≡ Pσ
+    Pηπ
+      : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΓ A}
+      → {Pσ : PSub PΔ (PΓ ‣Ctx PA) σ}
+      -------------------------------
+      → σ ≡ π₁ σ ‣ π₂ σ
+    Pη∅
+      : {PΔ : PCtx Δ}
+      → {Pσ : PSub PΔ ∅Ctx σ}
+      ---------------------
+      → tr (PSub PΔ ∅Ctx) η∅ Pσ ≡ ∅Sub
         
