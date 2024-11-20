@@ -269,6 +269,12 @@ soundnessNfVar (there {A = U} {U} x) = begin
     accVar x (π₁ idS)
   ∎
 
+NfTm[accVar] : (x : Var Γ A){σ : Sub Δ Γ} → NeSub Δ Γ σ → NfTm Δ (accVar x σ)
+NfTm[accVar] (here {A = U}) nσ = π₂ nσ
+NfTm[accVar] (there {A = U} {U} x) nσ = NfTm[accVar] x (π₁ nσ)
+
 NfTm[nfVar] : (x : Var Γ A) → NfTm Γ (nfVar x)
-NfTm[nfVar] (here {A = U}) = π₂ idS
-NfTm[nfVar] (there {A = U} x) = {!   !} 
+NfTm[nfVar] {A = U} x = NfTm[accVar] x idS
+
+thm[normalization] : (t : Tm Γ A) → Σ[ t' ∈ Tm Γ A ] t ≡ t' × NfTm Γ t'
+thm[normalization] t = nfVar (reifyTm t) , trans (sym (soundnessTm t)) (soundnessNfVar (reifyTm t)) , NfTm[nfVar] (reifyTm t)
