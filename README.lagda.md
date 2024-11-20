@@ -53,8 +53,9 @@ open import SC.QIIRT
       <td>🧊</td>
     </tr>
     <tr>
-      <td><details><summary>QIIRT for SC</summary>
+      <td><details><summary>QIIRT2 for SC</summary>
 ```
+open import SC.QIIRT2
 ```
       <td></td>
       <td></td>
