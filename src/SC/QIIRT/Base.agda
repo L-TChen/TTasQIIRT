@@ -181,6 +181,24 @@ coh[η∅] {A = U} {σ = σ} {t} =
   ∎
 -}
 
+-- congruence rules
+congTy : Γ ≡ Γ' → Ty Γ ≡ Ty Γ'
+congTy refl = refl
+
+congSub : Γ ≡ Γ' → Δ ≡ Δ' → Sub Γ Δ ≡ Sub Γ' Δ'
+congSub refl refl = refl
+
+congTm : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+       → conv (congTy Γ≡Γ') A ≡ A' → Tm Γ A ≡ Tm Γ' A'
+congTm refl refl = refl
+
+cong[] : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+       → conv (congTy Γ≡Γ') A ≡ A'
+       → (Δ≡Δ' : Δ ≡ Δ'){σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}
+       → conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ'
+       → conv (congTy Δ≡Δ') (A [ σ ]) ≡ A' [ σ' ]
+cong[] refl refl refl refl = refl
+
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
 π₁∘ {A = U} {Θ} σ τ =
