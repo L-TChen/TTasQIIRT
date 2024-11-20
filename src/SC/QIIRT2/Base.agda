@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 {-# OPTIONS --local-confluence-check #-}
 
 module SC.QIIRT2.Base where

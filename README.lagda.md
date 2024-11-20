@@ -10,16 +10,17 @@ Here is a list of attempts we tried to strive the balence between definitional a
       <td colspan=2>type substitution</td>
       <td colspan=2>term substitution</td>
       <td colspan=2>term eqs</td>
-      <td>substitution eqs</td>
+      <td colspan=2>substitution eqs</td>
     </tr>
     <tr>
       <td></td>
-      <td>id and comp for subs</td>
+      <td>id, comp</td>
       <td>cong</td>
-      <td>id, comp, etc</td>
+      <td>id, comp</td>
       <td>wk</td>
-      <td>βπ₂ for subs</td>
+      <td>βπ₂</td>
       <td></td>
+      <td>βπ₁</td>
       <td></td>
     </tr>
   </thead>
@@ -30,6 +31,7 @@ Here is a list of attempts we tried to strive the balence between definitional a
 open import SC.QIIT
 ```
       </details></td>
+      <td>🧊</td>
       <td>🧊</td>
       <td>🧊</td>
       <td>🧊</td>
@@ -51,19 +53,21 @@ open import SC.QIIRT
       <td>🧊</td>
       <td>🚫</td>
       <td>🧊</td>
+      <td>🧊</td>
     </tr>
     <tr>
-      <td><details><summary>QIIRT2 for SC</summary>
+      <td><details><summary>QIIRT2 for SC with El</summary>
 ```
 open import SC.QIIRT2
 ```
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td>🔥</td>
+      <td>🔥</td>
+      <td>🔥</td>
+      <td>🧊</td>
+      <td>🔥</td>
+      <td>🧊</td>
+      <td>🔥</td>
+      <td>🧊</td>
     </tr>
   </tbody>
 </table>
