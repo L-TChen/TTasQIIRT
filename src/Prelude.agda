@@ -10,7 +10,7 @@ open import Data.Product   public
 open import Relation.Binary.PropositionalEquality.WithK public
 open import Relation.Binary.PropositionalEquality as Eq
 
-  using (_≡_; refl; sym; trans; cong; cong₂; module ≡-Reasoning) renaming (subst to tr) public
+  using (_≡_; refl; sym; trans; cong; cong₂; trans-symˡ; module ≡-Reasoning) renaming (subst to tr) public
 open ≡-Reasoning public
 
 apd : ∀{l l'}{A : Set l}{B : A → Set l'}{a a' : A}
@@ -20,6 +20,11 @@ apd f refl = refl
 
 conv : ∀{l}{A B : Set l} → A ≡ B → A → B
 conv refl a = a
+
+conv² : ∀{l}{A B C : Set l}
+      → (p : A ≡ B)(q : B ≡ C){a : A}
+      → conv q (conv p a) ≡ conv (trans p q) a
+conv² refl _ = refl
 
 conv-unique : ∀{l}{A B : Set l}(p q : A ≡ B)(a : A) → conv p a ≡ conv q a
 conv-unique refl refl _ = refl

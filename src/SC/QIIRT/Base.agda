@@ -86,6 +86,30 @@ _[_]t {Γ} {Δ} {U} t (σ ‣ s) = t [ σ ‣ s ]tm
 _[_]t {A = U} t (π₁ σ) = t [ π₁ σ ]tm
 -}
 
+-- congruence rules
+congTy : Γ ≡ Γ' → Ty Γ ≡ Ty Γ'
+congTy refl = refl
+
+congSub : Γ ≡ Γ' → Δ ≡ Δ' → Sub Γ Δ ≡ Sub Γ' Δ'
+congSub refl refl = refl
+
+congTm : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+       → conv (congTy Γ≡Γ') A ≡ A' → Tm Γ A ≡ Tm Γ' A'
+congTm refl refl = refl
+
+congTmΓ : {A A' : Ty Γ} → A ≡ A' → Tm Γ A ≡ Tm Γ A'
+congTmΓ = congTm refl
+
+trans-congTmΓ : {A B C : Ty Γ}{p : A ≡ B}{q : B ≡ C} → trans (congTmΓ p) (congTmΓ q) ≡ congTmΓ (trans p q)
+trans-congTmΓ {p = refl} = refl
+
+cong[] : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+       → conv (congTy Γ≡Γ') A ≡ A'
+       → (Δ≡Δ' : Δ ≡ Δ'){σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}
+       → conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ'
+       → conv (congTy Δ≡Δ') (A [ σ ]) ≡ A' [ σ' ]
+cong[] refl refl refl refl = refl
+
 -- equalities of substitutions
 postulate
   -- equality on substitutions
@@ -100,7 +124,7 @@ postulate
     → (σ ∘ τ) ∘ υ ≡ σ ∘ (τ ∘ υ)
   ‣∘
     : {A : Ty Γ}{σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}
-    → (_‣_ {A = A} σ t) ∘ τ ≡ (σ ∘ τ) ‣ tr (Tm Θ) (sym ([∘] A σ τ)) (t [ τ ]tm)
+    → (_‣_ {A = A} σ t) ∘ τ ≡ (σ ∘ τ) ‣ conv (congTm refl (sym ([∘] A σ τ))) (t [ τ ]tm)
   βπ₁
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
     → π₁ (_‣_ {A = A} σ t) ≡ σ
@@ -117,7 +141,7 @@ postulate
   
   [∘]tm
     : (t : Tm Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ)
-    → tr (Tm Θ) ([∘] A σ τ) (t [ σ ∘ τ ]tm) ≡ t [ σ ]tm [ τ ]tm
+    → conv (congTm refl ([∘] A σ τ)) (t [ σ ∘ τ ]tm) ≡ t [ σ ]tm [ τ ]tm
 
   βπ₂
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
@@ -180,24 +204,6 @@ coh[η∅] {A = U} {σ = σ} {t} =
     t [ ∅ ]t
   ∎
 -}
-
--- congruence rules
-congTy : Γ ≡ Γ' → Ty Γ ≡ Ty Γ'
-congTy refl = refl
-
-congSub : Γ ≡ Γ' → Δ ≡ Δ' → Sub Γ Δ ≡ Sub Γ' Δ'
-congSub refl refl = refl
-
-congTm : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
-       → conv (congTy Γ≡Γ') A ≡ A' → Tm Γ A ≡ Tm Γ' A'
-congTm refl refl = refl
-
-cong[] : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
-       → conv (congTy Γ≡Γ') A ≡ A'
-       → (Δ≡Δ' : Δ ≡ Δ'){σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}
-       → conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ'
-       → conv (congTy Δ≡Δ') (A [ σ ]) ≡ A' [ σ' ]
-cong[] refl refl refl refl = refl
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
