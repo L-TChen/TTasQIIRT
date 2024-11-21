@@ -26,6 +26,14 @@ conv² : ∀{l}{A B C : Set l}
       → conv q (conv p a) ≡ conv (trans p q) a
 conv² refl _ = refl
 
+cvtr : ∀{l}{A B C : Set l}(p : A ≡ B)(q : B ≡ C)
+      → {a : A}{b : B}{c : C}
+      → conv p a ≡ b → conv q b ≡ c
+      → conv (trans p q) a ≡ c
+cvtr p q refl refl = sym (conv² p q)
+
+syntax cvtr p q eq1 eq2 = eq1 ⟫ p , q ⟫ eq2
+
 conv-unique : ∀{l}{A B : Set l}(p q : A ≡ B)(a : A) → conv p a ≡ conv q a
 conv-unique refl refl _ = refl
 
@@ -38,3 +46,4 @@ tr-comp : ∀{l l' l''}{X : Set l}{Y : X → Set l'}{Z : (x : X) → Set l''}
         → (f : {x : X}(y : Y x) → Z x)(p : x ≡ x') → tr Y p y ≡ y'
         → tr Z p (f y) ≡ f y'
 tr-comp f refl refl = refl
+ 

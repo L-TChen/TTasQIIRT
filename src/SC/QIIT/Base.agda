@@ -83,6 +83,72 @@ _[_]t {Γ} {Δ} {U} t (σ ‣ s) = t [ σ ‣ s ]tm
 _[_]t {A = U} t (π₁ σ) = t [ π₁ σ ]tm
 -}
 
+-- congruence rules of signatures
+congTy : Γ ≡ Γ' → Ty Γ ≡ Ty Γ'
+congTy refl = refl
+
+congSub : Γ ≡ Γ' → Δ ≡ Δ' → Sub Γ Δ ≡ Sub Γ' Δ'
+congSub refl refl = refl
+
+congTm : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+       → conv (congTy Γ≡Γ') A ≡ A' → Tm Γ A ≡ Tm Γ' A'
+congTm refl refl = refl
+
+congTmΓ : {A A' : Ty Γ} → A ≡ A' → Tm Γ A ≡ Tm Γ A'
+congTmΓ = congTm refl
+
+trans-congTmΓ : {A B C : Ty Γ}{p : A ≡ B}{q : B ≡ C} → trans (congTmΓ p) (congTmΓ q) ≡ congTmΓ (trans p q)
+trans-congTmΓ {p = refl} = refl
+
+-- congruence rules of constructors
+cong‣Ctx : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+         → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
+         → Γ ‣ A ≡ Γ' ‣ A'
+cong‣Ctx refl refl = refl
+
+cong[] : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+       → conv (congTy Γ≡Γ') A ≡ A'
+       → (Δ≡Δ' : Δ ≡ Δ'){σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}
+       → conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ'
+       → conv (congTy Δ≡Δ') (A [ σ ]ty) ≡ A' [ σ' ]ty
+cong[] refl refl refl refl = refl
+
+cong‣Sub
+  : (Δ≡Δ' : Δ ≡ Δ')(Γ≡Γ' : Γ ≡ Γ'){σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}
+  → {A : Ty Γ}{A' : Ty Γ'}{t : Tm Δ (A [ σ ]ty)}{t' : Tm Δ' (A' [ σ' ]ty)}
+  → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
+    (σ≡σ' : conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ')
+    (t≡t' : conv (congTm Δ≡Δ' (cong[] Γ≡Γ' A≡A' Δ≡Δ' σ≡σ')) t ≡ t')
+  → conv (congSub Δ≡Δ' (cong‣Ctx Γ≡Γ' A≡A')) (σ ‣ t) ≡ σ' ‣ t'
+cong‣Sub refl refl refl refl refl = refl
+
+cong∘ : (Γ≡Γ' : Γ ≡ Γ')(Δ≡Δ' : Δ ≡ Δ')(Θ≡Θ' : Θ ≡ Θ')
+        {σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}{τ : Sub Θ Δ}{τ' : Sub Θ' Δ'}
+        (σ≡σ' : conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ')(τ≡τ' : conv (congSub Θ≡Θ' Δ≡Δ') τ ≡ τ')
+      → conv (congSub Θ≡Θ' Γ≡Γ') (σ ∘ τ) ≡ σ' ∘ τ'
+cong∘ refl refl refl refl refl = refl
+
+congπ₁ : (Δ≡Δ' : Δ ≡ Δ')(Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+         {σ : Sub Δ (Γ ‣ A)}{σ' : Sub Δ' (Γ' ‣ A')}
+       → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
+       → conv (congSub Δ≡Δ' (cong‣Ctx Γ≡Γ' A≡A')) σ ≡ σ'
+       → conv (congSub Δ≡Δ' Γ≡Γ') (π₁ σ) ≡ π₁ σ'
+congπ₁ refl refl refl refl = refl
+
+congπ₂ : (Δ≡Δ' : Δ ≡ Δ')(Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+         {σ : Sub Δ (Γ ‣ A)}{σ' : Sub Δ' (Γ' ‣ A')}
+       → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
+         (σ≡σ' : conv (congSub Δ≡Δ' (cong‣Ctx Γ≡Γ' A≡A')) σ ≡ σ')
+       → conv (congTm Δ≡Δ' (cong[] Γ≡Γ' A≡A' Δ≡Δ' (congπ₁ Δ≡Δ' Γ≡Γ' A≡A' σ≡σ'))) (π₂ σ) ≡ π₂ σ'
+congπ₂ refl refl refl refl = refl
+
+cong[]tm : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}(A≡A' : conv (congTy Γ≡Γ') A ≡ A')
+           {t : Tm Γ A}{t' : Tm Γ' A'}(t≡t' : conv (congTm Γ≡Γ' A≡A') t ≡ t')
+           (Δ≡Δ' : Δ ≡ Δ'){σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}
+           (σ≡σ' : conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ')
+         → conv (congTm Δ≡Δ' (cong[] Γ≡Γ' A≡A' Δ≡Δ' σ≡σ')) (t [ σ ]tm) ≡ t' [ σ' ]tm
+cong[]tm refl refl refl refl refl = refl
+
 -- equalities of substitutions
 postulate
   -- equalities on types
@@ -108,7 +174,7 @@ postulate
     → (σ ∘ τ) ∘ υ ≡ σ ∘ (τ ∘ υ)
   ‣∘
     : {A : Ty Γ}{σ : Sub Δ Γ}{t : Tm Δ (A [ σ ]ty)}{τ : Sub Θ Δ}
-    → (_‣_ {A = A} σ t) ∘ τ ≡ (σ ∘ τ) ‣ tr (Tm Θ) (sym ([∘] A σ τ)) (t [ τ ]tm)
+    → (_‣_ {A = A} σ t) ∘ τ ≡ (σ ∘ τ) ‣ conv (congTmΓ (sym ([∘] A σ τ))) (t [ τ ]tm)
   βπ₁
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ]ty)}
     → π₁ (_‣_ {A = A} σ t) ≡ σ
@@ -122,86 +188,30 @@ postulate
   -- equality on terms
   [idS]tm
     : (t : Tm Γ A)
-    → tr (Tm Γ) ([idS] A) (t [ idS ]tm) ≡ t
+    → conv (congTmΓ ([idS] A)) (t [ idS ]tm) ≡ t
   [∘]tm
     : (t : Tm Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ)
-    → tr (Tm Θ) ([∘] A σ τ) (t [ σ ∘ τ ]tm) ≡ t [ σ ]tm [ τ ]tm
+    → conv (congTmΓ ([∘] A σ τ)) (t [ σ ∘ τ ]tm) ≡ t [ σ ]tm [ τ ]tm
   βπ₂
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ]ty)}
-    → tr (Tm Δ) (cong (A [_]ty) βπ₁) (π₂ (_‣_ {A = A} σ t)) ≡ t
-
--- coherence of postulates
-
-{-
-coh[idS∘] : {σ : Sub Δ Γ}{t : Tm Γ A} → t [ idS ∘ σ ]t ≡ t [ σ ]t
-coh[idS∘] {A = U} = refl
-
-coh[∘idS] : {σ : Sub Δ Γ}{t : Tm Γ A} → t [ σ ∘ idS ]t ≡ t [ σ ]t
-coh[∘idS] {A = U} {σ} {t} = refl
-
-coh[assocS]
-  : {σ : Sub Δ Γ}{τ : Sub Θ Δ}{υ : Sub Φ Θ}{t : Tm Γ A}
-  → t [ (σ ∘ τ) ∘ υ ]t ≡ t [ σ ∘ (τ ∘ υ) ]t
-coh[assocS] {A = U} = refl
-
-coh[‣∘]
-  : {σ : Sub Δ Γ}{s : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}{t : Tm (Γ ‣ A) B}
-  → t [ (σ ‣ s) ∘ τ ]t ≡ t [ (σ ∘ τ) ‣ tr (Tm Θ) (sym ([∘] A σ τ)) (s [ τ ]t) ]t
-coh[‣∘] {A = U} {Θ = Θ} {B = U} {σ = σ} {s} {τ} {t} =
-    t [ (σ ‣ s) ∘ τ ]t
-  ≡⟨ cong (t [_]t) (‣∘ {σ = σ} {s} {τ}) ⟩
-    t [ (σ ∘ τ) ‣ tr (Tm Θ) (sym ([∘] U σ τ)) (s [ τ ]t) ]t
-  ∎
-
-coh[βπ₁]
-  : {σ : Sub Δ Γ}{s : Tm Δ (A [ σ ])}{t : Tm Γ B}
-  → t [ π₁ (_‣_ {A = A} σ s) ]t ≡ t [ σ ]t
-coh[βπ₁] {A = U} {U} {σ} {s} {t} =
-    t [ π₁ (σ ‣ s) ]t
-  ≡⟨ cong (t [_]t) (βπ₁ {σ = σ} {s}) ⟩
-    t [ σ ]t
-  ∎ 
-
-coh[βπ₂]
-  : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}
-  → π₂ (_‣_ {A = A} σ t) [ τ ]t ≡ t [ τ ]t
-coh[βπ₂] {A = U} {_} {σ} {t} {τ} =
-    π₂ (σ ‣ t) [ τ ]t
-  ≡⟨ cong (_[ τ ]t) (βπ₂ {σ = σ} {t}) ⟩
-    t [ τ ]t
-  ∎
-
-coh[ηπ]
-  : {σ : Sub Δ (Γ ‣ A)}{t : Tm (Γ ‣ A) B}
-  → tr (λ y → Tm Δ (B [ y ])) (ηπ {σ = σ}) (t [ σ ]t) ≡ t [ (π₁ σ ‣ π₂ σ) ]t
-coh[ηπ] {σ = σ} {t} =
-    tr _ (ηπ {σ = σ}) (t [ σ ]t)
-  ≡⟨ (apd (t [_]t) (ηπ {σ = σ})) ⟩
-    t [ π₁ σ ‣ π₂ σ ]t
-  ∎
-
-coh[η∅] : {σ : Sub Δ ∅}{t : Tm ∅ A} → tr (λ y → Tm Δ (A [ y ])) (η∅ {σ = σ}) (t [ σ ]t) ≡  t [ ∅ ]t
-coh[η∅] {A = U} {σ = σ} {t} =
-    tr _ η∅ (t [ σ ]t)
-  ≡⟨ apd (t [_]t) (η∅ {σ = σ}) ⟩
-    t [ ∅ ]t
-  ∎
--}
+    → conv (congTmΓ (cong[] refl refl refl βπ₁)) (π₂ (_‣_ {A = A} σ t)) ≡ t
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
 π₁∘ {A = A} {Θ} σ τ =
+  begin
     π₁ (σ ∘ τ)
   ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) ηπ ⟩
     π₁ ((π₁ σ ‣ π₂ σ) ∘ τ)
   ≡⟨ cong π₁ ‣∘ ⟩
-    π₁ ((π₁ σ ∘ τ) ‣ tr (Tm Θ) (sym ([∘] A (π₁ σ) τ)) (π₂ σ [ τ ]tm))
+    π₁ ((π₁ σ ∘ τ) ‣ conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]tm))
   ≡⟨ βπ₁ {σ = π₁ σ ∘ τ} ⟩
     π₁ σ ∘ τ
   ∎
 
 π₁idS∘ : {A : Ty Γ}(σ : Sub Δ (Γ ‣ A)) → π₁ idS ∘ σ ≡ π₁ σ
 π₁idS∘ σ =
+  begin
     π₁ idS ∘ σ
   ≡⟨ sym (π₁∘ idS σ) ⟩
     π₁ (idS ∘ σ)
@@ -209,20 +219,60 @@ coh[η∅] {A = U} {σ = σ} {t} =
     π₁ σ
   ∎
 
--- only on case when A = U
--- π₂∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → tr (Tm Θ) (trans (cong (A [_]ty) (π₁∘ σ τ)) ([∘] A (π₁ σ) τ)) (π₂ (σ ∘ τ)) ≡ π₂ σ [ τ ]tm
--- π₂∘ {Δ} {Γ} {A} {Θ} σ τ =
---     tr (Tm Θ) (trans (cong (_[_]ty A) (π₁∘ σ τ)) ([∘] A (π₁ σ) τ)) (π₂ (σ ∘ τ))
---   ≡⟨ {!    !} ⟩
---     {!   !}
---   --   π₂ (σ ∘ τ)
---   -- ≡⟨ cong (λ σ' → π₂ (σ' ∘ τ)) ηπ ⟩
---   --   π₂ ((π₁ σ ‣ π₂ σ) ∘ τ)
---   -- ≡⟨ cong π₂ ‣∘ ⟩
---   --   π₂ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]tm)
---   -- ≡⟨ βπ₂ {σ = π₁ σ ∘ τ} ⟩
---   --   π₂ σ [ τ ]tm
---   -- ∎
+π₂∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ) → conv (congTmΓ (trans (cong[] refl refl refl (π₁∘ σ τ)) ([∘] A (π₁ σ) τ))) (π₂ (σ ∘ τ))
+                                         ≡ π₂ σ [ τ ]tm 
+π₂∘ {Δ} {Γ} {A} {Θ} σ τ =
+  begin
+    conv (congTmΓ (trans (cong[] refl refl refl (π₁∘ σ τ)) ([∘] A (π₁ σ) τ))) (π₂ (σ ∘ τ))
+  ≡⟨
+    conv-unique (congTmΓ (trans (cong[] refl refl refl (π₁∘ σ τ)) ([∘] A (π₁ σ) τ)))
+                (trans (trans (trans p1 p2) p3) p4)
+                (π₂ (σ ∘ τ))
+  ⟩
+    conv (trans (trans (trans p1 p2) p3) p4) (π₂ (σ ∘ τ))
+  ≡⟨ 
+    ((eq1 ⟫ p1                     , p2 ⟫ eq2)
+          ⟫ trans p1 p2            , p3 ⟫ eq3)
+          ⟫ trans (trans p1 p2) p3 , p4 ⟫ eq4
+  ⟩
+    π₂ σ [ τ ]tm
+  ∎
+
+  
+  where
+    p1 : Tm Θ (A [ π₁ (σ ∘ τ) ]ty) ≡ Tm Θ (A [ π₁ ((π₁ σ ‣ π₂ σ) ∘ τ) ]ty)
+    p1 = congTmΓ (cong[] refl refl refl (congπ₁ refl refl refl (cong∘ refl refl refl ηπ refl)))
+
+    p2 : Tm Θ (A [ π₁ ((π₁ σ ‣ π₂ σ) ∘ τ) ]ty) ≡ Tm Θ (A [ π₁ ((π₁ σ ∘ τ) ‣ conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]tm)) ]ty)
+    p2 = congTmΓ (cong[] refl refl refl (congπ₁ refl refl refl ‣∘))
+    
+    p3 : Tm Θ (A [ π₁ ((π₁ σ ∘ τ) ‣ conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]tm)) ]ty)
+         ≡ Tm Θ (A [ π₁ σ ∘ τ ]ty)
+    p3 = congTmΓ (cong[] refl refl refl βπ₁)
+
+    p4 : Tm Θ (A [ π₁ σ ∘ τ ]ty) ≡ Tm Θ (A [ π₁ σ ]ty [ τ ]ty)
+    p4 = congTmΓ ([∘] A (π₁ σ) τ)
+    
+    eq1 : conv (congTmΓ (cong[] refl refl refl (congπ₁ refl refl refl (cong∘ refl refl refl ηπ refl)))) (π₂ (σ ∘ τ)) ≡ π₂ ((π₁ σ ‣ π₂ σ) ∘ τ)
+    eq1 = congπ₂ refl refl {σ = σ ∘ τ} refl (cong∘ refl refl refl {σ = σ} {τ = τ} ηπ refl)
+
+    eq2 : conv (congTmΓ (cong[] refl refl refl (congπ₁ refl refl refl ‣∘))) (π₂ ((π₁ σ ‣ π₂ σ) ∘ τ)) ≡ π₂ ((π₁ σ ∘ τ) ‣ conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]tm))
+    eq2 = congπ₂ refl refl refl ‣∘
+
+    eq3 : conv (congTm refl (cong[] refl refl refl βπ₁)) (π₂ ((π₁ σ ∘ τ) ‣ conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]tm)))
+           ≡ conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]tm)
+    eq3 = βπ₂
+
+    eq4 : conv (congTmΓ ([∘] A (π₁ σ) τ)) (conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]tm)) ≡ π₂ σ [ τ ]tm
+    eq4 = begin
+        conv (congTmΓ ([∘] A (π₁ σ) τ)) (conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]tm))
+      ≡⟨ conv² (congTmΓ (sym ([∘] A (π₁ σ) τ))) (congTmΓ ([∘] A (π₁ σ) τ)) ⟩
+        conv (trans (congTmΓ (sym ([∘] A (π₁ σ) τ))) (congTmΓ ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]tm)
+      ≡⟨ cong (λ eq → conv eq (π₂ σ [ τ ]tm)) (trans-congTmΓ {p = sym ([∘] A (π₁ σ) τ)} {[∘] A (π₁ σ) τ}) ⟩
+        conv (congTmΓ (trans (sym ([∘] A (π₁ σ) τ)) ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]tm)
+      ≡⟨ cong (λ eq → conv (congTmΓ eq) (π₂ σ [ τ ]tm)) (trans-symˡ ([∘] A (π₁ σ) τ)) ⟩
+        π₂ σ [ τ ]tm
+      ∎
 
 -- syntax abbreviations
 wk : Sub (Δ ‣ A) Δ

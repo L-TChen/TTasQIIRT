@@ -79,7 +79,73 @@ data Tm where
   _[_]tm
     : Tm Δ A → (σ : Sub Γ Δ)
     → Tm Γ (A [ σ ])
-    
+
+-- congruence rules of signatures
+congTy : Γ ≡ Γ' → Ty Γ ≡ Ty Γ'
+congTy refl = refl
+
+congSub : Γ ≡ Γ' → Δ ≡ Δ' → Sub Γ Δ ≡ Sub Γ' Δ'
+congSub refl refl = refl
+
+congTm : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+       → conv (congTy Γ≡Γ') A ≡ A' → Tm Γ A ≡ Tm Γ' A'
+congTm refl refl = refl
+
+congTmΓ : {A A' : Ty Γ} → A ≡ A' → Tm Γ A ≡ Tm Γ A'
+congTmΓ = congTm refl
+
+trans-congTmΓ : {A B C : Ty Γ}{p : A ≡ B}{q : B ≡ C} → trans (congTmΓ p) (congTmΓ q) ≡ congTmΓ (trans p q)
+trans-congTmΓ {p = refl} = refl
+
+-- congruence rules of constructors
+cong‣Ctx : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+         → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
+         → Γ ‣ A ≡ Γ' ‣ A'
+cong‣Ctx refl refl = refl
+
+cong[] : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+       → conv (congTy Γ≡Γ') A ≡ A'
+       → (Δ≡Δ' : Δ ≡ Δ'){σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}
+       → conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ'
+       → conv (congTy Δ≡Δ') (A [ σ ]) ≡ A' [ σ' ]
+cong[] refl refl refl refl = refl
+
+cong‣Sub
+  : (Δ≡Δ' : Δ ≡ Δ')(Γ≡Γ' : Γ ≡ Γ'){σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}
+  → {A : Ty Γ}{A' : Ty Γ'}{t : Tm Δ (A [ σ ])}{t' : Tm Δ' (A' [ σ' ])}
+  → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
+    (σ≡σ' : conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ')
+    (t≡t' : conv (congTm Δ≡Δ' (cong[] Γ≡Γ' A≡A' Δ≡Δ' σ≡σ')) t ≡ t')
+  → conv (congSub Δ≡Δ' (cong‣Ctx Γ≡Γ' A≡A')) (σ ‣ t) ≡ σ' ‣ t'
+cong‣Sub refl refl refl refl refl = refl
+
+cong∘ : (Γ≡Γ' : Γ ≡ Γ')(Δ≡Δ' : Δ ≡ Δ')(Θ≡Θ' : Θ ≡ Θ')
+        {σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}{τ : Sub Θ Δ}{τ' : Sub Θ' Δ'}
+        (σ≡σ' : conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ')(τ≡τ' : conv (congSub Θ≡Θ' Δ≡Δ') τ ≡ τ')
+      → conv (congSub Θ≡Θ' Γ≡Γ') (σ ∘ τ) ≡ σ' ∘ τ'
+cong∘ refl refl refl refl refl = refl
+
+congπ₁ : (Δ≡Δ' : Δ ≡ Δ')(Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+         {σ : Sub Δ (Γ ‣ A)}{σ' : Sub Δ' (Γ' ‣ A')}
+       → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
+       → conv (congSub Δ≡Δ' (cong‣Ctx Γ≡Γ' A≡A')) σ ≡ σ'
+       → conv (congSub Δ≡Δ' Γ≡Γ') (π₁ σ) ≡ π₁ σ'
+congπ₁ refl refl refl refl = refl
+
+congπ₂ : (Δ≡Δ' : Δ ≡ Δ')(Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+         {σ : Sub Δ (Γ ‣ A)}{σ' : Sub Δ' (Γ' ‣ A')}
+       → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
+         (σ≡σ' : conv (congSub Δ≡Δ' (cong‣Ctx Γ≡Γ' A≡A')) σ ≡ σ')
+       → conv (congTm Δ≡Δ' (cong[] Γ≡Γ' A≡A' Δ≡Δ' (congπ₁ Δ≡Δ' Γ≡Γ' A≡A' σ≡σ'))) (π₂ σ) ≡ π₂ σ'
+congπ₂ refl refl refl refl = refl
+
+cong[]tm : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}(A≡A' : conv (congTy Γ≡Γ') A ≡ A')
+           {t : Tm Γ A}{t' : Tm Γ' A'}(t≡t' : conv (congTm Γ≡Γ' A≡A') t ≡ t')
+           (Δ≡Δ' : Δ ≡ Δ'){σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}
+           (σ≡σ' : conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ')
+         → conv (congTm Δ≡Δ' (cong[] Γ≡Γ' A≡A' Δ≡Δ' σ≡σ')) (t [ σ ]tm) ≡ t' [ σ' ]tm
+cong[]tm refl refl refl refl refl = refl 
+ 
 {-
   We'd like to define a resursion by overlapping patterns
   
@@ -161,18 +227,45 @@ coh[η∅] {A = El t} {σ = σ} = cong El (cong (t [_]tm) (η∅ {σ = σ}))
   ∎
 
 π₂∘ : (σ : Sub Δ (Γ ‣ A))(τ : Sub Θ Δ)
-  → tr (Tm Θ) (cong (A [_]) (π₁∘ σ τ)) (π₂ (σ ∘ τ))
-    ≡ π₂ σ [ τ ]tm  -- π₂ σ [ τ ]tm
+  → conv (congTmΓ (cong[] refl {A} refl refl (π₁∘ σ τ))) (π₂ (σ ∘ τ))
+    ≡ π₂ σ [ τ ]tm
 π₂∘ {Δ} {Γ} {A} {Θ} σ τ = 
+  begin
+    conv (congTmΓ (cong[] refl refl refl (π₁∘ σ τ))) (π₂ (σ ∘ τ))
+  ≡⟨ conv-unique (congTmΓ (cong[] refl refl refl (π₁∘ σ τ))) (trans p1 p2) (π₂ (σ ∘ τ)) ⟩
+    conv (trans p1 p2) (π₂ (σ ∘ τ))
+  ≡⟨ eq1 ⟫ p1 , p2 ⟫ eq2 ⟩
+    π₂ σ [ τ ]tm
+  ∎
+  where
+    p1 : Tm Θ (A [ π₁ (σ ∘ τ) ]) ≡ Tm Θ (A [ π₁ {A = A} ((π₁ σ ‣ π₂ σ) ∘ τ) ])
+    p1 = congTmΓ (cong[] refl {A} refl refl (congπ₁ refl refl refl (cong∘ refl refl refl ηπ refl)))
+
+    p2 : Tm Θ (A [ π₁ {A = A} ((π₁ σ ‣ π₂ σ) ∘ τ) ]) ≡ Tm Θ (A [ π₁ σ ] [ τ ])
+    p2 = congTmΓ (cong[] refl {A} refl refl (congπ₁ refl refl refl ‣∘))
+    
+    eq1 : conv (congTmΓ (cong[] refl {A} refl refl (congπ₁ refl refl refl (cong∘ refl refl refl ηπ refl)))) (π₂ (σ ∘ τ)) ≡ π₂ {A = A} ((π₁ σ ‣ π₂ σ) ∘ τ)
+    eq1 = congπ₂ refl refl {σ = σ ∘ τ} refl (cong∘ refl refl refl {σ = σ} {τ = τ} ηπ refl)
+
+    eq2 : conv (congTmΓ (cong[] refl {A} refl refl (congπ₁ refl refl refl ‣∘))) (π₂ {A = A} ((π₁ σ ‣ π₂ σ) ∘ τ)) ≡ π₂ σ [ τ ]tm
+    eq2 = begin
+        conv (congTmΓ (cong[] refl {A} refl refl (congπ₁ refl refl refl ‣∘))) (π₂ {A = A} ((π₁ σ ‣ π₂ σ) ∘ τ))
+      ≡⟨ congπ₂ refl refl refl ‣∘ ⟩
+        π₂ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]tm)
+      ≡⟨ βπ₂ ⟩
+        π₂ σ [ τ ]tm
+      ∎
+
+{-
   tr (Tm Θ) (cong (A [_]) (π₁∘ σ τ)) (π₂ (σ ∘ τ))
-    ≡⟨ {!!} ⟩
+    ≡⟨ {!  !} ⟩
   tr (Tm Θ) (cong (A [_]) (π₁∘ (π₁ σ ‣ π₂ σ) τ)) (π₂ {A = A} ((π₁ σ ‣ π₂ σ) ∘ τ))
-    ≡⟨{! !} ⟩
+    ≡⟨ {!  !} ⟩
   π₂ {A = A} ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]tm) 
     ≡⟨ βπ₂ ⟩
   π₂ σ [ τ ]tm
     ∎
-    
+-}  
 -- {-
 --     π₂ (σ ∘ τ)
 --   ≡⟨ cong (λ σ' → π₂ {A = _} (σ' ∘ τ)) ηπ ⟩

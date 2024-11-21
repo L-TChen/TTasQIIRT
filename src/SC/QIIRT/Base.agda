@@ -67,7 +67,6 @@ data Tm where
 -- A [ π₁ (σ ‣ _) ] = A [ σ ]
 U [ σ ] = U
 
-
 -- {-# REWRITE U[] #-}
 [idS] : (A : Ty Γ) → A [ idS ] ≡ A
 [idS] U = refl
@@ -110,7 +109,6 @@ cong[] : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
        → conv (congTy Δ≡Δ') (A [ σ ]) ≡ A' [ σ' ]
 cong[] refl refl refl refl = refl
 
--- equalities of substitutions
 postulate
   -- equality on substitutions
   idS∘_ 
@@ -134,15 +132,14 @@ postulate
   η∅
     : {σ : Sub Δ ∅}
     → σ ≡ ∅
+  
   -- equality on terms
   [idS]tm
     : (t : Tm Γ A)
     → tr (Tm Γ) ([idS] A) (t [ idS ]tm) ≡ t
-  
   [∘]tm
     : (t : Tm Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ)
     → conv (congTm refl ([∘] A σ τ)) (t [ σ ∘ τ ]tm) ≡ t [ σ ]tm [ τ ]tm
-
   βπ₂
     : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
     → π₂ (_‣_ {A = A} σ t) ≡ t
