@@ -131,15 +131,11 @@ interleaved mutual
 
   -- derived computation rules on composition
   π₁∘ : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
-  π₁∘ σ τ =
-      π₁ (σ ∘ τ)
-    ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) η, ⟩
-      π₁ ((π₁ σ , π₂ σ) ∘ τ)
-    ≡⟨ cong π₁ ,∘ ⟩ 
-      π₁ (π₁ σ ∘ τ , (π₂ σ) [ τ ]t)
-    ≡⟨ π₁, _ _ ⟩
-      π₁ σ ∘ τ
-    ∎
+  π₁∘ σ τ = begin
+      π₁ (σ ∘ τ)                    ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) η, ⟩
+      π₁ ((π₁ σ , π₂ σ) ∘ τ)        ≡⟨ cong π₁ ,∘ ⟩ 
+      π₁ (π₁ σ ∘ τ , (π₂ σ) [ τ ]t) ≡⟨ π₁, _ _ ⟩
+      π₁ σ ∘ τ                      ∎
 
   []t≡[]tm : {Γ Δ : Ctx} {A : Ty Δ} (t : Tm Δ A) (σ : Sub Γ Δ) → t [ σ ]tm ≡ t [ σ ]t 
   []t≡[]tm t ∅       = refl
@@ -147,33 +143,21 @@ interleaved mutual
   []t≡[]tm t idS     = [id]tm
   []t≡[]tm t (π₁ idS)     = refl
   []t≡[]tm t (π₁ (τ ∘ σ)) = begin
-    t [ π₁ (τ ∘ σ) ]tm
-      ≡⟨ {!!} ⟩
-    t [ π₁ τ ∘ σ ]tm
-      ≡⟨ [∘]tm ⟩
-    t [ π₁ τ ]tm [ σ ]tm
-      ≡⟨ cong (_[ σ ]tm) ([]t≡[]tm t (π₁ τ)) ⟩
-    t [ π₁ τ ]t [ σ ]tm
-      ≡⟨ []t≡[]tm (t [ π₁ τ ]t) σ ⟩
-    t [ π₁ τ ]t [ σ ]t
-      ∎
+    t [ π₁ (τ ∘ σ) ]tm   ≡⟨ {!!} ⟩
+    t [ π₁ τ ∘ σ ]tm     ≡⟨ [∘]tm ⟩
+    t [ π₁ τ ]tm [ σ ]tm ≡⟨ cong (_[ σ ]tm) ([]t≡[]tm t (π₁ τ)) ⟩
+    t [ π₁ τ ]t [ σ ]tm  ≡⟨ []t≡[]tm (t [ π₁ τ ]t) σ ⟩
+    t [ π₁ τ ]t [ σ ]t   ∎
   []t≡[]tm t (π₁ (π₁ σ))  = refl
   []t≡[]tm t (τ ∘ σ) = begin
-    t [ τ ∘ σ ]tm
-      ≡⟨ [∘]tm ⟩
-    t [ τ ]tm [ σ ]tm
-      ≡⟨ cong (_[ σ ]tm) ([]t≡[]tm t τ)  ⟩
-    t [ τ ]t [ σ ]tm
-      ≡⟨ []t≡[]tm (t [ τ ]t) σ ⟩
-    t [ τ ]t [ σ ]t
-      ∎
+    t [ τ ∘ σ ]tm        ≡⟨ [∘]tm ⟩
+    t [ τ ]tm [ σ ]tm    ≡⟨ cong (_[ σ ]tm) ([]t≡[]tm t τ)  ⟩
+    t [ τ ]t [ σ ]tm     ≡⟨ []t≡[]tm (t [ τ ]t) σ ⟩
+    t [ τ ]t [ σ ]t      ∎
   []t≡[]tm t (π₁ (σ , u)) = 
-    t [ π₁ (σ , u) ]tm
-      ≡⟨ {!!} ⟩
-    t [ σ ]tm
-      ≡⟨ []t≡[]tm t σ ⟩
-    t [ σ ]t
-      ∎
+    t [ π₁ (σ , u) ]tm   ≡⟨ {!!} ⟩
+    t [ σ ]tm            ≡⟨ []t≡[]tm t σ ⟩
+    t [ σ ]t             ∎
       
 -- We will need to prove coherence for the following with another rewriting relation:
 -- coherence of postulates
@@ -188,7 +172,7 @@ interleaved mutual
   coh[assocS] = refl
 
   coh[,∘] : A [ (σ , t) ∘ τ ] ≡ A [ σ ∘ τ , t [ τ ]t ]
-  coh[,∘] {A = U} {σ = σ} {t = t} {τ = τ}    = refl
+  coh[,∘] {A = U}    {σ = σ} {t = t} {τ = τ} = refl
   coh[,∘] {A = El u} {σ = σ} {t = t} {τ = τ} = cong El (begin
    u [ σ , t ]tm [ τ ]t       ≡⟨ sym ([]t≡[]tm (u [ σ , t ]tm) τ) ⟩
    u [ σ , t ]tm [ τ ]tm      ≡⟨ sym ([∘]tm) ⟩
@@ -200,44 +184,33 @@ interleaved mutual
 
   coh[βπ₂] : π₂ (σ , t) [ τ ]t ≡ t [ τ ]t
   coh[βπ₂] {σ = σ} {t = t} {τ = τ} = begin
-    π₂ (σ , t) [ τ ]t
-      ≡⟨ sym ([]t≡[]tm _ _) ⟩
-    π₂ (σ , t) [ τ ]tm
-      ≡⟨ cong (_[ τ ]tm) π₂, ⟩
-    t [ τ ]tm
-      ≡⟨ []t≡[]tm _ _ ⟩
-    t [ τ ]t
-      ∎
+    π₂ (σ , t) [ τ ]t         ≡⟨ sym ([]t≡[]tm _ _) ⟩
+    π₂ (σ , t) [ τ ]tm        ≡⟨ cong (_[ τ ]tm) π₂, ⟩
+    t [ τ ]tm                 ≡⟨ []t≡[]tm _ _ ⟩
+    t [ τ ]t                  ∎
 
   coh[η,] : A [ σ ] ≡ A [ π₁ σ , π₂ σ ]
   coh[η,] {A = U}    {σ} = refl
   coh[η,] {A = El t} {σ = σ} = cong El (begin
-    t [ σ ]t              ≡⟨ sym ([]t≡[]tm t σ) ⟩
-    t [ σ ]tm             ≡⟨ cong (t [_]tm) η, ⟩
-    t [ π₁ σ , π₂ σ ]tm   ∎ 
+    t [ σ ]t                  ≡⟨ sym ([]t≡[]tm t σ) ⟩
+    t [ σ ]tm                 ≡⟨ cong (t [_]tm) η, ⟩
+    t [ π₁ σ , π₂ σ ]tm       ∎ 
     )
 
   coh[η∅] : A [ σ ] ≡ A [ ∅ ]
   coh[η∅] {A = U}            = refl
   coh[η∅] {A = El t} {σ = σ} = cong El (begin
-    t [ σ ]t
-      ≡⟨ sym ([]t≡[]tm t σ) ⟩
-    t [ σ ]tm
-      ≡⟨ cong (t [_]tm) η∅ ⟩
-    t [ ∅ ]tm
-      ∎)
+    t [ σ ]t                  ≡⟨ sym ([]t≡[]tm t σ) ⟩
+    t [ σ ]tm                 ≡⟨ cong (t [_]tm) η∅ ⟩
+    t [ ∅ ]tm                 ∎)
 
 π₂∘ : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ)
   → π₂ (σ ∘ τ) ≡ π₂ σ [ τ ]tm
 π₂∘ {Δ} {Γ} {A} {Θ} σ τ =
-    π₂ (σ ∘ τ)
-  ≡⟨ {!!} ⟩
-    π₂ {A = A} ((π₁ σ , π₂ σ) ∘ τ)
-  ≡⟨ {!!} ⟩
-    π₂ {A = A} ((π₁ σ ∘ τ) , π₂ σ [ τ ]tm)
-  ≡⟨ π₂, {σ = π₁ σ ∘ τ} ⟩
-    π₂ σ [ τ ]tm
-  ∎
+    π₂ (σ ∘ τ)                             ≡⟨ {!!} ⟩
+    π₂ {A = A} ((π₁ σ , π₂ σ) ∘ τ)         ≡⟨ {!!} ⟩
+    π₂ {A = A} ((π₁ σ ∘ τ) , π₂ σ [ τ ]tm) ≡⟨ π₂, {σ = π₁ σ ∘ τ} ⟩
+    π₂ σ [ τ ]tm                           ∎
     
 -- syntax abbreviations
 wk : Sub (Δ , A) Δ
