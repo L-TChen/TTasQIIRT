@@ -7,20 +7,21 @@ Here is a list of attempts we tried to strive the balence between definitional a
   <thead>
     <tr>
       <td></td>
-      <td colspan=2>type substitution</td>
+      <td colspan=3>type substitution</td>
       <td colspan=2>term substitution</td>
-      <td colspan=2>term eqs</td>
-      <td colspan=2>substitution eqs</td>
+      <td colspan=2>substitution eqs.</td>
+      <td colspan=2>term eqs.</td>
     </tr>
     <tr>
       <td></td>
       <td>id, comp</td>
+      <td>π₁-ext, π₁-comp</td>
       <td>cong</td>
       <td>id, comp</td>
-      <td>wk</td>
-      <td>βπ₂</td>
-      <td></td>
+      <td>π₁-ext, π₁-comp</td>
       <td>βπ₁</td>
+      <td></td>
+      <td>βπ₂</td>
       <td></td>
     </tr>
   </thead>
@@ -39,6 +40,7 @@ open import SC.QIIT
       <td>🧊</td>
       <td>🧊</td>
       <td>🧊</td>
+      <td>🧊</td>
     </tr>
     <tr>
       <td><details><summary>QIIRT for SC</summary>
@@ -47,26 +49,43 @@ open import SC.QIIRT
 ```
       </td>
       <td>🚫</td>
+      <td>🧊</td>
       <td>🔥</td>
+      <td>🧊</td>
+      <td>🧊</td>
       <td>🧊</td>
       <td>🧊</td>
       <td>🧊</td>
       <td>🚫</td>
+    </tr>
+    <tr>
+      <td><details><summary>QIIRT for SC+El</summary>
+```
+open import SC+El.QIIRT1.Base
+```
+      <td>🔥</td>
       <td>🧊</td>
+      <td>🔥</td>
+      <td>🔥</td>
+      <td>🧊</td>
+      <td>🔥</td>
+      <td>🧊</td>
+      <td>🔥</td>
       <td>🧊</td>
     </tr>
     <tr>
-      <td><details><summary>QIIRT2 for SC with El</summary>
+      <td><details><summary>QIIRT for SC+El</summary>
 ```
-open import SC.QIIRT2
+open import SC+El.QIIRT2.Base
 ```
+      <td>🔥</td>
+      <td>🔥</td>
       <td>🔥</td>
       <td>🔥</td>
       <td>🔥</td>
       <td>🧊</td>
-      <td>🔥</td>
       <td>🧊</td>
-      <td>🔥</td>
+      <td>🧊</td>
       <td>🧊</td>
     </tr>
   </tbody>
@@ -75,7 +94,7 @@ open import SC.QIIRT2
 where
 
 * 🧊: defined by equality constructors
-* 🔥: defined by recursion possibly with rewrite rules
+* 🔥: defined by recursion / with rewrite rules
 * 🚫: not applicable
 
 ## Trivials

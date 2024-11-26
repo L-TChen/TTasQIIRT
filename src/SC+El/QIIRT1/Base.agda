@@ -1,6 +1,6 @@
 {-# OPTIONS --local-confluence-check #-}
 
-module SC.QIIRT2.Base where
+module SC+El.QIIRT1.Base where
 
 open import Prelude
 
