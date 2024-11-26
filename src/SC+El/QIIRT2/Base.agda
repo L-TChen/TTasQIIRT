@@ -112,7 +112,7 @@ interleaved mutual
     η∅
       : {σ : Sub Γ ∅}
       → σ ≡ ∅
-    ηπ
+    η,
       : {σ : Sub Δ (Γ , A)}
       → σ ≡ (π₁ σ , π₂ σ)
 
@@ -133,7 +133,7 @@ interleaved mutual
   π₁∘ : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
   π₁∘ σ τ =
       π₁ (σ ∘ τ)
-    ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) ηπ ⟩
+    ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) η, ⟩
       π₁ ((π₁ σ , π₂ σ) ∘ τ)
     ≡⟨ cong π₁ ,∘ ⟩ 
       π₁ (π₁ σ ∘ τ , (π₂ σ) [ τ ]t)
@@ -187,10 +187,18 @@ interleaved mutual
   coh[assocS] : A [ (σ ∘ τ) ∘ γ ] ≡ A [ σ ∘ (τ ∘ γ) ]
   coh[assocS] = refl
 
+  coh[,∘] : A [ (σ , t) ∘ τ ] ≡ A [ σ ∘ τ , t [ τ ]t ]
+  coh[,∘] {A = U} {σ = σ} {t = t} {τ = τ}    = refl
+  coh[,∘] {A = El u} {σ = σ} {t = t} {τ = τ} = cong El (begin
+   u [ σ , t ]tm [ τ ]t       ≡⟨ sym ([]t≡[]tm (u [ σ , t ]tm) τ) ⟩
+   u [ σ , t ]tm [ τ ]tm      ≡⟨ sym ([∘]tm) ⟩
+   u [ (σ , t) ∘ τ ]tm        ≡⟨ cong (u [_]tm) ,∘ ⟩
+   u [ (σ ∘ τ) , t [ τ ]t ]tm ∎)
+  
   coh[βπ₁] : A [ π₁ (σ , t) ] ≡ A [ σ ]
   coh[βπ₁] = refl
 
-  coh[βπ₂] : π₂ (_,_ {A = A} σ t) [ τ ]t ≡ t [ τ ]t
+  coh[βπ₂] : π₂ (σ , t) [ τ ]t ≡ t [ τ ]t
   coh[βπ₂] {σ = σ} {t = t} {τ = τ} = begin
     π₂ (σ , t) [ τ ]t
       ≡⟨ sym ([]t≡[]tm _ _) ⟩
@@ -200,6 +208,14 @@ interleaved mutual
       ≡⟨ []t≡[]tm _ _ ⟩
     t [ τ ]t
       ∎
+
+  coh[η,] : A [ σ ] ≡ A [ π₁ σ , π₂ σ ]
+  coh[η,] {A = U}    {σ} = refl
+  coh[η,] {A = El t} {σ = σ} = cong El (begin
+    t [ σ ]t              ≡⟨ sym ([]t≡[]tm t σ) ⟩
+    t [ σ ]tm             ≡⟨ cong (t [_]tm) η, ⟩
+    t [ π₁ σ , π₂ σ ]tm   ∎ 
+    )
 
   coh[η∅] : A [ σ ] ≡ A [ ∅ ]
   coh[η∅] {A = U}            = refl
