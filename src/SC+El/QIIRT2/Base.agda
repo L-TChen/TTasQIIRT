@@ -137,27 +137,38 @@ interleaved mutual
       π₁ (π₁ σ ∘ τ , (π₂ σ) [ τ ]t) ≡⟨ π₁, _ _ ⟩
       π₁ σ ∘ τ                      ∎
 
+  cong[] : (A : Ty Δ){σ σ' : Sub Γ Δ} → σ ≡ σ' → A [ σ ] ≡ A [ σ' ]
+  cong[] A refl = refl
+
+  congTmΓ : {Γ : Ctx}{A A' : Ty Γ} → A ≡ A' → Tm Γ A ≡ Tm Γ A'
+  congTmΓ refl = refl
+  
+  cong[]tm : (t : Tm Δ A){σ σ' : Sub Γ Δ}(σ≡σ' : σ ≡ σ') → conv (congTmΓ (cong[] A σ≡σ')) (t [ σ ]tm) ≡ t [ σ' ]tm
+  cong[]tm t refl = refl
+
   []t≡[]tm : {Γ Δ : Ctx} {A : Ty Δ} (t : Tm Δ A) (σ : Sub Γ Δ) → t [ σ ]tm ≡ t [ σ ]t 
   []t≡[]tm t ∅       = refl
   []t≡[]tm t (_ , _) = refl
   []t≡[]tm t idS     = [id]tm
   []t≡[]tm t (π₁ idS)     = refl
-  []t≡[]tm t (π₁ (τ ∘ σ)) = begin
-    t [ π₁ (τ ∘ σ) ]tm   ≡⟨ {!!} ⟩
-    t [ π₁ τ ∘ σ ]tm     ≡⟨ [∘]tm ⟩
-    t [ π₁ τ ]tm [ σ ]tm ≡⟨ cong (_[ σ ]tm) ([]t≡[]tm t (π₁ τ)) ⟩
-    t [ π₁ τ ]t [ σ ]tm  ≡⟨ []t≡[]tm (t [ π₁ τ ]t) σ ⟩
-    t [ π₁ τ ]t [ σ ]t   ∎
+  []t≡[]tm {A = A} t (π₁ (τ ∘ σ)) = begin
+    t [ π₁ (τ ∘ σ) ]tm                                       ≡⟨ conv-unique refl (congTmΓ (cong[] A (π₁∘ τ σ))) (t [ π₁ (τ ∘ σ) ]tm) ⟩
+    conv (congTmΓ (cong[] A (π₁∘ τ σ))) (t [ π₁ (τ ∘ σ) ]tm) ≡⟨ cong[]tm t (π₁∘ τ σ) ⟩
+    t [ π₁ τ ∘ σ ]tm                                         ≡⟨ [∘]tm ⟩
+    t [ π₁ τ ]tm [ σ ]tm                                     ≡⟨ cong (_[ σ ]tm) ([]t≡[]tm t (π₁ τ)) ⟩
+    t [ π₁ τ ]t [ σ ]tm                                      ≡⟨ []t≡[]tm (t [ π₁ τ ]t) σ ⟩
+    t [ π₁ τ ]t [ σ ]t                                       ∎
   []t≡[]tm t (π₁ (π₁ σ))  = refl
   []t≡[]tm t (τ ∘ σ) = begin
     t [ τ ∘ σ ]tm        ≡⟨ [∘]tm ⟩
     t [ τ ]tm [ σ ]tm    ≡⟨ cong (_[ σ ]tm) ([]t≡[]tm t τ)  ⟩
     t [ τ ]t [ σ ]tm     ≡⟨ []t≡[]tm (t [ τ ]t) σ ⟩
     t [ τ ]t [ σ ]t      ∎
-  []t≡[]tm t (π₁ (σ , u)) = 
-    t [ π₁ (σ , u) ]tm   ≡⟨ {!!} ⟩
-    t [ σ ]tm            ≡⟨ []t≡[]tm t σ ⟩
-    t [ σ ]t             ∎
+  []t≡[]tm {A = A} t (π₁ (_,_ {A = A'} σ u)) = 
+    t [ π₁ (σ , u) ]tm                                       ≡⟨ conv-unique refl (congTmΓ (cong[] A (π₁, {A = A'} σ u))) (t [ π₁ (σ , u) ]tm) ⟩
+    conv (congTmΓ (cong[] A (π₁, σ u))) (t [ π₁ (σ , u) ]tm) ≡⟨ cong[]tm t (π₁, σ u) ⟩
+    t [ σ ]tm                                                ≡⟨ []t≡[]tm t σ ⟩
+    t [ σ ]t                                                 ∎
       
 -- We will need to prove coherence for the following with another rewriting relation:
 -- coherence of postulates
