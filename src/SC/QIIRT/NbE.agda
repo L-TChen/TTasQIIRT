@@ -46,7 +46,7 @@ lookupVar (_‣_ {A = U} ρ x') (there {A = U} x) = lookupVar ρ x
     π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
   ≡⟨ cong π₂ (sym (idS∘ (⌞ ρ ⌟R ‣ ⌞ x ⌟V))) ⟩
     π₂ (idS ∘ (⌞ ρ ⌟R ‣ ⌞ x ⌟V))
-  ≡⟨ π₂∘ idS (⌞ ρ ⌟R ‣ ⌞ x ⌟V) ⟩
+  ≡⟨ π₂∘ idS (⌞ ρ ⌟R ‣ ⌞ x ⌟V) ⟩ -- TODO: turn into lemma
     π₂ idS [ ⌞ ρ ⌟R ‣ ⌞ x ⌟V ]tm
   ≡⟨⟩
     ⌞ here ⌟V [ ⌞ ρ ⌟R ‣ ⌞ x ⌟V ]tm
@@ -56,7 +56,7 @@ lookupVar (_‣_ {A = U} ρ x') (there {A = U} x) = lookupVar ρ x
   ≡⟨ ⌞lookup⌟ ρ x ⟩
     ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm
   ≡⟨ cong (⌞ x ⌟V [_]tm) (sym (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x' ⌟V})) ⟩
-    ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]tm
+    ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]tm -- could use lemma
   ≡⟨ cong (⌞ x ⌟V [_]tm) (cong π₁ (sym (idS∘ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V)))) ⟩
     ⌞ x ⌟V [ π₁ (idS ∘ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V)) ]tm
   ≡⟨ cong (⌞ x ⌟V [_]tm) (π₁∘ idS (⌞ ρ ⌟R ‣ ⌞ x' ⌟V)) ⟩
@@ -124,96 +124,105 @@ reifySub (σ ∘ τ) = reifySub σ ⊙ reifySub τ
 reifySub (π₁ σ) with reifySub σ
 ... | ρ ‣ _ = ρ
 
-soundnessTm : (t : Tm Γ A) → ⌞ reifyTm t ⌟V ≡ t
-soundnessSub : (σ : Sub Δ Γ) → ⌞ reifySub σ ⌟R ≡ σ
+soundnessTm : (t : Tm Γ A) → t ≡ ⌞ reifyTm t ⌟V
+soundnessSub : (σ : Sub Δ Γ) → σ ≡ ⌞ reifySub σ ⌟R
 soundnessTm (π₂ {A = U} (σ ‣ t)) with soundnessSub (σ ‣ t)
-... | eq = begin
-    ⌞ reifyTm t ⌟V
-  ≡⟨ sym (βπ₂ {σ = ⌞ reifySub σ ⌟R} {⌞ reifyTm t ⌟V}) ⟩
-    π₂ (⌞ reifySub σ ⌟R ‣ ⌞ reifyTm t ⌟V)
-  ≡⟨ cong π₂ eq ⟩
+... | eq =
+  begin
     π₂ (σ ‣ t)
+  ≡⟨ cong π₂ eq ⟩
+    π₂ (⌞ reifySub σ ⌟R ‣ ⌞ reifyTm t ⌟V)
+  ≡⟨ βπ₂ {σ = ⌞ reifySub σ ⌟R} {⌞ reifyTm t ⌟V} ⟩
+    ⌞ reifyTm t ⌟V
   ∎
 soundnessTm (π₂ {A = U} idS) = refl
 soundnessTm (π₂ {Δ} {A = U} (σ ∘ τ)) with reifySub σ | soundnessSub σ
-... | ρ ‣ x | ⌞ρ⌟‣⌞x⌟≡σ with soundnessSub τ
-... | eq = begin
-    ⌞ lookupVar (reifySub τ) x ⌟V
-  ≡⟨ ⌞lookup⌟ (reifySub τ) x ⟩
-    ⌞ x ⌟V [ ⌞ reifySub τ ⌟R ]tm
-  ≡⟨ cong (⌞ x ⌟V [_]tm) eq ⟩
-    ⌞ x ⌟V [ τ ]tm
-  ≡⟨ cong (_[ τ ]tm) (sym (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V})) ⟩
-    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V) [ τ ]tm
-  ≡⟨ cong (λ y → π₂ y [ τ ]tm) ⌞ρ⌟‣⌞x⌟≡σ ⟩
-    π₂ σ [ τ ]tm
-  ≡⟨ sym (π₂∘ σ τ) ⟩
+... | ρ ‣ x | σ≡⌞ρ⌟‣⌞x⌟ with soundnessSub τ
+... | eq = 
+  begin
     π₂ (σ ∘ τ)
+  ≡⟨ π₂∘ σ τ ⟩
+    π₂ σ [ τ ]tm
+  ≡⟨ cong (λ y → π₂ y [ τ ]tm) σ≡⌞ρ⌟‣⌞x⌟ ⟩
+    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V) [ τ ]tm
+  ≡⟨ cong (_[ τ ]tm) (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}) ⟩
+    ⌞ x ⌟V [ τ ]tm
+  ≡⟨ cong (⌞ x ⌟V [_]tm) eq ⟩
+    ⌞ x ⌟V [ ⌞ reifySub τ ⌟R ]tm
+  ≡⟨ sym (⌞lookup⌟ (reifySub τ) x) ⟩
+    ⌞ lookupVar (reifySub τ) x ⌟V
   ∎
 soundnessTm (π₂ {Δ} {A = U} (π₁ σ)) with reifySub σ | soundnessSub σ
-... | (ρ ‣ x) ‣ x' | eq = begin
-    ⌞ x ⌟V
-  ≡⟨ sym (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}) ⟩
-    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
-  ≡⟨ cong π₂ (sym (βπ₁ {σ = ⌞ ρ ⌟R ‣ ⌞ x ⌟V} {⌞ x' ⌟V})) ⟩
-    π₂ (π₁ ((⌞ ρ ⌟R ‣ ⌞ x ⌟V) ‣ ⌞ x' ⌟V))
-  ≡⟨ cong (λ y → π₂ (π₁ y)) eq ⟩
+... | (ρ ‣ x) ‣ x' | eq = 
+  begin
     π₂ (π₁ σ)
+  ≡⟨ cong (λ y → π₂ (π₁ y)) eq ⟩
+    π₂ (π₁ ⌞ (ρ ‣ x) ‣ x' ⌟R)
+  ≡⟨ cong π₂ (βπ₁ {σ = ⌞ ρ ⌟R ‣ ⌞ x ⌟V} {⌞ x' ⌟V}) ⟩
+    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
+  ≡⟨ βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V} ⟩
+    ⌞ x ⌟V
   ∎
 soundnessTm (t [ σ ]tm) with reifyTm t | reifySub σ | soundnessTm t | soundnessSub σ
-... | here {A = U} | ρ ‣ x | eqTm | eqSub = begin
-    ⌞ x ⌟V
-  ≡⟨ sym (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}) ⟩
-    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
-  ≡⟨ cong π₂ eqSub ⟩
-    π₂ σ
-  ≡⟨ cong π₂ (sym (idS∘ σ)) ⟩
-    π₂ (idS ∘ σ)
-  ≡⟨ π₂∘ idS σ ⟩
+... | here {A = U} | ρ ‣ x | eqTm | eqSub =
+  begin
+    t [ σ ]tm
+  ≡⟨ cong (_[ σ ]tm) eqTm ⟩
     π₂ idS [ σ ]tm
-  ≡⟨ cong (_[ σ ]tm) eqTm ⟩
-    t [ σ ]tm
+  ≡⟨ sym (π₂∘ idS σ) ⟩
+    π₂ (idS ∘ σ)
+  ≡⟨ cong π₂ (idS∘ σ) ⟩
+    π₂ σ
+  ≡⟨ cong π₂ eqSub ⟩
+    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
+  ≡⟨ βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V} ⟩
+    ⌞ x ⌟V
   ∎
-... | there {A = U} x | ρ ‣ x' | eqTm | eqSub = begin
-    ⌞ lookupVar ρ x ⌟V
-  ≡⟨ ⌞lookup⌟ ρ x ⟩
-    ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm
-  ≡⟨ cong (⌞ x ⌟V [_]tm) (sym (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x' ⌟V})) ⟩
-    ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]tm
-  ≡⟨ cong (λ y → ⌞ x ⌟V [ π₁ y ]tm) eqSub ⟩
-    ⌞ x ⌟V [ π₁ σ ]tm
-  ≡⟨ cong (⌞ x ⌟V [_]tm) (sym (π₁idS∘ σ)) ⟩ -- would be "cong (⌞ x ⌟V [_]t) (sym (π₁idS∘ σ))" using recursion _[_]t
-    ⌞ x ⌟V [ π₁ idS ∘ σ ]tm
-  ≡⟨ [∘]tm ⌞ x ⌟V (π₁ idS) σ ⟩ -- would be "refl" using recursion _[_]t
+... | there {A = U} x | ρ ‣ x' | eqTm | eqSub =
+  begin
+    t [ σ ]tm
+  ≡⟨ cong (_[ σ ]tm) eqTm ⟩
     ⌞ x ⌟V [ π₁ idS ]tm [ σ ]tm
-  ≡⟨ cong (_[ σ ]tm) eqTm ⟩
-    t [ σ ]tm
+  ≡⟨ sym ([∘]tm ⌞ x ⌟V (π₁ idS) σ) ⟩ -- would be "refl" using recursion _[_]t
+    ⌞ x ⌟V [ π₁ idS ∘ σ ]tm
+  ≡⟨ cong (⌞ x ⌟V [_]tm) (π₁idS∘ σ) ⟩ -- would be "cong (⌞ x ⌟V [_]t) (π₁idS∘ σ)" using recursion _[_]t
+    ⌞ x ⌟V [ π₁ σ ]tm
+  ≡⟨ cong (λ y → ⌞ x ⌟V [ π₁ y ]tm) eqSub ⟩
+    ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]tm
+  ≡⟨ cong (⌞ x ⌟V [_]tm) (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x' ⌟V}) ⟩
+    ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm
+  ≡⟨ sym (⌞lookup⌟ ρ x) ⟩
+    ⌞ lookupVar ρ x ⌟V
   ∎
+
 soundnessSub ∅ = refl
-soundnessSub (σ ‣ t) = begin
-    ⌞ reifySub σ ⌟R ‣ ⌞ reifyTm t ⌟V
-  ≡⟨ cong (⌞ reifySub σ ⌟R ‣_) (soundnessTm t) ⟩
-    ⌞ reifySub σ ⌟R ‣ t
-  ≡⟨ cong (_‣ t) (soundnessSub σ) ⟩
+soundnessSub (σ ‣ t) = 
+  begin
     σ ‣ t
+  ≡⟨ cong (_‣ t) (soundnessSub σ) ⟩
+    ⌞ reifySub σ ⌟R ‣ t
+  ≡⟨ cong (⌞ reifySub σ ⌟R ‣_) (soundnessTm t) ⟩
+    ⌞ reifySub σ ⌟R ‣ ⌞ reifyTm t ⌟V
   ∎
-soundnessSub idS = ⌞idR⌟
-soundnessSub (σ ∘ τ) = begin
-    ⌞ reifySub σ ⊙ reifySub τ ⌟R
-  ≡⟨ ⌞⊙⌟ (reifySub σ) (reifySub τ) ⟩
-    ⌞ reifySub σ ⌟R ∘ ⌞ reifySub τ ⌟R
-  ≡⟨ cong (_∘ ⌞ reifySub τ ⌟R) (soundnessSub σ) ⟩
-    σ ∘ ⌞ reifySub τ ⌟R
-  ≡⟨ cong (σ ∘_) (soundnessSub τ) ⟩
+soundnessSub idS = sym ⌞idR⌟
+soundnessSub (σ ∘ τ) =
+  begin
     σ ∘ τ
+  ≡⟨ cong (σ ∘_) (soundnessSub τ) ⟩
+    σ ∘ ⌞ reifySub τ ⌟R
+  ≡⟨ cong (_∘ ⌞ reifySub τ ⌟R) (soundnessSub σ) ⟩
+    ⌞ reifySub σ ⌟R ∘ ⌞ reifySub τ ⌟R
+  ≡⟨ sym (⌞⊙⌟ (reifySub σ) (reifySub τ)) ⟩
+    ⌞ reifySub σ ⊙ reifySub τ ⌟R
   ∎
 soundnessSub (π₁ σ) with reifySub σ | soundnessSub σ
-... | ρ ‣ x | eq = begin
-    ⌞ ρ ⌟R
-  ≡⟨ sym (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}) ⟩
-    π₁ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
-  ≡⟨ cong π₁ eq ⟩
+... | ρ ‣ x | eq =
+  begin
     π₁ σ
+  ≡⟨ cong π₁ eq ⟩
+    π₁ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
+  ≡⟨ βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V} ⟩
+    ⌞ ρ ⌟R
   ∎
 
 -- Inductive definition of the normal form
@@ -277,4 +286,4 @@ NfTm[nfVar] : (x : Var Γ A) → NfTm Γ (nfVar x)
 NfTm[nfVar] {A = U} x = NfTm[accVar] x idS
 
 thm[normalization] : (t : Tm Γ A) → Σ[ t' ∈ Tm Γ A ] t ≡ t' × NfTm Γ t'
-thm[normalization] t = nfVar (reifyTm t) , trans (sym (soundnessTm t)) (soundnessNfVar (reifyTm t)) , NfTm[nfVar] (reifyTm t)
+thm[normalization] t = nfVar (reifyTm t) , trans (soundnessTm t) (soundnessNfVar (reifyTm t)) , NfTm[nfVar] (reifyTm t)
