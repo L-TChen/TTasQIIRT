@@ -3,6 +3,7 @@
 module SC.QIIRT.Base where
 
 open import Prelude
+open ≡-Reasoning
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 

@@ -6,6 +6,7 @@ open import SC.QIIRT.Base
 open import SC.QIIRT.Model
 open import SC.QIIRT.Elimination
 
+open ≡-Reasoning
 open Pdc
 open IH
 open IHEq

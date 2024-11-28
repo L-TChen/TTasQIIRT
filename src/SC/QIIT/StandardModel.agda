@@ -6,6 +6,8 @@ open import SC.QIIT.Base
 open import SC.QIIT.Model
 open import SC.QIIT.Elimination
 
+open ≡-Reasoning
+
 StdDecl : Pdc
 StdDecl = record
   {

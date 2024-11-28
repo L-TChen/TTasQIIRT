@@ -3,6 +3,7 @@
 module SC+El.QIIRT1.Base where
 
 open import Prelude
+open ≡-Reasoning
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 
@@ -255,27 +256,6 @@ coh[η∅] {A = El t} {σ = σ} = cong El (cong (t [_]tm) (η∅ {σ = σ}))
       ≡⟨ βπ₂ ⟩
         π₂ σ [ τ ]tm
       ∎
-
-{-
-  tr (Tm Θ) (cong (A [_]) (π₁∘ σ τ)) (π₂ (σ ∘ τ))
-    ≡⟨ {!  !} ⟩
-  tr (Tm Θ) (cong (A [_]) (π₁∘ (π₁ σ ‣ π₂ σ) τ)) (π₂ {A = A} ((π₁ σ ‣ π₂ σ) ∘ τ))
-    ≡⟨ {!  !} ⟩
-  π₂ {A = A} ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]tm) 
-    ≡⟨ βπ₂ ⟩
-  π₂ σ [ τ ]tm
-    ∎
--}  
--- {-
---     π₂ (σ ∘ τ)
---   ≡⟨ cong (λ σ' → π₂ {A = _} (σ' ∘ τ)) ηπ ⟩
---     π₂ ((π₁ σ ‣ π₂ σ) ∘ τ)
---   ≡⟨ cong (π₂ {A = _}) ‣∘ ⟩
---     π₂ ((π₁ σ ∘ τ) ‣ π₂ σ [ τ ]tm)
---   ≡⟨ βπ₂ {σ = π₁ σ ∘ τ} ⟩
---     π₂ σ [ τ ]tm
---   ∎
--- -}
 
 -- syntax abbreviations
 wk : Sub (Δ ‣ A) Δ

@@ -4,8 +4,7 @@
 module SC.QIIT.Base where
 
 open import Prelude
--- open import Agda.Builtin.Equality.Rewrite
--- open import Cubical.Core.Primitives
+open ≡-Reasoning
 
 -- inductive-inductive definition of context, type, term, and type substitution
 
