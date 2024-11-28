@@ -146,28 +146,28 @@ interleaved mutual
   cong[]tm : (t : Tm Δ A){σ σ' : Sub Γ Δ}(σ≡σ' : σ ≡ σ') → conv (congTmΓ (cong[] A σ≡σ')) (t [ σ ]tm) ≡ t [ σ' ]tm
   cong[]tm t refl = refl
 
-  []t≡[]tm : {Γ Δ : Ctx} {A : Ty Δ} (t : Tm Δ A) (σ : Sub Γ Δ) → t [ σ ]tm ≡ t [ σ ]t 
-  []t≡[]tm t ∅       = refl
-  []t≡[]tm t (_ , _) = refl
-  []t≡[]tm t idS     = [id]tm
-  []t≡[]tm t (π₁ idS)     = refl
-  []t≡[]tm {A = A} t (π₁ (τ ∘ σ)) = begin
+  []tm≡[]t : {Γ Δ : Ctx} {A : Ty Δ} (t : Tm Δ A) (σ : Sub Γ Δ) → t [ σ ]tm ≡ t [ σ ]t 
+  []tm≡[]t t ∅       = refl
+  []tm≡[]t t (_ , _) = refl
+  []tm≡[]t t idS     = [id]tm
+  []tm≡[]t t (π₁ idS)     = refl
+  []tm≡[]t {A = A} t (π₁ (τ ∘ σ)) = begin
     t [ π₁ (τ ∘ σ) ]tm                                       ≡⟨ conv-unique refl (congTmΓ (cong[] A (π₁∘ τ σ))) (t [ π₁ (τ ∘ σ) ]tm) ⟩
     conv (congTmΓ (cong[] A (π₁∘ τ σ))) (t [ π₁ (τ ∘ σ) ]tm) ≡⟨ cong[]tm t (π₁∘ τ σ) ⟩
     t [ π₁ τ ∘ σ ]tm                                         ≡⟨ [∘]tm ⟩
-    t [ π₁ τ ]tm [ σ ]tm                                     ≡⟨ cong (_[ σ ]tm) ([]t≡[]tm t (π₁ τ)) ⟩
-    t [ π₁ τ ]t [ σ ]tm                                      ≡⟨ []t≡[]tm (t [ π₁ τ ]t) σ ⟩
+    t [ π₁ τ ]tm [ σ ]tm                                     ≡⟨ cong (_[ σ ]tm) ([]tm≡[]t t (π₁ τ)) ⟩
+    t [ π₁ τ ]t [ σ ]tm                                      ≡⟨ []tm≡[]t (t [ π₁ τ ]t) σ ⟩
     t [ π₁ τ ]t [ σ ]t                                       ∎
-  []t≡[]tm t (π₁ (π₁ σ))  = refl
-  []t≡[]tm t (τ ∘ σ) = begin
+  []tm≡[]t t (π₁ (π₁ σ))  = refl
+  []tm≡[]t t (τ ∘ σ) = begin
     t [ τ ∘ σ ]tm        ≡⟨ [∘]tm ⟩
-    t [ τ ]tm [ σ ]tm    ≡⟨ cong (_[ σ ]tm) ([]t≡[]tm t τ)  ⟩
-    t [ τ ]t [ σ ]tm     ≡⟨ []t≡[]tm (t [ τ ]t) σ ⟩
+    t [ τ ]tm [ σ ]tm    ≡⟨ cong (_[ σ ]tm) ([]tm≡[]t t τ)  ⟩
+    t [ τ ]t [ σ ]tm     ≡⟨ []tm≡[]t (t [ τ ]t) σ ⟩
     t [ τ ]t [ σ ]t      ∎
-  []t≡[]tm {A = A} t (π₁ (_,_ {A = A'} σ u)) = 
+  []tm≡[]t {A = A} t (π₁ (_,_ {A = A'} σ u)) = 
     t [ π₁ (σ , u) ]tm                                       ≡⟨ conv-unique refl (congTmΓ (cong[] A (π₁, {A = A'} σ u))) (t [ π₁ (σ , u) ]tm) ⟩
     conv (congTmΓ (cong[] A (π₁, σ u))) (t [ π₁ (σ , u) ]tm) ≡⟨ cong[]tm t (π₁, σ u) ⟩
-    t [ σ ]tm                                                ≡⟨ []t≡[]tm t σ ⟩
+    t [ σ ]tm                                                ≡⟨ []tm≡[]t t σ ⟩
     t [ σ ]t                                                 ∎
       
 -- We will need to prove coherence for the following with another rewriting relation:
@@ -185,7 +185,7 @@ interleaved mutual
   coh[,∘] : A [ (σ , t) ∘ τ ] ≡ A [ σ ∘ τ , t [ τ ]t ]
   coh[,∘] {A = U}    {σ = σ} {t = t} {τ = τ} = refl
   coh[,∘] {A = El u} {σ = σ} {t = t} {τ = τ} = cong El (begin
-   u [ σ , t ]tm [ τ ]t       ≡⟨ sym ([]t≡[]tm (u [ σ , t ]tm) τ) ⟩
+   u [ σ , t ]tm [ τ ]t       ≡⟨ sym ([]tm≡[]t (u [ σ , t ]tm) τ) ⟩
    u [ σ , t ]tm [ τ ]tm      ≡⟨ sym ([∘]tm) ⟩
    u [ (σ , t) ∘ τ ]tm        ≡⟨ cong (u [_]tm) ,∘ ⟩
    u [ (σ ∘ τ) , t [ τ ]t ]tm ∎)
@@ -195,15 +195,15 @@ interleaved mutual
 
   coh[βπ₂] : π₂ (σ , t) [ τ ]t ≡ t [ τ ]t
   coh[βπ₂] {σ = σ} {t = t} {τ = τ} = begin
-    π₂ (σ , t) [ τ ]t         ≡⟨ sym ([]t≡[]tm _ _) ⟩
+    π₂ (σ , t) [ τ ]t         ≡⟨ sym ([]tm≡[]t _ _) ⟩
     π₂ (σ , t) [ τ ]tm        ≡⟨ cong (_[ τ ]tm) π₂, ⟩
-    t [ τ ]tm                 ≡⟨ []t≡[]tm _ _ ⟩
+    t [ τ ]tm                 ≡⟨ []tm≡[]t _ _ ⟩
     t [ τ ]t                  ∎
 
   coh[η,] : A [ σ ] ≡ A [ π₁ σ , π₂ σ ]
   coh[η,] {A = U}    {σ} = refl
   coh[η,] {A = El t} {σ = σ} = cong El (begin
-    t [ σ ]t                  ≡⟨ sym ([]t≡[]tm t σ) ⟩
+    t [ σ ]t                  ≡⟨ sym ([]tm≡[]t t σ) ⟩
     t [ σ ]tm                 ≡⟨ cong (t [_]tm) η, ⟩
     t [ π₁ σ , π₂ σ ]tm       ∎ 
     )
@@ -211,15 +211,37 @@ interleaved mutual
   coh[η∅] : A [ σ ] ≡ A [ ∅ ]
   coh[η∅] {A = U}            = refl
   coh[η∅] {A = El t} {σ = σ} = cong El (begin
-    t [ σ ]t                  ≡⟨ sym ([]t≡[]tm t σ) ⟩
+    t [ σ ]t                  ≡⟨ sym ([]tm≡[]t t σ) ⟩
     t [ σ ]tm                 ≡⟨ cong (t [_]tm) η∅ ⟩
     t [ ∅ ]tm                 ∎)
+
+congπ₁ : {σ σ' : Sub Γ (Δ , A)} → σ ≡ σ' → π₁ σ ≡ π₁ σ'
+congπ₁ refl = refl
+
+congπ₂ : {σ σ' : Sub Γ (Δ , A)}(σ≡σ' : σ ≡ σ') → conv (congTmΓ (cong[] A (congπ₁ σ≡σ'))) (π₂ σ) ≡ π₂ σ'
+congπ₂ refl = refl
+
+cong∘ : {σ σ' : Sub Δ Θ}{τ τ' : Sub Γ Δ} → σ ≡ σ' → τ ≡ τ' → σ ∘ τ ≡ σ' ∘ τ'
+cong∘ refl refl = refl
+
+cong, : {σ σ' : Sub Γ Δ}{t : Tm Γ (A [ σ ])}{t' : Tm Γ (A [ σ' ])}
+      → (σ≡σ' : σ ≡ σ') → conv (congTmΓ (cong[] A σ≡σ')) t ≡ t'
+      → _,_ {A = A} σ t ≡ _,_ {A = A} σ' t'
+cong, refl refl = refl
 
 π₂∘ : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ)
   → π₂ (σ ∘ τ) ≡ π₂ σ [ τ ]tm
 π₂∘ {Δ} {Γ} {A} {Θ} σ τ =
-    π₂ (σ ∘ τ)                             ≡⟨ {!!} ⟩
-    π₂ {A = A} ((π₁ σ , π₂ σ) ∘ τ)         ≡⟨ {!!} ⟩
+    π₂ (σ ∘ τ)                             ≡⟨ conv-unique refl (congTmΓ (cong[] A (congπ₁ (cong∘ {τ = τ} (η, {σ = σ}) refl)))) (π₂ (σ ∘ τ)) ⟩
+    conv (congTmΓ (cong[] A (congπ₁ (cong∘ {τ = τ} (η, {σ = σ}) refl))))
+         (π₂ (σ ∘ τ))                      ≡⟨ congπ₂ (cong∘ {τ = τ}(η, {σ = σ}) refl) ⟩
+    π₂ {A = A} ((π₁ σ , π₂ σ) ∘ τ)         ≡⟨ conv-unique refl (congTmΓ (cong[] A (congπ₁ (,∘ {σ = π₁ σ} {τ = τ})))) (π₂ {A = A} ((π₁ σ , π₂ σ) ∘ τ)) ⟩
+    conv (congTmΓ (cong[] A (congπ₁ (,∘ {σ = π₁ σ} {τ = τ}))))
+         (π₂ {A = A} ((π₁ σ , π₂ σ) ∘ τ))  ≡⟨ congπ₂ {A = A} (,∘ {σ = π₁ σ} {τ = τ}) ⟩
+    π₂ ((π₁ σ ∘ τ) , π₂ σ [ τ ]t)          ≡⟨ conv-unique refl (congTmΓ (cong[] A (congπ₁ (cong, {σ = π₁ σ ∘ τ} {t = π₂ σ [ τ ]t} refl (sym ([]tm≡[]t (π₂ σ) τ)))))) (π₂ {A = A} ((π₁ σ ∘ τ) , π₂ σ [ τ ]t)) ⟩
+    conv (congTmΓ (cong[] A (congπ₁ (cong, {σ = π₁ σ ∘ τ} {t = π₂ σ [ τ ]t} refl (sym ([]tm≡[]t (π₂ σ) τ))))))
+         (π₂ {A = A} ((π₁ σ ∘ τ) , π₂ σ [ τ ]t))
+                                           ≡⟨ congπ₂ {A = A} (cong, {σ = π₁ σ ∘ τ} {t = π₂ σ [ τ ]t} {π₂ σ [ τ ]tm} refl (sym ([]tm≡[]t (π₂ σ) τ))) ⟩
     π₂ {A = A} ((π₁ σ ∘ τ) , π₂ σ [ τ ]tm) ≡⟨ π₂, {σ = π₁ σ ∘ τ} ⟩
     π₂ σ [ τ ]tm                           ∎
     
@@ -236,3 +258,4 @@ vs x = x [ wk ]tm
 
 vz:= : Tm Γ A → Sub Γ (Γ , A)
 vz:= t = idS , t
+ 
