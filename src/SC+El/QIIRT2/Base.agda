@@ -1,5 +1,5 @@
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
---{-# OPTIONS --local-confluence-check #-}
+--{-# OPTIONS --confluence-check #-}
 {-# OPTIONS --local-confluence-check #-}
 
 module SC+El.QIIRT2.Base where
@@ -28,7 +28,6 @@ interleaved mutual
   
   data _ where
     ∅
-
       : Ctx
     _,_
       : (Γ : Ctx) (A : Ty Γ)
@@ -99,20 +98,19 @@ interleaved mutual
     assocS
       : (υ ∘ τ) ∘ σ ≡ υ ∘ (τ ∘ σ)
     π₁,
-      : (σ : Sub Γ Δ) (t : Tm Γ (A [ σ ]))
+      : {σ : Sub Γ Δ} {t : Tm Γ (A [ σ ])}
       → π₁ (σ , t) ≡ σ
     π₂,
-      : (σ : Sub Γ Δ) (t : Tm Γ (A [ σ ]))
-      →  π₂ (_,_ {A = A} σ t) ≡ t 
+      : {Γ Δ : Ctx} {A : Ty Δ}
+      → {σ : Sub Γ Δ} {t : Tm Γ (A [ σ ])}
+      →  π₂ (σ , t) ≡ t 
     ,∘
-      -- {A : Ty Γ}{σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}
       : ((σ , t) ∘ τ) ≡ ((σ ∘ τ) , t [ τ ]t)
     η∅
       : {σ : Sub Γ ∅}
       → σ ≡ ∅
     η,
-      : (σ : Sub Γ (Δ , A))
-      → σ ≡ (π₁ σ , π₂ σ)
+      : σ ≡ (π₁ σ , π₂ σ)
 
   data _ where
     U
@@ -135,111 +133,108 @@ interleaved mutual
     El[] : (σ : Sub Γ Δ) → (El t) [ σ ] ≡ El (t [ σ ]t)
     {-# REWRITE El[] #-}
 
-  -- derived computation rules on composition
-  π₁∘ : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
-  π₁∘ σ τ = begin
-      π₁ (σ ∘ τ)                    ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) (η, _) ⟩
-      π₁ ((π₁ σ , π₂ σ) ∘ τ)        ≡⟨ cong π₁ ,∘ ⟩ 
-      π₁ (π₁ σ ∘ τ , (π₂ σ) [ τ ]t) ≡⟨ π₁, _ _ ⟩
-      π₁ σ ∘ τ                      ∎
-    where open ≡-Reasoning
+-- derived computation rules on composition
+π₁∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
+π₁∘ σ τ = begin
+    π₁ (τ ∘ σ)                    ≡⟨ cong (λ σ' → π₁ (σ' ∘ σ)) η, ⟩
+    π₁ ((π₁ τ , π₂ τ) ∘ σ)        ≡⟨ cong π₁ ,∘ ⟩ 
+    π₁ (π₁ τ ∘ σ , (π₂ τ) [ σ ]t) ≡⟨ π₁, ⟩
+    π₁ τ ∘ σ                      ∎
+  where open ≡-Reasoning
 
-  []tm≡[]t : {Γ Δ : Ctx} {A : Ty Δ} (t : Tm Δ A) (σ : Sub Γ Δ) → t [ σ ]tm ≡ t [ σ ]t 
-  []tm≡[]t t ∅       = refl
-  []tm≡[]t t (_ , _) = refl
-  []tm≡[]t t idS     = [id]tm
-  []tm≡[]t t (π₁ idS)     = refl
-  []tm≡[]t {Γ} {A = A} t (π₁ (τ ∘ σ)) = ≅-to-≡ (begin
-    t [ π₁ (τ ∘ σ) ]tm                                       ≅⟨ HEq.cong (t [_]tm) (≡-to-≅ (π₁∘ τ σ)) ⟩
-    t [ π₁ τ ∘ σ ]tm                                         ≡⟨ [∘]tm ⟩
-    t [ π₁ τ ]tm [ σ ]tm                                     ≡⟨ cong (_[ σ ]tm) ([]tm≡[]t t (π₁ τ)) ⟩
-    t [ π₁ τ ]t [ σ ]tm                                      ≡⟨ []tm≡[]t (t [ π₁ τ ]t) σ ⟩
-    t [ π₁ τ ]t [ σ ]t                                       ∎)
-    where open ≅-Reasoning
-  []tm≡[]t t (π₁ (π₁ σ))  = refl
-  []tm≡[]t t (τ ∘ σ) = begin
-    t [ τ ∘ σ ]tm                                            ≡⟨ [∘]tm ⟩
-    t [ τ ]tm [ σ ]tm                                        ≡⟨ cong (_[ σ ]tm) ([]tm≡[]t t τ)  ⟩
-    t [ τ ]t [ σ ]tm                                         ≡⟨ []tm≡[]t (t [ τ ]t) σ ⟩
-    t [ τ ]t [ σ ]t                                          ∎
-    where open ≡-Reasoning
-  []tm≡[]t {A = A} t (π₁ (_,_ {A = A'} σ u)) = ≅-to-≡ (begin
-    t [ π₁ (σ , u) ]tm                                       ≅⟨ HEq.cong (t [_]tm) (≡-to-≅ (π₁, _ _)) ⟩
-    t [ σ ]tm                                                ≡⟨ []tm≡[]t t σ ⟩
-    t [ σ ]t                                                 ∎)
-    where open ≅-Reasoning
-      
+{-# TERMINATING #-} -- the size of σ is decreasing
+[]tm≡[]t : {Γ Δ : Ctx} {A : Ty Δ} (t : Tm Δ A) (σ : Sub Γ Δ) → t [ σ ]tm ≡ t [ σ ]t 
+[]tm≡[]t t ∅       = refl
+[]tm≡[]t t (_ , _) = refl
+[]tm≡[]t t idS     = [id]tm
+[]tm≡[]t t (π₁ idS)     = refl
+[]tm≡[]t t (π₁ (τ ∘ σ)) = ≅-to-≡ $ begin
+  t [ π₁ (τ ∘ σ) ]tm                                       ≅⟨ HEq.cong (t [_]tm) (≡-to-≅ (π₁∘ σ τ)) ⟩
+  t [ π₁ τ ∘ σ ]tm                                         ≡⟨ [∘]tm ⟩
+  t [ π₁ τ ]tm [ σ ]tm                                     ≡⟨ cong (_[ σ ]tm) ([]tm≡[]t t (π₁ τ)) ⟩
+  t [ π₁ τ ]t [ σ ]tm                                      ≡⟨ []tm≡[]t (t [ π₁ τ ]t) σ ⟩
+  t [ π₁ τ ]t [ σ ]t                                       ∎
+  where open ≅-Reasoning
+[]tm≡[]t t (π₁ (π₁ σ))  = refl
+[]tm≡[]t t (τ ∘ σ) = begin
+  t [ τ ∘ σ ]tm                                            ≡⟨ [∘]tm ⟩
+  t [ τ ]tm [ σ ]tm                                        ≡⟨ cong (_[ σ ]tm) ([]tm≡[]t t τ)  ⟩
+  t [ τ ]t [ σ ]tm                                         ≡⟨ []tm≡[]t (t [ τ ]t) σ ⟩
+  t [ τ ]t [ σ ]t                                          ∎
+  where open ≡-Reasoning
+[]tm≡[]t t (π₁ (σ , u)) = ≅-to-≡ $ begin
+  t [ π₁ (σ , u) ]tm                                       ≅⟨ HEq.cong (t [_]tm) (≡-to-≅ π₁,) ⟩
+  t [ σ ]tm                                                ≡⟨ []tm≡[]t t σ ⟩
+  t [ σ ]t                                                 ∎
+  where open ≅-Reasoning
+
 -- We will need to prove coherence for the following with another rewriting relation:
 -- coherence of postulates
-  
-  coh[idS∘] : A [ idS ∘ σ ] ≡ A [ σ ]
-  coh[idS∘] = refl
 
-  coh[∘idS] : A [ σ ∘ idS ] ≡ A [ σ ]
-  coh[∘idS] = refl
+coh[idS∘] : A [ idS ∘ σ ] ≡ A [ σ ]
+coh[idS∘] = refl
 
-  coh[assocS] : A [ (σ ∘ τ) ∘ γ ] ≡ A [ σ ∘ (τ ∘ γ) ]
-  coh[assocS] = refl
+coh[∘idS] : A [ σ ∘ idS ] ≡ A [ σ ]
+coh[∘idS] = refl
 
-  coh[,∘] : A [ (σ , t) ∘ τ ] ≡ A [ σ ∘ τ , t [ τ ]t ]
-  coh[,∘] {A = U}    {σ = σ} {t = t} {τ = τ} = refl
-  coh[,∘] {A = El u} {σ = σ} {t = t} {τ = τ} = cong El (begin
-   u [ σ , t ]tm [ τ ]t       ≡⟨ sym ([]tm≡[]t (u [ σ , t ]tm) τ) ⟩
-   u [ σ , t ]tm [ τ ]tm      ≡⟨ sym ([∘]tm) ⟩
-   u [ (σ , t) ∘ τ ]tm        ≡⟨ cong (u [_]tm) ,∘ ⟩
-   u [ (σ ∘ τ) , t [ τ ]t ]tm ∎)
-    where open ≡-Reasoning
-  
-  coh[βπ₁] : A [ π₁ (σ , t) ] ≡ A [ σ ]
-  coh[βπ₁] = refl
+coh[assocS] : A [ (σ ∘ τ) ∘ γ ] ≡ A [ σ ∘ (τ ∘ γ) ]
+coh[assocS] = refl
 
-  coh[βπ₂] : π₂ (σ , t) [ τ ]t ≡ t [ τ ]t
-  coh[βπ₂] {σ = σ} {t = t} {τ = τ} = begin
-    π₂ (σ , t) [ τ ]t         ≡⟨ sym ([]tm≡[]t _ _) ⟩
-    π₂ (σ , t) [ τ ]tm        ≡⟨ cong (_[ τ ]tm) (π₂, _ _) ⟩
-    t [ τ ]tm                 ≡⟨ []tm≡[]t _ _ ⟩
-    t [ τ ]t                  ∎
-    where open ≡-Reasoning
+coh[,∘] : A [ (σ , t) ∘ τ ] ≡ A [ σ ∘ τ , t [ τ ]t ]
+coh[,∘] {A = U}     = refl
+coh[,∘] {A = El u} {σ = σ} {t = t} {τ = τ} = cong El $ begin
+  u [ σ , t ]tm [ τ ]t       ≡⟨ sym ([]tm≡[]t (u [ σ , t ]tm) τ) ⟩
+  u [ σ , t ]tm [ τ ]tm      ≡⟨ sym ([∘]tm) ⟩
+  u [ (σ , t) ∘ τ ]tm        ≡⟨ cong (u [_]tm) ,∘ ⟩
+  u [ (σ ∘ τ) , t [ τ ]t ]tm ∎
+  where open ≡-Reasoning
 
-  coh[η,] : A [ σ ] ≡ A [ π₁ σ , π₂ σ ]
-  coh[η,] {A = U}    {σ} = refl
-  coh[η,] {A = El t} {σ = σ} = cong El (begin
-    t [ σ ]t                  ≡⟨ sym ([]tm≡[]t t σ) ⟩
-    t [ σ ]tm                 ≡⟨ cong (t [_]tm) (η, _) ⟩
-    t [ π₁ σ , π₂ σ ]tm       ∎ 
-    )
-    where open ≡-Reasoning
+coh[βπ₁] : A [ π₁ (σ , t) ] ≡ A [ σ ]
+coh[βπ₁] = refl
 
-  coh[η∅] : A [ σ ] ≡ A [ ∅ ]
-  coh[η∅] {A = U}            = refl
-  coh[η∅] {A = El t} {σ = σ} = cong El (begin
-    t [ σ ]t                  ≡⟨ sym ([]tm≡[]t t σ) ⟩
-    t [ σ ]tm                 ≡⟨ cong (t [_]tm) η∅ ⟩
-    t [ ∅ ]tm                 ∎)
-    where open ≡-Reasoning
+coh[βπ₂] : π₂ (σ , t) [ τ ]t ≡ t [ τ ]t
+coh[βπ₂] {σ = σ} {t = t} {τ = τ} = begin
+  π₂ (σ , t) [ τ ]t         ≡⟨ sym ([]tm≡[]t _ _) ⟩
+  π₂ (σ , t) [ τ ]tm        ≡⟨ cong (_[ τ ]tm) π₂, ⟩
+  t [ τ ]tm                 ≡⟨ []tm≡[]t _ _ ⟩
+  t [ τ ]t                  ∎
+  where open ≡-Reasoning
 
-congπ₂ : {σ σ' : Sub Γ (Δ , A)} → σ ≡ σ' → π₂ σ ≅ π₂ σ'
-congπ₂ refl = refl
+coh[η,] : A [ σ ] ≡ A [ π₁ σ , π₂ σ ]
+coh[η,] {A = U}    {σ} = refl
+coh[η,] {A = El t} {σ = σ} = cong El $ begin
+  t [ σ ]t                  ≡⟨ sym ([]tm≡[]t t σ) ⟩
+  t [ σ ]tm                 ≡⟨ cong (t [_]tm) η, ⟩
+  t [ π₁ σ , π₂ σ ]tm       ∎ 
+  where open ≡-Reasoning
 
-π₂∘ : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ)
-  → π₂ (σ ∘ τ) ≡ π₂ σ [ τ ]tm
-π₂∘ {Δ} {Γ} {A} {Θ} σ τ = ≅-to-≡ (begin
-  π₂ (σ ∘ τ)                                   ≅⟨ HEq.cong (λ σ → π₂ {A = A} (σ ∘ τ)) (≡-to-≅ (η, _)) ⟩
-  π₂ ((_,_ {A = A} (π₁ σ) (π₂ σ)) ∘ τ)         ≅⟨ HEq.cong (π₂ {A = A}) (≡-to-≅ ,∘) ⟩
-  π₂ (((π₁ σ ∘ τ) , (π₂ σ [ τ ]t)))            ≡⟨ cong (λ t → π₂ (_,_ {A = A} (π₁ σ ∘ τ) t)) (sym ([]tm≡[]t (π₂ σ) τ)) ⟩
-  π₂ ((_,_ {A = A} (π₁ σ ∘ τ) (π₂ σ [ τ ]tm))) ≡⟨ π₂, (π₁ σ ∘ τ) (π₂ σ [ τ ]tm) ⟩
-  π₂ σ [ τ ]tm ∎)
+coh[η∅] : A [ σ ] ≡ A [ ∅ ]
+coh[η∅] {A = U}            = refl
+coh[η∅] {A = El t} {σ = σ} = cong El $ begin
+  t [ σ ]t                  ≡⟨ sym ([]tm≡[]t t σ) ⟩
+  t [ σ ]tm                 ≡⟨ cong (t [_]tm) η∅ ⟩
+  t [ ∅ ]tm                 ∎
+  where open ≡-Reasoning
+
+π₂∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
+  → π₂ (τ ∘ σ) ≡ π₂ τ [ σ ]tm
+π₂∘ {Γ} {Δ} {Θ} {A} σ τ = ≅-to-≡ $ begin
+  π₂ (τ ∘ σ)                         ≅⟨ HEq.cong (λ ν → π₂ (ν ∘ σ)) (≡-to-≅ η,) ⟩
+  -- cong {_} {Sub Δ (Γ , A)} {_} {Tm Θ (A [ π₁ σ ] [ τ ])}
+  --   : (f : Sub Δ (Γ , A) → Tm Θ (A [ π₁ σ ] [ τ ])) {x y : Sub Δ (Γ , A)} → x Eq.≡ y → f x Eq.≡ f y
+  π₂ (((π₁ τ) , (π₂ τ)) ∘ σ)         ≅⟨ HEq.cong π₂ (≡-to-≅ ,∘) ⟩
+  π₂ (((π₁ τ ∘ σ) , (π₂ τ [ σ ]t)))  ≡⟨ cong (λ t → π₂ (_,_ {A = A} (π₁ τ ∘ σ) t)) (sym ([]tm≡[]t (π₂ τ) σ)) ⟩
+  π₂ (((π₁ τ ∘ σ) , (π₂ τ [ σ ]tm))) ≡⟨ π₂, ⟩
+  π₂ τ  [ σ ]tm ∎
   where open ≅-Reasoning
     
 -- syntax abbreviations
-wk : Sub (Δ , A) Δ
-wk = π₁ idS
-
-vz : Tm (Γ , A) (A [ wk ])
-vz = π₂ idS
-
-vs : Tm Γ A → Tm (Γ , B) (A [ wk ])   
-vs x = x [ wk ]tm
+-- wk : Sub (Δ , A) Δ
+pattern wk = π₁ idS
+-- vz : Tm (Γ , A) (A [ wk ])
+pattern vz = π₂ idS
+-- vs : Tm Γ A → Tm (Γ , B) (A [ wk ])   
+pattern vs x = x [ wk ]tm
 -- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
 
 vz:= : Tm Γ A → Sub Γ (Γ , A)

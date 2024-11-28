@@ -1,13 +1,14 @@
 module Prelude where
 
 open import Agda.Builtin.Equality.Rewrite public
-open import Agda.Primitive public
+open import Agda.Primitive                public
 
-open import Function.Base using (id)
+open import Function.Base                 public
+  using (id; _$_)
 
-open import Data.Empty     public
-open import Data.Unit      public
-open import Data.Product   public
+open import Data.Empty                    public
+open import Data.Unit                     public
+open import Data.Product                  public
 
 open import Relation.Binary.PropositionalEquality.WithK public
 open import Relation.Binary.PropositionalEquality       public
