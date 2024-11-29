@@ -89,6 +89,10 @@ record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
       : {PΓ : PCtx Γ}
       ---------------
       → PTy PΓ U
+    PU[] 
+      : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{Pσ : PSub PΔ PΓ σ}
+      -------------------
+      → PU [ Pσ ]P ≡ PU
     
     -- induction on terms
     π₂P
@@ -117,10 +121,6 @@ record IHEq {i j}(P : Pdc {i} {j})(indP : IH P) : Set (i ⊔ j) where
   open IH indP
   field   
     -- induction on equalities
-    PU[] 
-      : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{Pσ : PSub PΔ PΓ σ}
-      -------------------
-      → PU [ Pσ ]P ≡ PU
     [PidS]
       : {PΓ : PCtx Γ}
       → (PA : PTy PΓ A)

@@ -5,10 +5,9 @@ open import Prelude
 open import SC.QIIRT.Base
 open import SC.QIIRT.Model
 
-module elim {i j}(P : Pdc {i} {j})(indP : IH P)(indPEq : IHEq P indP) where
+module elim {i j}(P : Pdc {i} {j})(indP : IH P) where
   open Pdc P
   open IH indP
-  open IHEq indPEq
 
   ElimCtx : (Γ : Ctx) → PCtx Γ
   ElimTy : (A : Ty Γ) → PTy (ElimCtx Γ) A

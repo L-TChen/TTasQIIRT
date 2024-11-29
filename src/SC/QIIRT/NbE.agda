@@ -1,8 +1,11 @@
 module SC.QIIRT.NbE where
 
 open import Prelude
+open ≡-Reasoning
 open import Data.Product
 open import SC.QIIRT.Base
+open import SC.QIIRT.Model
+open import SC.QIIRT.Elimination
 
 -- Definition of Variables and Renaming
 -- with embedding into Tm and Sub
@@ -110,120 +113,40 @@ _‣_ {A = U} ρ x ⊙ ρ' = (ρ ⊙ ρ') ‣ lookupVar ρ' x
 
 -- Reification of terms and substitutions into variables and renamings
 ---- This is feasible because the only type is U for now
-reifyTm : Tm Γ A → Var Γ A
-reifySub : Sub Δ Γ → Ren Δ Γ
-reifyTm (π₂ {A = U} σ) with reifySub σ
-... | ρ ‣ x = x
-reifyTm (t [ σ ]tm) with reifyTm t | reifySub σ
-... | here  {A = U}   | ρ ‣ x  = x
-... | there {A = U} x | ρ ‣ x' = lookupVar ρ x
-reifySub ∅ = ∅ 
-reifySub (σ ‣ t) = reifySub σ ‣ reifyTm t
-reifySub idS = idR
-reifySub (σ ∘ τ) = reifySub σ ⊙ reifySub τ
-reifySub (π₁ σ) with reifySub σ
-... | ρ ‣ _ = ρ
+DomainDecl : Pdc
+DomainDecl .Pdc.PCtx Γ = Σ[ Γ' ∈ Ctx ] Γ ≡ Γ'
+DomainDecl .Pdc.PTy (Γ , refl) A = Σ[ A' ∈ Ty Γ ] A ≡ A'
+DomainDecl .Pdc.PSub (Γ , refl) (Δ , refl) σ = Σ[ ρ ∈ Ren Γ Δ ] σ ≡ ⌞ ρ ⌟R
+DomainDecl .Pdc.PTm (Γ , refl) (A , eq) t = Σ[ x ∈ Var Γ A ] conv (congTmΓ eq) t ≡ ⌞ x ⌟V
 
-soundnessTm : (t : Tm Γ A) → t ≡ ⌞ reifyTm t ⌟V
-soundnessSub : (σ : Sub Δ Γ) → σ ≡ ⌞ reifySub σ ⌟R
-soundnessTm (π₂ {A = U} (σ ‣ t)) with soundnessSub (σ ‣ t)
-... | eq =
-  begin
-    π₂ (σ ‣ t)
-  ≡⟨ cong π₂ eq ⟩
-    π₂ (⌞ reifySub σ ⌟R ‣ ⌞ reifyTm t ⌟V)
-  ≡⟨ βπ₂ {σ = ⌞ reifySub σ ⌟R} {⌞ reifyTm t ⌟V} ⟩
-    ⌞ reifyTm t ⌟V
-  ∎
-soundnessTm (π₂ {A = U} idS) = refl
-soundnessTm (π₂ {Δ} {A = U} (σ ∘ τ)) with reifySub σ | soundnessSub σ
-... | ρ ‣ x | σ≡⌞ρ⌟‣⌞x⌟ with soundnessSub τ
-... | eq = 
-  begin
-    π₂ (σ ∘ τ)
-  ≡⟨ π₂∘ σ τ ⟩
-    π₂ σ [ τ ]tm
-  ≡⟨ cong (λ y → π₂ y [ τ ]tm) σ≡⌞ρ⌟‣⌞x⌟ ⟩
-    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V) [ τ ]tm
-  ≡⟨ cong (_[ τ ]tm) (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}) ⟩
-    ⌞ x ⌟V [ τ ]tm
-  ≡⟨ cong (⌞ x ⌟V [_]tm) eq ⟩
-    ⌞ x ⌟V [ ⌞ reifySub τ ⌟R ]tm
-  ≡⟨ sym (⌞lookup⌟ (reifySub τ) x) ⟩
-    ⌞ lookupVar (reifySub τ) x ⌟V
-  ∎
-soundnessTm (π₂ {Δ} {A = U} (π₁ σ)) with reifySub σ | soundnessSub σ
-... | (ρ ‣ x) ‣ x' | eq = 
-  begin
-    π₂ (π₁ σ)
-  ≡⟨ cong (λ y → π₂ (π₁ y)) eq ⟩
-    π₂ (π₁ ⌞ (ρ ‣ x) ‣ x' ⌟R)
-  ≡⟨ cong π₂ (βπ₁ {σ = ⌞ ρ ⌟R ‣ ⌞ x ⌟V} {⌞ x' ⌟V}) ⟩
-    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
-  ≡⟨ βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V} ⟩
-    ⌞ x ⌟V
-  ∎
-soundnessTm (t [ σ ]tm) with reifyTm t | reifySub σ | soundnessTm t | soundnessSub σ
-... | here {A = U} | ρ ‣ x | eqTm | eqSub =
-  begin
-    t [ σ ]tm
-  ≡⟨ cong (_[ σ ]tm) eqTm ⟩
-    π₂ idS [ σ ]tm
-  ≡⟨ sym (π₂∘ idS σ) ⟩
-    π₂ (idS ∘ σ)
-  ≡⟨ cong π₂ (idS∘ σ) ⟩
-    π₂ σ
-  ≡⟨ cong π₂ eqSub ⟩
-    π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
-  ≡⟨ βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V} ⟩
-    ⌞ x ⌟V
-  ∎
-... | there {A = U} x | ρ ‣ x' | eqTm | eqSub =
-  begin
-    t [ σ ]tm
-  ≡⟨ cong (_[ σ ]tm) eqTm ⟩
-    ⌞ x ⌟V [ π₁ idS ]tm [ σ ]tm
-  ≡⟨ sym ([∘]tm ⌞ x ⌟V (π₁ idS) σ) ⟩ -- would be "refl" using recursion _[_]t
-    ⌞ x ⌟V [ π₁ idS ∘ σ ]tm
-  ≡⟨ cong (⌞ x ⌟V [_]tm) (π₁idS∘ σ) ⟩ -- would be "cong (⌞ x ⌟V [_]t) (π₁idS∘ σ)" using recursion _[_]t
-    ⌞ x ⌟V [ π₁ σ ]tm
-  ≡⟨ cong (λ y → ⌞ x ⌟V [ π₁ y ]tm) eqSub ⟩
-    ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R ‣ ⌞ x' ⌟V) ]tm
-  ≡⟨ cong (⌞ x ⌟V [_]tm) (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x' ⌟V}) ⟩
-    ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm
-  ≡⟨ sym (⌞lookup⌟ ρ x) ⟩
-    ⌞ lookupVar ρ x ⌟V
-  ∎
+Domain : IH DomainDecl
+IH._[_]P Domain {PΓ = Γ , refl} {PΔ = Δ , refl} (A , eqA) (ρ , eqρ) = A [ ⌞ ρ ⌟R ] , cong[] refl eqA refl eqρ
+Domain .IH.∅Ctx = ∅ , refl
+Domain .IH._‣Ctx_ (Γ , refl) (A , refl) = Γ ‣ A , refl
+Domain .IH.∅Sub {PΔ = Δ , refl} = ∅ , refl
+IH._‣Sub_ Domain {PΔ = Δ , refl} {Γ , refl} {A , refl} (ρ , refl) (x , eqx) = ρ ‣ x , cong (⌞ ρ ⌟R ‣_) eqx
+Domain .IH.PidS {PΔ = Γ , refl} = idR , sym ⌞idR⌟
+Domain .IH._∘P_ {PΓ = Γ , refl} {Δ , refl} {Θ , refl} (ρ , refl) (ρ' , refl) = ρ ⊙ ρ' , sym (⌞⊙⌟ ρ ρ')
+Domain .IH.π₁P {PΔ = Δ , refl} {Γ , refl} {A , refl} ((ρ ‣ x) , refl) = ρ , βπ₁
+Domain .IH.PU {PΓ = Γ , refl} = U , refl
+Domain .IH.PU[] {PΓ = Γ , refl} {Δ , refl} {ρ , refl} = refl
+Domain .IH.π₂P {PΔ = Δ , refl} {Γ , refl} {A , refl} ((ρ ‣ x) , refl) = x , eq
+  where
+    eq : conv (congTmΓ (cong[] refl refl refl (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}))) (π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)) ≡ ⌞ x ⌟V
+    eq = begin
+        conv (congTmΓ (cong[] refl refl refl (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}))) (π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V))
+      ≡⟨ conv-unique (congTmΓ (cong[] refl refl refl (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}))) refl (π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)) ⟩
+        π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
+      ≡⟨ βπ₂ ⟩
+        ⌞ x ⌟V
+      ∎
+IH._[_]tmP Domain {PΓ = Γ , refl} {A , refl} {Δ , refl} (x , refl) (ρ , refl) = lookupVar ρ x , sym (⌞lookup⌟ ρ x)
 
-soundnessSub ∅ = refl
-soundnessSub (σ ‣ t) = 
-  begin
-    σ ‣ t
-  ≡⟨ cong (_‣ t) (soundnessSub σ) ⟩
-    ⌞ reifySub σ ⌟R ‣ t
-  ≡⟨ cong (⌞ reifySub σ ⌟R ‣_) (soundnessTm t) ⟩
-    ⌞ reifySub σ ⌟R ‣ ⌞ reifyTm t ⌟V
-  ∎
-soundnessSub idS = sym ⌞idR⌟
-soundnessSub (σ ∘ τ) =
-  begin
-    σ ∘ τ
-  ≡⟨ cong (σ ∘_) (soundnessSub τ) ⟩
-    σ ∘ ⌞ reifySub τ ⌟R
-  ≡⟨ cong (_∘ ⌞ reifySub τ ⌟R) (soundnessSub σ) ⟩
-    ⌞ reifySub σ ⌟R ∘ ⌞ reifySub τ ⌟R
-  ≡⟨ sym (⌞⊙⌟ (reifySub σ) (reifySub τ)) ⟩
-    ⌞ reifySub σ ⊙ reifySub τ ⌟R
-  ∎
-soundnessSub (π₁ σ) with reifySub σ | soundnessSub σ
-... | ρ ‣ x | eq =
-  begin
-    π₁ σ
-  ≡⟨ cong π₁ eq ⟩
-    π₁ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
-  ≡⟨ βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V} ⟩
-    ⌞ ρ ⌟R
-  ∎
+open elim DomainDecl Domain
+
+reifyTm : (t : Tm Γ A) → Σ[ x ∈ Var Γ A ] t ≡ ⌞ x ⌟V
+reifyTm {Γ} {A} t with ElimCtx Γ | ElimTy A | ElimTm t
+... | .Γ , refl | .A , refl | x , eq = x , eq
 
 -- Inductive definition of the normal form
 data NeSub (Δ : Ctx) : (Γ : Ctx) → Sub Δ Γ → Set where
@@ -286,4 +209,5 @@ NfTm[nfVar] : (x : Var Γ A) → NfTm Γ (nfVar x)
 NfTm[nfVar] {A = U} x = NfTm[accVar] x idS
 
 thm[normalization] : (t : Tm Γ A) → Σ[ t' ∈ Tm Γ A ] t ≡ t' × NfTm Γ t'
-thm[normalization] t = nfVar (reifyTm t) , trans (soundnessTm t) (soundnessNfVar (reifyTm t)) , NfTm[nfVar] (reifyTm t)
+thm[normalization] t with reifyTm t
+... | x , eq = nfVar x , trans eq (soundnessNfVar x) , NfTm[nfVar] x
