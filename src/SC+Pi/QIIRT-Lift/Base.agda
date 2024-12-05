@@ -48,7 +48,7 @@ interleaved mutual
   postulate
     ∅[]l : ∅ [ σ ]l ≡ ∅
     ,[]l : {As : Lift Δ}{A : Ty (Δ ++ As)}{σ : Sub Γ Δ} → (As , A) [ σ ]l ≡ As [ σ ]l , (A [ σ ⇈ As ])
-    {-# REWRITE ∅[]l ,[]l #-}
+    {-# REWRITE ∅[]l #-}
 
   data _ where
     U
@@ -103,8 +103,7 @@ interleaved mutual
     [π₁,]l : As [ π₁ (σ , t) ]l ≡ As [ σ ]l
     [π₁∘]l : As [ π₁ (τ ∘ σ) ]l ≡ As [ π₁ τ ]l [ σ ]l
     {-# REWRITE [idS]l [∘]l [π₁,]l [π₁∘]l #-}
-  
-  postulate
+
     [id]
       : {A : Ty (Γ ++ As)}
       → A [ idS ⇈ As ] ≡ A
@@ -118,10 +117,8 @@ interleaved mutual
     [π₁∘]
       : {As : Lift Θ}{A' : Ty Θ}{σ : Sub Γ Δ}{τ : Sub Δ (Θ , A')}{A : Ty (Θ ++ As)}
       → A [ π₁ (τ ∘ σ) ⇈ As ] ≡ A [ π₁ τ ⇈ As ] [ σ ⇈ As [ π₁ τ ]l ]
-    {-# REWRITE [id] [∘] [π₁,] [π₁∘] #-}
+    {-# REWRITE [id] [∘] [π₁,] [π₁∘] ,[]l #-}
 
-  -- _↑_ : (σ : Sub Γ Δ) (A : Ty Δ) → Sub (Γ , A [ σ ]) (Δ , A)
-  -- _↑_ σ A = _↑_ {A = A} (σ ∘ wk) vz
   {-# TERMINATING #-}
   subTmR : (As : Lift Δ)(σ : Sub Γ Δ){A : Ty (Δ ++ As)} → Tm (Δ ++ As) A → Tm (Γ ++ As [ σ ]l) (A [ σ ⇈ As ])
   subTmR As idS t = t
