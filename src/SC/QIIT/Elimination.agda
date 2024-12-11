@@ -15,14 +15,13 @@ module elim {i j}(P : Pdc {i} {j})(indP : IH P) where
   ElimTm : (t : Tm Γ A) → PTm (ElimCtx Γ) (ElimTy A) t
   
   ElimCtx ∅ = ∅Ctx
-  ElimCtx (Γ ‣ A) = ElimCtx Γ ‣Ctx ElimTy A
+  ElimCtx (Γ , A) = ElimCtx Γ ,Ctx ElimTy A
   ElimTy U = PU
-  ElimTy (A [ σ ]ty) = ElimTy A [ ElimSub σ ]P -- additional
+  ElimTy (A [ σ ]) = ElimTy A [ ElimSub σ ]P -- additional
   ElimSub ∅ = ∅Sub
-  ElimSub (σ ‣ t) = ElimSub σ ‣Sub ElimTm t -- no need to transport
+  ElimSub (σ , t) = ElimSub σ ,Sub ElimTm t -- no need to transport
   ElimSub idS = PidS
   ElimSub (σ ∘ τ) = ElimSub σ ∘P ElimSub τ
   ElimSub (π₁ σ) = π₁P (ElimSub σ)
   ElimTm (π₂ σ) = π₂P (ElimSub σ)
-  ElimTm (t [ σ ]tm) = ElimTm t [ ElimSub σ ]tmP
-
+  ElimTm (t [ σ ]) = ElimTm t [ ElimSub σ ]tP

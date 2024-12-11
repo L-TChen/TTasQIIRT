@@ -51,3 +51,8 @@ tr-comp : {X : Set ℓ}{Y : X → Set ℓ'}{Z : (x : X) → Set ℓ''}
         → (f : {x : X}(y : Y x) → Z x)(p : x ≡ x') → tr Y p y ≡ y'
         → tr Z p (f y) ≡ f y'
 tr-comp f refl refl = refl
+
+conv-in-func : {X : Set ℓ}{Y : X → Set ℓ'}{Z : X → Set ℓ''}{x x' : X}
+             → (x≡x' : x ≡ x')(f : {x : X} → Y x → Z x)(eq : Y x ≡ Y x')(y : Y x)(eq' : Z x ≡ Z x')
+             → f (conv eq y) ≡ conv eq' (f y)
+conv-in-func refl f refl y refl = refl  

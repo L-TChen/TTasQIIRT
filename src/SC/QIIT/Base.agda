@@ -67,8 +67,8 @@ interleaved mutual
   congTy : Γ ≡ Γ' → Ty Γ ≡ Ty Γ'
   congTy = cong Ty
 
-  -- congSub : Γ ≡ Γ' → Δ ≡ Δ' → Sub Γ Δ ≡ Sub Γ' Δ'
-  congSub = cong₂ Sub
+  congSub : Γ ≡ Γ' → Δ ≡ Δ' → Sub Γ Δ ≡ Sub Γ' Δ'
+  congSub refl refl = refl
 
   congTm : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
         → conv (congTy Γ≡Γ') A ≡ A' → Tm Γ A ≡ Tm Γ' A'
@@ -81,10 +81,10 @@ interleaved mutual
   trans-congTmΓ {p = refl} = refl
 
   -- congruence rules of constructors
-  cong‣Ctx : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
+  cong,Ctx : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
           → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
           → (Γ , A) ≡ (Γ' , A')
-  cong‣Ctx refl refl = refl
+  cong,Ctx refl refl = refl
 
   cong[] : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
         → conv (congTy Γ≡Γ') A ≡ A'
@@ -93,14 +93,22 @@ interleaved mutual
         → conv (congTy Δ≡Δ') (A [ σ ]) ≡ A' [ σ' ]
   cong[] refl refl refl refl = refl
 
-  cong‣Sub
+  congA[] : {A : Ty Γ}{σ σ' : Sub Δ Γ} → σ ≡ σ' → A [ σ ] ≡ A [ σ' ]
+  congA[] = cong[] refl refl refl
+
+  cong,Sub
     : (Δ≡Δ' : Δ ≡ Δ')(Γ≡Γ' : Γ ≡ Γ'){σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}
     → {A : Ty Γ}{A' : Ty Γ'}{t : Tm Δ (A [ σ ])}{t' : Tm Δ' (A' [ σ' ])}
     → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
       (σ≡σ' : conv (congSub Δ≡Δ' Γ≡Γ') σ ≡ σ')
       (t≡t' : conv (congTm Δ≡Δ' (cong[] Γ≡Γ' A≡A' Δ≡Δ' σ≡σ')) t ≡ t')
-    → conv (congSub Δ≡Δ' (cong‣Ctx Γ≡Γ' A≡A')) (σ , t) ≡ (σ' , t')
-  cong‣Sub refl refl refl refl refl = refl
+    → conv (congSub Δ≡Δ' (cong,Ctx Γ≡Γ' A≡A')) (σ , t) ≡ (σ' , t')
+  cong,Sub refl refl refl refl refl = refl
+
+  cong,Sub' : {σ σ' : Sub Δ Γ}{A A' : Ty Γ}{t : Tm Δ (A [ σ ])}{t' : Tm Δ (A' [ σ' ])}
+            → (A≡A' : A ≡ A')(σ≡σ' : σ ≡ σ') → conv (congTmΓ (cong[] refl A≡A' refl σ≡σ')) t ≡ t'
+            → conv (congSub refl (cong,Ctx refl A≡A')) (_,_ {A = A} σ t) ≡ _,_ {A = A'} σ' t'
+  cong,Sub' refl refl refl = refl
 
   cong∘ : (Γ≡Γ' : Γ ≡ Γ')(Δ≡Δ' : Δ ≡ Δ')(Θ≡Θ' : Θ ≡ Θ')
           {σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}{τ : Sub Θ Δ}{τ' : Sub Θ' Δ'}
@@ -108,17 +116,22 @@ interleaved mutual
         → conv (congSub Θ≡Θ' Γ≡Γ') (σ ∘ τ) ≡ σ' ∘ τ'
   cong∘ refl refl refl refl refl = refl
 
+  cong∘' : {σ σ' : Sub Δ Γ}{τ τ' : Sub Θ Δ}
+         → σ ≡ σ' → τ ≡ τ'
+         → σ ∘ τ ≡ σ' ∘ τ'
+  cong∘' refl refl = refl
+
   congπ₁ : (Δ≡Δ' : Δ ≡ Δ')(Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
           {σ : Sub Δ (Γ , A)}{σ' : Sub Δ' (Γ' , A')}
         → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
-        → conv (congSub Δ≡Δ' (cong‣Ctx Γ≡Γ' A≡A')) σ ≡ σ'
+        → conv (congSub Δ≡Δ' (cong,Ctx Γ≡Γ' A≡A')) σ ≡ σ'
         → conv (congSub Δ≡Δ' Γ≡Γ') (π₁ σ) ≡ π₁ σ'
   congπ₁ refl refl refl refl = refl
 
   congπ₂ : (Δ≡Δ' : Δ ≡ Δ')(Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
           {σ : Sub Δ (Γ , A)}{σ' : Sub Δ' (Γ' , A')}
         → (A≡A' : conv (congTy Γ≡Γ') A ≡ A')
-          (σ≡σ' : conv (congSub Δ≡Δ' (cong‣Ctx Γ≡Γ' A≡A')) σ ≡ σ')
+          (σ≡σ' : conv (congSub Δ≡Δ' (cong,Ctx Γ≡Γ' A≡A')) σ ≡ σ')
         → conv (congTm Δ≡Δ' (cong[] Γ≡Γ' A≡A' Δ≡Δ' (congπ₁ Δ≡Δ' Γ≡Γ' A≡A' σ≡σ'))) (π₂ σ) ≡ π₂ σ'
   congπ₂ refl refl refl refl = refl
 
@@ -193,13 +206,13 @@ interleaved mutual
     π₁ σ
   ∎
 
-π₂∘ : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ) → conv (congTmΓ (trans (cong[] refl refl refl (π₁∘ σ τ)) ([∘] A (π₁ σ) τ))) (π₂ (σ ∘ τ))
+π₂∘ : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ) → conv (congTmΓ (trans (congA[] (π₁∘ σ τ)) ([∘] A (π₁ σ) τ))) (π₂ (σ ∘ τ))
                                          ≡ π₂ σ [ τ ]
 π₂∘ {Δ} {Γ} {A} {Θ} σ τ =
   begin
-    conv (congTmΓ (trans (cong[] refl refl refl (π₁∘ σ τ)) ([∘] A (π₁ σ) τ))) (π₂ (σ ∘ τ))
+    conv (congTmΓ (trans (congA[] (π₁∘ σ τ)) ([∘] A (π₁ σ) τ))) (π₂ (σ ∘ τ))
   ≡⟨
-    conv-unique (congTmΓ (trans (cong[] refl refl refl (π₁∘ σ τ)) ([∘] A (π₁ σ) τ)))
+    conv-unique (congTmΓ (trans (congA[] (π₁∘ σ τ)) ([∘] A (π₁ σ) τ)))
                 (trans (trans (trans p1 p2) p3) p4)
                 (π₂ (σ ∘ τ))
   ⟩
@@ -215,25 +228,25 @@ interleaved mutual
   
   where
     p1 : Tm Θ (A [ π₁ (σ ∘ τ) ]) ≡ Tm Θ (A [ π₁ ((π₁ σ , π₂ σ) ∘ τ) ])
-    p1 = congTmΓ (cong[] refl refl refl (congπ₁ refl refl refl (cong∘ refl refl refl ηπ refl)))
+    p1 = congTmΓ (congA[] (congπ₁ refl refl refl (cong∘ refl refl refl ηπ refl)))
 
     p2 : Tm Θ (A [ π₁ ((π₁ σ , π₂ σ) ∘ τ) ]) ≡ Tm Θ (A [ π₁ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])) ])
-    p2 = congTmΓ (cong[] refl refl refl (congπ₁ refl refl refl ,∘))
+    p2 = congTmΓ (congA[] (congπ₁ refl refl refl ,∘))
     
     p3 : Tm Θ (A [ π₁ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])) ])
          ≡ Tm Θ (A [ π₁ σ ∘ τ ])
-    p3 = congTmΓ (cong[] refl refl refl βπ₁)
+    p3 = congTmΓ (congA[] βπ₁)
 
     p4 : Tm Θ (A [ π₁ σ ∘ τ ]) ≡ Tm Θ (A [ π₁ σ ] [ τ ])
     p4 = congTmΓ ([∘] A (π₁ σ) τ)
     
-    eq1 : conv (congTmΓ (cong[] refl refl refl (congπ₁ refl refl refl (cong∘ refl refl refl ηπ refl)))) (π₂ (σ ∘ τ)) ≡ π₂ ((π₁ σ , π₂ σ) ∘ τ)
+    eq1 : conv (congTmΓ (congA[] (congπ₁ refl refl refl (cong∘ refl refl refl ηπ refl)))) (π₂ (σ ∘ τ)) ≡ π₂ ((π₁ σ , π₂ σ) ∘ τ)
     eq1 = congπ₂ refl refl {σ = σ ∘ τ} refl (cong∘ refl refl refl {σ = σ} {τ = τ} ηπ refl)
 
-    eq2 : conv (congTmΓ (cong[] refl refl refl (congπ₁ refl refl refl ,∘))) (π₂ ((π₁ σ , π₂ σ) ∘ τ)) ≡ π₂ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]))
+    eq2 : conv (congTmΓ (congA[] (congπ₁ refl refl refl ,∘))) (π₂ ((π₁ σ , π₂ σ) ∘ τ)) ≡ π₂ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]))
     eq2 = congπ₂ refl refl refl ,∘
 
-    eq3 : conv (congTm refl (cong[] refl refl refl βπ₁)) (π₂ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])))
+    eq3 : conv (congTm refl (congA[] βπ₁)) (π₂ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])))
            ≡ conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])
     eq3 = βπ₂
 

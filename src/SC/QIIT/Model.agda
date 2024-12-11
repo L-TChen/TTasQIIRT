@@ -23,26 +23,26 @@ record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
         (PA : PTy PΓ A)(Pσ : PSub PΔ PΓ σ)
       ------------------------------------
-      → PTy PΔ (A [ σ ]ty)
+      → PTy PΔ (A [ σ ])
     
     -- induction on contexts
     ∅Ctx
       : PCtx ∅
-    _‣Ctx_
+    _,Ctx_
       : (PΓ : PCtx Γ)(PA : PTy PΓ A)
       ------------------------------
-      → PCtx (Γ ‣ A)
+      → PCtx (Γ , A)
     
     -- induction on substitutions
     ∅Sub
       : {PΔ : PCtx Δ}
       ---------------
       → PSub PΔ ∅Ctx ∅
-    _‣Sub_
+    _,Sub_
       : {PΔ : PCtx Δ}{PΓ : PCtx Γ}{PA : PTy PΓ A}
         (Pσ : PSub PΔ PΓ σ)(Pt : PTm PΔ (PA [ Pσ ]P) t)
       --------------------------------------------------
-      → PSub PΔ (PΓ ‣Ctx PA) (σ ‣ t)
+      → PSub PΔ (PΓ ,Ctx PA) (σ , t)
     PidS
       : {PΔ : PCtx Γ}
       ---------------
@@ -54,7 +54,7 @@ record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
       → PSub PΘ PΓ (σ ∘ τ)
     π₁P
       : {PΔ : PCtx Δ}{PΓ : PCtx Γ}{PA : PTy PΓ A}
-        (Pσ : PSub PΔ (PΓ ‣Ctx PA) σ)
+        (Pσ : PSub PΔ (PΓ ,Ctx PA) σ)
       -------------------------------
       → PSub PΔ PΓ (π₁ σ)
     
@@ -67,14 +67,14 @@ record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
     -- induction on terms
     π₂P
       : {PΔ : PCtx Δ}{PΓ : PCtx Γ}{PA : PTy PΓ A}
-        (Pσ : PSub PΔ (PΓ ‣Ctx PA) σ)
+        (Pσ : PSub PΔ (PΓ ,Ctx PA) σ)
       ---------------------------------
       → PTm PΔ (PA [ π₁P Pσ ]P) (π₂ σ)
-    _[_]tmP
+    _[_]tP
       : {PΓ : PCtx Γ}{PA : PTy PΓ A}{PΔ : PCtx Δ}
         (Pt : PTm PΓ PA t)(Pσ : PSub PΔ PΓ σ)
       ---------------------------------------
-      → PTm PΔ (PA [ Pσ ]P) (t [ σ ]tm)
+      → PTm PΔ (PA [ Pσ ]P) (t [ σ ])
     
     -- induction on equalities
     PU[] 
