@@ -22,12 +22,13 @@ interleaved mutual
       Γ Δ Θ Φ   : Ctx
       A B A' B' : Ty Γ
       t u       : Tm Γ A
-      σ τ γ υ σ' τ' : Sub Δ Γ
-      As Bs : Lift Γ
+      σ τ γ υ   : Sub Δ Γ
+      As Bs     : Lift Γ
 
   postulate
-    _[_]l  : {Γ Δ : Ctx} → Lift Δ → Sub Γ Δ → Lift Γ
-    subTy : (As : Lift Δ)(σ : Sub Γ Δ) → Ty (Δ ++ As) → Ty (Γ ++ As [ σ ]l)
+    _[_]l : Lift Δ → Sub Γ Δ → Lift Γ
+    subTy : (As : Lift Δ) (σ : Sub Γ Δ) (A : Ty (Δ ++ As))
+      → Ty (Γ ++ As [ σ ]l)
   
   syntax subTy As σ A = A [ σ ⇈ As ]
   
@@ -42,12 +43,12 @@ interleaved mutual
     _,_
       : (As : Lift Γ)(A : Ty (Γ ++ As)) → Lift Γ
 
-  Γ ++ ∅ = Γ
+  Γ ++ ∅        = Γ
   Γ ++ (As , A) = (Γ ++ As) , A
 
   postulate
-    ∅[]l : ∅ [ σ ]l ≡ ∅
-    ,[]l : {As : Lift Δ}{A : Ty (Δ ++ As)}{σ : Sub Γ Δ} → (As , A) [ σ ]l ≡ As [ σ ]l , (A [ σ ⇈ As ])
+    ∅[]l : ∅        [ σ ]l ≡ ∅
+    ,[]l : (As , A) [ σ ]l ≡ As [ σ ]l , (A [ σ ⇈ As ])
     {-# REWRITE ∅[]l #-}
 
   data _ where
@@ -76,7 +77,8 @@ interleaved mutual
       → Tm (Γ ++ ∅ [ π₁ σ ]l) (A [ π₁ σ ⇈ ∅ ])
     subTm
       : {Γ Δ : Ctx}(As : Lift Δ)(σ : Sub Γ Δ){A : Ty (Δ ++ As)}
-      → Tm (Δ ++ As) A → Tm (Γ ++ As [ σ ]l) (A [ σ ⇈ As ])
+      → Tm (Δ ++ As) A
+      → Tm (Γ ++ As [ σ ]l) (A [ σ ⇈ As ])
     abs
       : Tm (Γ , A) B → Tm Γ (Π A B)
     app
@@ -98,43 +100,38 @@ interleaved mutual
   (El t) [ σ ]     = El (t [ σ ]tm) 
 -}
   postulate
-    [idS]l : As [ idS ]l ≡ As
-    [∘]l : As [ σ ∘ τ ]l ≡ As [ σ ]l [ τ ]l
+    [idS]l : As [ idS        ]l ≡ As
+    [∘]l   : As [ σ ∘ τ      ]l ≡ As [ σ ]l [ τ ]l
     [π₁,]l : As [ π₁ (σ , t) ]l ≡ As [ σ ]l
     [π₁∘]l : As [ π₁ (τ ∘ σ) ]l ≡ As [ π₁ τ ]l [ σ ]l
     {-# REWRITE [idS]l [∘]l [π₁,]l [π₁∘]l #-}
 
     [id]
-      : {A : Ty (Γ ++ As)}
-      → A [ idS ⇈ As ] ≡ A
+      : A [ idS ⇈ As ] ≡ A
     [∘]
-      : {A : Ty (Θ ++ As)}{σ : Sub Γ Δ}{τ : Sub Δ Θ}
-      → A [ τ ∘ σ ⇈ As ] ≡ A [ τ ⇈ As ] [ σ ⇈ (As [ τ ]l) ]
+      : A [ τ ∘ σ ⇈ As ] ≡ A [ τ ⇈ As ] [ σ ⇈ (As [ τ ]l) ]
     [π₁,]
-      : {A' : Ty Δ}{σ : Sub Γ Δ}{t : Tm Γ (A' [ σ ⇈ ∅ ])}
-        {As : Lift Δ}{A : Ty (Δ ++ As)}
-      → A [ π₁ (σ , t) ⇈ As ] ≡ A [ σ ⇈ As ]
+      : A [ π₁ (σ , t) ⇈ As ] ≡ A [ σ ⇈ As ]
     [π₁∘]
-      : {As : Lift Θ}{A' : Ty Θ}{σ : Sub Γ Δ}{τ : Sub Δ (Θ , A')}{A : Ty (Θ ++ As)}
-      → A [ π₁ (τ ∘ σ) ⇈ As ] ≡ A [ π₁ τ ⇈ As ] [ σ ⇈ As [ π₁ τ ]l ]
+      : A [ π₁ (τ ∘ σ) ⇈ As ] ≡ A [ π₁ τ ⇈ As ] [ σ ⇈ As [ π₁ τ ]l ]
     {-# REWRITE [id] [∘] [π₁,] [π₁∘] ,[]l #-}
 
   {-# TERMINATING #-}
   subTmR : (As : Lift Δ)(σ : Sub Γ Δ){A : Ty (Δ ++ As)} → Tm (Δ ++ As) A → Tm (Γ ++ As [ σ ]l) (A [ σ ⇈ As ])
-  subTmR As idS t = t
-  subTmR As (τ ∘ σ) t = subTmR (As [ τ ]l) σ (subTmR As τ t)
-  subTmR {Γ = Γ} As ∅ t = subTm {Γ = Γ} As ∅ t
-  subTmR As (σ , u) t = t [ (σ , u) ⇈ As ]tm
-  subTmR ∅ (π₁ (σ , u)) t = subTmR ∅ σ t
-  subTmR As (π₁ (τ ∘ σ)) t = subTmR (As [ π₁ τ ]l) σ (subTmR As (π₁ τ) t)
+  subTmR         As idS          t = t
+  subTmR         As (τ ∘ σ)      t = subTmR (As [ τ ]l) σ (subTmR As τ t)
+  subTmR {Γ = Γ} As ∅            t = subTm {Γ = Γ} As ∅ t
+  subTmR         As (σ , u)      t = t [ (σ , u) ⇈ As ]tm
+  subTmR         As (π₁ (τ ∘ σ)) t = subTmR (As [ π₁ τ ]l) σ (subTmR As (π₁ τ) t)
+  subTmR         ∅  (π₁ (σ , u)) t = subTmR ∅ σ t
   {-# CATCHALL #-}
-  subTmR As (π₁ σ) t = t [ π₁ σ ⇈ As ]tm
+  subTmR         As (π₁ σ)       t = t [ π₁ σ ⇈ As ]tm
 
   syntax subTmR As σ t = t [ σ ⇈ As ]t
 
   postulate
   -- Equality constructors for terms
-    [id]tm : t [ idS ⇈ As ]tm ≡ t
+    [id]tm : t [ idS ⇈ As   ]tm ≡ t
     [∘]tm  : t [ τ ∘ σ ⇈ As ]tm ≡ t [ τ ⇈ As ]tm [ σ ⇈ As [ τ ]l ]tm
 
   -- Equality constructors for substitutions
@@ -147,12 +144,11 @@ interleaved mutual
     assocS
       : (υ ∘ τ) ∘ σ ≡ υ ∘ (τ ∘ σ)
     π₁,
-      : {σ : Sub Γ Δ} {t : Tm Γ (A [ σ ⇈ ∅ ])}
-      → π₁ (σ , t) ≡ σ
+      : π₁ (σ , t) ≡ σ
     π₂,
-      : {Γ Δ : Ctx} {A : Ty Δ}
-      → {σ : Sub Γ Δ} {t : Tm Γ (A [ σ ⇈ ∅ ])}
-      →  π₂ (σ , t) ≡ t 
+      -- : {Γ Δ : Ctx} {A : Ty Δ}
+      -- → {σ : Sub Γ Δ} {t : Tm Γ (A [ σ ⇈ ∅ ])}
+      :  π₂ (σ , t) ≡ t 
     ,∘
       : ((σ , t) ∘ τ) ≡ ((σ ∘ τ) , t [ τ ⇈ ∅ ]tm)
     η∅
@@ -163,21 +159,16 @@ interleaved mutual
       → σ ≡ (π₁ σ , π₂ σ)
 
   postulate
-    U[]   : U [ σ ⇈ As ] ≡ U
--- [TODO] Figure out why the triangle property cannot be satisfied:    
---    U[∘]  : U [ τ ∘ σ ] ≡ U
---    U[π,] : U [ π₁ (σ , t) ] ≡ U
---    U[π∘] : U [ π₁ (τ ∘ σ) ] ≡ U
---    U[][] : U [ idS ] [ σ ] ≡ U
---    U[π∘][] : U [ π₁ (τ ∘ σ) ] [ σ ] ≡ U
---    U[π][] : U [ π₁ τ ] [ σ ] ≡ U
---    {-# REWRITE U[∘] U[] U[π,] U[π∘] U[][] U[π∘][] U[π][] #-}
-    {-# REWRITE U[] #-}
+    U[]  : U [ σ ⇈ As ] ≡ U
+
+    U[∅] : U [ σ ⇈ ∅ ] ≡ U -- Why is this not an instance of U[∅]?
+    {-# REWRITE U[] U[∅] #-}
 
     Π[]
-      : {As : Lift Δ}{A : Ty (Δ ++ As)}{B : Ty ((Δ ++ As) , A)}
-      → (σ : Sub Γ Δ) → Π A B [ σ ⇈ As ] ≡ Π (A [ σ ⇈ As ]) (B [ σ ⇈ (As , A) ])
-    {-# REWRITE Π[] #-}
+      : (σ : Sub Γ Δ) → Π A B [ σ ⇈ As ] ≡ Π (A [ σ ⇈ As ]) (B [ σ ⇈ (As , A) ])
+    Π[∅] -- why is this not an instance of Π[]?
+      : (σ : Sub Γ Δ) → Π A B [ σ ⇈ ∅ ] ≡ Π (A [ σ ⇈ ∅ ]) (B [ σ ⇈ (∅ , A) ])
+    {-# REWRITE Π[] Π[∅] #-}
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
@@ -189,7 +180,8 @@ interleaved mutual
   where open ≡-Reasoning
 
 {-# TERMINATING #-} -- the size of σ is decreasing
-[]tm≡[]t : {Γ Δ : Ctx}(As : Lift Δ){A : Ty (Δ ++ As)}(t : Tm (Δ ++ As) A)(σ : Sub Γ Δ) → t [ σ ⇈ As ]tm ≡ t [ σ ⇈ As ]t 
+[]tm≡[]t : {Γ Δ : Ctx}(As : Lift Δ){A : Ty (Δ ++ As)}(t : Tm (Δ ++ As) A)(σ : Sub Γ Δ)
+  → t [ σ ⇈ As ]tm ≡ t [ σ ⇈ As ]t 
 []tm≡[]t As t ∅       = refl
 []tm≡[]t As t (_ , _) = refl
 []tm≡[]t As t idS     = [id]tm
