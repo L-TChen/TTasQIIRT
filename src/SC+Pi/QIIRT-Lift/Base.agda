@@ -1,5 +1,5 @@
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
-{-# OPTIONS --local-confluence-check #-}
+{-# OPTIONS --local-confluence-check  #-}
 
 module SC+Pi.QIIRT-Lift.Base where
  
@@ -16,6 +16,7 @@ interleaved mutual
   data Ty  : Ctx → Set
   data Sub : Ctx → Ctx → Set
   data Tm  : (Γ : Ctx) → Ty Γ → Set
+  
   _++_ : (Γ : Ctx) → Lift Γ → Ctx
 
   variable
@@ -161,14 +162,28 @@ interleaved mutual
   postulate
     U[]  : U [ σ ⇈ As ] ≡ U
 
-    U[∅] : U [ σ ⇈ ∅ ] ≡ U -- Why is this not an instance of U[∅]?
-    {-# REWRITE U[] U[∅] #-}
+--  {-# REWRITE U[] #-}
 
     Π[]
       : (σ : Sub Γ Δ) → Π A B [ σ ⇈ As ] ≡ Π (A [ σ ⇈ As ]) (B [ σ ⇈ (As , A) ])
-    Π[∅] -- why is this not an instance of Π[]?
-      : (σ : Sub Γ Δ) → Π A B [ σ ⇈ ∅ ] ≡ Π (A [ σ ⇈ ∅ ]) (B [ σ ⇈ (∅ , A) ])
-    {-# REWRITE Π[] Π[∅] #-}
+--  {-# REWRITE Π[] #-}
+
+  U[∅] : U [ σ ⇈ ∅ ] ≡ U -- Why is this not an instance of U[∅]?
+  U[∅] {Γ} {Δ} {σ} = U[] {Γ} {Δ} {σ}
+
+  U[,] : U [ σ ⇈ As , A ] ≡ U
+  U[,] {Γ} {Δ} {σ} = U[] {Γ} {Δ} {σ}
+
+  Π[∅] -- why is this not an instance of Π[]?
+    : (σ : Sub Γ Δ) → Π A B [ σ ⇈ ∅ ] ≡ Π (A [ σ ⇈ ∅ ]) (B [ σ ⇈ (∅ , A) ])
+  Π[∅] = Π[]  
+
+  Π[,] -- why is this not an instance of Π[]?
+    : (σ : Sub Γ Δ) → Π A B [ σ ⇈ As ] ≡ Π (A [ σ ⇈ As ]) (B [ σ ⇈ As , A ])
+  Π[,] = Π[]
+
+  {-# REWRITE U[∅] U[] Π[∅] Π[,] #-}
+
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
