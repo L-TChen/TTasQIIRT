@@ -4,6 +4,8 @@ open import Prelude
 open import Data.Product
 open import SC.QIIT.Base
 open Eq.≡-Reasoning
+open import SC.QIIT.Model
+open import SC.QIIT.Elimination
 
 -- Definition of Variables and Renaming
 -- with embedding into Tm and Sub
@@ -145,193 +147,322 @@ lookupVar {Δ} {Γ , _} (_,_ {A = A} ρ x') (there {A = A'} x) = conv (cong (Var
     conv (congTmΓ (sym (lkVarEq.eq Γ A ρ x))) ⌞ x ⌟V
   ≡⟨ cong (conv (congTmΓ (sym (lkVarEq.eq Γ A ρ x)))) (sym (βπ₂ {σ = ⌞ ρ ⌟R} {t = ⌞ x ⌟V})) ⟩
     conv (congTmΓ (sym (lkVarEq.eq Γ A ρ x))) (conv (congTmΓ (congA[] βπ₁)) (π₂ (⌞ ρ ⌟R , ⌞ x ⌟V)))
-  ≡⟨ cong (conv (congTmΓ (sym (lkVarEq.eq Γ A ρ x)))) 
-          (conv-unique (congTmΓ (congA[] βπ₁)) (cong (λ σ → Tm Δ (A [ σ ])) βπ₁) (π₂ (⌞ ρ ⌟R , ⌞ x ⌟V))) ⟩
-    conv (congTmΓ (sym (lkVarEq.eq Γ A ρ x)))
-         (conv (cong (λ σ → Tm Δ (A [ σ ])) {!   !}) 
-               (π₂ (⌞ ρ ⌟R , ⌞ x ⌟V)))
-  ≡⟨ {!   !} ⟩
-    {!   !}
-⌞lookup⌟ ρ (there x) = {!   !}
--- ⌞lookup⌟ (_,_ {A = U} ρ x) here = begin
---     ⌞ x ⌟V
---   ≡⟨ sym (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}) ⟩
---     π₂ (⌞ ρ ⌟R , ⌞ x ⌟V)
---   ≡⟨ cong π₂ (sym (idS∘ (⌞ ρ ⌟R , ⌞ x ⌟V))) ⟩
---     π₂ (idS ∘ (⌞ ρ ⌟R , ⌞ x ⌟V))
---   ≡⟨ π₂∘ idS (⌞ ρ ⌟R , ⌞ x ⌟V) ⟩
---     π₂ idS [ ⌞ ρ ⌟R , ⌞ x ⌟V ]tm
---   ≡⟨⟩
---     ⌞ here ⌟V [ ⌞ ρ ⌟R , ⌞ x ⌟V ]tm
---   ∎
--- ⌞lookup⌟ (_,_ {A = U} ρ x') (there {A = U} x) = begin
---     ⌞ lookupVar ρ x ⌟V
---   ≡⟨ ⌞lookup⌟ ρ x ⟩
---     ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm
---   ≡⟨ cong (⌞ x ⌟V [_]tm) (sym (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x' ⌟V})) ⟩
---     ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R , ⌞ x' ⌟V) ]tm
---   ≡⟨ cong (⌞ x ⌟V [_]tm) (cong π₁ (sym (idS∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)))) ⟩
---     ⌞ x ⌟V [ π₁ (idS ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)) ]tm
---   ≡⟨ cong (⌞ x ⌟V [_]tm) (π₁∘ idS (⌞ ρ ⌟R , ⌞ x' ⌟V)) ⟩
---     ⌞ x ⌟V [ π₁ idS ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V) ]tm
---   ≡⟨ [∘]tm ⌞ x ⌟V (π₁ idS) (⌞ ρ ⌟R , ⌞ x' ⌟V) ⟩ -- would be "refl" using recursion _[_]t
---     ⌞ x ⌟V [ π₁ idS ]tm [ ⌞ ρ ⌟R , ⌞ x' ⌟V ]tm
---   ≡⟨⟩
---     ⌞ there x ⌟V [ ⌞ ρ ⌟R , ⌞ x' ⌟V ]tm
---   ∎
+  ≡⟨ conv² (congTmΓ (congA[] βπ₁)) (congTmΓ (sym (lkVarEq.eq Γ A ρ x))) ⟩
+    conv (trans (congTmΓ (congA[] βπ₁)) (congTmΓ (Eq.sym (lkVarEq.eq Γ A ρ x)))) (π₂ (⌞ ρ ⌟R , ⌞ x ⌟V))
+  ≡⟨ conv-unique (trans (congTmΓ (congA[] βπ₁)) (congTmΓ (Eq.sym (lkVarEq.eq Γ A ρ x))))
+                 (congTmΓ eqA[])
+                 (π₂ (⌞ ρ ⌟R , ⌞ x ⌟V)) ⟩
+    conv (congTmΓ eqA[]) (π₂ (⌞ ρ ⌟R , ⌞ x ⌟V))
+  ≡⟨ eq ⟩
+    π₂ idS [ ⌞ ρ ⌟R , ⌞ x ⌟V ]
+  ∎
+  module ⌞lookup⌟Eq where
+    eqA[] : {A : Ty Γ} → A [ π₁ (⌞ ρ ⌟R , ⌞ x ⌟V) ] ≡ A [ π₁ idS ] [ ⌞ ρ ⌟R , ⌞ x ⌟V ]
+    eqA[] {A = A} = begin
+        A [ π₁ (⌞ ρ ⌟R , ⌞ x ⌟V) ]
+      ≡⟨ congA[] (sym (π₁idS∘ (⌞ ρ ⌟R , ⌞ x ⌟V))) ⟩
+        A [ π₁ idS ∘ (⌞ ρ ⌟R , ⌞ x ⌟V) ]
+      ≡⟨ [∘] A (π₁ idS) (⌞ ρ ⌟R , ⌞ x ⌟V) ⟩
+        A [ π₁ idS ] [ ⌞ ρ ⌟R , ⌞ x ⌟V ]
+      ∎
+    eq : conv (congTmΓ eqA[]) (π₂ (⌞ ρ ⌟R , ⌞ x ⌟V)) ≡ π₂ idS [ ⌞ ρ ⌟R , ⌞ x ⌟V ]
+    eq = begin
+        conv (congTmΓ eqA[]) (π₂ (⌞ ρ ⌟R , ⌞ x ⌟V))
+      ≡⟨ cong (conv (congTmΓ eqA[])) (sym (apd' π₂ (idS∘ (⌞ ρ ⌟R , ⌞ x ⌟V)))) ⟩
+        conv (congTmΓ eqA[]) (conv (cong (λ z → Tm Δ (A [ π₁ z ])) (idS∘ (⌞ ρ ⌟R , ⌞ x ⌟V))) (π₂ (idS ∘ (⌞ ρ ⌟R , ⌞ x ⌟V))))
+      ≡⟨ conv² (cong (λ z → Tm Δ (A [ π₁ z ])) (idS∘ (⌞ ρ ⌟R , ⌞ x ⌟V))) (congTmΓ eqA[]) ⟩
+        conv (trans (cong (λ z → Tm Δ (A [ π₁ z ])) (idS∘ (⌞ ρ ⌟R , ⌞ x ⌟V))) (congTmΓ eqA[])) (π₂ (idS ∘ (⌞ ρ ⌟R , ⌞ x ⌟V)))
+      ≡⟨ conv-unique (trans (cong (λ z → Tm Δ (A [ π₁ z ])) (idS∘ (⌞ ρ ⌟R , ⌞ x ⌟V))) (congTmΓ eqA[]))
+                        (congTmΓ (trans (congA[] (π₁∘ idS (⌞ ρ ⌟R , ⌞ x ⌟V))) ([∘] A (π₁ idS) (⌞ ρ ⌟R , ⌞ x ⌟V))))
+                        (π₂ (idS ∘ (⌞ ρ ⌟R , ⌞ x ⌟V))) ⟩
+        conv (congTmΓ (trans (congA[] (π₁∘ idS (⌞ ρ ⌟R , ⌞ x ⌟V))) ([∘] A (π₁ idS) (⌞ ρ ⌟R , ⌞ x ⌟V))))
+                 (π₂ (idS ∘ (⌞ ρ ⌟R , ⌞ x ⌟V)))
+      ≡⟨ π₂∘ idS (⌞ ρ ⌟R , ⌞ x ⌟V) ⟩
+        π₂ idS [ ⌞ ρ ⌟R , ⌞ x ⌟V ]
+      ∎
+⌞lookup⌟ {Δ} {Γ , A'} (ρ , x') (there {A = A} x) = begin
+    ⌞ conv (cong (Var Δ) (sym (lkVarEq.eq Γ A' ρ x'))) (lookupVar ρ x) ⌟V
+  ≡⟨ conv-in-func {Y = Var Δ} (sym (lkVarEq.eq Γ A' ρ x')) 
+                               ⌞_⌟V
+                              (cong (Var Δ) (sym (lkVarEq.eq Γ A' ρ x')))
+                              (lookupVar ρ x) 
+                              (congTmΓ (sym (lkVarEq.eq Γ A' ρ x'))) ⟩
+    conv (congTmΓ (sym (lkVarEq.eq Γ A' ρ x'))) ⌞ lookupVar ρ x ⌟V
+  ≡⟨ cong (conv (congTmΓ (sym (lkVarEq.eq Γ A' ρ x')))) (⌞lookup⌟ ρ x) ⟩
+    conv (congTmΓ (sym (lkVarEq.eq Γ A' ρ x'))) (⌞ x ⌟V [ ⌞ ρ ⌟R ])
+  ≡⟨ conv-unique (congTmΓ (sym (lkVarEq.eq Γ A' ρ x')))
+                 (trans (congTmΓ (congA[] (Eq.sym βπ₁))) (congTmΓ (⌞lookup⌟Eq.eqA[] Γ A' ρ x')))
+                 (⌞ x ⌟V [ ⌞ ρ ⌟R ]) ⟩
+    conv (trans (congTmΓ (congA[] (Eq.sym βπ₁))) (congTmΓ (⌞lookup⌟Eq.eqA[] Γ A' ρ x'))) (⌞ x ⌟V [ ⌞ ρ ⌟R ])
+  ≡⟨ sym (conv² (congTmΓ (congA[] (sym βπ₁))) (congTmΓ (⌞lookup⌟Eq.eqA[] Γ A' ρ x'))) ⟩
+    conv (congTmΓ (⌞lookup⌟Eq.eqA[] Γ A' ρ x')) (conv (congTmΓ (congA[] (sym βπ₁))) (⌞ x ⌟V [ ⌞ ρ ⌟R ]))
+  ≡⟨ cong (conv (congTmΓ (⌞lookup⌟Eq.eqA[] Γ A' ρ x'))) 
+          (cong[]tm refl {A} refl {⌞ x ⌟V} refl refl (sym (βπ₁ {σ = ⌞ ρ ⌟R} {t = ⌞ x' ⌟V}))) ⟩
+    conv (congTmΓ (⌞lookup⌟Eq.eqA[] Γ A' ρ x')) (⌞ x ⌟V [ π₁ (⌞ ρ ⌟R , ⌞ x' ⌟V) ])
+  ≡⟨ conv-unique (congTmΓ (⌞lookup⌟Eq.eqA[] Γ A' ρ x'))
+                 (trans (congTmΓ (congA[] (cong π₁ (sym (idS∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)))))) (congTmΓ eqTy))
+                 (⌞ x ⌟V [ π₁ (⌞ ρ ⌟R , ⌞ x' ⌟V) ]) ⟩
+    conv (trans (congTmΓ (congA[] (cong π₁ (sym (idS∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)))))) (congTmΓ eqTy))
+         (⌞ x ⌟V [ π₁ (⌞ ρ ⌟R , ⌞ x' ⌟V) ])
+  ≡⟨ sym (conv² (congTmΓ (congA[] (cong π₁ (sym (idS∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)))))) (congTmΓ eqTy)) ⟩
+    conv (congTmΓ eqTy) (conv (congTmΓ (congA[] (cong π₁ (sym (idS∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)))))) (⌞ x ⌟V [ π₁ (⌞ ρ ⌟R , ⌞ x' ⌟V) ]))
+  ≡⟨ cong (conv (congTmΓ eqTy)) (cong[]tm refl {A} refl {⌞ x ⌟V} refl refl (cong π₁ (sym (idS∘ (⌞ ρ ⌟R , ⌞ x' ⌟V))))) ⟩
+    conv (congTmΓ eqTy) (⌞ x ⌟V [ π₁ (idS ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)) ])
+  ≡⟨ conv-unique (congTmΓ eqTy) (trans (congTmΓ (congA[] (π₁∘ idS (⌞ ρ ⌟R , ⌞ x' ⌟V)))) (congTmΓ ([∘] A (π₁ idS) (⌞ ρ ⌟R , ⌞ x' ⌟V))))
+                 (⌞ x ⌟V [ π₁ (idS ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)) ]) ⟩
+    conv (trans (congTmΓ (congA[] (π₁∘ idS (⌞ ρ ⌟R , ⌞ x' ⌟V)))) (congTmΓ ([∘] A (π₁ idS) (⌞ ρ ⌟R , ⌞ x' ⌟V))))
+         (⌞ x ⌟V [ π₁ (idS ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)) ])
+  ≡⟨ sym (conv² (congTmΓ (congA[] (π₁∘ idS (⌞ ρ ⌟R , ⌞ x' ⌟V)))) (congTmΓ ([∘] A (π₁ idS) (⌞ ρ ⌟R , ⌞ x' ⌟V)))) ⟩
+    conv (congTmΓ ([∘] A (π₁ idS) (⌞ ρ ⌟R , ⌞ x' ⌟V))) 
+         (conv (congTmΓ (congA[] (π₁∘ idS (⌞ ρ ⌟R , ⌞ x' ⌟V))))
+               (⌞ x ⌟V [ π₁ (idS ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)) ]))
+  ≡⟨ cong (conv (congTmΓ ([∘] A (π₁ idS) (⌞ ρ ⌟R , ⌞ x' ⌟V))))
+          (cong[]tm refl {A} refl {⌞ x ⌟V} refl refl (π₁∘ idS (⌞ ρ ⌟R , ⌞ x' ⌟V))) ⟩
+    conv (congTmΓ ([∘] A (π₁ idS) (⌞ ρ ⌟R , ⌞ x' ⌟V))) (⌞ x ⌟V [ π₁ idS ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V) ])
+  ≡⟨ [∘]tm ⌞ x ⌟V (π₁ idS) (⌞ ρ ⌟R , ⌞ x' ⌟V) ⟩
+    ⌞ x ⌟V [ π₁ idS ] [ ⌞ ρ ⌟R , ⌞ x' ⌟V ]
+  ≡⟨⟩
+    ⌞ there x ⌟V [ ⌞ ρ ⌟R , ⌞ x' ⌟V ]
+  ∎
+  where
+    eqTy : A [ π₁ (idS ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)) ] ≡ A [ π₁ idS ] [ ⌞ ρ ⌟R , ⌞ x' ⌟V ]
+    eqTy = begin
+        A [ π₁ (idS ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V)) ]
+      ≡⟨ congA[] (π₁∘ idS (⌞ ρ ⌟R , ⌞ x' ⌟V)) ⟩
+        A [ π₁ idS ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V) ]
+      ≡⟨ [∘] A (π₁ idS) (⌞ ρ ⌟R , ⌞ x' ⌟V) ⟩
+        A [ π₁ idS ] [ ⌞ ρ ⌟R , ⌞ x' ⌟V ]
+      ∎
 
+-- Composition of renamings
+_⊙_ : Ren Δ Γ → Ren Θ Δ → Ren Θ Γ
+⌞⊙⌟ : (ρ : Ren Δ Γ)(ρ' : Ren Θ Δ) → ⌞ ρ ⊙ ρ' ⌟R ≡ ⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R
+∅ ⊙ _ = ∅
+_⊙_ {Θ = Θ} (ρ , x) ρ' = (ρ ⊙ ρ') , conv (cong (Var Θ) (sym eqA[])) (lookupVar ρ' x)
+  module ⊙Eq where
+    eqA[] : A [ ⌞ ρ ⊙ ρ' ⌟R ] ≡ A [ ⌞ ρ ⌟R ] [ ⌞ ρ' ⌟R ]
+    eqA[] {A = A} = begin
+        A [ ⌞ ρ ⊙ ρ' ⌟R ]
+      ≡⟨ congA[] (⌞⊙⌟ ρ ρ') ⟩
+        A [ ⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R ]
+      ≡⟨ [∘] A ⌞ ρ ⌟R ⌞ ρ' ⌟R ⟩
+        A [ ⌞ ρ ⌟R ] [ ⌞ ρ' ⌟R ]
+      ∎
+⌞⊙⌟ ∅ ρ' = sym η∅
+⌞⊙⌟ {Δ} {Γ , A} {Θ} (ρ , x) ρ' = begin
+    ⌞ ρ ⊙ ρ' ⌟R , ⌞ conv (cong (Var Θ) (sym (⊙Eq.eqA[] ρ x ρ'))) (lookupVar ρ' x) ⌟V
+  ≡⟨ cong,Sub' {A = A} refl (⌞⊙⌟ ρ ρ') eq,R ⟩
+    ⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R , conv (congTmΓ (sym ([∘] A ⌞ ρ ⌟R ⌞ ρ' ⌟R))) (⌞ x ⌟V [ ⌞ ρ' ⌟R ])
+  ≡⟨ sym (,∘ {σ = ⌞ ρ ⌟R} {t = ⌞ x ⌟V} {τ = ⌞ ρ' ⌟R}) ⟩
+    (⌞ ρ ⌟R , ⌞ x ⌟V) ∘ ⌞ ρ' ⌟R
+  ∎
+  where
+    eq,R : conv (congTmΓ (congA[] (⌞⊙⌟ ρ ρ'))) ⌞ conv (cong (Var Θ) (sym (⊙Eq.eqA[] ρ x ρ'))) (lookupVar ρ' x) ⌟V
+         ≡ conv (congTmΓ (sym ([∘] A ⌞ ρ ⌟R ⌞ ρ' ⌟R))) (⌞ x ⌟V [ ⌞ ρ' ⌟R ])
+    eq,R = begin
+        conv (congTmΓ (congA[] (⌞⊙⌟ ρ ρ'))) ⌞ conv (cong (Var Θ) (sym (⊙Eq.eqA[] ρ x ρ'))) (lookupVar ρ' x) ⌟V
+      ≡⟨ cong (conv (congTmΓ (congA[] (⌞⊙⌟ ρ ρ'))))
+              (conv-in-func {Y = Var Θ} (sym (⊙Eq.eqA[] ρ x ρ')) ⌞_⌟V 
+                            (cong (Var Θ) (sym (⊙Eq.eqA[] ρ x ρ')))
+                            (lookupVar ρ' x)
+                            (congTmΓ (sym (⊙Eq.eqA[] ρ x ρ')))) ⟩
+        conv (congTmΓ (congA[] (⌞⊙⌟ ρ ρ'))) (conv (congTmΓ (sym (⊙Eq.eqA[] ρ x ρ'))) ⌞ lookupVar ρ' x ⌟V)
+      ≡⟨ conv² (congTmΓ (sym (⊙Eq.eqA[] ρ x ρ'))) (congTmΓ (congA[] (⌞⊙⌟ ρ ρ'))) ⟩
+        conv (trans (congTmΓ (sym (⊙Eq.eqA[] ρ x ρ'))) (congTmΓ (congA[] (⌞⊙⌟ ρ ρ')))) ⌞ lookupVar ρ' x ⌟V
+      ≡⟨ conv-unique (trans (congTmΓ (sym (⊙Eq.eqA[] ρ x ρ'))) (congTmΓ (congA[] (⌞⊙⌟ ρ ρ'))))
+                     (congTmΓ (Eq.sym ([∘] A ⌞ ρ ⌟R ⌞ ρ' ⌟R)))
+                     ⌞ lookupVar ρ' x ⌟V ⟩
+        conv (congTmΓ (sym ([∘] A ⌞ ρ ⌟R ⌞ ρ' ⌟R))) ⌞ lookupVar ρ' x ⌟V
+      ≡⟨ cong (conv (congTmΓ (sym ([∘] A ⌞ ρ ⌟R ⌞ ρ' ⌟R)))) (⌞lookup⌟ ρ' x) ⟩
+        conv (congTmΓ (sym ([∘] A ⌞ ρ ⌟R ⌞ ρ' ⌟R))) (⌞ x ⌟V [ ⌞ ρ' ⌟R ])
+      ∎
 
+-- Reification of terms and substitutions into variables and renamings
+DomainDecl : Pdc
+DomainDecl .Pdc.PCtx Γ = Σ[ Γ' ∈ Ctx ] Γ ≡ Γ'
+DomainDecl .Pdc.PTy (Γ , refl) A = Σ[ A' ∈ Ty Γ ] A ≡ A'
+DomainDecl .Pdc.PSub (Γ , refl) (Δ , refl) σ = Σ[ ρ ∈ Ren Γ Δ ] σ ≡ ⌞ ρ ⌟R
+DomainDecl .Pdc.PTm (Γ , refl) (A , eq) t = Σ[ x ∈ Var Γ A ] conv (congTmΓ eq) t ≡ ⌞ x ⌟V
 
--- -- Composition of renamings
--- _⊙_ : Ren Δ Γ → Ren Θ Δ → Ren Θ Γ
--- ∅ ⊙ _ = ∅
--- _,_ {A = U} ρ x ⊙ ρ' = (ρ ⊙ ρ') , lookupVar ρ' x
+Domain : IH DomainDecl
+IH._[_]P Domain {PΓ = Γ , refl} {PΔ = Δ , refl} (A , eqA) (ρ , eqρ) = A [ ⌞ ρ ⌟R ] , cong[] refl eqA refl eqρ
+Domain .IH.∅Ctx = ∅ , refl
+Domain .IH._,Ctx_ (Γ , refl) (A , refl) = (Γ , A) , refl
+Domain .IH.∅Sub {PΔ = Δ , refl} = ∅ , refl
+IH._,Sub_ Domain {PΔ = Δ , refl} {Γ , refl} {A , refl} (ρ , refl) (x , eqx) = (ρ , x) , cong (⌞ ρ ⌟R ,_) eqx
+Domain .IH.PidS {PΔ = Γ , refl} = idR , sym ⌞idR⌟
+Domain .IH._∘P_ {PΓ = Γ , refl} {Δ , refl} {Θ , refl} (ρ , refl) (ρ' , refl) = ρ ⊙ ρ' , sym (⌞⊙⌟ ρ ρ')
+Domain .IH.π₁P {PΔ = Δ , refl} {Γ , refl} {A , refl} ((ρ , x) , refl) = ρ , βπ₁
+Domain .IH.PU {PΓ = Γ , refl} = U , refl
+Domain .IH.π₂P {PΔ = Δ , refl} {Γ , refl} {A , refl} ((ρ , x) , refl) = x , βπ₂
+IH._[_]tP Domain {PΓ = Γ , refl} {A , refl} {Δ , refl} (x , refl) (ρ , refl) = lookupVar ρ x , sym (⌞lookup⌟ ρ x)
 
--- ⌞⊙⌟ : (ρ : Ren Δ Γ)(ρ' : Ren Θ Δ) → ⌞ ρ ⊙ ρ' ⌟R ≡ ⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R
--- ⌞⊙⌟ ∅ ρ' = sym η∅
--- ⌞⊙⌟ (_,_ {A = U} ρ x) ρ' = begin 
---     ⌞ ρ ⊙ ρ' ⌟R , ⌞ lookupVar ρ' x ⌟V
---   ≡⟨ cong (_, ⌞ lookupVar ρ' x ⌟V) (⌞⊙⌟ ρ ρ') ⟩
---     (⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R) , ⌞ lookupVar ρ' x ⌟V
---   ≡⟨ cong ((⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R) ,_) (⌞lookup⌟ ρ' x) ⟩ 
---     (⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R) , ⌞ x ⌟V [ ⌞ ρ' ⌟R ]tm
---   ≡⟨ sym (,∘ {A = U} {⌞ ρ ⌟R} {⌞ x ⌟V} {⌞ ρ' ⌟R}) ⟩
---     (⌞ ρ ⌟R , ⌞ x ⌟V) ∘ ⌞ ρ' ⌟R
---   ∎
+open elim DomainDecl Domain
 
--- -- Reification of terms and substitutions into variables and renamings
--- ---- This is feasible because the only type is U for now
--- reifyTm : Tm Γ A → Var Γ A
--- reifySub : Sub Δ Γ → Ren Δ Γ
--- reifyTm (π₂ {A = U} σ) with reifySub σ
--- ... | ρ , x = x
--- reifyTm (t [ σ ]tm) with reifyTm t | reifySub σ
--- ... | here  {A = U}   | ρ , x  = x
--- ... | there {A = U} x | ρ , x' = lookupVar ρ x
--- reifySub ∅ = ∅ 
--- reifySub (σ , t) = reifySub σ , reifyTm t
--- reifySub idS = idR
--- reifySub (σ ∘ τ) = reifySub σ ⊙ reifySub τ
--- reifySub (π₁ σ) with reifySub σ
--- ... | ρ , _ = ρ
+reifyTm : (t : Tm Γ A) → Σ[ x ∈ Var Γ A ] t ≡ ⌞ x ⌟V
+reifyTm {Γ} {A} t with ElimCtx Γ | ElimTy A | ElimTm t
+... | .Γ , refl | .A , refl | x , eq = x , eq
 
--- soundnessTm : (t : Tm Γ A) → ⌞ reifyTm t ⌟V ≡ t
--- soundnessSub : (σ : Sub Δ Γ) → ⌞ reifySub σ ⌟R ≡ σ
--- soundnessTm (π₂ {A = U} (σ , t)) with soundnessSub (σ , t)
--- ... | eq = begin
---     ⌞ reifyTm t ⌟V
---   ≡⟨ sym (βπ₂ {σ = ⌞ reifySub σ ⌟R} {⌞ reifyTm t ⌟V}) ⟩
---     π₂ (⌞ reifySub σ ⌟R , ⌞ reifyTm t ⌟V)
---   ≡⟨ cong π₂ eq ⟩
---     π₂ (σ , t)
---   ∎
--- soundnessTm (π₂ {A = U} idS) = refl
--- soundnessTm (π₂ {Δ} {A = U} (σ ∘ τ)) with reifySub σ | soundnessSub σ
--- ... | ρ , x | ⌞ρ⌟,⌞x⌟≡σ with soundnessSub τ
--- ... | eq = begin
---     ⌞ lookupVar (reifySub τ) x ⌟V
---   ≡⟨ ⌞lookup⌟ (reifySub τ) x ⟩
---     ⌞ x ⌟V [ ⌞ reifySub τ ⌟R ]tm
---   ≡⟨ cong (⌞ x ⌟V [_]tm) eq ⟩
---     ⌞ x ⌟V [ τ ]tm
---   ≡⟨ cong (_[ τ ]tm) (sym (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V})) ⟩
---     π₂ (⌞ ρ ⌟R , ⌞ x ⌟V) [ τ ]tm
---   ≡⟨ cong (λ y → π₂ y [ τ ]tm) ⌞ρ⌟,⌞x⌟≡σ ⟩
---     π₂ σ [ τ ]tm
---   ≡⟨ sym (π₂∘ σ τ) ⟩
---     π₂ (σ ∘ τ)
---   ∎
--- soundnessTm (π₂ {Δ} {A = U} (π₁ σ)) with reifySub σ | soundnessSub σ
--- ... | (ρ , x) , x' | eq = begin
---     ⌞ x ⌟V
---   ≡⟨ sym (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}) ⟩
---     π₂ (⌞ ρ ⌟R , ⌞ x ⌟V)
---   ≡⟨ cong π₂ (sym (βπ₁ {σ = ⌞ ρ ⌟R , ⌞ x ⌟V} {⌞ x' ⌟V})) ⟩
---     π₂ (π₁ ((⌞ ρ ⌟R , ⌞ x ⌟V) , ⌞ x' ⌟V))
---   ≡⟨ cong (λ y → π₂ (π₁ y)) eq ⟩
---     π₂ (π₁ σ)
---   ∎
--- soundnessTm (t [ σ ]tm) with reifyTm t | reifySub σ | soundnessTm t | soundnessSub σ
--- ... | here {A = U} | ρ , x | eqTm | eqSub = begin
---     ⌞ x ⌟V
---   ≡⟨ sym (βπ₂ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}) ⟩
---     π₂ (⌞ ρ ⌟R , ⌞ x ⌟V)
---   ≡⟨ cong π₂ eqSub ⟩
---     π₂ σ
---   ≡⟨ cong π₂ (sym (idS∘ σ)) ⟩
---     π₂ (idS ∘ σ)
---   ≡⟨ π₂∘ idS σ ⟩
---     π₂ idS [ σ ]tm
---   ≡⟨ cong (_[ σ ]tm) eqTm ⟩
---     t [ σ ]tm
---   ∎
--- ... | there {A = U} x | ρ , x' | eqTm | eqSub = begin
---     ⌞ lookupVar ρ x ⌟V
---   ≡⟨ ⌞lookup⌟ ρ x ⟩
---     ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm
---   ≡⟨ cong (⌞ x ⌟V [_]tm) (sym (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x' ⌟V})) ⟩
---     ⌞ x ⌟V [ π₁ (⌞ ρ ⌟R , ⌞ x' ⌟V) ]tm
---   ≡⟨ cong (λ y → ⌞ x ⌟V [ π₁ y ]tm) eqSub ⟩
---     ⌞ x ⌟V [ π₁ σ ]tm
---   ≡⟨ cong (⌞ x ⌟V [_]tm) (sym (π₁idS∘ σ)) ⟩ -- would be "cong (⌞ x ⌟V [_]t) (sym (π₁idS∘ σ))" using recursion _[_]t
---     ⌞ x ⌟V [ π₁ idS ∘ σ ]tm
---   ≡⟨ [∘]tm ⌞ x ⌟V (π₁ idS) σ ⟩ -- would be "refl" using recursion _[_]t
---     ⌞ x ⌟V [ π₁ idS ]tm [ σ ]tm
---   ≡⟨ cong (_[ σ ]tm) eqTm ⟩
---     t [ σ ]tm
---   ∎
--- soundnessSub ∅ = refl
--- soundnessSub (σ , t) = begin
---     ⌞ reifySub σ ⌟R , ⌞ reifyTm t ⌟V
---   ≡⟨ cong (⌞ reifySub σ ⌟R ,_) (soundnessTm t) ⟩
---     ⌞ reifySub σ ⌟R , t
---   ≡⟨ cong (_, t) (soundnessSub σ) ⟩
---     σ , t
---   ∎
--- soundnessSub idS = ⌞idR⌟
--- soundnessSub (σ ∘ τ) = begin
---     ⌞ reifySub σ ⊙ reifySub τ ⌟R
---   ≡⟨ ⌞⊙⌟ (reifySub σ) (reifySub τ) ⟩
---     ⌞ reifySub σ ⌟R ∘ ⌞ reifySub τ ⌟R
---   ≡⟨ cong (_∘ ⌞ reifySub τ ⌟R) (soundnessSub σ) ⟩
---     σ ∘ ⌞ reifySub τ ⌟R
---   ≡⟨ cong (σ ∘_) (soundnessSub τ) ⟩
---     σ ∘ τ
---   ∎
--- soundnessSub (π₁ σ) with reifySub σ | soundnessSub σ
--- ... | ρ , x | eq = begin
---     ⌞ ρ ⌟R
---   ≡⟨ sym (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}) ⟩
---     π₁ (⌞ ρ ⌟R , ⌞ x ⌟V)
---   ≡⟨ cong π₁ eq ⟩
---     π₁ σ
---   ∎
+-- Inductive definition of the normal form
+data NeSub (Δ : Ctx) : (Γ : Ctx) → Sub Δ Γ → Set where
+  idS : NeSub Δ Δ idS
+  π₁  : NeSub Δ (Γ , A) σ → NeSub Δ Γ (π₁ σ)
 
--- -- Inductive definition of the normal form
--- data NeSub (Δ : Ctx) : (Γ : Ctx) → Sub Δ Γ → Set where
---   idS : NeSub Δ Δ idS
---   π₁  : NeSub Δ (Γ , A) σ → NeSub Δ Γ (π₁ σ)
+data NfTm (Δ : Ctx) : Tm Δ A → Set where
+  π₂ : NeSub Δ (Γ , A) σ → NfTm Δ {A [ π₁ σ ]} (π₂ σ)
 
--- data NfTm (Δ : Ctx) : Tm Δ A → Set where
---   π₂ : NeSub Δ (Γ , A) σ → NfTm Δ {A [ π₁ σ ]} (π₂ σ)
+accVar : (x : Var Γ A)(σ : Sub Δ Γ) → Tm Δ (A [ σ ])
+accVar here σ = conv (congTmΓ (sym eqTy)) (π₂ σ) -- π₂ σ
+  module accVarEq where
+    eqTy : A [ π₁ idS ] [ σ ] ≡ A [ π₁ σ ]
+    eqTy {A = A} = begin
+        A [ π₁ idS ] [ σ ]
+      ≡⟨ sym ([∘] A (π₁ idS) σ) ⟩
+        A [ π₁ idS ∘ σ ]
+      ≡⟨ congA[] (π₁idS∘ σ) ⟩
+        A [ π₁ σ ]
+      ∎
+accVar (there x) σ = conv (congTmΓ (sym (accVarEq.eqTy σ))) (accVar x (π₁ σ))
 
--- test : vs {B = B'} (vs {B = B} (vz {Γ} {U})) ≡ π₂ (π₁ (π₁ idS)) -- π₂ (π₁ (π₁ idS))
--- test {Γ} {B} {B'} =
---   begin
---     π₂ idS [ π₁ idS ]tm [ π₁ idS ]tm
---   ≡⟨ cong (_[ π₁ idS ]tm) (sym (π₂∘ idS (π₁ idS))) ⟩
---     π₂ (idS ∘ π₁ idS) [ π₁ idS ]tm
---   ≡⟨ cong (_[ π₁ idS ]tm) (cong π₂ (idS∘ (π₁ idS))) ⟩
---     π₂ (π₁ idS) [ π₁ idS ]tm
---   ≡⟨ sym (π₂∘ (π₁ idS) (π₁ idS)) ⟩
---     π₂ (π₁ idS ∘ π₁ idS)
---   ≡⟨ cong π₂ (sym (π₁∘ idS (π₁ idS))) ⟩
---     π₂ (π₁ (idS ∘ π₁ idS))
---   ≡⟨ cong (λ y → π₂ (π₁ y)) (idS∘ (π₁ idS)) ⟩
---     π₂ (π₁ (π₁ idS))
---   ∎
+accVar[]tm : (x : Var Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ) → conv (congTmΓ (sym ([∘] A σ τ))) (accVar x σ [ τ ]) ≡ accVar x (σ ∘ τ)
+accVar[]tm {Γ , A} {_} {Δ} {Θ} here σ τ = begin
+    conv (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ))) (conv (congTmΓ (sym (accVarEq.eqTy σ))) (π₂ σ) [ τ ])
+  ≡⟨ cong (conv (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ)))) 
+          (conv-in-func {Y = Tm Δ} (sym (accVarEq.eqTy σ)) 
+                        (_[ τ ])
+                        (congTmΓ (sym (accVarEq.eqTy σ)))
+                        (π₂ σ) (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ))))) ⟩
+    conv (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ)))
+         (conv (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ))))
+               (π₂ σ [ τ ]))
+  ≡⟨ conv² (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ)))) (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ))) ⟩
+    conv (trans (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ)))) (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ))))
+         (π₂ σ [ τ ])
+  ≡⟨ cong (conv (trans (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ)))) (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ)))))
+          (sym (π₂∘ σ τ)) ⟩
+    conv  (trans (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ)))) (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ))))
+          (conv (congTmΓ (trans (congA[] (π₁∘ σ τ)) ([∘] A (π₁ σ) τ))) (π₂ (σ ∘ τ)))
+  ≡⟨ conv² (congTmΓ (trans (congA[] (π₁∘ σ τ)) ([∘] A (π₁ σ) τ)))
+           (trans (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ)))) (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ)))) ⟩
+    conv (trans (congTmΓ (trans (congA[] (π₁∘ σ τ)) ([∘] A (π₁ σ) τ)))
+                (trans (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ))))
+                       (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ)))))
+         (π₂ (σ ∘ τ))
+  ≡⟨ conv-unique (trans (congTmΓ (trans (congA[] (π₁∘ σ τ)) ([∘] A (π₁ σ) τ)))
+                        (trans (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ))))
+                               (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ)))))
+                 (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ))))
+                 (π₂ (σ ∘ τ)) ⟩
+    conv (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ)))) (π₂ (σ ∘ τ))
+  ∎
+accVar[]tm {Γ , A'} {_} {Δ} {Θ} (there {A = A} x) σ τ = begin
+    conv (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ)))
+         (conv (congTmΓ (sym (accVarEq.eqTy σ))) (accVar x (π₁ σ)) [ τ ])
+  ≡⟨ cong (conv (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ))))
+          (conv-in-func {Y = Tm Δ}
+                        (sym (accVarEq.eqTy σ))
+                        (_[ τ ])
+                        (congTmΓ (sym (accVarEq.eqTy σ))) (accVar x (π₁ σ))
+                        (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ))))) ⟩
+    conv (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ)))
+         (conv (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ))))
+               (accVar x (π₁ σ) [ τ ]))
+  ≡⟨ conv² (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ))))
+           (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ))) ⟩
+    conv (trans (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ))))
+                (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ))))
+         (accVar x (π₁ σ) [ τ ])
+  ≡⟨ conv-unique (trans (congTmΓ (cong (_[ τ ]) (sym (accVarEq.eqTy σ))))
+                           (congTmΓ (sym ([∘] (A [ π₁ idS ]) σ τ))))
+                 (trans (congTmΓ (sym ([∘] A (π₁ σ) τ))) (congTmΓ eqTy))
+                 (accVar x (π₁ σ) [ τ ]) ⟩
+    conv (trans (congTmΓ (sym ([∘] A (π₁ σ) τ))) (congTmΓ eqTy)) (accVar x (π₁ σ) [ τ ])
+  ≡⟨ sym (conv² (congTmΓ (sym ([∘] A (π₁ σ) τ))) (congTmΓ eqTy)) ⟩
+    conv (congTmΓ eqTy) (conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (accVar x (π₁ σ) [ τ ]))
+  ≡⟨ cong (conv (congTmΓ eqTy)) (accVar[]tm x (π₁ σ) τ) ⟩
+    conv (congTmΓ eqTy) (accVar x (π₁ σ ∘ τ))
+  ≡⟨ conv-unique (congTmΓ eqTy)
+                 (trans (cong (λ z → Tm Θ (A [ z ])) (sym (π₁∘ σ τ)))
+                        (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ)))))
+                 (accVar x (π₁ σ ∘ τ)) ⟩
+    conv (trans (cong (λ z → Tm Θ (A [ z ])) (sym (π₁∘ σ τ)))
+                (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ)))))
+         (accVar x (π₁ σ ∘ τ))
+  ≡⟨ sym (conv² (cong (λ z → Tm Θ (A [ z ])) (sym (π₁∘ σ τ))) (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ))))) ⟩
+    conv (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ))))
+         (conv (cong (λ z → Tm Θ (A [ z ])) (sym (π₁∘ σ τ)))
+               (accVar x (π₁ σ ∘ τ)))
+  ≡⟨ cong (conv (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ))))) (apd' (accVar x) (sym (π₁∘ σ τ))) ⟩
+    conv (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ)))) (accVar x (π₁ (σ ∘ τ)))
+  ∎
+  where
+    eqTy : A [ π₁ σ ∘ τ ] ≡ A [ π₁ idS ] [ σ ∘ τ ]
+    eqTy = begin
+        A [ π₁ σ ∘ τ ]
+      ≡⟨ congA[] (cong∘' (sym (π₁idS∘ σ)) refl) ⟩
+        A [ (π₁ idS ∘ σ) ∘ τ ]
+      ≡⟨ congA[] assocS ⟩
+        A [ π₁ idS ∘ σ ∘ τ ]
+      ≡⟨ [∘] A (π₁ idS) (σ ∘ τ) ⟩
+        A [ π₁ idS ] [ σ ∘ τ ]
+      ∎
 
--- reflectVar : (x : Var Γ A) → Σ[ B ∈ Ty Γ ] Σ[ t ∈ Tm Γ B ] Σ[ p ∈ A ≡ B ] tr (Tm Γ) p ⌞ x ⌟V ≡ t × NfTm Γ t
--- reflectVar {Γ , U} here = U , π₂ idS , refl , refl , π₂ idS
--- reflectVar {Γ , U} (there x) with reflectVar x 
--- ... | B , .(π₂ σ) , refl , ⌞x⌟≡t , π₂ {A = U} {σ} nσ = U , π₂ {Γ , U} {! π₁ σ  !} , {!   !}  
+nfVar : (x : Var Γ A) → Tm Γ A
+nfVar x = conv (congTmΓ ([idS] _)) (accVar x idS) -- accVar x idS
+
+soundnessNfVar : (x : Var Γ A) → ⌞ x ⌟V ≡ nfVar x
+soundnessNfVar {Γ , A'} {A} here = sym (begin
+    conv (congTmΓ ([idS] A)) (conv (congTmΓ (sym (accVarEq.eqTy idS))) (π₂ idS))
+  ≡⟨ conv² (congTmΓ (sym (accVarEq.eqTy idS))) (congTmΓ ([idS] A)) ⟩
+    conv (trans (congTmΓ (sym (accVarEq.eqTy idS))) (congTmΓ ([idS] (A' [ π₁ idS ])))) (π₂ idS)
+  ≡⟨ conv-unique (trans (congTmΓ (sym (accVarEq.eqTy idS))) (congTmΓ ([idS] (A' [ π₁ idS ]))))
+                  refl
+                 (π₂ idS) ⟩
+    π₂ idS
+  ∎)
+soundnessNfVar {Γ , B} (there {A = A} x) = begin
+    ⌞ x ⌟V [ π₁ idS ]
+  ≡⟨ cong (_[ π₁ idS ]) (soundnessNfVar x) ⟩
+    conv (congTmΓ ([idS] A)) (accVar x idS) [ π₁ idS ]
+  ≡⟨ conv-in-func {Y = Tm Γ}
+                  ([idS] A)
+                  (_[ π₁ idS ])
+                  (congTmΓ ([idS] A))
+                  (accVar x idS)
+                  (congTmΓ (cong (_[ π₁ idS ]) ([idS] A))) ⟩
+    conv (congTmΓ (cong (_[ π₁ idS ]) ([idS] A))) (accVar x idS [ π₁ idS ])
+  ≡⟨ conv-unique (congTmΓ (cong (_[ π₁ idS ]) ([idS] A)))
+                 (trans (congTmΓ (Eq.sym ([∘] A idS (π₁ idS)))) (congTmΓ (congA[] (idS∘ π₁ idS))))
+                 (accVar x idS [ π₁ idS ]) ⟩
+    conv (trans (congTmΓ (Eq.sym ([∘] A idS (π₁ idS)))) (congTmΓ (congA[] (idS∘ π₁ idS))))
+         (accVar x idS [ π₁ idS ])
+  ≡⟨ sym (conv² (congTmΓ (Eq.sym ([∘] A idS (π₁ idS)))) (congTmΓ (congA[] (idS∘ π₁ idS)))) ⟩
+    conv (congTmΓ (congA[] (idS∘ π₁ idS)))
+         (conv (congTmΓ (Eq.sym ([∘] A idS (π₁ idS))))
+               (accVar x idS [ π₁ idS ]))
+  ≡⟨ cong (conv (congTmΓ (congA[] (idS∘ (π₁ idS))))) (accVar[]tm x idS (π₁ {A = B} idS)) ⟩
+    conv (congTmΓ (congA[] (idS∘ π₁ idS))) (accVar x (idS ∘ π₁ idS))
+  ≡⟨ conv-unique (congTmΓ (congA[] (idS∘ π₁ idS)))
+                 (cong (λ z → Tm (Γ , B) (A [ z ])) (idS∘ π₁ idS)) 
+                 (accVar x (idS ∘ π₁ idS)) ⟩
+    conv (cong (λ z → Tm (Γ , B) (A [ z ])) (idS∘ π₁ idS)) (accVar x (idS ∘ π₁ idS))
+  ≡⟨ apd' (accVar x) (idS∘ π₁ idS) ⟩
+    accVar x (π₁ idS)
+  ≡⟨ conv-unique refl
+                (trans (congTmΓ (sym (accVarEq.eqTy idS))) (congTmΓ ([idS] (A [ π₁ idS ]))))
+                (accVar x (π₁ idS)) ⟩
+    conv (trans (congTmΓ (sym (accVarEq.eqTy idS))) (congTmΓ ([idS] (A [ π₁ idS ])))) (accVar x (π₁ idS))
+  ≡⟨ sym (conv² (congTmΓ (sym (accVarEq.eqTy idS))) (congTmΓ ([idS] (A [ π₁ idS ])))) ⟩
+    conv (congTmΓ ([idS] (A [ π₁ idS ]))) (conv (congTmΓ (sym (accVarEq.eqTy idS))) (accVar x (π₁ idS)))
+  ∎
+
+NfTm[accVar] : (x : Var Γ A){σ : Sub Δ Γ} → NeSub Δ Γ σ → NfTm Δ (accVar x σ)
+NfTm[accVar] here nσ = {!   !} -- π₂ nσ
+NfTm[accVar] (there x) nσ = {!   !} -- NfTm[accVar] x (π₁ nσ)
+
+NfTm[nfVar] : (x : Var Γ A) → NfTm Γ (nfVar x)
+NfTm[nfVar] x = {!   !} -- NfTm[accVar] x idS
+
+thm[normalization] : (t : Tm Γ A) → Σ[ t' ∈ Tm Γ A ] t ≡ t' × NfTm Γ t'
+thm[normalization] t with reifyTm t
+... | x , eq = {!   !} -- nfVar x , trans eq (soundnessNfVar x) , NfTm[nfVar] x

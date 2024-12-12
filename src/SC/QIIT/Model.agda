@@ -75,7 +75,11 @@ record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
         (Pt : PTm PΓ PA t)(Pσ : PSub PΔ PΓ σ)
       ---------------------------------------
       → PTm PΔ (PA [ Pσ ]P) (t [ σ ])
-    
+
+record IHEq {i j}(P : Pdc {i} {j})(indP : IH P) : Set (i ⊔ j) where
+  open Pdc P
+  open IH indP
+  field   
     -- induction on equalities
     PU[] 
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}(Pσ : PSub PΔ PΓ σ)
