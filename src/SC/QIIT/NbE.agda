@@ -408,7 +408,7 @@ accVar[]tm {Γ , A'} {_} {Δ} {Θ} (there {A = A} x) σ τ = begin
       ∎
 
 nfVar : (x : Var Γ A) → Tm Γ A
-nfVar x = conv (congTmΓ ([idS] _)) (accVar x idS) -- accVar x idS
+nfVar x = conv (congTmΓ ([idS] _)) (accVar x idS)
 
 soundnessNfVar : (x : Var Γ A) → ⌞ x ⌟V ≡ nfVar x
 soundnessNfVar {Γ , A'} {A} here = sym (begin
@@ -457,12 +457,33 @@ soundnessNfVar {Γ , B} (there {A = A} x) = begin
   ∎
 
 NfTm[accVar] : (x : Var Γ A){σ : Sub Δ Γ} → NeSub Δ Γ σ → NfTm Δ (accVar x σ)
-NfTm[accVar] here nσ = {!   !} -- π₂ nσ
-NfTm[accVar] (there x) nσ = {!   !} -- NfTm[accVar] x (π₁ nσ)
+NfTm[accVar] {Γ , A} {_} {Δ} here {σ} nσ = conv (sym eqTy) (π₂ nσ)
+  where
+    eqTy : NfTm Δ (conv (congTmΓ (sym (accVarEq.eqTy σ))) (π₂ σ)) ≡ NfTm Δ (π₂ σ)
+    eqTy = begin
+        NfTm Δ (conv (congTmΓ (Eq.sym (accVarEq.eqTy σ))) (π₂ σ))
+      ≡⟨ conv-in-func {Y = Tm Δ} (sym (accVarEq.eqTy σ)) (NfTm Δ) (congTmΓ (sym (accVarEq.eqTy σ))) (π₂ σ) refl ⟩
+        NfTm Δ (π₂ σ)
+      ∎
+NfTm[accVar] {Γ , A'} {_} {Δ} (there {A = A} x) {σ} nσ = conv (sym eqTy) (NfTm[accVar] x (π₁ nσ))
+  where
+    eqTy : NfTm Δ (conv (congTmΓ (Eq.sym (accVarEq.eqTy σ))) (accVar x (π₁ σ))) ≡ NfTm Δ (accVar x (π₁ σ))
+    eqTy = begin
+        NfTm Δ (conv (congTmΓ (sym (accVarEq.eqTy σ))) (accVar x (π₁ σ)))
+      ≡⟨ conv-in-func {Y = Tm Δ} (sym (accVarEq.eqTy σ)) (NfTm Δ) (congTmΓ (sym (accVarEq.eqTy σ))) (accVar x (π₁ σ)) refl ⟩
+        NfTm Δ (accVar x (π₁ σ))
+      ∎
 
 NfTm[nfVar] : (x : Var Γ A) → NfTm Γ (nfVar x)
-NfTm[nfVar] x = {!   !} -- NfTm[accVar] x idS
+NfTm[nfVar] {Γ} {A} x = conv (sym eqTy) (NfTm[accVar] x idS) -- NfTm[accVar] x idS
+  where
+    eqTy : NfTm Γ (nfVar x) ≡ NfTm Γ (accVar x idS)
+    eqTy = begin
+        NfTm Γ (conv (congTmΓ ([idS] A)) (accVar x idS))
+      ≡⟨ conv-in-func {Y = Tm Γ} ([idS] A) (NfTm Γ) (congTmΓ ([idS] A)) (accVar x idS) refl ⟩
+        NfTm Γ (accVar x idS)
+      ∎
 
 thm[normalization] : (t : Tm Γ A) → Σ[ t' ∈ Tm Γ A ] t ≡ t' × NfTm Γ t'
 thm[normalization] t with reifyTm t
-... | x , eq = {!   !} -- nfVar x , trans eq (soundnessNfVar x) , NfTm[nfVar] x
+... | x , eq = nfVar x , (trans eq (soundnessNfVar x) , NfTm[nfVar] x)
