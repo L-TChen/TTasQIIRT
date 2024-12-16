@@ -42,6 +42,12 @@ syntax cvtr p q eq1 eq2 = eq1 ⟫ p , q ⟫ eq2
 conv-unique : {A B : Set ℓ}(p q : A ≡ B)(a : A) → conv p a ≡ conv q a
 conv-unique refl refl _ = refl
 
+conv~unique : {A B C : Set ℓ}(p : A ≡ B)(q : A ≡ C)(a : A) → conv p a ≅ conv q a
+conv~unique refl refl _ = refl
+
+conv-rm : {A B : Set ℓ}(p : A ≡ B)(a : A) → conv p a ≅ a
+conv-rm p a = conv~unique p refl a
+
 tr-conv : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}{y : Y x}
         → (p : x ≡ x') → tr Y p y ≡ conv (cong Y p) y
 tr-conv refl = refl
