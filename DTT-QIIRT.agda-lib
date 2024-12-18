@@ -7,4 +7,4 @@ depend:
   cubical
 
 flags:
-  --auto-inline --rewriting --exact-split --with-K
+  --auto-inline --with-K --exact-split --rewriting --local-confluence-check
