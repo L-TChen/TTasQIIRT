@@ -1,5 +1,4 @@
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
-{-# OPTIONS --local-confluence-check  #-}
 
 module SC+Pi.QIIRT-Lift.Base where
  
@@ -8,7 +7,7 @@ open import Prelude
 
 
 infixl 35 _[_]l subTy subTm subTmR 
-infixl 5 _,_
+infixl 6 _,_
 
 interleaved mutual
   data Ctx : Set
@@ -49,7 +48,7 @@ interleaved mutual
 
   postulate
     ∅[]l : ∅        [ σ ]l ≡ ∅
-    ,[]l : (As , A) [ σ ]l ≡ As [ σ ]l , (A [ σ ⇈ As ])
+    ,[]l : (As , A) [ σ ]l ≡ As [ σ ]l , A [ σ ⇈ As ]
     {-# REWRITE ∅[]l #-}
 
   data _ where
@@ -118,7 +117,8 @@ interleaved mutual
     {-# REWRITE [id] [∘] [π₁,] [π₁∘] ,[]l #-}
 
   {-# TERMINATING #-}
-  subTmR : (As : Lift Δ)(σ : Sub Γ Δ){A : Ty (Δ ++ As)} → Tm (Δ ++ As) A → Tm (Γ ++ As [ σ ]l) (A [ σ ⇈ As ])
+  subTmR : (As : Lift Δ)(σ : Sub Γ Δ){A : Ty (Δ ++ As)} → Tm (Δ ++ As) A
+    → Tm (Γ ++ As [ σ ]l) (A [ σ ⇈ As ])
   subTmR         As idS          t = t
   subTmR         As (τ ∘ σ)      t = subTmR (As [ τ ]l) σ (subTmR As τ t)
   subTmR {Γ = Γ} As ∅            t = subTm {Γ = Γ} As ∅ t
@@ -255,15 +255,22 @@ coh[assocS]
   → A [ (σ ∘ τ) ∘ γ ⇈ As ] ≡ A [ σ ∘ (τ ∘ γ) ⇈ As ]
 coh[assocS] = refl
 
-coh[,∘]
-  : {A' : Ty Θ}{As : Lift (Θ , A')}{A : Ty ((Θ , A') ++ As)}
-    {σ : Sub Δ Θ}{t : Tm Δ (A' [ σ ⇈ ∅ ])}{τ : Sub Γ Δ}
-  → A [ (σ , t) ∘ τ ⇈ As ] ≡ {! A [ (σ ∘ τ , t [ τ ⇈ ∅ ]tm) ⇈ As ]  !} -- A [ (σ , t) ∘ τ ⇈ As ] ≡ A [ (σ ∘ τ , t [ τ ⇈ ∅ ]tm) ⇈ As ]
-coh[,∘] {A = U}     = {!   !}
-coh[,∘] {A = Π A B} = {!   !} -- begin
-  -- Π A B [ (σ , t) ] [ τ ]        ≡⟨ {!!} ⟩
-  -- Π A B [ (σ ∘ τ) , t [ τ ]tm ]  ∎ 
-  -- where open ≡-Reasoning
+module _ where mutual
+  open ≡-Reasoning
+  coh[,∘]l
+    : As [ (σ , t) ∘ τ ]l ≡ As [ (σ ∘ τ) , subTm ∅ τ t ]l
+  coh[,∘]l {As = ∅}      = refl
+  coh[,∘]l {As = As , A} {σ = σ} {t} {_} {τ} = begin
+    (As , A) [ (σ , t) ∘ τ ]l                                      ≡⟨⟩
+    As [ (σ , t) ∘ τ ]l           , A [ (σ , t) ∘ τ ⇈ As ]         ≡⟨ {!co!} ⟩
+    As [ (σ ∘ τ) , subTm ∅ τ t ]l , A [ σ ∘ τ , subTm ∅ τ t ⇈ As ] ≡⟨⟩
+    (As , A) [ (σ ∘ τ) , subTm ∅ τ t ]l ∎
+
+  coh[,∘]
+    : {A' : Ty Θ} {As : Lift (Θ , A')} {A : Ty ((Θ , A') ++ As)}
+      {σ : Sub Δ Θ} {t : Tm Δ (A' [ σ ⇈ ∅ ])}{τ : Sub Γ Δ}
+    → A [ (σ , t) ∘ τ ⇈ As ] ≅ A [ (σ ∘ τ , t [ τ ⇈ ∅ ]tm) ⇈ As ]  
+  coh[,∘] = {!!}
 
 coh[βπ₁] : A [ π₁ (σ , t) ⇈ As ] ≡ A [ σ ⇈ As ]
 coh[βπ₁] = refl
@@ -276,15 +283,32 @@ coh[βπ₂] {As = As} {σ = σ} {t = t} {τ = τ} = begin
   t [ τ ⇈ As ]t                  ∎
   where open ≡-Reasoning
 
-coh[η,] 
-  : {A' : Ty Δ}{As : Lift (Δ , A')}{A : Ty ((Δ , A') ++ As)}{σ : Sub Γ (Δ , A')}
-  → A [ σ ⇈ As ] ≡ {!   !} -- A [ π₁ σ , π₂ σ ⇈ As ]
-coh[η,] {A = U}     = {!   !}
-coh[η,] {A = Π A B} = {!   !}
+module _ where 
+  open ≅-Reasoning
+  coh[η,]l
+    : (As : Lift (Δ , A)) (σ : Sub Γ (Δ , A)) → As [ σ ]l ≅ As [ π₁ σ , π₂ σ ]l
 
-coh[η∅] : {As : Lift ∅}{σ : Sub Δ ∅} → (A : Ty (∅ ++ As)) → A [ σ ⇈ As ] ≡ {! subTy {∅} {Δ} As ∅ A  !} -- A [ ∅ ⇈ As ]l
-coh[η∅] U              = {!   !}
-coh[η∅] (Π A B)        = {!   !}
+  coh[η,] 
+    : {A' : Ty Δ} (As : Lift (Δ , A')) (σ : Sub Γ (Δ , A')) (A : Ty ((Δ , A') ++ As))
+    → A [ σ ⇈ As ] ≅ A [ π₁ σ , π₂ σ ⇈ As ]
+
+  coh[η,]l ∅        σ = refl
+  coh[η,]l (As , A) σ = begin
+    As [ σ ]l , A [ σ ⇈ As ]
+      ≅⟨ HEq.cong₂ _,_ (coh[η,]l As σ) (coh[η,] As σ A)  ⟩
+    As [ π₁ σ , π₂ σ ]l , A [ π₁ σ , π₂ σ ⇈ As ] ∎
+
+  coh[η,] As σ A = {!!}
+
+  coh[η∅] : (σ : Sub Δ ∅) (As : Lift ∅) → (A : Ty (∅ ++ As))
+    → A [ σ ⇈ As ] ≅  subTy {∅} {Δ} As ∅ A
+
+  coh[η∅]l : (σ : Sub Γ ∅) (As : Lift ∅) 
+    → As [ σ ]l ≅ As [ (∅ {Γ}) ]l
+  coh[η∅]l σ ∅        = refl
+  coh[η∅]l σ (As , A) = HEq.cong₂ _,_ (coh[η∅]l σ As) (coh[η∅] σ As A)
+
+  coh[η∅] σ As A = ?
 
 π₂∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
   → π₂ (τ ∘ σ) ≡ π₂ τ [ σ ⇈ ∅ ]tm
