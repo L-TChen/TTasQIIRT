@@ -203,7 +203,7 @@ coh[η,] : A [ σ ] ≡ A [ π₁ σ , π₂ σ ]
 coh[η,] {A = U}    {σ} = refl
 
 coh[η∅] : A [ σ ] ≡ A [ ∅ ]
-coh[η∅] {A = U}            = refl
+coh[η∅] {A = U} = refl
     
 -- syntax abbreviations
 -- wk : Sub (Δ , A) Δ
