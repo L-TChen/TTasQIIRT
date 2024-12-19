@@ -3,9 +3,10 @@ module SC+El.QIIRT2.Model where
 
 open import Prelude
 open import SC+El.QIIRT2.Base
+open import SC+El.QIIRT2.Cong
 
 variable
-  Γ' Φ : Ctx
+  Φ : Ctx
 
 record Pdc {i j} : Set (lsuc (i ⊔ j)) where
   field
@@ -17,7 +18,18 @@ record Pdc {i j} : Set (lsuc (i ⊔ j)) where
       : PCtx Δ → PCtx Γ → Sub Δ Γ → Set j
     PTm
       : (PΓ : PCtx Γ) → PTy PΓ A → Tm Γ A → Set j
+  PCtx` : Γ ≡ Γ' →  PCtx Γ ≡ PCtx Γ'
+  PCtx` = cong PCtx
 
+  PTyPΓ` : {PΓ : PCtx Γ}{A A' : Ty Γ} → A ≡ A' → PTy PΓ A ≡ PTy PΓ A'
+  PTyPΓ` {PΓ = PΓ} = cong (PTy PΓ)
+  
+  PTmPΓ`
+    : {PΓ : PCtx Γ}{PA : PTy PΓ A}{PA' : PTy PΓ A'}{t : Tm Γ A}{t' : Tm Γ A'}
+    → (A≡A' : A ≡ A') → conv (PTyPΓ` A≡A') PA ≡ PA' → conv (TmΓ` A≡A') t ≡ t'
+    ---------------------------------------------------------------------------------------
+    → PTm PΓ PA t ≡ PTm PΓ PA' t'
+  PTmPΓ` {PΓ = PΓ} refl = cong₂ (PTm PΓ)
 
 record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
   open Pdc P
@@ -98,14 +110,11 @@ record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{u : Tm Γ U}{Pu : PTm PΓ PU u}
         (Pσ : PSub PΔ PΓ σ)
       -----------------------------
-      → (PEl Pu) [ Pσ ]P ≡ PEl (conv (cong (λ PA → PTm PΔ PA (u [ σ ]t)) PU[]) (Pu [ Pσ ]tP))
-  
-  congPTm
-    : {PΓ : PCtx Γ}{PA : PTy PΓ A}{PA' : PTy PΓ A'}{t : Tm Γ A}{t' : Tm Γ A'}
-    → (A≡A' : A ≡ A') → conv (cong (PTy PΓ) A≡A') PA ≡ PA' → conv (cong (Tm Γ) A≡A') t ≡ t'
-    ---------------------------------------------------------------------------------------
-    → PTm PΓ PA t ≡ PTm PΓ PA' t'
-  congPTm refl refl refl = refl
+      → (PEl Pu) [ Pσ ]P ≡ PEl (conv (PTmPΓ` refl PU[] refl) (Pu [ Pσ ]tP))
+    []tmP≡[]tP
+      : {PΓ : PCtx Γ}{PA : PTy PΓ A}{PΔ : PCtx Δ}
+        (Pt : PTm PΓ PA t)(Pσ : PSub PΔ PΓ σ)
+      → conv (PTmPΓ` refl refl ([]tm≡[]t t σ)) (Pt [ Pσ ]tmP) ≡ Pt [ Pσ ]tP
 
 record IHEq {i j}(P : Pdc {i} {j})(indP : IH P) : Set (i ⊔ j) where
   open Pdc P
@@ -151,11 +160,11 @@ record IHEq {i j}(P : Pdc {i} {j})(indP : IH P) : Set (i ⊔ j) where
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}
       → {PA : PTy PΓ A}{Pσ : PSub PΔ PΓ σ}{Pt : PTm PΔ (PA [ Pσ ]P) t}{Pτ : PSub PΘ PΔ τ}
       ------------------------------------------------------------------------------------------
-      → conv (cong (PSub PΘ (PΓ ,Ctx PA)) ,∘) ((Pσ ,Sub Pt) ∘P Pτ) ≡ ((Pσ ∘P Pτ) ,Sub conv (congPTm refl (sym ([∘P] PA Pσ Pτ)) ([]tm≡[]t t τ)) (Pt [ Pτ ]tmP))
+      → conv (cong (PSub PΘ (PΓ ,Ctx PA)) ,∘) ((Pσ ,Sub Pt) ∘P Pτ) ≡ ((Pσ ∘P Pτ) ,Sub conv (PTmPΓ` refl (sym ([∘P] PA Pσ Pτ)) ([]tm≡[]t t τ)) (Pt [ Pτ ]tmP))
     Pη∅
       : {PΔ : PCtx Δ}
       → {Pσ : PSub PΔ ∅Ctx σ}
-      ---------------------
+      ------------------------------------------
       → conv (cong (PSub PΔ ∅Ctx) η∅) Pσ ≡ ∅Sub
     Pηπ
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΓ A}
