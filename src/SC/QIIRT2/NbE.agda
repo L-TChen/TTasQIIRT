@@ -1,3 +1,4 @@
+
 module SC.QIIRT2.NbE where
 
 open import Prelude
@@ -10,30 +11,38 @@ open import SC.QIIRT2.Elimination
 -- Definition of Variables and Renaming
 -- with embedding into Tm and Sub
 data Var : (Γ : Ctx) → Ty Γ → Set where
-  here  : Var (Γ , A) (A [ π₁ idS ])
+  here  :           Var (Γ , A) (A [ π₁ idS ])
   there : Var Γ A → Var (Γ , B) (A [ π₁ idS ])
 
 ⌞_⌟V : Var Γ A → Tm Γ A
-⌞ here ⌟V = π₂ idS
+⌞ here    ⌟V  = π₂ idS
 ⌞ there x ⌟V  = ⌞ x ⌟V [ π₁ idS ]t
 
 data Ren : Ctx → Ctx → Set
 ⌞_⌟R : Ren Δ Γ → Sub Δ Γ
 
 data Ren where
-  ∅ : Ren Δ ∅
-  _,_ : (ρ : Ren Δ Γ) → Var Δ (A [ ⌞ ρ ⌟R ]) → Ren Δ (Γ , A)
+  ∅
+    : Ren Δ ∅
+  _,_
+    : (ρ : Ren Δ Γ) → Var Δ (A [ ⌞ ρ ⌟R ])
+    → Ren Δ (Γ , A)
 
-⌞ ∅ ⌟R = ∅
+⌞ ∅     ⌟R = ∅
 ⌞ σ , t ⌟R = ⌞ σ ⌟R , ⌞ t ⌟V
 
 -- {-# REWRITE [∘] #-} can reduce the transitivity
 -- Operations about renamings: lift, identity, and variable lookup
-_↑R_ : Ren Δ Γ → (A : Ty Δ) → Ren (Δ , A) Γ
-⌞↑R⌟ : (ρ : Ren Δ Γ)(A : Ty Δ) → ⌞ ρ ⌟R ∘ π₁ idS ≡ ⌞ ρ ↑R A ⌟R
-∅ ↑R A = ∅
-_↑R_ {Δ} (_,_ {A = A'} ρ x) A = (ρ ↑R A) , conv eq (there x) 
-  module ↑RTy where
+_↑R_
+  : Ren Δ Γ → (A : Ty Δ)
+  → Ren (Δ , A) Γ
+⌞↑R⌟
+  : (ρ : Ren Δ Γ)(A : Ty Δ)
+  → ⌞ ρ ⌟R ∘ π₁ idS ≡ ⌞ ρ ↑R A ⌟R
+
+∅ ↑R A                        = ∅
+_↑R_ {Δ} (_,_ {A = A'} ρ x) A = (ρ ↑R A) , conv eq (there x)
+  where
     eq : Var (Δ , A) (A' [ ⌞ ρ ⌟R ] [ π₁ idS ]) ≡ Var (Δ , A) (A' [ ⌞ ρ ↑R A ⌟R ])
     eq = cong (Var (Δ , A)) (congA[] {A = A'} (⌞↑R⌟ ρ A)) -- [∘] is no longer needed
 ⌞↑R⌟ ∅ A = η∅
@@ -42,37 +51,37 @@ _↑R_ {Δ} (_,_ {A = A'} ρ x) A = (ρ ↑R A) , conv eq (there x)
   ≡⟨ ,∘ ⟩
     ⌞ ρ ⌟R ∘ π₁ idS , ⌞ x ⌟V [ π₁ idS ]t
   ≡⟨ cong,Sub' {A = A'} refl (⌞↑R⌟ ρ A) eq,r ⟩
-    ⌞ ρ ↑R A ⌟R , ⌞ conv (↑RTy.eq {A = A'} ρ x A) (there x) ⌟V
+    ⌞ ρ ↑R A ⌟R , ⌞ conv eq (there x) ⌟V
   ∎
   where
     open ≅-Reasoning
-    eq,r : conv (congTmΓ (congA[] {A = A'} (⌞↑R⌟ ρ A))) (⌞ x ⌟V [ π₁ idS ]t)
-           ≡ ⌞ conv (↑RTy.eq {A = A'} ρ x A) (there x) ⌟V
+    eq = cong (Var (Δ , A)) (congA[] {A = A'} (⌞↑R⌟ ρ A)) -- [∘] is no longer needed
+    eq,r : conv (congTmΓ (congA[] {A = A'} (⌞↑R⌟ ρ A))) (⌞ x ⌟V [ π₁ idS ]t) ≡ ⌞ conv eq  (there x) ⌟V
     eq,r = ≅-to-≡ $ begin
         conv (congTmΓ (congA[] (⌞↑R⌟ ρ A))) (⌞ x ⌟V [ π₁ idS ]t)
       ≅⟨ conv-rm (congTmΓ (congA[] (⌞↑R⌟ ρ A))) _ ⟩
         ⌞ x ⌟V [ π₁ idS ]t
-      ≅⟨ HEq.icong (Var (Δ , A)) (congA[] {A = A'} (⌞↑R⌟ ρ A)) ⌞_⌟V (HEq.sym (conv-rm (↑RTy.eq ρ x A) _)) ⟩
-        ⌞ conv (↑RTy.eq ρ x A) (there x) ⌟V
+      ≅⟨ HEq.icong (Var (Δ , A)) (congA[] {A = A'} (⌞↑R⌟ ρ A)) ⌞_⌟V (HEq.sym (conv-rm eq _)) ⟩
+        ⌞ conv eq (there x) ⌟V
       ∎
 
-idR : Ren Δ Δ
-⌞idR⌟ : idS ≡ ⌞ idR {Δ} ⌟R
-⌞idR↑⌟ : (A : Ty Γ) → π₁ idS ≡ ⌞ idR ↑R A ⌟R
-idR {∅} = ∅
-idR {Δ , A} = (idR ↑R A) , conv (cong (Var (Δ , A)) eq) here
+idR    : (Δ : Ctx) → Ren Δ Δ
+⌞idR⌟  : (Δ : Ctx) → idS ≡ ⌞ idR Δ ⌟R
+⌞idR↑⌟ : (A : Ty Γ) → π₁ idS ≡ ⌞ idR _ ↑R A ⌟R
+idR ∅       = ∅
+idR (Δ , A) = (idR _ ↑R A) , conv (cong (Var (Δ , A)) eq) here
   module idRTy where
-    eq : A [ π₁ idS ] ≡ A [ ⌞ idR ↑R A ⌟R ]
+    eq : A [ π₁ idS ] ≡ A [ ⌞ idR _ ↑R A ⌟R ]
     eq = congA[] {A = A} (⌞idR↑⌟ A)
-⌞idR⌟ {∅} = η∅
-⌞idR⌟ {Δ , A} = ≅-to-≡ $ begin
+⌞idR⌟ ∅       = η∅
+⌞idR⌟ (Δ , A) = ≅-to-≡ $ begin
     idS
   ≡⟨ η, ⟩
     π₁ idS , π₂ idS
   ≡⟨ cong,Sub' {A = A} refl (⌞idR↑⌟ A) eq,r ⟩
-    ⌞ idR ↑R A ⌟R , ⌞ conv (cong (Var (Δ , A)) (idRTy.eq Δ A)) here ⌟V
+    ⌞ idR _ ↑R A ⌟R , ⌞ conv (cong (Var (Δ , A)) (idRTy.eq Δ A)) here ⌟V
   ≡⟨⟩
-    ⌞ idR ↑R A , conv (cong (Var (Δ , A)) (idRTy.eq Δ A)) here ⌟R
+    ⌞ idR _ ↑R A , conv (cong (Var (Δ , A)) (idRTy.eq Δ A)) here ⌟R
   ∎
   where
     open ≅-Reasoning
@@ -90,10 +99,10 @@ idR {Δ , A} = (idR ↑R A) , conv (cong (Var (Δ , A)) eq) here
     π₁ idS
   ≡⟨ sym (idS∘ π₁ idS) ⟩
     idS ∘ π₁ idS
-  ≡⟨ cong∘' ⌞idR⌟ refl ⟩
-    ⌞ idR ⌟R ∘ π₁ idS
-  ≡⟨ ⌞↑R⌟ idR A ⟩
-    ⌞ idR ↑R A ⌟R
+  ≡⟨ cong∘' (⌞idR⌟ _) refl ⟩
+    ⌞ idR _ ⌟R ∘ π₁ idS
+  ≡⟨ ⌞↑R⌟ (idR _) A ⟩
+    ⌞ idR _ ↑R A ⌟R
   ∎
   where open ≡-Reasoning
 
@@ -176,7 +185,7 @@ _⊙_ {Θ = Θ} (_,_ {A = A} ρ x) ρ' = (ρ ⊙ ρ') , conv (cong (Var Θ) eqA[
       ∎
 
 -- Reification of terms and substitutions into variables and renamings
-infixr 4 _/_
+-- infixr 4 _/_
 
 DomainDecl : Pdc
 DomainDecl .Pdc.PCtx Γ = Σ[ Γ' ∈ Ctx ] Γ ≡ Γ'
@@ -190,7 +199,7 @@ Domain .IH.∅Ctx = ∅ / refl
 Domain .IH._,Ctx_ (Γ / refl) (A / refl) = (Γ , A) / refl
 Domain .IH.∅Sub {PΔ = Δ / refl} = ∅ / refl
 IH._,Sub_ Domain {PΔ = Δ / refl} {Γ / refl} {A / refl} (ρ / refl) (x / eqx) = (ρ , x) / cong (⌞ ρ ⌟R ,_) eqx
-Domain .IH.PidS {PΔ = Γ / refl} = idR / ⌞idR⌟
+Domain .IH.PidS {PΔ = Γ / refl} = (idR _) / (⌞idR⌟ _)
 Domain .IH._∘P_ {PΓ = Γ / refl} {Δ / refl} {Θ / refl} (ρ / refl) (ρ' / refl) = ρ ⊙ ρ' / ⌞⊙⌟ ρ ρ'
 Domain .IH.π₁P {PΔ = Δ / refl} {Γ / refl} {A / refl} ((ρ , x) / refl) = ρ / π₁,
 Domain .IH.PU {PΓ = Γ / refl} = U / refl
