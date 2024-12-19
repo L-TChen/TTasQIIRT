@@ -1,4 +1,3 @@
-{-# OPTIONS -vtc.cover.splittree:10 #-}
 -- Formalizing Substitution Calculus as QIIRT
 module SC.QIIRT2.Base where
 

@@ -33,14 +33,14 @@ cong[] : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
        → conv (congTy Δ≡Δ') (A [ σ ]) ≡ A' [ σ' ]
 cong[] refl refl refl refl = refl
 
-cong,Sub' : {σ σ' : Sub Δ Γ}{A A' : Ty Γ}{t : Tm Δ (A [ σ ])}{t' : Tm Δ (A' [ σ' ])}
-            → (A≡A' : A ≡ A')(σ≡σ' : σ ≡ σ') → conv (congTmΓ (cong[] refl A≡A' refl σ≡σ')) t ≡ t'
-            → conv (congSub refl (cong,Ctx refl A≡A')) (_,_ {A = A} σ t) ≡ _,_ {A = A'} σ' t'
-cong,Sub' refl refl refl = refl
-
 congA[] : {A : Ty Γ}{σ σ' : Sub Δ Γ}
         → σ ≡ σ' → A [ σ ] ≡ A [ σ' ]
 congA[] {A = A} = cong[] refl {A} refl refl
+
+cong,Sub' : {σ σ' : Sub Δ Γ}{A A' : Ty Γ}{t : Tm Δ (A [ σ ])}{t' : Tm Δ (A' [ σ' ])}
+            → (A≡A' : A ≡ A')(σ≡σ' : σ ≡ σ') → conv (congTmΓ (cong[] {Γ} refl A≡A' refl σ≡σ')) t ≡ t'
+            → conv (congSub refl (cong,Ctx refl A≡A')) (_,_ {A = A} σ t) ≡ _,_ {A = A'} σ' t'
+cong,Sub' {σ = σ} refl refl t≡t' = cong (σ ,_) t≡t'
 
 cong∘ : (Γ≡Γ' : Γ ≡ Γ')(Δ≡Δ' : Δ ≡ Δ')(Θ≡Θ' : Θ ≡ Θ')
         {σ : Sub Δ Γ}{σ' : Sub Δ' Γ'}{τ : Sub Θ Δ}{τ' : Sub Θ' Δ'}
