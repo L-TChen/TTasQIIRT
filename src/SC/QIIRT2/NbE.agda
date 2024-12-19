@@ -223,59 +223,59 @@ data NfTm (Δ : Ctx) : Tm Δ A → Set where
   π₂ : NeSub Δ (Γ , A) σ → NfTm Δ {A [ π₁ σ ]} (π₂ σ)
 
 accVar : (x : Var Γ A)(σ : Sub Δ Γ) → Tm Δ (A [ σ ])
-accVar (here {A = A}) σ = conv (congTmΓ (sym (eqTy {A = A}))) (π₂ σ)
+accVar (here {A = A}) σ = conv (congTmΓ (eqTy {A = A})) (π₂ σ)
   module accVarEq where
     open ≡-Reasoning
-    eqTy : ∀{A} → A [ π₁ idS ] [ σ ] ≡ A [ π₁ σ ]
-    eqTy {A = A} = congA[] {A = A} (π₁idS∘ σ)
-accVar (there {A = A} x) σ = conv (congTmΓ (sym (accVarEq.eqTy σ {A}))) (accVar x (π₁ σ))
+    eqTy : ∀{A} → A [ π₁ σ ] ≡ A [ π₁ idS ] [ σ ]
+    eqTy {A = A} = congA[] {A = A} (sym (π₁idS∘ σ))
+accVar (there {A = A} x) σ = conv (congTmΓ (accVarEq.eqTy σ {A})) (accVar x (π₁ σ))
 
-accVar[]t : (x : Var Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ) → accVar x σ [ τ ]t ≡ accVar x (σ ∘ τ)
+accVar[]t : (x : Var Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ) → accVar x (σ ∘ τ) ≡ accVar x σ [ τ ]t
 accVar[]t {Γ , A} {_} {Δ} {Θ} here σ τ = ≅-to-≡ $ begin
-    conv (congTmΓ (sym (accVarEq.eqTy σ {A}))) (π₂ σ) [ τ ]t
-  ≅⟨ HEq.icong (Tm Δ) (accVarEq.eqTy σ {A}) (_[ τ ]t) (conv-rm (congTmΓ (sym (accVarEq.eqTy σ {A}))) _) ⟩
-    π₂ σ [ τ ]t
-  ≅⟨ HEq.sym (≡-to-≅ ([]tm≡[]t (π₂ σ) τ)) ⟩
-    π₂ σ [ τ ]tm
-  ≅⟨ HEq.sym (≡-to-≅ (π₂∘ τ σ)) ⟩
+    conv (congTmΓ (accVarEq.eqTy (σ ∘ τ))) (π₂ (σ ∘ τ))
+  ≅⟨ conv-rm (congTmΓ (accVarEq.eqTy (σ ∘ τ))) _ ⟩
     π₂ (σ ∘ τ)
-  ≅⟨ HEq.sym (conv-rm (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ)))) _) ⟩
-    conv (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ)))) (π₂ (σ ∘ τ))
+  ≅⟨ ≡-to-≅ (π₂∘ τ σ) ⟩
+    π₂ σ [ τ ]tm
+  ≅⟨ ≡-to-≅ ([]tm≡[]t (π₂ σ) τ) ⟩
+    π₂ σ [ τ ]t
+  ≅⟨ HEq.icong (Tm Δ) (accVarEq.eqTy σ {A}) (_[ τ ]t) (HEq.sym (conv-rm (congTmΓ (accVarEq.eqTy σ)) _)) ⟩
+    conv (congTmΓ (accVarEq.eqTy σ)) (π₂ σ) [ τ ]t
   ∎
   where open ≅-Reasoning
 accVar[]t {Γ , A'} {_} {Δ} {Θ} (there {A = A} x) σ τ = ≅-to-≡ $ begin
-    conv (congTmΓ (sym (accVarEq.eqTy σ {A}))) (accVar x (π₁ σ)) [ τ ]t
-  ≅⟨ HEq.icong (Tm Δ) (accVarEq.eqTy σ {A}) (_[ τ ]t) (conv-rm (congTmΓ (sym (accVarEq.eqTy σ))) _) ⟩
-    accVar x (π₁ σ) [ τ ]t
-  ≅⟨ ≡-to-≅ (accVar[]t x (π₁ σ) τ) ⟩
-    accVar x (π₁ σ ∘ τ)
-  ≅⟨ HEq.cong (accVar x) (≡-to-≅ (sym (π₁∘ τ σ))) ⟩
+    conv (congTmΓ (accVarEq.eqTy (σ ∘ τ))) (accVar x (π₁ (σ ∘ τ)))
+  ≅⟨ conv-rm (congTmΓ (accVarEq.eqTy (σ ∘ τ))) _ ⟩
     accVar x (π₁ (σ ∘ τ))
-  ≅⟨ HEq.sym (conv-rm (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ) {A}))) _) ⟩
-    conv (congTmΓ (sym (accVarEq.eqTy (σ ∘ τ) {A}))) (accVar x (π₁ (σ ∘ τ)))
+  ≅⟨ HEq.cong (accVar x) (≡-to-≅ (π₁∘ τ σ)) ⟩
+    accVar x (π₁ σ ∘ τ)
+  ≅⟨ ≡-to-≅ (accVar[]t x (π₁ σ) τ) ⟩
+    accVar x (π₁ σ) [ τ ]t
+  ≅⟨ HEq.icong (Tm Δ) (accVarEq.eqTy σ {A}) (_[ τ ]t) (HEq.sym (conv-rm (congTmΓ (accVarEq.eqTy σ)) _)) ⟩
+    conv (congTmΓ (accVarEq.eqTy σ)) (accVar x (π₁ σ)) [ τ ]t
   ∎
   where open ≅-Reasoning
 
 nfVar : (x : Var Γ A) → Tm Γ A
 nfVar x = accVar x idS
 
-soundnessNfVar : (x : Var Γ A) → ⌞ x ⌟V ≡ nfVar x
-soundnessNfVar {Γ , A'} {A} here = sym (≅-to-≡ $ begin
-    conv (congTmΓ (sym (accVarEq.eqTy idS {A'}))) (π₂ idS)
-  ≅⟨ conv-rm (congTmΓ (sym (accVarEq.eqTy idS {A'}))) _ ⟩
+soundnessNfVar : (x : Var Γ A) → nfVar x ≡ ⌞ x ⌟V
+soundnessNfVar {Γ , A'} {A} here = ≅-to-≡ $ begin
+    conv (congTmΓ (accVarEq.eqTy idS {A'})) (π₂ idS)
+  ≅⟨ conv-rm (congTmΓ (accVarEq.eqTy idS {A'})) _ ⟩
     π₂ idS
-  ∎)
+  ∎
   where open ≅-Reasoning
 soundnessNfVar {Γ , B} (there {A = A} x) = ≅-to-≡ $ begin
-    ⌞ x ⌟V [ π₁ idS ]t
-  ≅⟨ HEq.cong (_[ π₁ {A = B} idS ]t) (≡-to-≅ (soundnessNfVar x)) ⟩
-    accVar x idS [ π₁ idS ]t
-  ≅⟨ ≡-to-≅ (accVar[]t x idS (π₁ idS)) ⟩
-    accVar x (idS ∘ π₁ idS)
-  ≅⟨ HEq.cong (accVar x) (≡-to-≅ (idS∘ π₁ idS)) ⟩
+    conv (congTmΓ (accVarEq.eqTy idS {A})) (accVar x (π₁ idS))
+  ≅⟨ conv-rm (congTmΓ (accVarEq.eqTy idS)) (accVar x (π₁ idS)) ⟩
     accVar x (π₁ idS)
-  ≅⟨ HEq.sym (conv-rm _ _) ⟩
-    conv (congTmΓ (sym (accVarEq.eqTy idS {A}))) (accVar x (π₁ idS))
+  ≅⟨ HEq.cong (accVar x) (≡-to-≅ (sym (idS∘ π₁ idS))) ⟩
+    accVar x (idS ∘ π₁ idS)
+  ≡⟨ accVar[]t x idS (π₁ idS) ⟩
+    accVar x idS [ π₁ idS ]t
+  ≡⟨ cong (_[ π₁ {A = B} idS ]t) (soundnessNfVar x) ⟩
+    ⌞ x ⌟V [ π₁ idS ]t
   ∎
   where open ≅-Reasoning
 
@@ -283,26 +283,25 @@ NfTm[accVar] : (x : Var Γ A){σ : Sub Δ Γ} → NeSub Δ Γ σ → NfTm Δ (ac
 NfTm[accVar] {Γ , A} {_} {Δ} here {σ} nσ = conv (sym eqTy) (π₂ nσ)
   where
     open ≅-Reasoning
-    eqTy : NfTm Δ (conv (congTmΓ (sym (accVarEq.eqTy σ))) (π₂ σ)) ≡ NfTm Δ (π₂ σ)
+    eqTy : NfTm Δ (conv (congTmΓ (accVarEq.eqTy σ {A})) (π₂ σ)) ≡ NfTm Δ (π₂ σ)
     eqTy = ≅-to-≡ $ begin
-        NfTm Δ (conv (congTmΓ (Eq.sym (accVarEq.eqTy σ))) (π₂ σ))
-      ≅⟨ HEq.icong (Tm Δ) (accVarEq.eqTy σ {A}) (NfTm Δ) (conv-rm _ _) ⟩
+        NfTm Δ (conv (congTmΓ (accVarEq.eqTy σ)) (π₂ σ))
+      ≅⟨ HEq.icong (Tm Δ) (sym (accVarEq.eqTy σ {A})) (NfTm Δ) (conv-rm _ _) ⟩
         NfTm Δ (π₂ σ)
       ∎
 NfTm[accVar] {Γ , A'} {_} {Δ} (there {A = A} x) {σ} nσ = conv (sym eqTy) (NfTm[accVar] x (π₁ nσ))
   where
     open ≅-Reasoning
-    eqTy : NfTm Δ (conv (congTmΓ (Eq.sym (accVarEq.eqTy σ))) (accVar x (π₁ σ))) ≡ NfTm Δ (accVar x (π₁ σ))
+    eqTy : NfTm Δ (conv (congTmΓ (accVarEq.eqTy σ {A})) (accVar x (π₁ σ))) ≡ NfTm Δ (accVar x (π₁ σ))
     eqTy = ≅-to-≡ $ begin
-        NfTm Δ (conv (congTmΓ (sym (accVarEq.eqTy σ))) (accVar x (π₁ σ)))
-      ≅⟨ HEq.icong (Tm Δ) (accVarEq.eqTy σ {A}) (NfTm Δ) (conv-rm _ _) ⟩
+        NfTm Δ (conv (congTmΓ (accVarEq.eqTy σ)) (accVar x (π₁ σ)))
+      ≅⟨ HEq.icong (Tm Δ) (sym (accVarEq.eqTy σ {A})) (NfTm Δ) (conv-rm _ _) ⟩
         NfTm Δ (accVar x (π₁ σ))
       ∎
 
 NfTm[nfVar] : (x : Var Γ A) → NfTm Γ (nfVar x)
 NfTm[nfVar] {Γ} {A} x = NfTm[accVar] x idS
 
-thm[normalization] : (t : Tm Γ A) → Σ[ t' ∈ Tm Γ A ] t ≡ t' × NfTm Γ t'
+thm[normalization] : (t : Tm Γ A) → Σ[ t' ∈ Tm Γ A ] t' ≡ t × NfTm Γ t'
 thm[normalization] t with reifyTm t
-... | x / eq = nfVar x / trans eq (soundnessNfVar x) / NfTm[nfVar] x 
- 
+... | x / eq = nfVar x / trans (soundnessNfVar x) (sym eq) / NfTm[nfVar] x 
