@@ -7,7 +7,7 @@ Here is a list of attempts we tried to strive the balence between definitional a
   <thead>
     <tr>
       <td></td>
-      <td colspan=3>type substitution</td>
+      <td colspan=3>type sub</td>
       <td colspan=2>term substitution</td>
       <td colspan=2>substitution eqs.</td>
       <td colspan=2>term eqs.</td>
@@ -83,6 +83,21 @@ open import SC+El.QIIRT2.Base
       <td>🔥</td>
       <td>🔥</td>
       <td>🔥</td>
+      <td>🧊</td>
+      <td>🧊</td>
+      <td>🧊</td>
+      <td>🧊</td>
+    </tr>
+    <tr>
+      <td><details><summary>QIIRT for SC+Pi (sub. op. with lifting) </summary>
+```
+open import SC+Pi.QIIRT-Lift.Base
+```
+      <td>🔥</td>
+      <td>🔥</td>
+      <td>🔥</td>
+      <td>🧊</td>
+      <td>🧊</td>
       <td>🧊</td>
       <td>🧊</td>
       <td>🧊</td>
