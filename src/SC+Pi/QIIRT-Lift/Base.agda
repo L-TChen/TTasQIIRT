@@ -13,8 +13,8 @@ infixl 6 _,_
 
 interleaved mutual
   data Ctx  : Set
-  data Lift : Ctx → Set
-  data Ty  : Ctx → Set
+  data Lift (Γ : Ctx) : Set
+  data Ty   (Γ : Ctx) : Set
   data Sub : Ctx → Ctx → Set
   data Tm  : (Γ : Ctx) → Ty Γ → Set
   
@@ -63,7 +63,6 @@ interleaved mutual
       : Sub Γ ∅
     _,_
       : (σ : Sub Γ Δ) {A : Ty Δ} (t : Tm Γ ([ σ ] A))
-      ----------------------------------------
       → Sub Γ (Δ , A) 
     idS
       : Sub Γ Γ
@@ -103,7 +102,7 @@ interleaved mutual
   A [ π₁ (σ , t) ] = A [ σ ]
   A [ π₁ (τ ∘ σ) ] = A [ π₁ τ ] [ σ ]
   U      [ σ ]     = U
-  (El t) [ σ ]     = El (t [ σ ]tm) 
+  Π A B  [ σ ]     = Π (A [ σ ]) (B [ σ ↑ A ])
 -}
   postulate
     [idS]l : [ idS        ]l As ≡ As
@@ -156,24 +155,24 @@ interleaved mutual
 
     {-# REWRITE U[] #-}
 
-  U[∅] : [ σ ] U ≡ U -- Why is this not an instance of U[∅]?
-  U[∅] {Γ} {Δ} {σ} = U[] {Δ} {∅} {Γ} {σ}
+  U[∅] : [ σ ] U ≡ U -- Why is this an instance of U[∅]?
+  U[∅] {Γ} {Δ} {σ} = refl
 
   U[,] : [ As , A ⇈ σ ] U ≡ U
-  U[,] {Γ} {As} {A} {Δ} {σ} = U[] {Γ} {As , A} {Δ} {σ}
+  U[,] {Γ} {As} {A} {Δ} {σ} = refl
 
   postulate
     Π[]
       : (σ : Sub Γ Δ) → [ As ⇈ σ ] Π A B ≡ Π ([ As ⇈ σ ] A) ([ (As , A) ⇈ σ ] B)
     {-# REWRITE Π[] #-}
 
-  Π[∅] -- why is this not an instance of Π[]?
+  Π[∅] -- [TODO] Why is this an instance of Π[]?
     : (σ : Sub Γ Δ) → [ σ ] Π A B ≡ Π ([ σ ] A) ([ ∅ , A ⇈ σ ] B)
-  Π[∅] {Γ} {Δ} σ = Π[] {Γ} {Δ} {∅} σ
+  Π[∅] {Γ} {Δ} {A} {B} σ = refl
 
-  Π[,] -- why is this not an instance of Π[]?
+  Π[,] -- [TODO] Why is this not an instance of Π[]?
     : (σ : Sub Γ Δ) → [ As , A ⇈ σ ] Π B C ≡ Π ([ As , A ⇈ σ ] B) ([ As , A , B ⇈ σ ] C)
-  Π[,] {Γ} {Δ} {As} {A} {B} {C} = Π[] {Γ} {Δ} {As , A} {B} {C}
+  Π[,] σ = refl
 
 --  {-# REWRITE U[∅] U[] Π[∅] Π[,] #-}
 
