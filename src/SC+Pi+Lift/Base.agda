@@ -1,6 +1,6 @@
 {-# OPTIONS --local-confluence-check #-}
 
-module SC+Pi.QIIRT-Lift.Base where
+module SC+Pi+Lift.Base where
 
 open import Prelude
   hiding (_,_)
@@ -16,7 +16,7 @@ interleaved mutual
   data Sub : Ctx → Ctx → Set
   data Tm : (Γ : Ctx) (As : Lift Γ) → Ty Γ As → Set
 
-  _++_ : (Γ : Ctx) → Lift Γ → Ctx
+--  _++_ : (Γ : Ctx) → Lift Γ → Ctx
   
   variable
       Γ Δ Θ Φ   : Ctx
