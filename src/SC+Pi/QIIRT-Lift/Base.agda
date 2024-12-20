@@ -6,13 +6,13 @@ open import Prelude
   hiding (_,_)
 
 
-infixr 20 [_]l_ [_⇈_]_ [_]_ [_⇈_]t_ [_]t_ -- subTy subTm -- subTmR 
+infixr 20 [_]l_ [_⇈_]_ [_]_ [_⇈_]t_ [_]t_
 infixl 10 _⨟_
 infixl 10 _++_
 infixl 6 _,_
 
 interleaved mutual
-  data Ctx : Set
+  data Ctx  : Set
   data Lift : Ctx → Set
   data Ty  : Ctx → Set
   data Sub : Ctx → Ctx → Set
@@ -62,15 +62,13 @@ interleaved mutual
     ∅
       : Sub Γ ∅
     _,_
-      : {A : Ty Δ}
-        (σ : Sub Γ Δ)(t : Tm Γ ([ σ ] A))
+      : (σ : Sub Γ Δ) {A : Ty Δ} (t : Tm Γ ([ σ ] A))
       ----------------------------------------
       → Sub Γ (Δ , A) 
     idS
       : Sub Γ Γ
     _⨟_
-      : {Γ Δ Θ : Ctx}
-      → (σ : Sub Γ Δ) (τ : Sub Δ Θ) 
+      : (σ : Sub Γ Δ) (τ : Sub Δ Θ) 
       → Sub Γ Θ
     π₁
       : Sub Γ (Δ , A)
@@ -79,7 +77,7 @@ interleaved mutual
       : (σ : Sub Γ (Δ , A))
       → Tm Γ ([ π₁ σ ] A)
     [_⇈_]t_
-      : {Γ Δ : Ctx}(As : Lift Δ)(σ : Sub Γ Δ){A : Ty (Δ ++ As)}
+      : {Γ Δ : Ctx} (As : Lift Δ) (σ : Sub Γ Δ) {A : Ty (Δ ++ As)}
       → Tm (Δ ++ As)        A
       → Tm (Γ ++ [ σ ]l As) ([ As ⇈ σ ] A)
     abs
@@ -124,22 +122,6 @@ interleaved mutual
       : [ As ⇈ π₁ (σ ⨟ τ) ] A ≡ [ [ π₁ τ ]l As ⇈ σ ] [ As ⇈ π₁ τ ] A
     {-# REWRITE [id] [∘] [π₁,] [π₁⨟] ,[]l #-}
 
--- {-
---   {-# TERMINATING #-}
---   subTmR : (As : Lift Δ)(σ : Sub Γ Δ){A : Ty (Δ ++ As)} → Tm (Δ ++ As) A
---     → Tm (Γ ++ As [ σ ]l) (A [ σ ⇈ As ])
---   subTmR         As idS          t = t
---   subTmR         As (τ ∘ σ)      t = subTmR (As [ τ ]l) σ (subTmR As τ t)
---   subTmR {Γ = Γ} As ∅            t = subTm {Γ = Γ} As ∅ t
---   subTmR         As (σ , u)      t = t [ (σ , u) ⇈ As ]tm
---   subTmR         As (π₁ (τ ∘ σ)) t = subTmR (As [ π₁ τ ]l) σ (subTmR As (π₁ τ) t)
---   subTmR         ∅  (π₁ (σ , u)) t = subTmR ∅ σ t
---   {-# CATCHALL #-}
---   subTmR         As (π₁ σ)       t = t [ π₁ σ ⇈ As ]tm
-
---   syntax subTmR As σ t = t [ σ ⇈ As ]t
--- -}
-
   postulate
   -- Equality constructors for terms
     [id]t : [ As ⇈ idS   ]t t ≡ t
@@ -157,7 +139,7 @@ interleaved mutual
     π₁,
       : π₁ (σ , t) ≡ σ
     π₂,
-      : {Γ Δ : Ctx} {σ : Sub Γ Δ}{A : Ty Δ}{t : Tm Γ ([ σ ] A)}
+      : {σ : Sub Γ Δ}{A : Ty Δ}{t : Tm Γ ([ σ ] A)}
       →  π₂ (σ , t) ≡ t 
     ,∘
       : (τ ⨟ (σ , t)) ≡ ((τ ⨟ σ) , [ τ ]t t)
@@ -165,7 +147,7 @@ interleaved mutual
       : {σ : Sub Γ ∅}
       → σ ≡ ∅
     η,
-      : {Γ Δ : Ctx} {A : Ty Δ} {σ : Sub Γ (Δ , A)}
+      : {σ : Sub Γ (Δ , A)}
       → σ ≡ (π₁ σ , π₂ σ)
 
   postulate
@@ -191,18 +173,20 @@ interleaved mutual
 
   Π[,] -- why is this not an instance of Π[]?
     : (σ : Sub Γ Δ) → [ As , A ⇈ σ ] Π B C ≡ Π ([ As , A ⇈ σ ] B) ([ As , A , B ⇈ σ ] C)
-  Π[,] {Γ} {Δ} {As} {A} {B} {C} σ = Π[] {Γ} {Δ} {As , A} {B} {C} σ
+  Π[,] {Γ} {Δ} {As} {A} {B} {C} = Π[] {Γ} {Δ} {As , A} {B} {C}
 
 --  {-# REWRITE U[∅] U[] Π[∅] Π[,] #-}
 
+cong-U : Γ ≅ Δ → U {Γ} ≅ U {Δ}
+cong-U refl = refl
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ
-π₁∘ σ τ = begin
-    π₁ (σ ⨟ τ)                    ≡⟨ cong (λ τ → π₁ (σ ⨟ τ)) η, ⟩
-    π₁ (σ ⨟ (π₁ τ , π₂ τ))        ≡⟨ cong π₁ ,∘ ⟩ 
-    π₁ (σ ⨟ π₁ τ , [ σ ]t π₂ τ)   ≡⟨ π₁, ⟩
-    σ ⨟ π₁ τ                      ∎
+π₁∘ {Γ} {Δ} {Θ} {A} σ τ = begin
+  π₁ (σ ⨟ τ)                    ≡⟨ cong (λ τ → π₁ (σ ⨟ τ)) η, ⟩
+  π₁ (σ ⨟ (π₁ τ , π₂ τ))        ≡⟨ cong π₁ ,∘ ⟩ 
+  π₁ (σ ⨟ π₁ τ , [ σ ]t π₂ τ)   ≡⟨ π₁, ⟩
+  σ ⨟ π₁ τ                      ∎
   where open ≡-Reasoning
 
 -- {-
@@ -250,40 +234,36 @@ interleaved mutual
 -- []tm≡[]t As@(_ , _) t (π₁ (σ , u)) = refl
 -- -}
 
--- We will need to prove coherence for the following with another rewriting relation:
--- coherence of postulates
-
 coh[idS∘]
-  : {As : Lift Δ}{A : Ty (Δ ++ As)}{σ : Sub Γ Δ}
-  → [ As ⇈ idS ⨟ σ ] A ≡ [ As ⇈ σ ] A
+  : [ As ⇈ idS ⨟ σ ] A ≡ [ As ⇈ σ ] A
 coh[idS∘] = refl
 
 coh[∘idS]
-  : {As : Lift Δ}{A : Ty (Δ ++ As)}{σ : Sub Γ Δ}
-  → [ As ⇈ σ ⨟ idS ] A ≡ [ As ⇈ σ ] A
+  : [ As ⇈ σ ⨟ idS ] A ≡ [ As ⇈ σ ] A
 coh[∘idS] = refl
 
 coh[assocS]
   : [ As ⇈ (σ ⨟ τ) ⨟ γ ] A ≡ [ As ⇈ σ ⨟ (τ ⨟ γ) ] A
 coh[assocS] = refl
 
--- module _ where mutual
---   open ≡-Reasoning
---   coh[,∘]l
---     : {Γ Δ Θ : Ctx}
---     → (σ : Sub Γ Δ) (A : Ty Δ) (t : Tm Γ (subTy ∅ σ A)) (τ : Sub Θ Γ) (As : Lift (Δ , A))
---     → As [ (σ , t) ∘ τ ]l ≡ As [ (σ ∘ τ) , subTm ∅ τ t ]l
---   coh[,∘]l σ A t τ ∅         = refl
---   coh[,∘]l σ A t τ (As , A') = begin
---     (As , A') [ (σ , t) ∘ τ ]l                                      ≡⟨⟩
---     As [ (σ , t) ∘ τ ]l           , A' [ (σ , t) ∘ τ ⇈ As ]         ≡⟨ {!!} ⟩
---     As [ (σ ∘ τ) , subTm ∅ τ t ]l , A' [ σ ∘ τ , subTm ∅ τ t ⇈ As ] ≡⟨⟩
---     (As , A') [ (σ ∘ τ) , subTm ∅ τ t ]l ∎
---   coh[,∘]
---     : {A' : Ty Θ} {As : Lift (Θ , A')} {A : Ty ((Θ , A') ++ As)}
---       {σ : Sub Δ Θ} {t : Tm Δ (A' [ σ ⇈ ∅ ])}{τ : Sub Γ Δ}
---     → A [ (σ , t) ∘ τ ⇈ As ] ≅ A [ (σ ∘ τ , t [ τ ⇈ ∅ ]tm) ⇈ As ]  
---   coh[,∘] = {!!}
+module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ) (t : Tm Δ ([ τ ] A)) where
+  open ≡-Reasoning
+  coh[⨟∘]l
+    : (As : Lift (Θ , A))
+    → [ σ ⨟ (τ , t) ]l As ≅ [ σ ⨟ τ , [ σ ]t t ]l As
+  coh[⨟∘]'
+    : (As : Lift (Θ , A))
+    → [ σ ⨟ (τ , t) ]l As ≅ [ σ ⨟ τ , [ σ ]t t ]l As
+    → (B : Ty ((Θ , A) ++ As))
+    → [ As ⇈ σ ⨟ (τ , t) ] B ≅ [ As ⇈ (σ ⨟ τ) , [ σ ]t t ] B
+
+  coh[⨟∘]l ∅        = refl
+  coh[⨟∘]l (As , A) = HEq.cong₂ _,_ (coh[⨟∘]l As) (coh[⨟∘]' As (coh[⨟∘]l As) A)
+
+  coh[⨟∘]' As eq U       = cong-U (HEq.cong (Γ ++_) eq)
+  coh[⨟∘]' As eq (Π B C) = HEq.icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
+    (coh[⨟∘]' As eq B)
+    (coh[⨟∘]' (As , B) (HEq.cong₂ _,_ eq (coh[⨟∘]' As eq B)) C)
 
 coh[βπ₁] : [ As ⇈ π₁ (σ , t) ] A ≡ [ As ⇈ σ ] A
 coh[βπ₁] = refl
@@ -296,41 +276,44 @@ coh[βπ₁] = refl
 --   where open ≡-Reasoning
 -- -}
 
-module _ where 
+module _ {Γ Δ : Ctx} where 
   open ≅-Reasoning
   coh[η,]l
     : (As : Lift (Δ , A)) (σ : Sub Γ (Δ , A)) → [ σ ]l As ≅ [ π₁ σ , π₂ σ ]l As
   coh[η,] 
-    : {A' : Ty Δ} (As : Lift (Δ , A')) (σ : Sub Γ (Δ , A')) (A : Ty ((Δ , A') ++ As))
+    : {A' : Ty Δ} (As : Lift (Δ , A')) (σ : Sub Γ (Δ , A'))
+    → [ σ ]l As ≅ [ π₁ σ , π₂ σ ]l As
+    → (A : Ty ((Δ , A') ++ As))
     → [ As ⇈ σ ] A ≅ [ As ⇈ π₁ σ , π₂ σ ] A
 
   coh[η,]l ∅        σ = refl
-  coh[η,]l (As , A) σ = begin
-    [ σ ]l As , [ As ⇈ σ ] A
-      ≅⟨ HEq.cong₂ _,_ (coh[η,]l As σ) (coh[η,] As σ A)  ⟩
-    [ π₁ σ , π₂ σ ]l As , [ As ⇈ π₁ σ , π₂ σ ] A ∎
-  coh[η,] As σ U       = {!refl!}
-  coh[η,] {Γ = Γ} As σ (Π A B) = begin
-    Π ([ As ⇈ σ ] A) ([ As , A ⇈ σ ] B)
-      ≅⟨ HEq.icong₂ Ty (cong (Γ ++_) (≅-to-≡ (coh[η,]l As σ))) Π (coh[η,] As σ A) (coh[η,] (As , A) σ B) ⟩
-    Π ([ As ⇈ π₁ σ , π₂ σ ] A) ([ As , A ⇈ π₁ σ , π₂ σ ] B) ∎ 
+  coh[η,]l (As , A) σ = HEq.cong₂ _,_ (coh[η,]l As σ) (coh[η,] As σ (coh[η,]l As σ) A)
 
-module _ where
+  coh[η,] As σ eq U       = cong-U (HEq.cong (Γ ++_) eq)
+  coh[η,] As σ eq (Π A B) = HEq.icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
+    (coh[η,] As σ eq A)
+    (coh[η,] (As , A) σ (HEq.cong₂ _,_ eq (coh[η,] As σ eq A)) B)
+
+module _ {Γ : Ctx} (σ : Sub Γ ∅) where
   open ≅-Reasoning
 
-  coh[η∅]l : (σ : Sub Γ ∅) (As : Lift ∅)
+  coh[η∅]l : (As : Lift ∅)
     → [ σ ]l As ≅ [ ∅ {Γ} ]l As
-  coh[η∅] : (σ : Sub Γ ∅) (As : Lift ∅) → (A : Ty (∅ ++ As))
+  coh[η∅] : (As : Lift ∅) → [ σ ]l As ≅ [ ∅ {Γ} ]l As
+    → (A : Ty (∅ ++ As))
     → [ As ⇈ σ ] A ≅ [ As ⇈ (∅ {Γ}) ] A 
 
-  coh[η∅]l σ ∅        = refl
-  coh[η∅]l σ (As , A) =  HEq.cong₂ _,_ (coh[η∅]l σ As) (coh[η∅] σ As A) 
+  coh[η∅]l ∅        = refl
+  coh[η∅]l (As , A) = HEq.cong₂ _,_ (coh[η∅]l As) (coh[η∅] As (coh[η∅]l As) A)
 
-  coh[η∅] σ As U       = {!refl!}
-  coh[η∅] {Γ} σ As (Π A B) = begin
-    Π ([ As ⇈ σ ] A) ([ As , A ⇈ σ ] B)
-      ≅⟨ HEq.icong₂ Ty (cong (Γ ++_) (≅-to-≡ (coh[η∅]l σ As))) Π (coh[η∅] σ As A) (coh[η∅] σ (As , A) B)  ⟩
-    Π ([ As ⇈ (∅ {Γ}) ] A) ([ As , A ⇈ (∅ {Γ}) ] B) ∎
+
+  coh[η∅] As eq (Π A B) = HEq.icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
+    (coh[η∅] As eq A)
+    (coh[η∅] (As , A) ((HEq.cong₂ _,_ eq (coh[η∅] As eq A))) B)
+
+  coh[η∅]' : (As : Lift ∅) → (A : Ty (∅ ++ As))
+    → [ As ⇈ σ ] A ≅ [ As ⇈ (∅ {Γ}) ] A 
+  coh[η∅]' As A = coh[η∅] As (coh[η∅]l As) A
 
 π₂∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
   → π₂ (σ ⨟ τ) ≡ [ σ ]t (π₂ τ)
