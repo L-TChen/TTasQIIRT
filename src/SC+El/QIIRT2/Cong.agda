@@ -23,6 +23,19 @@ TmΓ` {Γ = Γ} = cong (Tm Γ)
     → conv (Ty` Γ≡Γ') (A [ σ ]) ≡ A' [ σ' ]
 []` refl refl refl refl = refl
 
+A[]` : {A : Ty Δ}{σ σ' : Sub Γ Δ} → σ ≡ σ' → A [ σ ] ≡ A [ σ' ]
+A[]` {A = A} = []` {A = A} refl refl refl
+
 -- congruence rules for constructors
 ,Ctx` : (Γ≡Γ' : Γ ≡ Γ')(A≡A' : conv (Ty` Γ≡Γ') A ≡ A') → (Γ , A) ≡ (Γ' , A')
 ,Ctx` refl refl = refl
+
+,Sub` : {σ σ' : Sub Δ Γ}{A A' : Ty Γ}{t : Tm Δ (A [ σ ])}{t' : Tm Δ (A' [ σ' ])}
+      → (A≡A' : A ≡ A')(σ≡σ' : σ ≡ σ') → conv (TmΓ` ([]` {Δ} refl refl A≡A' σ≡σ')) t ≡ t'
+      → conv (Sub` refl (,Ctx` refl A≡A')) (_,_ {A = A} σ t) ≡ _,_ {A = A'} σ' t'
+,Sub` {σ = σ} refl refl = cong (σ ,_)
+
+∘` : {σ σ' : Sub Δ Γ}{τ τ' : Sub Θ Δ}
+   → σ ≡ σ' → τ ≡ τ'
+   → σ ∘ τ ≡ σ' ∘ τ'
+∘` = cong₂ _∘_

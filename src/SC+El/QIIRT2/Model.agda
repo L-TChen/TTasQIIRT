@@ -2,6 +2,7 @@
 module SC+El.QIIRT2.Model where
 
 open import Prelude
+  hiding (_,_)
 open import SC+El.QIIRT2.Base
 open import SC+El.QIIRT2.Cong
 
@@ -45,7 +46,6 @@ record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
         (Pt : PTm PΓ PA t)(Pσ : PSub PΔ PΓ σ)
       ---------------------------------------
       → PTm PΔ (PA [ Pσ ]P) (t [ σ ]t)
-    
     
     -- induction on contexts
     ∅Ctx

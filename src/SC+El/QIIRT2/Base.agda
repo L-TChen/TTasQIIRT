@@ -9,7 +9,7 @@ open import Prelude
 
 
 infixl 35 _[_] _[_]t _[_]tm
-infixl 4 _,_
+infixl 10 _,_
 
 interleaved mutual
   data Ctx : Set
@@ -140,6 +140,13 @@ interleaved mutual
     π₁ ((π₁ τ , π₂ τ) ∘ σ)        ≡⟨ cong π₁ ,∘ ⟩ 
     π₁ (π₁ τ ∘ σ , (π₂ τ) [ σ ]t) ≡⟨ π₁, ⟩
     π₁ τ ∘ σ                      ∎
+  where open ≡-Reasoning
+
+π₁idS∘ : {A : Ty Γ}(σ : Sub Δ (Γ , A)) → π₁ idS ∘ σ ≡ π₁ σ
+π₁idS∘ σ = begin
+  π₁ idS ∘ σ      ≡⟨ sym (π₁∘ σ idS) ⟩
+  π₁ (idS ∘ σ)    ≡⟨ cong π₁ (idS∘ σ) ⟩
+  π₁ σ            ∎
   where open ≡-Reasoning
 
 {-# TERMINATING #-} -- the size of σ is decreasing

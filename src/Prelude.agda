@@ -65,4 +65,12 @@ conv-in-func refl f refl y refl = refl
 
 apd' : {X : Set ℓ}{Y : X → Set ℓ'}(f : (x : X) → Y x){x x' : X}
      → (x≡x' : x ≡ x') → conv (cong Y x≡x') (f x) ≡ f x'
-apd' f refl = refl 
+apd' f refl = refl
+
+to-Σ≡ : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}(x≡x' : x ≡ x'){y : Y x}{y' : Y x'}
+      → conv (cong Y x≡x') y ≡ y'
+      → _≡_ {A = Σ X Y} (x , y) (x' , y')
+to-Σ≡ refl refl = refl
+
+UIP : {X : Set ℓ}{x y : X}(p q : x ≡ y) → p ≡ q
+UIP refl refl = refl 

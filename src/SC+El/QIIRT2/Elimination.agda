@@ -2,6 +2,7 @@
 module SC+El.QIIRT2.Elimination where
 
 open import Prelude
+  hiding (_,_)
 open import SC+El.QIIRT2.Base
 open import SC+El.QIIRT2.Model
 
