@@ -178,7 +178,7 @@ interleaved mutual
 --  {-# REWRITE U[∅] U[] Π[∅] Π[,] #-}
 
 cong-U : Γ ≅ Δ → U {Γ} ≅ U {Δ}
-cong-U refl = refl
+cong-U {Γ} refl = refl
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ
@@ -258,12 +258,12 @@ module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ) (t : Tm Δ ([ τ ] A)) wh
     → [ As ⇈ σ ⨟ (τ , t) ] B ≅ [ As ⇈ (σ ⨟ τ) , [ σ ]t t ] B
 
   coh[⨟∘]l ∅        = refl
-  coh[⨟∘]l (As , A) = HEq.cong₂ _,_ (coh[⨟∘]l As) (coh[⨟∘]' As (coh[⨟∘]l As) A)
+  coh[⨟∘]l (As , A) = hcong₂ _,_ (coh[⨟∘]l As) (coh[⨟∘]' As (coh[⨟∘]l As) A)
 
-  coh[⨟∘]' As eq U       = cong-U (HEq.cong (Γ ++_) eq)
-  coh[⨟∘]' As eq (Π B C) = HEq.icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
+  coh[⨟∘]' As eq U       = cong-U (hcong (Γ ++_) eq)
+  coh[⨟∘]' As eq (Π B C) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
     (coh[⨟∘]' As eq B)
-    (coh[⨟∘]' (As , B) (HEq.cong₂ _,_ eq (coh[⨟∘]' As eq B)) C)
+    (coh[⨟∘]' (As , B) (hcong₂ _,_ eq (coh[⨟∘]' As eq B)) C)
 
 coh[βπ₁] : [ As ⇈ π₁ (σ , t) ] A ≡ [ As ⇈ σ ] A
 coh[βπ₁] = refl
@@ -287,12 +287,12 @@ module _ {Γ Δ : Ctx} where
     → [ As ⇈ σ ] A ≅ [ As ⇈ π₁ σ , π₂ σ ] A
 
   coh[η,]l ∅        σ = refl
-  coh[η,]l (As , A) σ = HEq.cong₂ _,_ (coh[η,]l As σ) (coh[η,] As σ (coh[η,]l As σ) A)
+  coh[η,]l (As , A) σ = hcong₂ _,_ (coh[η,]l As σ) (coh[η,] As σ (coh[η,]l As σ) A)
 
-  coh[η,] As σ eq U       = cong-U (HEq.cong (Γ ++_) eq)
-  coh[η,] As σ eq (Π A B) = HEq.icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
+  coh[η,] As σ eq U       = cong-U (hcong (Γ ++_) eq)
+  coh[η,] As σ eq (Π A B) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
     (coh[η,] As σ eq A)
-    (coh[η,] (As , A) σ (HEq.cong₂ _,_ eq (coh[η,] As σ eq A)) B)
+    (coh[η,] (As , A) σ (hcong₂ _,_ eq (coh[η,] As σ eq A)) B)
 
 module _ {Γ : Ctx} (σ : Sub Γ ∅) where
   open ≅-Reasoning
@@ -304,12 +304,12 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
     → [ As ⇈ σ ] A ≅ [ As ⇈ (∅ {Γ}) ] A 
 
   coh[η∅]l ∅        = refl
-  coh[η∅]l (As , A) = HEq.cong₂ _,_ (coh[η∅]l As) (coh[η∅] As (coh[η∅]l As) A)
+  coh[η∅]l (As , A) = hcong₂ _,_ (coh[η∅]l As) (coh[η∅] As (coh[η∅]l As) A)
 
-
-  coh[η∅] As eq (Π A B) = HEq.icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
+  coh[η∅] As eq U       = cong-U (hcong (Γ ++_) eq)
+  coh[η∅] As eq (Π A B) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
     (coh[η∅] As eq A)
-    (coh[η∅] (As , A) ((HEq.cong₂ _,_ eq (coh[η∅] As eq A))) B)
+    (coh[η∅] (As , A) ((hcong₂ _,_ eq (coh[η∅] As eq A))) B)
 
   coh[η∅]' : (As : Lift ∅) → (A : Ty (∅ ++ As))
     → [ As ⇈ σ ] A ≅ [ As ⇈ (∅ {Γ}) ] A 
@@ -318,8 +318,8 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
 π₂∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
   → π₂ (σ ⨟ τ) ≡ [ σ ]t (π₂ τ)
 π₂∘ {Γ} {Δ} {Θ} {A} σ τ = ≅-to-≡ $ begin
-  π₂ (σ ⨟ τ)                      ≅⟨ HEq.cong (λ ν → π₂ (σ ⨟ ν)) (≡-to-≅ η,) ⟩
-  π₂ (σ ⨟ (π₁ τ , π₂ τ))          ≅⟨ HEq.cong π₂ (≡-to-≅ ,∘) ⟩
+  π₂ (σ ⨟ τ)                      ≅⟨ hcong (λ ν → π₂ (σ ⨟ ν)) (≡-to-≅ η,) ⟩
+  π₂ (σ ⨟ (π₁ τ , π₂ τ))          ≅⟨ hcong π₂ (≡-to-≅ ,∘) ⟩
   π₂ ((σ ⨟ π₁ τ) , [ σ ]t (π₂ τ)) ≡⟨ π₂, ⟩
   [ σ ]t π₂ τ ∎
   where open ≅-Reasoning

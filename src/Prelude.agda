@@ -12,10 +12,12 @@ open import Data.Product                  public
 
 open import Relation.Binary.PropositionalEquality.WithK public
 open import Relation.Binary.PropositionalEquality       public
-  using (_≡_; refl; sym; trans; cong; cong₂; trans-symˡ; subst-subst; module ≡-Reasoning)
+  using (_≡_; refl; sym; trans; cong; cong₂; trans-symˡ; subst-subst; J; module ≡-Reasoning)
   renaming (subst to tr; dcong to apd)
 open import Relation.Binary.HeterogeneousEquality       public
   using (_≅_; refl; ≅-to-≡; ≡-to-≅; module ≅-Reasoning)
+  using (icong; icong₂)
+  renaming (cong to hcong; cong₂ to hcong₂)
 
 module Eq  = Relation.Binary.PropositionalEquality
 module HEq = Relation.Binary.HeterogeneousEquality
