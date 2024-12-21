@@ -1,10 +1,9 @@
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 
-module SC+Pi.QIIRT-Lift.Base where
+module SC+Pi.QIIRT-Lift2.Base where
  
 open import Prelude
   hiding (_,_)
-
 
 infixr 20 [_]l_ [_⇈_]_ [_]_ [_⇈_]t_ [_]t_
 infixl 10 _⨟_
@@ -13,17 +12,17 @@ infixl 6 _,_
 
 interleaved mutual
   data Ctx  : Set
-  data Lift : Ctx → Set
-  data Ty  : Ctx → Set
-  data Sub : Ctx → Ctx → Set
+  data Lift (Γ : Ctx) : Set
+  data Ty   (Γ : Ctx) : Set
+  data Sub  (Γ : Ctx) : Ctx → Set
   data Tm  : (Γ : Ctx) → Ty Γ → Set
   
   variable
       Γ Δ Θ Φ : Ctx
+      Ξ       : Lift Γ
       A B C   : Ty Γ
       t u     : Tm Γ A
       σ τ γ υ : Sub Γ Δ
-      As Bs   : Lift Γ
 
   _++_ : (Γ : Ctx) → Lift Γ → Ctx
 
@@ -48,7 +47,7 @@ interleaved mutual
 
   postulate
     ∅[]l : [ σ ]l ∅        ≡ ∅
-    ,[]l : [ σ ]l (As , A) ≡ [ σ ]l As , [ As ⇈ σ ] A
+    ,[]l : [ σ ]l (Ξ , A) ≡ [ σ ]l Ξ , [ Ξ ⇈ σ ] A
     {-# REWRITE ∅[]l #-}
 
   [_]_ : (σ : Sub Γ Δ) (A : Ty Δ) → Ty Γ
@@ -63,7 +62,6 @@ interleaved mutual
       : Sub Γ ∅
     _,_
       : (σ : Sub Γ Δ) {A : Ty Δ} (t : Tm Γ ([ σ ] A))
-      ----------------------------------------
       → Sub Γ (Δ , A) 
     idS
       : Sub Γ Γ
@@ -77,9 +75,9 @@ interleaved mutual
       : (σ : Sub Γ (Δ , A))
       → Tm Γ ([ π₁ σ ] A)
     [_⇈_]t_
-      : {Γ Δ : Ctx} (As : Lift Δ) (σ : Sub Γ Δ) {A : Ty (Δ ++ As)}
-      → Tm (Δ ++ As)        A
-      → Tm (Γ ++ [ σ ]l As) ([ As ⇈ σ ] A)
+      : {Γ Δ : Ctx} (Ξ : Lift Δ) (σ : Sub Γ Δ) {A : Ty (Δ ++ Ξ)}
+      → Tm (Δ ++ Ξ)        A
+      → Tm (Γ ++ [ σ ]l Ξ) ([ Ξ ⇈ σ ] A)
     abs
       : Tm (Γ , A) B → Tm Γ (Π A B)
     app
@@ -104,28 +102,25 @@ interleaved mutual
   [ π₁ (τ ∘ σ) ] A = [ π₁ τ ] [ σ ] A
   [ σ ] U          = U
   [ σ ] (Π A B)    = Π (A [ σ ]) (B [ σ ↑ A ])
+
 -}
   postulate
-    [idS]l : [ idS        ]l As ≡ As
-    [∘]l   : [ σ ⨟ τ      ]l As ≡ [ σ ]l [ τ ]l As
-    [π₁,]l : [ π₁ (σ , t) ]l As ≡ [ σ ]l As
-    [π₁∘]l : [ π₁ (σ ⨟ τ) ]l As ≡ [ σ ]l [ π₁ τ ]l As
+    [idS]l : [ idS        ]l Ξ ≡ Ξ
+    [∘]l   : [ σ ⨟ τ      ]l Ξ ≡ [ σ ]l [ τ ]l Ξ
+    [π₁,]l : [ π₁ (σ , t) ]l Ξ ≡ [ σ ]l Ξ
+    [π₁∘]l : [ π₁ (σ ⨟ τ) ]l Ξ ≡ [ σ ]l [ π₁ τ ]l Ξ
     {-# REWRITE [idS]l [∘]l [π₁,]l [π₁∘]l #-}
 
-    [id]
-      : [ As ⇈ idS ] A ≡ A
-    [∘]
-      : [ As ⇈ (σ ⨟ τ) ] A ≡  [ [ τ ]l As ⇈ σ ] [ As ⇈ τ ] A
-    [π₁,]
-      : [ As ⇈ π₁ (σ , t) ] A ≡ [ As ⇈ σ ] A
-    [π₁⨟]
-      : [ As ⇈ π₁ (σ ⨟ τ) ] A ≡ [ [ π₁ τ ]l As ⇈ σ ] [ As ⇈ π₁ τ ] A
+    [id]  : [ Ξ ⇈ idS ]        A ≡ A
+    [∘]   : [ Ξ ⇈ (σ ⨟ τ) ]    A ≡  [ [ τ ]l Ξ ⇈ σ ] [ Ξ ⇈ τ ] A
+    [π₁,] : [ Ξ ⇈ π₁ (σ , t) ] A ≡ [ Ξ ⇈ σ ] A
+    [π₁⨟] : [ Ξ ⇈ π₁ (σ ⨟ τ) ] A ≡ [ [ π₁ τ ]l Ξ ⇈ σ ] [ Ξ ⇈ π₁ τ ] A
     {-# REWRITE [id] [∘] [π₁,] [π₁⨟] ,[]l #-}
 
   postulate
   -- Equality constructors for terms
-    [id]t : [ As ⇈ idS   ]t t ≡ t
-    [∘]t  : [ As ⇈ σ ⨟ τ ]t t ≡ [ [ τ ]l As ⇈ σ ]t [ As ⇈ τ ]t t
+    [id]t : [ Ξ ⇈ idS   ]t t ≡ t
+    [∘]t  : [ Ξ ⇈ σ ⨟ τ ]t t ≡ [ [ τ ]l Ξ ⇈ σ ]t [ Ξ ⇈ τ ]t t
 
   -- Equality constructors for substitutions
     idS∘_
@@ -152,37 +147,35 @@ interleaved mutual
 
   postulate
     U[]
-      : [ As ⇈ σ ] U ≡ U
+      : [ Ξ ⇈ σ ] U ≡ U
 
     {-# REWRITE U[] #-}
 
-  U[∅] : [ σ ] U ≡ U -- Why is this not an instance of U[∅]?
-  U[∅] {Γ} {Δ} {σ} = U[] {Δ} {∅} {Γ} {σ}
+  U[∅] : [ σ ] U ≡ U -- Why is this an instance of U[∅]?
+  U[∅] = refl
 
-  U[,] : [ As , A ⇈ σ ] U ≡ U
-  U[,] {Γ} {As} {A} {Δ} {σ} = U[] {Γ} {As , A} {Δ} {σ}
+  U[,] : [ Ξ , A ⇈ σ ] U ≡ U
+  U[,] = refl
 
   postulate
     Π[]
-      : (σ : Sub Γ Δ) → [ As ⇈ σ ] Π A B ≡ Π ([ As ⇈ σ ] A) ([ (As , A) ⇈ σ ] B)
+      : [ Ξ ⇈ σ ] Π A B ≡ Π ([ Ξ ⇈ σ ] A) ([ (Ξ , A) ⇈ σ ] B)
     {-# REWRITE Π[] #-}
 
-  Π[∅] -- why is this not an instance of Π[]?
-    : (σ : Sub Γ Δ) → [ σ ] Π A B ≡ Π ([ σ ] A) ([ ∅ , A ⇈ σ ] B)
-  Π[∅] {Γ} {Δ} σ = Π[] {Γ} {Δ} {∅} σ
+  Π[∅] -- [TODO] Why is this an instance of Π[]?
+    : [ σ ] Π A B ≡ Π ([ σ ] A) ([ ∅ , A ⇈ σ ] B)
+  Π[∅] = refl
 
-  Π[,] -- why is this not an instance of Π[]?
-    : (σ : Sub Γ Δ) → [ As , A ⇈ σ ] Π B C ≡ Π ([ As , A ⇈ σ ] B) ([ As , A , B ⇈ σ ] C)
-  Π[,] {Γ} {Δ} {As} {A} {B} {C} = Π[] {Γ} {Δ} {As , A} {B} {C}
-
---  {-# REWRITE U[∅] U[] Π[∅] Π[,] #-}
+  Π[,] -- [TODO] Why is this not an instance of Π[]?
+    : [ Ξ , A ⇈ σ ] Π B C ≡ Π ([ Ξ , A ⇈ σ ] B) ([ Ξ , A , B ⇈ σ ] C)
+  Π[,] = refl
 
 cong-U : Γ ≅ Δ → U {Γ} ≅ U {Δ}
-cong-U {Γ} refl = refl
+cong-U refl = refl
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ
-π₁∘ {Γ} {Δ} {Θ} {A} σ τ = begin
+π₁∘ σ τ = begin
   π₁ (σ ⨟ τ)                    ≡⟨ cong (λ τ → π₁ (σ ⨟ τ)) η, ⟩
   π₁ (σ ⨟ (π₁ τ , π₂ τ))        ≡⟨ cong π₁ ,∘ ⟩ 
   π₁ (σ ⨟ π₁ τ , [ σ ]t π₂ τ)   ≡⟨ π₁, ⟩
@@ -235,85 +228,85 @@ cong-U {Γ} refl = refl
 -- -}
 
 coh[idS∘]
-  : [ As ⇈ idS ⨟ σ ] A ≡ [ As ⇈ σ ] A
+  : [ Ξ ⇈ idS ⨟ σ ] A ≡ [ Ξ ⇈ σ ] A
 coh[idS∘] = refl
 
 coh[∘idS]
-  : [ As ⇈ σ ⨟ idS ] A ≡ [ As ⇈ σ ] A
+  : [ Ξ ⇈ σ ⨟ idS ] A ≡ [ Ξ ⇈ σ ] A
 coh[∘idS] = refl
 
 coh[assocS]
-  : [ As ⇈ (σ ⨟ τ) ⨟ γ ] A ≡ [ As ⇈ σ ⨟ (τ ⨟ γ) ] A
+  : [ Ξ ⇈ (σ ⨟ τ) ⨟ γ ] A ≡ [ Ξ ⇈ σ ⨟ (τ ⨟ γ) ] A
 coh[assocS] = refl
 
 module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ) (t : Tm Δ ([ τ ] A)) where
   open ≡-Reasoning
   coh[⨟∘]l
-    : (As : Lift (Θ , A))
-    → [ σ ⨟ (τ , t) ]l As ≅ [ σ ⨟ τ , [ σ ]t t ]l As
+    : (Ξ : Lift (Θ , A))
+    → [ σ ⨟ (τ , t) ]l Ξ ≅ [ σ ⨟ τ , [ σ ]t t ]l Ξ
   coh[⨟∘]'
-    : (As : Lift (Θ , A))
-    → [ σ ⨟ (τ , t) ]l As ≅ [ σ ⨟ τ , [ σ ]t t ]l As
-    → (B : Ty ((Θ , A) ++ As))
-    → [ As ⇈ σ ⨟ (τ , t) ] B ≅ [ As ⇈ (σ ⨟ τ) , [ σ ]t t ] B
+    : (Ξ : Lift (Θ , A))
+    → [ σ ⨟ (τ , t) ]l Ξ ≅ [ σ ⨟ τ , [ σ ]t t ]l Ξ
+    → (B : Ty ((Θ , A) ++ Ξ))
+    → [ Ξ ⇈ σ ⨟ (τ , t) ] B ≅ [ Ξ ⇈ (σ ⨟ τ) , [ σ ]t t ] B
 
   coh[⨟∘]l ∅        = refl
-  coh[⨟∘]l (As , A) = hcong₂ _,_ (coh[⨟∘]l As) (coh[⨟∘]' As (coh[⨟∘]l As) A)
+  coh[⨟∘]l (Ξ , A) = hcong₂ _,_ (coh[⨟∘]l Ξ) (coh[⨟∘]' Ξ (coh[⨟∘]l Ξ) A)
 
-  coh[⨟∘]' As eq U       = cong-U (hcong (Γ ++_) eq)
-  coh[⨟∘]' As eq (Π B C) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
-    (coh[⨟∘]' As eq B)
-    (coh[⨟∘]' (As , B) (hcong₂ _,_ eq (coh[⨟∘]' As eq B)) C)
+  coh[⨟∘]' Ξ eq U       = cong-U (hcong (Γ ++_) eq)
+  coh[⨟∘]' Ξ eq (Π B C) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
+    (coh[⨟∘]' Ξ eq B)
+    (coh[⨟∘]' (Ξ , B) (hcong₂ _,_ eq (coh[⨟∘]' Ξ eq B)) C)
 
-coh[βπ₁] : [ As ⇈ π₁ (σ , t) ] A ≡ [ As ⇈ σ ] A
+coh[βπ₁] : [ Ξ ⇈ π₁ (σ , t) ] A ≡ [ Ξ ⇈ σ ] A
 coh[βπ₁] = refl
 
 -- {-
--- coh[βπ₂] : π₂ (σ , t) [ τ ⇈ As ]tm ≡ t [ τ ⇈ As ]tm
--- coh[βπ₂] {As = As} {σ = σ} {t = t} {τ = τ} = begin
---   π₂ (σ , t) [ τ ⇈ As ]tm        ≡⟨ cong (λ t' → t' [ τ ⇈ As ]tm) π₂, ⟩
---   t [ τ ⇈ As ]tm                 ∎
+-- coh[βπ₂] : π₂ (σ , t) [ τ ⇈ Ξ ]tm ≡ t [ τ ⇈ Ξ ]tm
+-- coh[βπ₂] {Ξ = Ξ} {σ = σ} {t = t} {τ = τ} = begin
+--   π₂ (σ , t) [ τ ⇈ Ξ ]tm        ≡⟨ cong (λ t' → t' [ τ ⇈ Ξ ]tm) π₂, ⟩
+--   t [ τ ⇈ Ξ ]tm                 ∎
 --   where open ≡-Reasoning
 -- -}
 
-module _ {Γ Δ : Ctx} where 
+module _ {Γ Δ : Ctx} {A : Ty Δ} (σ : Sub Γ (Δ , A)) where 
   open ≅-Reasoning
   coh[η,]l
-    : (As : Lift (Δ , A)) (σ : Sub Γ (Δ , A)) → [ σ ]l As ≅ [ π₁ σ , π₂ σ ]l As
+    : (Ξ : Lift (Δ , A)) → [ σ ]l Ξ ≅ [ π₁ σ , π₂ σ ]l Ξ
   coh[η,] 
-    : {A' : Ty Δ} (As : Lift (Δ , A')) (σ : Sub Γ (Δ , A'))
-    → [ σ ]l As ≅ [ π₁ σ , π₂ σ ]l As
-    → (A : Ty ((Δ , A') ++ As))
-    → [ As ⇈ σ ] A ≅ [ As ⇈ π₁ σ , π₂ σ ] A
+    : (Ξ : Lift (Δ , A))
+    → [ σ ]l Ξ ≅ [ π₁ σ , π₂ σ ]l Ξ
+    → (B : Ty ((Δ , A) ++ Ξ))
+    → [ Ξ ⇈ σ ] B ≅ [ Ξ ⇈ π₁ σ , π₂ σ ] B
 
-  coh[η,]l ∅        σ = refl
-  coh[η,]l (As , A) σ = hcong₂ _,_ (coh[η,]l As σ) (coh[η,] As σ (coh[η,]l As σ) A)
+  coh[η,]l ∅       = refl
+  coh[η,]l (Ξ , A) = hcong₂ _,_ (coh[η,]l Ξ) (coh[η,] Ξ (coh[η,]l Ξ) A)
 
-  coh[η,] As σ eq U       = cong-U (hcong (Γ ++_) eq)
-  coh[η,] As σ eq (Π A B) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
-    (coh[η,] As σ eq A)
-    (coh[η,] (As , A) σ (hcong₂ _,_ eq (coh[η,] As σ eq A)) B)
+  coh[η,] Ξ eq U       = cong-U (hcong (Γ ++_) eq)
+  coh[η,] Ξ eq (Π A B) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
+    (coh[η,] Ξ eq A)
+    (coh[η,] (Ξ , A) (hcong₂ _,_ eq (coh[η,] Ξ eq A)) B)
 
 module _ {Γ : Ctx} (σ : Sub Γ ∅) where
   open ≅-Reasoning
 
-  coh[η∅]l : (As : Lift ∅)
-    → [ σ ]l As ≅ [ ∅ {Γ} ]l As
-  coh[η∅] : (As : Lift ∅) → [ σ ]l As ≅ [ ∅ {Γ} ]l As
-    → (A : Ty (∅ ++ As))
-    → [ As ⇈ σ ] A ≅ [ As ⇈ (∅ {Γ}) ] A 
+  coh[η∅]l : (Ξ : Lift ∅)
+    → [ σ ]l Ξ ≅ [ ∅ {Γ} ]l Ξ
+  coh[η∅] : (Ξ : Lift ∅) → [ σ ]l Ξ ≅ [ ∅ {Γ} ]l Ξ
+    → (A : Ty (∅ ++ Ξ))
+    → [ Ξ ⇈ σ ] A ≅ [ Ξ ⇈ (∅ {Γ}) ] A 
 
   coh[η∅]l ∅        = refl
-  coh[η∅]l (As , A) = hcong₂ _,_ (coh[η∅]l As) (coh[η∅] As (coh[η∅]l As) A)
+  coh[η∅]l (Ξ , A) = hcong₂ _,_ (coh[η∅]l Ξ) (coh[η∅] Ξ (coh[η∅]l Ξ) A)
 
-  coh[η∅] As eq U       = cong-U (hcong (Γ ++_) eq)
-  coh[η∅] As eq (Π A B) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
-    (coh[η∅] As eq A)
-    (coh[η∅] (As , A) ((hcong₂ _,_ eq (coh[η∅] As eq A))) B)
+  coh[η∅] Ξ eq U       = cong-U (hcong (Γ ++_) eq)
+  coh[η∅] Ξ eq (Π A B) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
+    (coh[η∅] Ξ eq A)
+    (coh[η∅] (Ξ , A) ((hcong₂ _,_ eq (coh[η∅] Ξ eq A))) B)
 
-  coh[η∅]' : (As : Lift ∅) → (A : Ty (∅ ++ As))
-    → [ As ⇈ σ ] A ≅ [ As ⇈ (∅ {Γ}) ] A 
-  coh[η∅]' As A = coh[η∅] As (coh[η∅]l As) A
+  coh[η∅]' : (Ξ : Lift ∅) → (A : Ty (∅ ++ Ξ))
+    → [ Ξ ⇈ σ ] A ≅ [ Ξ ⇈ (∅ {Γ}) ] A 
+  coh[η∅]' Ξ A = coh[η∅] Ξ (coh[η∅]l Ξ) A
 
 π₂∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
   → π₂ (σ ⨟ τ) ≡ [ σ ]t (π₂ τ)
