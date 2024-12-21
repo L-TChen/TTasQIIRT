@@ -1,6 +1,5 @@
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 --{-# OPTIONS --confluence-check #-}
-{-# OPTIONS --local-confluence-check --with-K #-}
 
 module SC+El+Pi.QIIRT.Base where
  
@@ -141,19 +140,9 @@ interleaved mutual
     where open ≅-Reasoning
   
   [id↑A] : A [ idS ↑ B ] ≡ A
-  [id↑A] {B = B} {A = A} = begin
-    A [ idS ↑ B ] ≡⟨ cong (A [_]) idS↑A≡idS ⟩
-    A [ idS ]     ≡⟨⟩
-    A             ∎
-    where open ≡-Reasoning
+  [id↑A] {B = B} {A = A} = cong (A [_]) idS↑A≡idS
 
 --  {-# REWRITE [id↑A] #-}
---  postulate
---    [id↑A]t
---      : (t : Tm (Γ , A) B)
---      → (t [ idS ↑ A ]t) ≡ t
-
---  {-# REWRITE [id↑A]t #-}
 
   postulate
     U[]   : U [ σ ] ≡ U
@@ -171,7 +160,7 @@ interleaved mutual
     {-# REWRITE El[] #-}
 
     Π[] : (σ : Sub Γ Δ) → Π A B [ σ ] ≡ Π (A [ σ ]) (B [ σ ↑ A ])
---    {-# REWRITE Π[] #-}
+    {-# REWRITE Π[] #-}
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
@@ -222,9 +211,11 @@ coh[assocS] = refl
 
 coh[,∘] : A [ (σ , t) ∘ τ ] ≡ A [ σ ∘ τ , t [ τ ]tm ]
 coh[,∘] {A = U}     = refl
-coh[,∘] {A = Π A B} {_} {σ} {t} {_} {τ} = begin
+coh[,∘] {A = Π A B} {_} {σ} {t} {_} {τ} = {!!}
+{-begin
   Π A B [ (σ , t) ] [ τ ]        ≡⟨ {!!} ⟩
   Π A B [ (σ ∘ τ) , t [ τ ]tm ]  ∎ 
+-}
   where open ≡-Reasoning
 coh[,∘] {A = El u} {σ = σ} {t = t} {τ = τ} = cong El $ begin
   u [ σ , t ]tm [ τ ]t       ≡⟨ sym ([]tm≡[]t (u [ σ , t ]tm) τ) ⟩
