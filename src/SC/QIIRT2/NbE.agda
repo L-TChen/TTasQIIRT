@@ -112,12 +112,10 @@ lookupVar {Δ} {Γ , _} (_,_ {A = A} ρ x) here = conv (cong (Var Δ) (eq {A = A
     open  ≡-Reasoning
     eq : {A A' : Ty Γ}{x : Var Δ (A' [ ⌞ ρ ⌟R ])}
        → A [ ⌞ ρ ⌟R ] ≡ A [ π₁ {A = A'} idS ] [ ⌞ ρ ⌟R , ⌞ x ⌟V ]
-    eq {A = A} {x = x} = begin
-        A [ ⌞ ρ ⌟R ]
-      ≡⟨ congA[] {A = A} (sym (π₁idS∘ (⌞ ρ ⌟R , ⌞ x ⌟V))) ⟩
-        A [ π₁ idS ] [ ⌞ ρ ⌟R , ⌞ x ⌟V ]
-      ∎
-lookupVar {Δ} {Γ , _} (_,_ {A = A} ρ x') (there {A = A'} x) = conv (cong (Var Δ) (lkVarEq.eq Γ A ρ x' {A'} {_} {x'})) (lookupVar ρ x)
+    eq {A = A} {x = x} = congA[] {A = A} (sym (π₁idS∘ (⌞ ρ ⌟R , ⌞ x ⌟V)))
+
+lookupVar {Δ} {Γ , _} (_,_ {A = A} ρ x') (there {A = A'} x) =
+  conv (cong (Var Δ) (lkVarEq.eq Γ A ρ x' {A'} {_} {x'})) (lookupVar ρ x)
 
 -- Several lemmas
 ⌞lookup⌟ : (ρ : Ren Δ Γ)(x : Var Γ A) → ⌞ x ⌟V [ ⌞ ρ ⌟R ]t ≡ ⌞ lookupVar ρ x ⌟V

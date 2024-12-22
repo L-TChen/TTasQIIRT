@@ -131,7 +131,7 @@ postulate
     π₁ τ ∘ σ                      ∎
   where open ≡-Reasoning
 
-{-# TERMINATING #-} -- the size of σ is decreasing
+-- {-# TERMINATING #-} -- the size of σ is decreasing
 []tm≡[]t : {Γ Δ : Ctx} {A : Ty Δ} (t : Tm Δ A) (σ : Sub Γ Δ) → t [ σ ]tm ≡ t [ σ ]t 
 []tm≡[]t t ∅       = refl
 []tm≡[]t t (_ , _) = refl

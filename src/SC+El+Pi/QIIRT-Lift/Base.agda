@@ -4,7 +4,7 @@ open import Prelude
   hiding (_,_)
 
 infixr 20 [_]l_ [_⇈_]_ [_]_ [_⇈_]t_ [_]t_ [_⇈_]tm_ [_]tm_
-infixl 10 _⨟_
+infixl 10 _⨟_ -- _⨾_
 infixl 10 _++_
 infixl 6 _,_
 
@@ -16,16 +16,17 @@ interleaved mutual
   data Tm  : (Γ : Ctx) → Ty Γ → Set
   
   variable
-      Γ Δ Θ Φ : Ctx
-      Ξ       : Lift Γ
-      A B C   : Ty Γ
-      t u     : Tm Γ A
-      σ τ γ υ : Sub Γ Δ
+      Γ Δ Θ : Ctx
+      Ξ     : Lift Γ
+      A B C : Ty Γ
+      t u   : Tm Γ A
+      σ τ γ : Sub Γ Δ
 
   _++_ : (Γ : Ctx) → Lift Γ → Ctx
 
   postulate
     [_]l_  : Sub Γ Δ → Lift Δ → Lift Γ 
+    -- _⨾_ : Sub Γ Δ → Sub Δ Θ → Sub Γ Θ 
     [_⇈_]_ : (As : Lift Δ) (σ : Sub Γ Δ) (A : Ty (Δ ++ As))
       → Ty (Γ ++ [ σ ]l As)
 
@@ -112,20 +113,15 @@ interleaved mutual
     [⨟]l   : [ σ ⨟ τ      ]l Ξ ≡ [ σ ]l [ τ ]l Ξ
     [π₁,]l : [ π₁ (σ , t) ]l Ξ ≡ [ σ ]l Ξ
     {-# REWRITE [idS]l [⨟]l [π₁,]l #-}
-    [π₁idS⨟]l : [ π₁ (idS ⨟ τ) ]l Ξ ≡ [ π₁ τ ]l Ξ
-    {-# REWRITE [π₁idS⨟]l #-}
---    [π₁⨟]l : [ π₁ (σ ⨟ τ) ]l Ξ ≡ [ σ ]l [ π₁ τ ]l Ξ
---    {-# REWRITE [π₁⨟]l #-}
-
+    [π₁⨟]l : [ π₁ (σ ⨟ τ) ]l Ξ ≡ [ σ ]l [ π₁ τ ]l Ξ
+    {-# REWRITE [π₁⨟]l #-}
 
     [id]  : [ Ξ ⇈ idS ]        A ≡ A
-    [⨟]   : [ Ξ ⇈ (σ ⨟ τ) ]    A ≡  [ [ τ ]l Ξ ⇈ σ ] [ Ξ ⇈ τ ] A
+    [⨟]   : [ Ξ ⇈ (σ ⨟ τ) ]    A ≡ [ [ τ ]l Ξ ⇈ σ ] [ Ξ ⇈ τ ] A
     [π₁,] : [ Ξ ⇈ π₁ (σ , t) ] A ≡ [ Ξ ⇈ σ ] A
     {-# REWRITE [id] [⨟] [π₁,] #-}
-    [π₁idS⨟] : [ Ξ ⇈ π₁ (idS ⨟ τ) ] A ≡ [ Ξ ⇈ π₁ τ ] A
-    {-# REWRITE [π₁idS⨟] #-}
---    [π₁⨟] : [ Ξ ⇈ π₁ (σ ⨟ τ) ] A ≡ [ [ π₁ τ ]l Ξ ⇈ σ ] [ Ξ ⇈ π₁ τ ] A
---    {-# REWRITE [π₁⨟] #-}
+    [π₁⨟] : [ Ξ ⇈ π₁ (σ ⨟ τ) ] A ≡ [ [ π₁ τ ]l Ξ ⇈ σ ] [ Ξ ⇈ π₁ τ ] A
+    {-# REWRITE [π₁⨟] #-}
     {-# REWRITE ,[]l #-}
 
   [_⇈_]t_ : {Γ Δ : Ctx} (Ξ : Lift Δ) (σ : Sub Γ Δ) {A : Ty (Δ ++ Ξ)}
@@ -134,7 +130,7 @@ interleaved mutual
   [ Ξ ⇈ idS        ]t u = u
   [ Ξ ⇈ σ ⨟ τ      ]t u = [ [ τ ]l Ξ ⇈ σ ]t [ Ξ ⇈ τ ]t u
   [ Ξ ⇈ π₁ (σ , t) ]t u = [ Ξ ⇈ σ ]t u
-  [ Ξ ⇈ π₁ (idS ⨟ τ) ]t u = [ Ξ ⇈ π₁ τ ]t u
+  [ Ξ ⇈ π₁ (σ ⨟ τ) ]t u = [ [ π₁ τ ]l Ξ ⇈ σ ]t [ Ξ ⇈ π₁ τ ]t u
   {-# CATCHALL #-}
   [ Ξ ⇈ σ          ]t u = [ Ξ ⇈ σ ]tm u
 
@@ -143,11 +139,19 @@ interleaved mutual
     → Tm Δ A
     → Tm Γ ([ σ ] A)
   [ σ ]t t = [ ∅ ⇈ σ ]t t
+
+{-
+  postulate
+    idS⨾ : idS ⨾ σ ≡ σ
+    ⨾idS : σ ⨾ idS ≡ σ
+    ⨾,   : (σ : Sub Γ Δ) {A : Ty Θ} (τ : Sub Δ Θ) (t : Tm Δ ([ τ ] A ))
+      → σ ⨾ (τ , t) ≡ σ ⨟ τ , [ σ ]t t -- [ σ ]tm t
+-}
   
   postulate
   -- Equality constructors for terms
-    [id]t : [ Ξ ⇈ idS   ]tm t ≡ t
-    [⨟]t  : [ Ξ ⇈ σ ⨟ τ ]tm t ≡ [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]tm t
+    [id]tm : [ Ξ ⇈ idS   ]tm t ≡ t
+    [⨟]tm  : [ Ξ ⇈ σ ⨟ τ ]tm t ≡ [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]tm t
 
   -- Equality constructors for substitutions
     _⨟idS
@@ -157,14 +161,14 @@ interleaved mutual
       : (σ : Sub Γ Δ)
       → idS ⨟ σ ≡ σ
     assocS
-      : (υ ⨟ τ) ⨟ σ ≡ υ ⨟ (τ ⨟ σ)
+      :  σ ⨟ (τ ⨟ γ) ≡ (σ ⨟ τ) ⨟ γ
     π₁,
       : π₁ (σ , t) ≡ σ
     π₂,
       : {σ : Sub Γ Δ}{A : Ty Δ}{t : Tm Γ ([ σ ] A)}
       →  π₂ (σ , t) ≡ t 
-    ,⨟
-      : (τ ⨟ (σ , t)) ≡ ((τ ⨟ σ) , [ τ ]t t)
+    ⨟,
+      : (σ ⨟ (τ , t)) ≡ (σ ⨟ τ , [ σ ]t t)
     η∅
       : {σ : Sub Γ ∅}
       → σ ≡ ∅
@@ -186,24 +190,30 @@ interleaved mutual
       → [ Ξ ⇈ σ ] (El u) ≡ El ([ Ξ ⇈ σ ]t u)
     {-# REWRITE El[] #-}
 
-cong-U : Γ ≅ Δ → U {Γ} ≅ U {Δ}
-cong-U refl = refl
-
 -- derived computation rules on composition
 π₁⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ
 π₁⨟ σ τ = begin
   π₁ (σ ⨟ τ)                    ≡⟨ cong (λ τ → π₁ (σ ⨟ τ)) η, ⟩
-  π₁ (σ ⨟ (π₁ τ , π₂ τ))        ≡⟨ cong π₁ ,⨟ ⟩ 
+  π₁ (σ ⨟ (π₁ τ , π₂ τ))        ≡⟨ cong π₁ ⨟, ⟩ 
   π₁ (σ ⨟ π₁ τ , [ σ ]t π₂ τ)   ≡⟨ π₁, ⟩
   σ ⨟ π₁ τ                      ∎
   where open ≡-Reasoning
 
-π₁idS⨟ : (τ : Sub Δ (Θ , A)) → π₁ (idS ⨟ τ) ≡ π₁ τ
-π₁idS⨟ τ = begin
-  π₁ (idS ⨟ τ) ≡⟨ π₁⨟ idS τ ⟩
-  idS ⨟ π₁ τ   ≡⟨ (idS⨟ π₁ τ) ⟩
-  π₁ τ         ∎
+π₁idS⨟ : (σ : Sub Γ (Δ , A)) → σ ⨟ π₁ idS ≡ π₁ σ
+π₁idS⨟ σ = begin
+  σ ⨟ π₁ idS   ≡⟨ sym (π₁⨟ σ idS) ⟩
+  π₁ (σ ⨟ idS) ≡⟨ cong π₁ (σ ⨟idS) ⟩
+  π₁ σ         ∎
   where open ≡-Reasoning
+  
+π₂⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
+  → π₂ (σ ⨟ τ) ≡ [ σ ]t (π₂ τ)
+π₂⨟ {Γ} {Δ} {Θ} {A} σ τ = ≅-to-≡ $ begin
+  π₂ (σ ⨟ τ)                      ≅⟨ hcong (λ ν → π₂ (σ ⨟ ν)) (≡-to-≅ η,) ⟩
+  π₂ (σ ⨟ (π₁ τ , π₂ τ))          ≅⟨ hcong π₂ (≡-to-≅ ⨟,) ⟩
+  π₂ ((σ ⨟ π₁ τ) , [ σ ]t (π₂ τ)) ≡⟨ π₂, ⟩
+  [ σ ]t π₂ τ ∎
+  where open ≅-Reasoning
 
 []tm≡[]t : (Ξ : Lift Δ){A : Ty (Δ ++ Ξ)}(u : Tm (Δ ++ Ξ) A)(σ : Sub Γ Δ)
   → [ Ξ ⇈ σ ]tm u ≡ [ Ξ ⇈ σ ]t u
@@ -211,27 +221,29 @@ cong-U refl = refl
 []tm≡[]t Ξ u (σ , t)      = refl
 []tm≡[]t Ξ u wk           = refl
 []tm≡[]t Ξ u (π₁ (π₁ σ))  = refl
-[]tm≡[]t Ξ u (π₁ (∅ ⨟ τ))       = refl
-[]tm≡[]t Ξ u (π₁ ((σ , t) ⨟ τ)) = refl
-[]tm≡[]t Ξ u (π₁ (σ ⨟ σ₁ ⨟ τ))  = refl
-[]tm≡[]t Ξ u (π₁ (π₁ σ ⨟ τ))    = refl
-[]tm≡[]t Ξ u idS          = [id]t
+[]tm≡[]t Ξ u (π₁ (σ ⨟ τ)) = begin
+  [ Ξ ⇈ π₁ (σ ⨟ τ) ]tm u                 ≡⟨ ≅-to-≡ (hcong ([ Ξ ⇈_]tm u) (≡-to-≅ (π₁⨟ σ τ))) ⟩
+  [ Ξ ⇈ σ ⨟ π₁ τ   ]tm u                 ≡⟨ [⨟]tm ⟩
+  [ [ π₁ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ π₁ τ ]tm u ≡⟨ cong ([ [ π₁ τ ]l Ξ ⇈ σ ]tm_) ([]tm≡[]t Ξ u (π₁ τ)) ⟩
+  [ [ π₁ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ π₁ τ ]t  u ≡⟨ []tm≡[]t ([ π₁ τ ]l Ξ) ([ Ξ ⇈ π₁ τ ]t u) σ ⟩
+  [ [ π₁ τ ]l Ξ ⇈ σ ]t  [ Ξ ⇈ π₁ τ ]t  u ≡⟨⟩
+  [ Ξ ⇈ π₁ (σ ⨟ τ) ]t u  ∎
+  where open ≡-Reasoning
+[]tm≡[]t Ξ u idS          = [id]tm
 []tm≡[]t Ξ u (_⨟_ {Δ = Θ} σ τ) = begin
-  [ Ξ ⇈ σ ⨟ τ ]tm u                ≡⟨ [⨟]t ⟩
+  [ Ξ ⇈ σ ⨟ τ ]tm u                ≡⟨ [⨟]tm ⟩
   [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]tm u ≡⟨ cong ([ [ τ ]l Ξ ⇈ σ ]tm_) ([]tm≡[]t Ξ u τ) ⟩
   [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]t  u ≡⟨ []tm≡[]t ([ τ ]l Ξ) ([ Ξ ⇈ τ ]t u) σ ⟩
   [ [ τ ]l Ξ ⇈ σ ]t  [ Ξ ⇈ τ ]t  u ∎
   where open ≡-Reasoning
-[]tm≡[]t {Γ} {Δ} Ξ u (π₁ (σ , t)) = ≅-to-≡ $ begin
-  [ Ξ ⇈ π₁ (σ , t) ]tm u ≅⟨ hcong (λ σ → [ Ξ ⇈ σ ]tm u) (≡-to-≅ π₁,) ⟩
+[]tm≡[]t {Γ} {Δ} Ξ u (π₁ (σ , t)) = begin
+  [ Ξ ⇈ π₁ (σ , t) ]tm u ≡⟨ ≅-to-≡ (hcong (λ σ → [ Ξ ⇈ σ ]tm u) (≡-to-≅ π₁,)) ⟩
   [ Ξ ⇈ σ ]tm u          ≡⟨ []tm≡[]t Ξ u σ ⟩
   [ Ξ ⇈ σ ]t  u          ∎
-  where open ≅-Reasoning
-[]tm≡[]t Ξ u (π₁ (idS ⨟ τ)) = ≅-to-≡ $ begin
-  [ Ξ ⇈ π₁ (idS ⨟ τ) ]tm u  ≅⟨ hcong (λ σ → [ Ξ ⇈ σ ]tm u) (≡-to-≅ (π₁idS⨟ τ)) ⟩
-  [ Ξ ⇈ π₁ τ ]tm u          ≡⟨ []tm≡[]t Ξ u (π₁ τ) ⟩
-  [ Ξ ⇈ π₁ τ ]t  u          ∎
-  where open ≅-Reasoning
+  where open ≡-Reasoning
+
+cong-U : Γ ≅ Δ → U {Γ} ≅ U {Δ}
+cong-U refl = refl
 
 coh[idS⨟]
   : [ Ξ ⇈ idS ⨟ σ ] A ≡ [ Ξ ⇈ σ ] A
@@ -263,8 +275,12 @@ module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ) (t : Tm Δ ([ τ ] A)) wh
   coh[⨟,]' Ξ eq (Π B C) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
     (coh[⨟,]' Ξ eq B)
     (coh[⨟,]' (Ξ , B) (hcong₂ _,_ eq (coh[⨟,]' Ξ eq B)) C)
-  coh[⨟,]' Ξ eq (El u)  = {!!}
-
+  coh[⨟,]' Ξ eq (El u)  = icong (λ Γ → Tm Γ U) (cong (Γ ++_) (≅-to-≡ eq)) El $ begin
+    [ Ξ ⇈ σ ⨟ (τ , t) ]t u                   ≅⟨ refl ⟩
+    [ [ τ , t ]l Ξ ⇈ σ ]t  [ Ξ ⇈ τ , t ]tm u ≅⟨ HEq.sym (≡-to-≅ $ []tm≡[]t _ _ _) ⟩
+    [ [ τ , t ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ , t ]tm u ≅⟨ HEq.sym (≡-to-≅ $ [⨟]tm) ⟩
+    [ Ξ ⇈ σ ⨟ (τ , t) ]tm u                  ≅⟨ hcong (λ σ → [ Ξ ⇈ σ ]tm u) (≡-to-≅ ⨟,) ⟩
+    [ Ξ ⇈ σ ⨟ τ , [ σ ]t t ]tm u             ∎
 
 coh[βπ₁] : [ Ξ ⇈ π₁ (σ , t) ] A ≡ [ Ξ ⇈ σ ] A
 coh[βπ₁] = refl
@@ -300,6 +316,9 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
   coh[η∅] : (Ξ : Lift ∅) → [ σ ]l Ξ ≅ [ ∅ {Γ} ]l Ξ
     → (A : Ty (∅ ++ Ξ))
     → [ Ξ ⇈ σ ] A ≅ [ Ξ ⇈ (∅ {Γ}) ] A 
+  coh[η∅]t : (Ξ : Lift ∅) → [ σ ]l Ξ ≅ [ ∅ {Γ} ]l Ξ
+    → (u : Tm (∅ ++ Ξ) U)
+    → [ Ξ ⇈ σ ]t u ≅ [ Ξ ⇈ (∅ {Γ}) ]t u
 
   coh[η∅]l ∅        = refl
   coh[η∅]l (Ξ , A) = hcong₂ _,_ (coh[η∅]l Ξ) (coh[η∅] Ξ (coh[η∅]l Ξ) A)
@@ -308,17 +327,10 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
   coh[η∅] Ξ eq (Π A B) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
     (coh[η∅] Ξ eq A)
     (coh[η∅] (Ξ , A) ((hcong₂ _,_ eq (coh[η∅] Ξ eq A))) B)
-  coh[η∅] Ξ eq (El u)  = {!!}
+  coh[η∅] Ξ eq (El u)  = icong (λ Γ → Tm Γ U) (cong (Γ ++_) (≅-to-≡ eq)) El
+    (coh[η∅]t Ξ eq u)
 
-π₂⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
-  → π₂ (σ ⨟ τ) ≡ {![ σ ]t (π₂ τ)!} -- yep, we need transport here.
-π₂⨟ = {!!}
---π₂⨟ {Γ} {Δ} {Θ} {A} σ τ = ≅-to-≡ $ begin
---  π₂ (σ ⨟ τ)                      ≅⟨ hcong (λ ν → π₂ (σ ⨟ ν)) (≡-to-≅ η,) ⟩
---  π₂ (σ ⨟ (π₁ τ , π₂ τ))          ≅⟨ hcong π₂ (≡-to-≅ ,⨟) ⟩
---  π₂ ((σ ⨟ π₁ τ) , [ σ ]t (π₂ τ)) ≡⟨ π₂, ⟩
---  [ σ ]t π₂ τ ∎
---  where open ≅-Reasoning
+  coh[η∅]t Ξ eq u = {!u!}
 
 -- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
 vz:= : Tm Γ A → Sub Γ (Γ , A)
