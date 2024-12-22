@@ -20,13 +20,13 @@ open import SC+El+Pi.QIIRT-Lift.Base
   [ Ξ ⇈ π₁ (σ ⨟ τ) ]t u  ∎
   where open ≡-Reasoning
 []tm≡[]t Ξ u idS          = [id]tm
-[]tm≡[]t Ξ u (_⨟_ {Δ = Θ} σ τ) = begin
+[]tm≡[]t Ξ u (σ ⨟ τ) = begin
   [ Ξ ⇈ σ ⨟ τ ]tm u                ≡⟨ [⨟]tm ⟩
   [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]tm u ≡⟨ cong ([ [ τ ]l Ξ ⇈ σ ]tm_) ([]tm≡[]t Ξ u τ) ⟩
   [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]t  u ≡⟨ []tm≡[]t ([ τ ]l Ξ) ([ Ξ ⇈ τ ]t u) σ ⟩
   [ [ τ ]l Ξ ⇈ σ ]t  [ Ξ ⇈ τ ]t  u ∎
   where open ≡-Reasoning
-[]tm≡[]t {Γ} {Δ} Ξ u (π₁ (σ , t)) = begin
+[]tm≡[]t Ξ u (π₁ (σ , t)) = begin
   [ Ξ ⇈ π₁ (σ , t) ]tm u ≡⟨ ≅-to-≡ (hcong (λ σ → [ Ξ ⇈ σ ]tm u) (≡-to-≅ π₁,)) ⟩
   [ Ξ ⇈ σ ]tm u          ≡⟨ []tm≡[]t Ξ u σ ⟩
   [ Ξ ⇈ σ ]t  u          ∎
@@ -149,4 +149,12 @@ module _ (Ξ : Lift Δ) {A : Ty (Δ ++ Ξ)} (t : Tm (Δ ++ Ξ) A) (σ : Sub Γ �
     [ Ξ ⇈ σ ]tm t               ≡⟨ []tm≡[]t Ξ t σ ⟩
     [ Ξ ⇈ σ ]t  t               ∎
 
--- coh[][⨟]tm will also follow from []tm≡[] t
+module _ (Ξ : Lift Δ) {A : Ty (Δ ++ Ξ)} (σ : Sub Γ Δ) where
+  open ≡-Reasoning
+  coh[]tm
+    : t ≡ u → [ Ξ ⇈ σ ]t t ≡ [ Ξ ⇈ σ ]t u
+  coh[]tm {t = t} {u = u} eq = begin
+    [ Ξ ⇈ σ ]t  t        ≡⟨ sym ([]tm≡[]t Ξ t σ) ⟩
+    [ Ξ ⇈ σ ]tm t        ≡⟨ cong ([ Ξ ⇈ σ ]tm_) eq ⟩
+    [ Ξ ⇈ σ ]tm u        ≡⟨ []tm≡[]t Ξ u σ ⟩
+    [ Ξ ⇈ σ ]t  _        ∎
