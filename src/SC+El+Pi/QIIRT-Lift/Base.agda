@@ -27,8 +27,8 @@ interleaved mutual
   postulate
     [_]l_  : Sub Γ Δ → Lift Δ → Lift Γ 
     -- _⨾_ : Sub Γ Δ → Sub Δ Θ → Sub Γ Θ 
-    [_⇈_]_ : (As : Lift Δ) (σ : Sub Γ Δ) (A : Ty (Δ ++ As))
-      → Ty (Γ ++ [ σ ]l As)
+    [_⇈_]_ : (Ξ : Lift Δ) (σ : Sub Γ Δ) (A : Ty (Δ ++ Ξ))
+      → Ty (Γ ++ [ σ ]l Ξ)
 
   data _ where
     ∅
@@ -149,10 +149,6 @@ interleaved mutual
 -}
   
   postulate
-  -- Equality constructors for terms
-    [id]tm : [ Ξ ⇈ idS   ]tm t ≡ t
-    [⨟]tm  : [ Ξ ⇈ σ ⨟ τ ]tm t ≡ [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]tm t
-
   -- Equality constructors for substitutions
     _⨟idS
       : (σ : Sub Γ Δ)
@@ -164,9 +160,6 @@ interleaved mutual
       :  σ ⨟ (τ ⨟ γ) ≡ (σ ⨟ τ) ⨟ γ
     π₁,
       : π₁ (σ , t) ≡ σ
-    π₂,
-      : {σ : Sub Γ Δ}{A : Ty Δ}{t : Tm Γ ([ σ ] A)}
-      →  π₂ (σ , t) ≡ t 
     ⨟,
       : (σ ⨟ (τ , t)) ≡ (σ ⨟ τ , [ σ ]t t)
     η∅
@@ -175,6 +168,14 @@ interleaved mutual
     η,
       : {σ : Sub Γ (Δ , A)}
       → σ ≡ (π₁ σ , π₂ σ)
+  -- Equality constructors for terms
+    [id]tm
+      : [ Ξ ⇈ idS   ]tm t ≡ t
+    [⨟]tm
+      : [ Ξ ⇈ σ ⨟ τ ]tm t ≡ [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]tm t
+    π₂,
+      : {σ : Sub Γ Δ}{A : Ty Δ}{t : Tm Γ ([ σ ] A)}
+      →  π₂ (σ , t) ≡ t 
 
   postulate
     U[]
