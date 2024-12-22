@@ -316,9 +316,6 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
   coh[η∅] : (Ξ : Lift ∅) → [ σ ]l Ξ ≅ [ ∅ {Γ} ]l Ξ
     → (A : Ty (∅ ++ Ξ))
     → [ Ξ ⇈ σ ] A ≅ [ Ξ ⇈ (∅ {Γ}) ] A 
-  coh[η∅]t : (Ξ : Lift ∅) → [ σ ]l Ξ ≅ [ ∅ {Γ} ]l Ξ
-    → (u : Tm (∅ ++ Ξ) U)
-    → [ Ξ ⇈ σ ]t u ≅ [ Ξ ⇈ (∅ {Γ}) ]t u
 
   coh[η∅]l ∅        = refl
   coh[η∅]l (Ξ , A) = hcong₂ _,_ (coh[η∅]l Ξ) (coh[η∅] Ξ (coh[η∅]l Ξ) A)
@@ -327,10 +324,12 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
   coh[η∅] Ξ eq (Π A B) = icong₂ Ty (cong (Γ ++_) (≅-to-≡ eq)) Π
     (coh[η∅] Ξ eq A)
     (coh[η∅] (Ξ , A) ((hcong₂ _,_ eq (coh[η∅] Ξ eq A))) B)
-  coh[η∅] Ξ eq (El u)  = icong (λ Γ → Tm Γ U) (cong (Γ ++_) (≅-to-≡ eq)) El
-    (coh[η∅]t Ξ eq u)
+  coh[η∅] Ξ eq (El u)  = icong (λ Γ → Tm Γ U) (cong (Γ ++_) (≅-to-≡ eq)) El $ begin
+    [ Ξ ⇈ σ ]t  u ≅⟨ ≡-to-≅ (sym ([]tm≡[]t Ξ u σ)) ⟩
+    [ Ξ ⇈ σ ]tm u ≅⟨ hcong ([ Ξ ⇈_]tm u) (≡-to-≅ η∅) ⟩
+    [ Ξ ⇈ ∅ ]tm u ∎
+    
 
-  coh[η∅]t Ξ eq u = {!u!}
 
 -- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
 vz:= : Tm Γ A → Sub Γ (Γ , A)
