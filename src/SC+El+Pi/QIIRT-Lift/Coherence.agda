@@ -5,6 +5,7 @@ open import Prelude
 
 open import SC+El+Pi.QIIRT-Lift.Base
 
+-- Soundness of term substitution
 []tm≡[]t : (Ξ : Lift Δ){A : Ty (Δ ++ Ξ)}(u : Tm (Δ ++ Ξ) A)(σ : Sub Γ Δ)
   → [ Ξ ⇈ σ ]tm u ≡ [ Ξ ⇈ σ ]t u
 []tm≡[]t Ξ u ∅            = refl
@@ -118,6 +119,17 @@ module _ {Γ Δ : Ctx} {A : Ty Δ} (σ : Sub Γ (Δ , A)) where
     [ Ξ ⇈ σ ]tm           u ≅⟨ hcong ([ Ξ ⇈_]tm u) (≡-to-≅ η,) ⟩
     [ Ξ ⇈ π₁ σ , π₂ σ ]tm u ∎
 
+-- Coherence property for the term substitution
+module _ {Γ Δ : Ctx} (Ξ : Lift Δ) {A : Ty (Δ ++ Ξ)} {t u : Tm (Δ ++ Ξ) A} {σ γ : Sub Γ Δ} where
+  open ≅-Reasoning
+  coh[σ]tm
+    : σ ≅ γ → t ≅ u → [ Ξ ⇈ σ ]t t ≅ [ Ξ ⇈ γ ]t u
+  coh[σ]tm σ=γ t=u = begin
+    [ Ξ ⇈ σ ]t  t ≅⟨ ≡-to-≅ (sym ([]tm≡[]t Ξ t σ)) ⟩
+    [ Ξ ⇈ σ ]tm t ≅⟨ hcong₂ [ Ξ ⇈_]tm_ σ=γ t=u ⟩
+    [ Ξ ⇈ γ ]tm u ≅⟨ ≡-to-≅ ([]tm≡[]t Ξ u γ) ⟩
+    [ Ξ ⇈ γ ]t  u ∎
+{-
 module _  (Ξ : Lift Δ) (τ : Sub (Δ ++ Ξ) Θ) (u : Tm (Δ ++ Ξ) ([ τ ] A)) where
   open ≡-Reasoning
   coh[βπ₂]
@@ -128,6 +140,7 @@ module _  (Ξ : Lift Δ) (τ : Sub (Δ ++ Ξ) Θ) (u : Tm (Δ ++ Ξ) ([ τ ] A))
     [ Ξ ⇈ σ ]tm π₂ (_,_ τ {A} u) ≡⟨ cong ([ Ξ ⇈ σ ]tm_) π₂, ⟩
     [ Ξ ⇈ σ ]tm u                ≡⟨ []tm≡[]t Ξ u σ ⟩
     [ Ξ ⇈ σ ]t  u                ∎
+
  {-
   coh[βπ₂] ∅            = cong ([_⇈_]tm_ _ ∅) π₂,
   coh[βπ₂] (σ , t)      = cong ([_⇈_]tm_ _ (σ , t)) π₂,
@@ -138,23 +151,4 @@ module _  (Ξ : Lift Δ) (τ : Sub (Δ ++ Ξ) Θ) (u : Tm (Δ ++ Ξ) ([ τ ] A))
   coh[βπ₂] (π₁ (σ , _)) = coh[βπ₂] σ
   coh[βπ₂] (π₁ (σ ⨟ γ)) = cong [ [ π₁ γ ]l Ξ ⇈ σ ]t_ (coh[βπ₂] (π₁ γ))
 -}
-
-module _ (Ξ : Lift Δ) {A : Ty (Δ ++ Ξ)} (t : Tm (Δ ++ Ξ) A) (σ : Sub Γ Δ) where
-  open ≡-Reasoning
-  coh[][id]tm
-    : [ Ξ ⇈ σ ]t [ Ξ ⇈ idS ]tm t ≡ [ Ξ ⇈ σ ]t t
-  coh[][id]tm = begin
-    [ Ξ ⇈ σ ]t  [ Ξ ⇈ idS ]tm t ≡⟨ sym ([]tm≡[]t Ξ ([ Ξ ⇈ idS ]tm t) σ) ⟩
-    [ Ξ ⇈ σ ]tm [ Ξ ⇈ idS ]tm t ≡⟨ cong ([ Ξ ⇈ σ ]tm_) [id]tm ⟩
-    [ Ξ ⇈ σ ]tm t               ≡⟨ []tm≡[]t Ξ t σ ⟩
-    [ Ξ ⇈ σ ]t  t               ∎
-
-module _ (Ξ : Lift Δ) {A : Ty (Δ ++ Ξ)} (σ : Sub Γ Δ) where
-  open ≡-Reasoning
-  coh[]tm
-    : t ≡ u → [ Ξ ⇈ σ ]t t ≡ [ Ξ ⇈ σ ]t u
-  coh[]tm {t = t} {u = u} eq = begin
-    [ Ξ ⇈ σ ]t  t        ≡⟨ sym ([]tm≡[]t Ξ t σ) ⟩
-    [ Ξ ⇈ σ ]tm t        ≡⟨ cong ([ Ξ ⇈ σ ]tm_) eq ⟩
-    [ Ξ ⇈ σ ]tm u        ≡⟨ []tm≡[]t Ξ u σ ⟩
-    [ Ξ ⇈ σ ]t  _        ∎
+-}

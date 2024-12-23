@@ -26,7 +26,6 @@ interleaved mutual
 
   postulate
     [_]l_  : Sub Γ Δ → Lift Δ → Lift Γ 
-    -- _⨾_ : Sub Γ Δ → Sub Δ Θ → Sub Γ Θ 
     [_⇈_]_ : (Ξ : Lift Δ) (σ : Sub Γ Δ) (A : Ty (Δ ++ Ξ))
       → Ty (Γ ++ [ σ ]l Ξ)
 
@@ -45,10 +44,10 @@ interleaved mutual
   Γ ++ (As , A) = Γ ++ As , A
 
   postulate
-    ∅[]l : [ σ ]l ∅       ≡ ∅
+    []l∅ : [ σ ]l ∅       ≡ ∅
     -- [TODO]: Making this a function cannot pass the local confluence check. Why?
-    ,[]l : [ σ ]l (Ξ , A) ≡ [ σ ]l Ξ , [ Ξ ⇈ σ ] A
-    {-# REWRITE ∅[]l #-}
+    []l, : [ σ ]l (Ξ , A) ≡ [ σ ]l Ξ , [ Ξ ⇈ σ ] A
+    {-# REWRITE []l∅ #-}
 
   [_]_ : (σ : Sub Γ Δ) (A : Ty Δ) → Ty Γ
   [ σ ] A = [ ∅ ⇈ σ ] A
@@ -122,11 +121,12 @@ interleaved mutual
     {-# REWRITE [id] [⨟] [π₁,] #-}
     [π₁⨟] : [ Ξ ⇈ π₁ (σ ⨟ τ) ] A ≡ [ [ π₁ τ ]l Ξ ⇈ σ ] [ Ξ ⇈ π₁ τ ] A
     {-# REWRITE [π₁⨟] #-}
-    {-# REWRITE ,[]l #-}
+    {-# REWRITE []l, #-}
 
   [_⇈_]t_ : {Γ Δ : Ctx} (Ξ : Lift Δ) (σ : Sub Γ Δ) {A : Ty (Δ ++ Ξ)}
     → Tm (Δ ++ Ξ)        A
     → Tm (Γ ++ [ σ ]l Ξ) ([ Ξ ⇈ σ ] A)
+    
   [ Ξ ⇈ idS        ]t u = u
   [ Ξ ⇈ σ ⨟ τ      ]t u = [ [ τ ]l Ξ ⇈ σ ]t [ Ξ ⇈ τ ]t u
   [ Ξ ⇈ π₁ (σ , t) ]t u = [ Ξ ⇈ σ ]t u
@@ -139,14 +139,6 @@ interleaved mutual
     → Tm Δ A
     → Tm Γ ([ σ ] A)
   [ σ ]t t = [ ∅ ⇈ σ ]t t
-
-{-
-  postulate
-    idS⨾ : idS ⨾ σ ≡ σ
-    ⨾idS : σ ⨾ idS ≡ σ
-    ⨾,   : (σ : Sub Γ Δ) {A : Ty Θ} (τ : Sub Δ Θ) (t : Tm Δ ([ τ ] A ))
-      → σ ⨾ (τ , t) ≡ σ ⨟ τ , [ σ ]t t -- [ σ ]tm t
--}
   
   postulate
   -- Equality constructors for substitutions
@@ -176,20 +168,26 @@ interleaved mutual
     π₂,
       : {σ : Sub Γ Δ}{A : Ty Δ}{t : Tm Γ ([ σ ] A)}
       →  π₂ (σ , t) ≡ t 
+    Πβ : app (abs t) ≡ t
+    Πη : abs (app t) ≡ t
 
   postulate
     U[]
       : [ Ξ ⇈ σ ] U ≡ U
     {-# REWRITE U[] #-}
 
-    Π[]
-      : [ Ξ ⇈ σ ] Π A B ≡ Π ([ Ξ ⇈ σ ] A) ([ (Ξ , A) ⇈ σ ] B)
-    {-# REWRITE Π[] #-}
-
     El[]
       : {Ξ : Lift Δ} (σ : Sub Γ Δ) (u : Tm (Δ ++ Ξ) U)
       → [ Ξ ⇈ σ ] (El u) ≡ El ([ Ξ ⇈ σ ]t u)
     {-# REWRITE El[] #-}
+
+    Π[]
+      : [ Ξ ⇈ σ ] Π A B ≡ Π ([ Ξ ⇈ σ ] A) ([ (Ξ , A) ⇈ σ ] B)
+    {-# REWRITE Π[] #-}
+
+    -- we no longer need another transportation for the following rule:
+    abs[] : [ Ξ ⇈ σ ]t (abs t) ≡ abs ([ Ξ , _ ⇈ σ ]t t )
+
 
 -- derived computation rules on composition
 π₁⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ

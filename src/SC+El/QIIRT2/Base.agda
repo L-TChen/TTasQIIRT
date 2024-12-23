@@ -1,6 +1,5 @@
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 --{-# OPTIONS --confluence-check #-}
-{-# OPTIONS --local-confluence-check #-}
 
 module SC+El.QIIRT2.Base where
  
