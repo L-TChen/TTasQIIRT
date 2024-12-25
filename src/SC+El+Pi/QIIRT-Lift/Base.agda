@@ -4,9 +4,9 @@ open import Prelude
   hiding (_,_)
 
 infixr 20 [_]l_
-infixl 20 _↑_ 
+infixl 20 _↑_ -- _⇈S_
 infixr 15 [_⇈_]_ [_]_ [_⇈_]t_ [_]t_ [_⇈_]tm_ [_]tm_
-infixl 10 _⨟_ -- _⨾_
+infixl 10 _⨟_
 infixl 10 _++_
 infixl 6 _,_
 
@@ -19,7 +19,7 @@ interleaved mutual
   
   variable
       Γ Δ Θ : Ctx
-      Ξ     : Lift Γ
+      Ξ Ξ'  : Lift Γ
       A B C : Ty Γ
       t u   : Tm Γ A
       σ τ γ : Sub Γ Δ
@@ -120,26 +120,18 @@ interleaved mutual
     [id]  : [ idS        ⇈ Ξ ] A ≡ A
     [⨟]   : [ σ ⨟ τ      ⇈ Ξ ] A ≡ [ σ ⇈ [ τ ]l Ξ ] [ τ ⇈ Ξ ] A
     [π₁,] : [ π₁ (σ , t) ⇈ Ξ ] A ≡ [ σ ⇈        Ξ ] A
-    {-# REWRITE [id] [⨟] [π₁,] #-}
     [π₁⨟] : [ π₁ (σ ⨟ τ) ⇈ Ξ ] A ≡ [ σ ⇈ [ π₁ τ ]l Ξ ] [ π₁ τ ⇈ Ξ ] A
-    {-# REWRITE [π₁⨟] #-}
+    {-# REWRITE [id] [⨟] [π₁,] [π₁⨟] #-}
     {-# REWRITE []l, #-}
-
-  [_⇈_]t_ : {Γ Δ : Ctx} (σ : Sub Γ Δ) (Ξ : Lift Δ) {A : Ty (Δ ++ Ξ)}
-    → Tm (Δ ++ Ξ)        A
-    → Tm (Γ ++ [ σ ]l Ξ) ([ σ ⇈ Ξ ] A)
-    
-  [ idS        ⇈ Ξ ]t u = u
-  [ σ ⨟ τ      ⇈ Ξ ]t u = [ σ ⇈ [ τ ]l Ξ ]t [ τ ⇈ Ξ ]t u
-  [ π₁ (σ , t) ⇈ Ξ ]t u = [ σ ⇈ Ξ ]t u
-  [ π₁ (σ ⨟ τ) ⇈ Ξ ]t u = [ σ ⇈ [ π₁ τ ]l Ξ ]t [ π₁ τ ⇈ Ξ ]t u
-  {-# CATCHALL #-}
-  [ σ          ⇈ Ξ ]t u = [ σ ⇈ Ξ ]tm u
 
   _↑_
     : (σ : Sub Γ Δ) (A : Ty Δ)
     → Sub (Γ , [ σ ] A) (Δ , A)
   σ ↑ A = π₁ idS ⨟ σ , vz
+
+  [_⇈_]t_ : {Γ Δ : Ctx} (σ : Sub Γ Δ) (Ξ : Lift Δ) {A : Ty (Δ ++ Ξ)}
+    → Tm (Δ ++ Ξ)        A
+    → Tm (Γ ++ [ σ ]l Ξ) ([ σ ⇈ Ξ ] A)
 
   [_]t_
     : (σ : Sub Γ Δ) {A : Ty Δ}
@@ -172,15 +164,29 @@ interleaved mutual
       : [ idS   ⇈ Ξ ]tm t ≡ t
     [⨟]tm
       : [ σ ⨟ τ ⇈ Ξ ]tm t ≡ [ σ ⇈ [ τ ]l Ξ ]tm [ τ ⇈ Ξ ]tm t
---    [σ⇈Ξ]tm
---      : [ σ ⇈ Ξ , A ]tm t ≡ {!!}
     π₂,
       : {σ : Sub Γ Δ}{A : Ty Δ}{t : Tm Γ ([ σ ] A)}
       →  π₂ (σ , t) ≡ t 
-    Πβ
-      : app (abs t) ≡ t
-    Πη
-      : abs (app t) ≡ t
+
+  [ idS        ⇈ Ξ ]t u = u
+  [ σ ⨟ τ      ⇈ Ξ ]t u = [ σ ⇈ [ τ ]l Ξ ]t [ τ ⇈ Ξ ]t u
+  [ π₁ (σ , t) ⇈ Ξ ]t u = [ σ ⇈ Ξ ]t u
+  [ π₁ (σ ⨟ τ) ⇈ Ξ ]t u = [ σ ⇈ [ π₁ τ ]l Ξ ]t [ π₁ τ ⇈ Ξ ]t u
+  {-# CATCHALL #-}
+  [ σ          ⇈ Ξ ]t u = [ σ ⇈ Ξ ]tm u
+{-
+  postulate
+    [id]t   : [ idS        ⇈ Ξ ]t u ≡ u
+    [⨟]t    : [ σ ⨟ τ      ⇈ Ξ ]t u ≡ [ σ ⇈ [ τ ]l Ξ ]t [ τ ⇈ Ξ ]t u
+    [π₁,]t  : [ π₁ (σ , t) ⇈ Ξ ]t u ≡ [ σ ⇈ Ξ ]t u
+    [π₁⨟]t  : [ π₁ (σ ⨟ τ) ⇈ Ξ ]t u ≡ [ σ ⇈ [ π₁ τ ]l Ξ ]t [ π₁ τ ⇈ Ξ ]t u
+    {-# REWRITE [id]t [⨟]t [π₁,]t [π₁⨟]t #-}
+    [∅]t    : [ ∅ {Γ} ⇈ Ξ ]t u ≡ [ ∅ {Γ} ⇈ Ξ ]tm u
+    [,]t    : [ σ , t ⇈ Ξ ]t u ≡ [ σ , t ⇈ Ξ ]tm u
+    [π₁id]  : [ π₁ (idS {Γ , A}) ⇈ Ξ ]t u ≡ [ π₁ (idS {Γ , A}) ⇈ Ξ ]tm u
+    [π₁π₁σ] : [ π₁ (π₁ σ) ⇈ Ξ ]t u ≡ [ π₁ (π₁ σ) ⇈ Ξ ]tm u
+    {-# REWRITE [∅]t [,]t [π₁id] [π₁π₁σ] #-}
+-}
 
   postulate
     U[]
@@ -195,9 +201,25 @@ interleaved mutual
     Π[]
       : [ σ ⇈ Ξ ] Π A B ≡ Π ([ σ ⇈ Ξ ] A) ([ σ ⇈ Ξ , A ] B)
     {-# REWRITE Π[] #-}
+    
+    Πβ
+      : app (abs t) ≡ t
+    Πη
+      : abs (app t) ≡ t
 
-    -- we no longer need another transportation for the following rule:
-    abs[] : [ σ ⇈ Ξ ]t (abs t) ≡ abs ([ σ ⇈ Ξ , _ ]t t )
+    []tabs
+      : [ σ ⇈ Ξ ]t (abs t) ≡ abs ([ σ ⇈ Ξ , _ ]t t )
+  
+-- we no longer need another transportation for the following rule:
+[]tapp : (σ : Sub Γ Δ) (Ξ : Lift Δ)
+  → (A : Ty (Δ ++ Ξ)) (B : Ty (Δ ++ Ξ , A)) (t : Tm (Δ ++ Ξ) (Π A B))
+  → app ([ σ ⇈ Ξ ]t t) ≡ [ σ ⇈ Ξ , A ]t (app t)
+[]tapp σ Ξ A B t = begin
+  app ([ σ ⇈ Ξ ]t t)                 ≡⟨ cong app (cong ([ σ ⇈ Ξ ]t_) (sym Πη)) ⟩
+  app ([ σ ⇈ Ξ ]t (abs (app t)))     ≡⟨ cong app ([]tabs {σ = σ}) ⟩
+  app (abs ([ σ ⇈ Ξ , A ]t (app t))) ≡⟨ Πβ ⟩
+  [ σ ⇈ Ξ , A ]t (app t)             ∎
+  where open ≡-Reasoning
 
 -- derived computation rules on composition
 π₁⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ
