@@ -3,7 +3,9 @@ module SC+El+Pi.QIIRT-Lift.Base where
 open import Prelude
   hiding (_,_)
 
-infixr 20 [_]l_ [_⇈_]_ [_]_ [_⇈_]t_ [_]t_ [_⇈_]tm_ [_]tm_
+infixr 20 [_]l_
+infixl 20 _↑_ 
+infixr 15 [_⇈_]_ [_]_ [_⇈_]t_ [_]t_ [_⇈_]tm_ [_]tm_
 infixl 10 _⨟_ -- _⨾_
 infixl 10 _++_
 infixl 6 _,_
@@ -26,7 +28,7 @@ interleaved mutual
 
   postulate
     [_]l_  : Sub Γ Δ → Lift Δ → Lift Γ 
-    [_⇈_]_ : (Ξ : Lift Δ) (σ : Sub Γ Δ) (A : Ty (Δ ++ Ξ))
+    [_⇈_]_ : (σ : Sub Γ Δ) (Ξ : Lift Δ) (A : Ty (Δ ++ Ξ))
       → Ty (Γ ++ [ σ ]l Ξ)
 
   data _ where
@@ -38,19 +40,19 @@ interleaved mutual
     ∅
       : Lift Γ
     _,_
-      : (As : Lift Γ)(A : Ty (Γ ++ As)) → Lift Γ
+      : (Ξ : Lift Γ)(A : Ty (Γ ++ Ξ)) → Lift Γ
 
-  Γ ++ ∅        = Γ
-  Γ ++ (As , A) = Γ ++ As , A
+  Γ ++ ∅       = Γ
+  Γ ++ (Ξ , A) = Γ ++ Ξ , A
 
   postulate
     []l∅ : [ σ ]l ∅       ≡ ∅
     -- [TODO]: Making this a function cannot pass the local confluence check. Why?
-    []l, : [ σ ]l (Ξ , A) ≡ [ σ ]l Ξ , [ Ξ ⇈ σ ] A
+    []l, : [ σ ]l (Ξ , A) ≡ [ σ ]l Ξ , [ σ ⇈ Ξ ] A
     {-# REWRITE []l∅ #-}
 
   [_]_ : (σ : Sub Γ Δ) (A : Ty Δ) → Ty Γ
-  [ σ ] A = [ ∅ ⇈ σ ] A
+  [ σ ] A = [ σ ⇈ ∅ ] A
 
   data _ where
     U
@@ -78,22 +80,22 @@ interleaved mutual
       : (σ : Sub Γ (Δ , A))
       → Tm Γ ([ π₁ σ ] A)
     [_⇈_]tm_
-      : {Γ Δ : Ctx} (Ξ : Lift Δ) (σ : Sub Γ Δ) {A : Ty (Δ ++ Ξ)}
+      : {Γ Δ : Ctx} (σ : Sub Γ Δ) (Ξ : Lift Δ) {A : Ty (Δ ++ Ξ)}
       → Tm (Δ ++ Ξ)        A
-      → Tm (Γ ++ [ σ ]l Ξ) ([ Ξ ⇈ σ ] A)
+      → Tm (Γ ++ [ σ ]l Ξ) ([ σ ⇈ Ξ ] A)
     abs
       : Tm (Γ , A) B → Tm Γ (Π A B)
     app
       : Tm Γ (Π A B) → Tm (Γ , A) B
   pattern wk   = π₁ idS
   pattern vz   = π₂ idS
-  pattern vs x = [ ∅ ⇈ wk ]tm x
+  pattern vs x = [ wk ⇈ ∅ ]tm x
 
   [_]tm_
       : {Γ Δ : Ctx} (σ : Sub Γ Δ) {A : Ty Δ}
       → Tm Δ A
       → Tm Γ ([ σ ] A)
-  [ σ ]tm u = [ ∅ ⇈ σ ]tm u
+  [ σ ]tm u = [ σ ⇈ ∅ ]tm u
 
 {-
   We'd like to define _[_] by overlapping patterns
@@ -115,31 +117,36 @@ interleaved mutual
     [π₁⨟]l : [ π₁ (σ ⨟ τ) ]l Ξ ≡ [ σ ]l [ π₁ τ ]l Ξ
     {-# REWRITE [π₁⨟]l #-}
 
-    [id]  : [ Ξ ⇈ idS ]        A ≡ A
-    [⨟]   : [ Ξ ⇈ (σ ⨟ τ) ]    A ≡ [ [ τ ]l Ξ ⇈ σ ] [ Ξ ⇈ τ ] A
-    [π₁,] : [ Ξ ⇈ π₁ (σ , t) ] A ≡ [ Ξ ⇈ σ ] A
+    [id]  : [ idS        ⇈ Ξ ] A ≡ A
+    [⨟]   : [ σ ⨟ τ      ⇈ Ξ ] A ≡ [ σ ⇈ [ τ ]l Ξ ] [ τ ⇈ Ξ ] A
+    [π₁,] : [ π₁ (σ , t) ⇈ Ξ ] A ≡ [ σ ⇈        Ξ ] A
     {-# REWRITE [id] [⨟] [π₁,] #-}
-    [π₁⨟] : [ Ξ ⇈ π₁ (σ ⨟ τ) ] A ≡ [ [ π₁ τ ]l Ξ ⇈ σ ] [ Ξ ⇈ π₁ τ ] A
+    [π₁⨟] : [ π₁ (σ ⨟ τ) ⇈ Ξ ] A ≡ [ σ ⇈ [ π₁ τ ]l Ξ ] [ π₁ τ ⇈ Ξ ] A
     {-# REWRITE [π₁⨟] #-}
     {-# REWRITE []l, #-}
 
-  [_⇈_]t_ : {Γ Δ : Ctx} (Ξ : Lift Δ) (σ : Sub Γ Δ) {A : Ty (Δ ++ Ξ)}
+  [_⇈_]t_ : {Γ Δ : Ctx} (σ : Sub Γ Δ) (Ξ : Lift Δ) {A : Ty (Δ ++ Ξ)}
     → Tm (Δ ++ Ξ)        A
-    → Tm (Γ ++ [ σ ]l Ξ) ([ Ξ ⇈ σ ] A)
+    → Tm (Γ ++ [ σ ]l Ξ) ([ σ ⇈ Ξ ] A)
     
-  [ Ξ ⇈ idS        ]t u = u
-  [ Ξ ⇈ σ ⨟ τ      ]t u = [ [ τ ]l Ξ ⇈ σ ]t [ Ξ ⇈ τ ]t u
-  [ Ξ ⇈ π₁ (σ , t) ]t u = [ Ξ ⇈ σ ]t u
-  [ Ξ ⇈ π₁ (σ ⨟ τ) ]t u = [ [ π₁ τ ]l Ξ ⇈ σ ]t [ Ξ ⇈ π₁ τ ]t u
+  [ idS        ⇈ Ξ ]t u = u
+  [ σ ⨟ τ      ⇈ Ξ ]t u = [ σ ⇈ [ τ ]l Ξ ]t [ τ ⇈ Ξ ]t u
+  [ π₁ (σ , t) ⇈ Ξ ]t u = [ σ ⇈ Ξ ]t u
+  [ π₁ (σ ⨟ τ) ⇈ Ξ ]t u = [ σ ⇈ [ π₁ τ ]l Ξ ]t [ π₁ τ ⇈ Ξ ]t u
   {-# CATCHALL #-}
-  [ Ξ ⇈ σ          ]t u = [ Ξ ⇈ σ ]tm u
+  [ σ          ⇈ Ξ ]t u = [ σ ⇈ Ξ ]tm u
+
+  _↑_
+    : (σ : Sub Γ Δ) (A : Ty Δ)
+    → Sub (Γ , [ σ ] A) (Δ , A)
+  σ ↑ A = π₁ idS ⨟ σ , vz
 
   [_]t_
     : (σ : Sub Γ Δ) {A : Ty Δ}
     → Tm Δ A
     → Tm Γ ([ σ ] A)
-  [ σ ]t t = [ ∅ ⇈ σ ]t t
-  
+  [ σ ]t t = [ σ ⇈ ∅ ]t t
+
   postulate
   -- Equality constructors for substitutions
     _⨟idS
@@ -162,32 +169,35 @@ interleaved mutual
       → σ ≡ (π₁ σ , π₂ σ)
   -- Equality constructors for terms
     [id]tm
-      : [ Ξ ⇈ idS   ]tm t ≡ t
+      : [ idS   ⇈ Ξ ]tm t ≡ t
     [⨟]tm
-      : [ Ξ ⇈ σ ⨟ τ ]tm t ≡ [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]tm t
+      : [ σ ⨟ τ ⇈ Ξ ]tm t ≡ [ σ ⇈ [ τ ]l Ξ ]tm [ τ ⇈ Ξ ]tm t
+--    [σ⇈Ξ]tm
+--      : [ σ ⇈ Ξ , A ]tm t ≡ {!!}
     π₂,
       : {σ : Sub Γ Δ}{A : Ty Δ}{t : Tm Γ ([ σ ] A)}
       →  π₂ (σ , t) ≡ t 
-    Πβ : app (abs t) ≡ t
-    Πη : abs (app t) ≡ t
+    Πβ
+      : app (abs t) ≡ t
+    Πη
+      : abs (app t) ≡ t
 
   postulate
     U[]
-      : [ Ξ ⇈ σ ] U ≡ U
+      : [ σ ⇈ Ξ ] U ≡ U
     {-# REWRITE U[] #-}
 
     El[]
       : {Ξ : Lift Δ} (σ : Sub Γ Δ) (u : Tm (Δ ++ Ξ) U)
-      → [ Ξ ⇈ σ ] (El u) ≡ El ([ Ξ ⇈ σ ]t u)
+      → [ σ ⇈ Ξ ] (El u) ≡ El ([ σ ⇈ Ξ ]t u)
     {-# REWRITE El[] #-}
 
     Π[]
-      : [ Ξ ⇈ σ ] Π A B ≡ Π ([ Ξ ⇈ σ ] A) ([ (Ξ , A) ⇈ σ ] B)
+      : [ σ ⇈ Ξ ] Π A B ≡ Π ([ σ ⇈ Ξ ] A) ([ σ ⇈ Ξ , A ] B)
     {-# REWRITE Π[] #-}
 
     -- we no longer need another transportation for the following rule:
-    abs[] : [ Ξ ⇈ σ ]t (abs t) ≡ abs ([ Ξ , _ ⇈ σ ]t t )
-
+    abs[] : [ σ ⇈ Ξ ]t (abs t) ≡ abs ([ σ ⇈ Ξ , _ ]t t )
 
 -- derived computation rules on composition
 π₁⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ

@@ -7,45 +7,46 @@ open import SC+El+Pi.QIIRT-Lift.Base
 
 -- Soundness of term substitution
 []tm≡[]t : (Ξ : Lift Δ){A : Ty (Δ ++ Ξ)}(u : Tm (Δ ++ Ξ) A)(σ : Sub Γ Δ)
-  → [ Ξ ⇈ σ ]tm u ≡ [ Ξ ⇈ σ ]t u
+  → [ σ ⇈ Ξ ]tm u ≡ [ σ ⇈ Ξ ]t u
 []tm≡[]t Ξ u ∅            = refl
 []tm≡[]t Ξ u (σ , t)      = refl
 []tm≡[]t Ξ u wk           = refl
 []tm≡[]t Ξ u (π₁ (π₁ σ))  = refl
 []tm≡[]t Ξ u (π₁ (σ ⨟ τ)) = begin
-  [ Ξ ⇈ π₁ (σ ⨟ τ) ]tm u                 ≡⟨ ≅-to-≡ (hcong ([ Ξ ⇈_]tm u) (≡-to-≅ (π₁⨟ σ τ))) ⟩
-  [ Ξ ⇈ σ ⨟ π₁ τ   ]tm u                 ≡⟨ [⨟]tm ⟩
-  [ [ π₁ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ π₁ τ ]tm u ≡⟨ cong ([ [ π₁ τ ]l Ξ ⇈ σ ]tm_) ([]tm≡[]t Ξ u (π₁ τ)) ⟩
-  [ [ π₁ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ π₁ τ ]t  u ≡⟨ []tm≡[]t ([ π₁ τ ]l Ξ) ([ Ξ ⇈ π₁ τ ]t u) σ ⟩
-  [ [ π₁ τ ]l Ξ ⇈ σ ]t  [ Ξ ⇈ π₁ τ ]t  u ≡⟨⟩
-  [ Ξ ⇈ π₁ (σ ⨟ τ) ]t u  ∎
+  [ π₁ (σ ⨟ τ)  ⇈ Ξ ]tm u                 ≡⟨ ≅-to-≡ (hcong ([_⇈ Ξ ]tm u) (≡-to-≅ (π₁⨟ σ τ))) ⟩
+  [ σ ⨟ π₁ τ    ⇈ Ξ ]tm u                 ≡⟨ [⨟]tm ⟩
+  [ σ ⇈ [ π₁ τ ]l Ξ ]tm [ π₁ τ ⇈ Ξ ]tm u  ≡⟨ cong ([ σ ⇈ [ π₁ τ ]l Ξ ]tm_) ([]tm≡[]t Ξ u (π₁ τ)) ⟩
+  [ σ ⇈ [ π₁ τ ]l Ξ ]tm [ π₁ τ ⇈ Ξ ]t  u  ≡⟨ []tm≡[]t ([ π₁ τ ]l Ξ) ([ π₁ τ ⇈ Ξ ]t u) σ ⟩
+  [ σ ⇈ [ π₁ τ ]l Ξ ]t  [ π₁ τ ⇈ Ξ ]t  u  ≡⟨⟩
+  [ π₁ (σ ⨟ τ) ⇈ Ξ ]t u ∎
+
   where open ≡-Reasoning
 []tm≡[]t Ξ u idS          = [id]tm
 []tm≡[]t Ξ u (σ ⨟ τ) = begin
-  [ Ξ ⇈ σ ⨟ τ ]tm u                ≡⟨ [⨟]tm ⟩
-  [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]tm u ≡⟨ cong ([ [ τ ]l Ξ ⇈ σ ]tm_) ([]tm≡[]t Ξ u τ) ⟩
-  [ [ τ ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ ]t  u ≡⟨ []tm≡[]t ([ τ ]l Ξ) ([ Ξ ⇈ τ ]t u) σ ⟩
-  [ [ τ ]l Ξ ⇈ σ ]t  [ Ξ ⇈ τ ]t  u ∎
+  [ σ ⨟ τ ⇈ Ξ ]tm u                ≡⟨ [⨟]tm ⟩
+  [ σ ⇈ [ τ ]l Ξ ]tm [ τ ⇈ Ξ ]tm u ≡⟨ cong ([ σ ⇈ [ τ ]l Ξ ]tm_) ([]tm≡[]t Ξ u τ) ⟩
+  [ σ ⇈ [ τ ]l Ξ ]tm [ τ ⇈ Ξ ]t  u ≡⟨ []tm≡[]t ([ τ ]l Ξ) ([ τ ⇈ Ξ ]t u) σ ⟩
+  [ σ ⇈ [ τ ]l Ξ ]t  [ τ ⇈ Ξ ]t  u ∎
   where open ≡-Reasoning
 []tm≡[]t Ξ u (π₁ (σ , t)) = begin
-  [ Ξ ⇈ π₁ (σ , t) ]tm u ≡⟨ ≅-to-≡ (hcong (λ σ → [ Ξ ⇈ σ ]tm u) (≡-to-≅ π₁,)) ⟩
-  [ Ξ ⇈ σ ]tm u          ≡⟨ []tm≡[]t Ξ u σ ⟩
-  [ Ξ ⇈ σ ]t  u          ∎
+  [ π₁ (σ , t) ⇈ Ξ ]tm u ≡⟨ ≅-to-≡ (hcong (λ σ → [ σ ⇈ Ξ ]tm u) (≡-to-≅ π₁,)) ⟩
+  [ σ ⇈ Ξ ]tm u          ≡⟨ []tm≡[]t Ξ u σ ⟩
+  [ σ ⇈ Ξ ]t  u          ∎
   where open ≡-Reasoning
 
 cong-U : Γ ≅ Δ → U {Γ} ≅ U {Δ}
 cong-U refl = refl
 
 coh[idS⨟]
-  : [ Ξ ⇈ idS ⨟ σ ] A ≡ [ Ξ ⇈ σ ] A
+  : [ idS ⨟ σ ⇈ Ξ ] A ≡ [ σ ⇈ Ξ ] A
 coh[idS⨟] = refl
 
 coh[⨟idS]
-  : [ Ξ ⇈ σ ⨟ idS ] A ≡ [ Ξ ⇈ σ ] A
+  : [ σ ⨟ idS ⇈ Ξ ] A ≡ [ σ ⇈ Ξ ] A
 coh[⨟idS] = refl
 
 coh[assocS]
-  : [ Ξ ⇈ (σ ⨟ τ) ⨟ γ ] A ≡ [ Ξ ⇈ σ ⨟ (τ ⨟ γ) ] A
+  : [ (σ ⨟ τ) ⨟ γ ⇈ Ξ ] A ≡ [ σ ⨟ (τ ⨟ γ) ⇈ Ξ ] A
 coh[assocS] = refl
 
 module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ) (t : Tm Δ ([ τ ] A)) where
@@ -57,7 +58,7 @@ module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ) (t : Tm Δ ([ τ ] A)) wh
     : (Ξ : Lift (Θ , A))
     → [ σ ⨟ (τ , t) ]l Ξ ≅ [ σ ⨟ τ , [ σ ]t t ]l Ξ
     → (B : Ty ((Θ , A) ++ Ξ))
-    → [ Ξ ⇈ σ ⨟ (τ , t) ] B ≅ [ Ξ ⇈ (σ ⨟ τ) , [ σ ]t t ] B
+    → [ σ ⨟ (τ , t) ⇈ Ξ ] B ≅ [ (σ ⨟ τ) , [ σ ]t t ⇈ Ξ ] B
 
   coh[⨟,]l ∅        = refl
   coh[⨟,]l (Ξ , A) = hcong₂ _,_ (coh[⨟,]l Ξ) (coh[⨟,]' Ξ (coh[⨟,]l Ξ) A)
@@ -67,13 +68,13 @@ module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ) (t : Tm Δ ([ τ ] A)) wh
     (coh[⨟,]' Ξ eq B)
     (coh[⨟,]' (Ξ , B) (hcong₂ _,_ eq (coh[⨟,]' Ξ eq B)) C)
   coh[⨟,]' Ξ eq (El u)  = icong (λ Γ → Tm Γ U) (cong (Γ ++_) (≅-to-≡ eq)) El $ begin
-    [ Ξ ⇈ σ ⨟ (τ , t) ]t u                   ≅⟨ refl ⟩
-    [ [ τ , t ]l Ξ ⇈ σ ]t  [ Ξ ⇈ τ , t ]tm u ≅⟨ HEq.sym (≡-to-≅ $ []tm≡[]t _ _ _) ⟩
-    [ [ τ , t ]l Ξ ⇈ σ ]tm [ Ξ ⇈ τ , t ]tm u ≅⟨ HEq.sym (≡-to-≅ $ [⨟]tm) ⟩
-    [ Ξ ⇈ σ ⨟ (τ , t) ]tm u                  ≅⟨ hcong (λ σ → [ Ξ ⇈ σ ]tm u) (≡-to-≅ ⨟,) ⟩
-    [ Ξ ⇈ σ ⨟ τ , [ σ ]t t ]tm u             ∎
+    [ σ ⨟ (τ , t) ⇈ Ξ ]t u                   ≅⟨ refl ⟩
+    [ σ ⇈ [ τ , t ]l Ξ ]t  [ τ , t ⇈ Ξ ]tm u ≅⟨ HEq.sym (≡-to-≅ $ []tm≡[]t _ _ _) ⟩
+    [ σ ⇈ [ τ , t ]l Ξ ]tm [ τ , t ⇈ Ξ ]tm u ≅⟨ HEq.sym (≡-to-≅ $ [⨟]tm) ⟩
+    [ σ ⨟ (τ , t) ⇈ Ξ ]tm u                  ≅⟨ hcong (λ σ → [ σ ⇈ Ξ ]tm u) (≡-to-≅ ⨟,) ⟩
+    [ σ ⨟ τ , [ σ ]t t ⇈ Ξ ]tm u             ∎
 
-coh[βπ₁] : [ Ξ ⇈ π₁ (σ , t) ] A ≡ [ Ξ ⇈ σ ] A
+coh[βπ₁] : [ π₁ (σ , t) ⇈ Ξ ] A ≡ [ σ ⇈ Ξ ] A
 coh[βπ₁] = refl
 
 module _ {Γ : Ctx} (σ : Sub Γ ∅) where
@@ -83,7 +84,7 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
     → [ σ ]l Ξ ≅ [ ∅ {Γ} ]l Ξ
   coh[η∅] : (Ξ : Lift ∅) → [ σ ]l Ξ ≅ [ ∅ {Γ} ]l Ξ
     → (A : Ty (∅ ++ Ξ))
-    → [ Ξ ⇈ σ ] A ≅ [ Ξ ⇈ (∅ {Γ}) ] A 
+    → [ σ ⇈ Ξ ] A ≅ [ (∅ {Γ}) ⇈ Ξ ] A 
 
   coh[η∅]l ∅        = refl
   coh[η∅]l (Ξ , A) = hcong₂ _,_ (coh[η∅]l Ξ) (coh[η∅] Ξ (coh[η∅]l Ξ) A)
@@ -93,9 +94,9 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
     (coh[η∅] Ξ eq A)
     (coh[η∅] (Ξ , A) ((hcong₂ _,_ eq (coh[η∅] Ξ eq A))) B)
   coh[η∅] Ξ eq (El u)  = icong (λ Γ → Tm Γ U) (cong (Γ ++_) (≅-to-≡ eq)) El $ begin
-    [ Ξ ⇈ σ ]t  u ≅⟨ ≡-to-≅ (sym ([]tm≡[]t Ξ u σ)) ⟩
-    [ Ξ ⇈ σ ]tm u ≅⟨ hcong ([ Ξ ⇈_]tm u) (≡-to-≅ η∅) ⟩
-    [ Ξ ⇈ ∅ ]tm u ∎
+    [ σ ⇈ Ξ ]t  u ≅⟨ ≡-to-≅ (sym ([]tm≡[]t Ξ u σ)) ⟩
+    [ σ ⇈ Ξ ]tm u ≅⟨ hcong ([_⇈ Ξ ]tm u) (≡-to-≅ η∅) ⟩
+    [ ∅ ⇈ Ξ ]tm u ∎
 
 module _ {Γ Δ : Ctx} {A : Ty Δ} (σ : Sub Γ (Δ , A)) where 
   open ≅-Reasoning
@@ -105,7 +106,7 @@ module _ {Γ Δ : Ctx} {A : Ty Δ} (σ : Sub Γ (Δ , A)) where
     : (Ξ : Lift (Δ , A))
     → [ σ ]l Ξ ≅ [ π₁ σ , π₂ σ ]l Ξ
     → (B : Ty ((Δ , A) ++ Ξ))
-    → [ Ξ ⇈ σ ] B ≅ [ Ξ ⇈ π₁ σ , π₂ σ ] B
+    → [ σ ⇈ Ξ ] B ≅ [ π₁ σ , π₂ σ ⇈ Ξ ] B
 
   coh[η,]l ∅       = refl
   coh[η,]l (Ξ , A) = hcong₂ _,_ (coh[η,]l Ξ) (coh[η,] Ξ (coh[η,]l Ξ) A)
@@ -115,20 +116,20 @@ module _ {Γ Δ : Ctx} {A : Ty Δ} (σ : Sub Γ (Δ , A)) where
     (coh[η,] Ξ eq A)
     (coh[η,] (Ξ , A) (hcong₂ _,_ eq (coh[η,] Ξ eq A)) B)
   coh[η,] Ξ eq (El u)  = icong (λ Γ → Tm Γ U) (cong (Γ ++_) (≅-to-≡ eq)) El $ begin
-    [ Ξ ⇈ σ ]t            u ≅⟨ ≡-to-≅ (sym ([]tm≡[]t Ξ u σ)) ⟩
-    [ Ξ ⇈ σ ]tm           u ≅⟨ hcong ([ Ξ ⇈_]tm u) (≡-to-≅ η,) ⟩
-    [ Ξ ⇈ π₁ σ , π₂ σ ]tm u ∎
+    [ σ ⇈ Ξ ]t            u ≅⟨ ≡-to-≅ (sym ([]tm≡[]t Ξ u σ)) ⟩
+    [ σ ⇈ Ξ ]tm           u ≅⟨ hcong ([_⇈ Ξ ]tm u) (≡-to-≅ η,) ⟩
+    [ π₁ σ , π₂ σ ⇈ Ξ ]tm u ∎
 
 -- Coherence property for the term substitution
 module _ {Γ Δ : Ctx} (Ξ : Lift Δ) {A : Ty (Δ ++ Ξ)} {t u : Tm (Δ ++ Ξ) A} {σ γ : Sub Γ Δ} where
   open ≅-Reasoning
   coh[σ]tm
-    : σ ≅ γ → t ≅ u → [ Ξ ⇈ σ ]t t ≅ [ Ξ ⇈ γ ]t u
+    : σ ≅ γ → t ≅ u → [ σ ⇈ Ξ ]t t ≅ [ γ ⇈ Ξ ]t u
   coh[σ]tm σ=γ t=u = begin
-    [ Ξ ⇈ σ ]t  t ≅⟨ ≡-to-≅ (sym ([]tm≡[]t Ξ t σ)) ⟩
-    [ Ξ ⇈ σ ]tm t ≅⟨ hcong₂ [ Ξ ⇈_]tm_ σ=γ t=u ⟩
-    [ Ξ ⇈ γ ]tm u ≅⟨ ≡-to-≅ ([]tm≡[]t Ξ u γ) ⟩
-    [ Ξ ⇈ γ ]t  u ∎
+    [ σ ⇈ Ξ ]t  t ≅⟨ ≡-to-≅ (sym ([]tm≡[]t Ξ t σ)) ⟩
+    [ σ ⇈ Ξ ]tm t ≅⟨ hcong₂ [_⇈ Ξ ]tm_ σ=γ t=u ⟩
+    [ γ ⇈ Ξ ]tm u ≅⟨ ≡-to-≅ ([]tm≡[]t Ξ u γ) ⟩
+    [ γ ⇈ Ξ ]t  u ∎
 {-
 module _  (Ξ : Lift Δ) (τ : Sub (Δ ++ Ξ) Θ) (u : Tm (Δ ++ Ξ) ([ τ ] A)) where
   open ≡-Reasoning
