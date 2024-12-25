@@ -4,7 +4,7 @@ open import Prelude
   hiding (_,_)
 
 infixr 20 [_]l_
-infixl 20 _↑_ -- _⇈S_
+infixl 20 _↑_ _⇈S_
 infixr 15 [_⇈_]_ [_]_ [_⇈_]t_ [_]t_ [_⇈_]tm_ [_]tm_
 infixl 10 _⨟_
 infixl 10 _++_
@@ -209,6 +209,35 @@ interleaved mutual
 
     []tabs
       : [ σ ⇈ Ξ ]t (abs t) ≡ abs ([ σ ⇈ Ξ , _ ]t t )
+
+U-cong : Γ ≡ Δ → U {Γ} ≅ U {Δ}
+U-cong refl = refl
+
+_⇈S_
+  : (σ : Sub Γ Δ) (Ξ : Lift Δ) → Sub (Γ ++ [ σ ]l Ξ) (Δ ++ Ξ)
+[⇈S]=[⇈]
+  : (σ : Sub Γ Δ) (Ξ : Lift Δ) (B : Ty (Δ ++ Ξ))
+  → [ σ ⇈ Ξ ] B ≅  [ σ ⇈S Ξ ] B
+[⇈S]tm=[⇈]tm
+  : (σ : Sub Γ Δ) (Ξ : Lift Δ) (B : Ty (Δ ++ Ξ)) (u : Tm (Δ ++ Ξ) B)
+  → tr (Tm (Γ ++ [ σ ]l Ξ)) (≅-to-≡ ([⇈S]=[⇈] σ Ξ B)) ([ σ ⇈ Ξ ]t u)
+  ≅ [ σ ⇈S Ξ ]t u
+  
+-- we should find out what equality constructors are needed in the end of this proof
+σ ⇈S ∅       = σ
+σ ⇈S (Ξ , A) = tr (λ B → Sub (_ ++ [ σ ]l Ξ , B) (_ ++ Ξ , A))
+  (sym $ ≅-to-≡ $ [⇈S]=[⇈] σ Ξ A) (σ ⇈S Ξ ↑ A)
+
+[⇈S]=[⇈] σ ∅       B               = refl
+[⇈S]=[⇈] {Γ} {Δ} σ (Ξ , A) U       = U-cong refl
+[⇈S]=[⇈] {Γ} {Δ} σ (Ξ , A) (Π B C) = hcong₂ Π
+  ([⇈S]=[⇈] σ (Ξ , A) B) {![⇈S]=[⇈] σ (Ξ , A , B) C!}
+[⇈S]=[⇈] {Γ} {Δ} σ (Ξ , A) (El u)  = hcong El
+  ([⇈S]tm=[⇈]tm σ (Ξ , A) U u)
+  where open ≡-Reasoning
+
+[⇈S]tm=[⇈]tm σ ∅       B u = refl
+[⇈S]tm=[⇈]tm σ (Ξ , A) B u = {!!}
   
 -- we no longer need another transportation for the following rule:
 []tapp : (σ : Sub Γ Δ) (Ξ : Lift Δ)
