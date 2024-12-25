@@ -12,8 +12,8 @@ infixl 10 _,_
 
 interleaved mutual
   data Ctx : Set
-  data Ty  : Ctx → Set
-  data Sub : Ctx → Ctx → Set
+  data Ty  (Γ : Ctx) : Set
+  data Sub (Γ : Ctx) : Ctx → Set
   data Tm  : (Γ : Ctx) → Ty Γ → Set
 
   variable
@@ -41,7 +41,7 @@ interleaved mutual
     idS
       : Sub Γ Γ
     _∘_
-      : {Γ Δ Θ : Ctx}
+      : {Δ Θ : Ctx}
       → (τ : Sub Δ Θ) (σ : Sub Γ Δ)
       → Sub Γ Θ
     π₁
