@@ -24,8 +24,13 @@ record Pdc {i j} : Set (lsuc (i ⊔ j)) where
   PCtx` : Γ ≡ Γ' →  PCtx Γ ≡ PCtx Γ'
   PCtx` = cong PCtx
 
+  PLift` : {PΓ : PCtx Γ}{PΓ' : PCtx Γ'}{As : Lift Γ}{As' : Lift Γ'}
+         → (Γ≡Γ' : Γ ≡ Γ') → conv (PCtx` Γ≡Γ') PΓ ≡ PΓ' → conv (Lift` Γ≡Γ') As ≡ As'
+         → PLift PΓ As ≡ PLift PΓ' As'
+  PLift` refl = cong₂ PLift
+
   PLiftPΓ` : {PΓ : PCtx Γ}{As As' : Lift Γ} → As ≡ As' → PLift PΓ As ≡ PLift PΓ As'
-  PLiftPΓ`{PΓ = PΓ} = cong (PLift PΓ)
+  PLiftPΓ` = PLift` refl refl
 
   PTy` : {PΓ : PCtx Γ}{PΓ' : PCtx Γ'}
        → (Γ≡Γ' : Γ ≡ Γ')(PΓ≡PΓ' : conv (PCtx` Γ≡Γ') PΓ ≡ PΓ')(A≡A' : conv (Ty` Γ≡Γ') A ≡ A')
@@ -111,6 +116,39 @@ record IH-Ctx-Lift {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
     → (PΓ≡PΓ' : PΓ ≡ PΓ')(PA≡PA' : conv (PTy` refl PΓ≡PΓ' refl) PA ≡ PA')
     → PΓ ,Ctx PA ≡ PΓ' ,Ctx PA'
   ,Ctx` refl refl = refl
+
+  ++P`
+    : {PΓ PΓ' : PCtx Γ}{PΞ : PLift PΓ Ξ}{PΞ' : PLift PΓ' Ξ'}
+    → (PΓ≡PΓ' : PΓ ≡ PΓ')(Ξ≡Ξ' : Ξ ≡ Ξ') → conv (PLift` refl PΓ≡PΓ' Ξ≡Ξ') PΞ ≡ PΞ'
+    → conv (PCtx` (cong (Γ ++_) Ξ≡Ξ')) (PΓ ++P PΞ) ≡ PΓ' ++P PΞ'
+  ++P` {PΓ = PΓ} refl refl = cong (PΓ ++P_)
+
+  ,Lift`
+    : {PΓ PΓ' : PCtx Γ}{PΞ : PLift PΓ Ξ}{PΞ' : PLift PΓ' Ξ'}{PA : PTy (PΓ ++P PΞ) A}{PA' : PTy (PΓ' ++P PΞ') A'}
+    → (PΓ≡PΓ' : PΓ ≡ PΓ')(Ξ≡Ξ' : Ξ ≡ Ξ')(PΞ≡PΞ' : conv (PLift` refl PΓ≡PΓ' Ξ≡Ξ') PΞ ≡ PΞ')(A≡A' : conv (Ty` (cong (Γ ++_) Ξ≡Ξ')) A ≡ A')
+    → conv (PTy` (cong (Γ ++_) Ξ≡Ξ') (++P` PΓ≡PΓ' Ξ≡Ξ' PΞ≡PΞ') A≡A') PA ≡ PA'
+    → conv (PLift` refl PΓ≡PΓ' (,L` Ξ≡Ξ' A≡A')) (PΞ ,Lift PA) ≡ PΞ' ,Lift PA'
+  ,Lift` {PΞ = PΞ} refl refl refl refl = cong (PΞ ,Lift_)
+
+  []lP`
+    : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
+      {Pσ : PSub PΓ PΔ σ}{Pσ' : PSub PΓ PΔ σ'}
+      {PΞ PΞ' : PLift PΔ Ξ}
+    → (σ≡σ' : σ ≡ σ')(Pσ≡Pσ' : conv (PSubPΓ` refl refl σ≡σ') Pσ ≡ Pσ')
+    → PΞ ≡ PΞ'
+    → conv (PLiftPΓ` ([]lΞ` {Ξ = Ξ} σ≡σ')) ([ Pσ ]lP PΞ) ≡ [ Pσ' ]lP PΞ'
+  []lP` refl = cong₂ λ Pσ PΞ → [ Pσ ]lP PΞ
+
+  [⇈]P`
+    : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
+      {PΞ PΞ' : PLift PΔ Ξ}{Pσ Pσ' : PSub PΓ PΔ σ}
+      {PA : PTy (PΔ ++P PΞ) A}{PA' : PTy (PΔ ++P PΞ') A'}
+    → (PΞ≡PΞ' : PΞ ≡ PΞ')(Pσ≡Pσ' : Pσ ≡ Pσ')(A≡A' : A ≡ A')
+    → conv (PTy` refl (cong (PΔ ++P_) PΞ≡PΞ') A≡A') PA ≡ PA'
+    → conv (PTy` refl (cong (PΓ ++P_) ([]lP` refl Pσ≡Pσ' PΞ≡PΞ')) (cong (λ A → [ Ξ ⇈ σ ] A) A≡A'))
+           ([ PΞ ⇈ Pσ ]P PA)
+    ≡ [ PΞ' ⇈ Pσ' ]P PA'
+  [⇈]P` {PΞ = PΞ} {Pσ = Pσ} refl refl refl = cong λ PA → [ PΞ ⇈ Pσ ]P PA
   
   [_]P_
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
@@ -168,6 +206,7 @@ record IH {i j}(P : Pdc {i} {j})(indCL : IH-Ctx-Lift P) : Set (i ⊔ j) where
     PΠ[]
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ} -- {PB : PTy (PΔ ,Ctx PA) B}
       → (PΞ : PLift PΔ Ξ)(Pσ : PSub PΓ PΔ σ){PA : PTy (PΔ ++P PΞ) A}{PB : PTy ((PΔ ++P PΞ) ,Ctx PA) B}
+      ---------------------------------------------------------------------------------------------------------------------------------------------------------
       → [ PΞ ⇈ Pσ ]P PΠ PA PB ≡ PΠ ([ PΞ ⇈ Pσ ]P PA) (conv (PTy` refl (trans (cong (PΓ ++P_) (,[]lP Pσ PΞ PA)) (++P, PΓ ([ Pσ ]lP PΞ) ([ PΞ ⇈ Pσ ]P PA))) refl)
                                                            ([ (PΞ ,Lift PA) ⇈ Pσ ]P conv (PTy` refl (sym (++P, PΔ PΞ PA)) refl) PB))
     
@@ -200,6 +239,13 @@ record IH {i j}(P : Pdc {i} {j})(indCL : IH-Ctx-Lift P) : Set (i ⊔ j) where
     where
       eq : PΔ ++P ([ Pσ ]lP ∅Lift) ≡ PΔ
       eq = trans (cong (PΔ ++P_) (∅[]lP Pσ)) (++P∅ PΔ)
+  
+  PΠ`
+    : {PΓ PΓ' : PCtx Γ}{PA : PTy PΓ A}{PA' : PTy PΓ' A}{PB : PTy (PΓ ,Ctx PA) B}{PB' : PTy (PΓ' ,Ctx PA') B'}
+    → (PΓ≡PΓ' : PΓ ≡ PΓ')(PA≡PA' : conv (PTy` refl PΓ≡PΓ' refl) PA ≡ PA')
+      (B≡B' : B ≡ B')(PB≡PB' : conv (PTy` refl (,Ctx` PΓ≡PΓ' PA≡PA') B≡B') PB ≡ PB')
+    → conv (PTy` refl PΓ≡PΓ' (Π` refl B≡B')) (PΠ PA PB) ≡ PΠ PA' PB'
+  PΠ` {PA = PA} refl refl refl = cong (PΠ PA)
 
 {-
 record IHEq {i j}(P : Pdc {i} {j})(indCL : IH-Ctx-Lift P)(indP : IH P indCL) : Set (i ⊔ j) where
