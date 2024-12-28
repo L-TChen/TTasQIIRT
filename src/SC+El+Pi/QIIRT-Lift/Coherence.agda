@@ -4,35 +4,7 @@ open import Prelude
   hiding (_,_)
 
 open import SC+El+Pi.QIIRT-Lift.Base
-
--- Soundness of term substitution
-[]tm≡[]t : (Ξ : Lift Δ){A : Ty (Δ ++ Ξ)}(u : Tm (Δ ++ Ξ) A)(σ : Sub Γ Δ)
-  → [ σ ⇈ Ξ ]tm u ≡ [ σ ⇈ Ξ ]t u
-[]tm≡[]t Ξ u ∅            = refl
-[]tm≡[]t Ξ u (σ , t)      = refl
-[]tm≡[]t Ξ u wk           = refl
-[]tm≡[]t Ξ u (π₁ (π₁ σ))  = refl
-[]tm≡[]t Ξ u (π₁ (σ ⨟ τ)) = begin
-  [ π₁ (σ ⨟ τ)  ⇈ Ξ ]tm u                 ≡⟨ ≅-to-≡ (hcong ([_⇈ Ξ ]tm u) (≡-to-≅ (π₁⨟ σ τ))) ⟩
-  [ σ ⨟ π₁ τ    ⇈ Ξ ]tm u                 ≡⟨ [⨟]tm ⟩
-  [ σ ⇈ [ π₁ τ ]l Ξ ]tm [ π₁ τ ⇈ Ξ ]tm u  ≡⟨ cong ([ σ ⇈ [ π₁ τ ]l Ξ ]tm_) ([]tm≡[]t Ξ u (π₁ τ)) ⟩
-  [ σ ⇈ [ π₁ τ ]l Ξ ]tm [ π₁ τ ⇈ Ξ ]t  u  ≡⟨ []tm≡[]t ([ π₁ τ ]l Ξ) ([ π₁ τ ⇈ Ξ ]t u) σ ⟩
-  [ σ ⇈ [ π₁ τ ]l Ξ ]t  [ π₁ τ ⇈ Ξ ]t  u  ≡⟨⟩
-  [ π₁ (σ ⨟ τ) ⇈ Ξ ]t u ∎
-
-  where open ≡-Reasoning
-[]tm≡[]t Ξ u idS          = [id]tm
-[]tm≡[]t Ξ u (σ ⨟ τ) = begin
-  [ σ ⨟ τ ⇈ Ξ ]tm u                ≡⟨ [⨟]tm ⟩
-  [ σ ⇈ [ τ ]l Ξ ]tm [ τ ⇈ Ξ ]tm u ≡⟨ cong ([ σ ⇈ [ τ ]l Ξ ]tm_) ([]tm≡[]t Ξ u τ) ⟩
-  [ σ ⇈ [ τ ]l Ξ ]tm [ τ ⇈ Ξ ]t  u ≡⟨ []tm≡[]t ([ τ ]l Ξ) ([ τ ⇈ Ξ ]t u) σ ⟩
-  [ σ ⇈ [ τ ]l Ξ ]t  [ τ ⇈ Ξ ]t  u ∎
-  where open ≡-Reasoning
-[]tm≡[]t Ξ u (π₁ (σ , t)) = begin
-  [ π₁ (σ , t) ⇈ Ξ ]tm u ≡⟨ ≅-to-≡ (hcong (λ σ → [ σ ⇈ Ξ ]tm u) (≡-to-≅ π₁,)) ⟩
-  [ σ ⇈ Ξ ]tm u          ≡⟨ []tm≡[]t Ξ u σ ⟩
-  [ σ ⇈ Ξ ]t  u          ∎
-  where open ≡-Reasoning
+open import SC+El+Pi.QIIRT-Lift.Properties
 
 cong-U : Γ ≅ Δ → U {Γ} ≅ U {Δ}
 cong-U refl = refl
@@ -86,7 +58,7 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
     → (A : Ty (∅ ++ Ξ))
     → [ σ ⇈ Ξ ] A ≅ [ (∅ {Γ}) ⇈ Ξ ] A 
 
-  coh[η∅]l ∅        = refl
+  coh[η∅]l ∅       = refl
   coh[η∅]l (Ξ , A) = hcong₂ _,_ (coh[η∅]l Ξ) (coh[η∅] Ξ (coh[η∅]l Ξ) A)
 
   coh[η∅] Ξ eq U       = cong-U (hcong (Γ ++_) eq)
