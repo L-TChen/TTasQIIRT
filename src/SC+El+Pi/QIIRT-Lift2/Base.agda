@@ -4,7 +4,7 @@ open import Prelude
   hiding (_,_)
 
 infixr 20 [_]_ [_]t_ [_]tm_
-infixl 15 _↑_
+infixl 20 _↑_ _⁺
 infixl 10 _⨟_
 infixl 6 _,_
 
@@ -29,8 +29,6 @@ interleaved mutual
     _,_
       : (Γ : Ctx) (A : Ty Γ)
       → Ctx
-
-  data _ where
     U
       : Ty Γ
     Π
@@ -69,8 +67,6 @@ interleaved mutual
   pattern vs x = [ wk ]tm x
 
 {-
-  We'd like to define _[_] by overlapping patterns
-
   [ idS        ] A = A
   [ σ ⨟ τ      ] A = [ σ ] [ τ ] A
   [ π₁ (σ , t) ] A = [ σ ] A
@@ -85,21 +81,21 @@ interleaved mutual
     [⨟]   : [ σ ⨟ τ      ] A ≡ [ σ ] [ τ ] A
     [π₁,] : [ π₁ (σ , t) ] A ≡ [ σ ] A
     [π₁⨟] : [ π₁ (σ ⨟ τ) ] A ≡ [ σ ] [ π₁ τ ] A
+    -- add [ σ ⁺ ⨟ wk ] A ≡ [ wk ] [ σ ] A ?
     {-# REWRITE [id] [⨟] [π₁,] [π₁⨟] #-}
 
   _↑_
     : (σ : Sub Γ Δ) (A : Ty Δ)
     → Sub (Γ , [ σ ] A) (Δ , A)
   idS        ↑ A = idS
-  (σ ⨟ τ)    ↑ A = (σ ↑ [ τ ] A) ⨟ (τ ↑ A)
+  (σ ⨟ τ)    ↑ A = σ ↑ ([ τ ] A) ⨟ (τ ↑ A)
   π₁ (σ , t) ↑ A = σ ↑ A
-  π₁ (σ ⨟ τ) ↑ A = σ ↑ [ π₁ τ ] A ⨟ (π₁ τ ↑ A)
+  π₁ (σ ⨟ τ) ↑ A = σ ↑ ([ π₁ τ ] A) ⨟ (π₁ τ ↑ A)
   {-# CATCHALL #-}
-  σ          ↑ A = wk ⨟ σ , vz
+  σ          ↑ A = π₁ idS ⨟ σ , π₂ idS
 
 {-
-  [_]t_ : {Γ Δ : Ctx} (σ : Sub Γ Δ) {A : Ty Δ}
-    → Tm Δ A
+  [_]t_ : {Γ Δ : Ctx} (σ : Sub Γ Δ) {A : Ty Δ} (u : Tm Δ A)
     → Tm Γ ([ σ ] A)
   [ idS        ]t u = u
   [ σ ⨟ τ      ]t u = [ σ ]t [ τ ]t u
@@ -110,18 +106,17 @@ interleaved mutual
 -}
 
   postulate
-    [_]t_ : {Γ Δ : Ctx} (σ : Sub Γ Δ) {A : Ty Δ}
-      → Tm Δ A
+    [_]t_ : {Γ Δ : Ctx} (σ : Sub Γ Δ) {A : Ty Δ} (u : Tm Δ A)
       → Tm Γ ([ σ ] A)
     [id]t   : [ idS        ]t u ≡ u
     [⨟]t    : [ σ ⨟ τ      ]t u ≡ [ σ ]t [ τ ]t u
     [π₁,]t  : [ π₁ (σ , t) ]t u ≡ [ σ ]t u
     [π₁⨟]t  : [ π₁ (σ ⨟ τ) ]t u ≡ [ σ ]t [ π₁ τ ]t u
     {-# REWRITE [id]t [⨟]t [π₁,]t [π₁⨟]t #-}
-    [∅]t    : [ ∅ {Γ} ]t u ≡ [ ∅ {Γ} ]tm u
-    [,]t    : [ σ , t ]t u ≡ [ σ , t ]tm u
-    [π₁id]  : [ π₁ (idS {Γ , A}) ]t u ≡ [ π₁ (idS {Γ , A}) ]tm u
-    [π₁π₁σ] : [ π₁ (π₁ σ) ]t u ≡ [ π₁ (π₁ σ) ]tm u
+    [∅]t    : [ ∅ {Γ}            ]t u ≡ [ ∅ {Γ}     ]tm u
+    [,]t    : [ σ , t            ]t u ≡ [ σ , t     ]tm u
+    [π₁id]  : [ π₁ (idS {Γ , A}) ]t u ≡ [ π₁ idS    ]tm u
+    [π₁π₁σ] : [ π₁ (π₁ σ)        ]t u ≡ [ π₁ (π₁ σ) ]tm u
     {-# REWRITE [∅]t [,]t [π₁id] [π₁π₁σ] #-}
 
   postulate
@@ -132,8 +127,8 @@ interleaved mutual
     idS⨟_
       : (σ : Sub Γ Δ)
       → idS ⨟ σ ≡ σ
-    assocS
-      :  σ ⨟ (τ ⨟ γ) ≡ (σ ⨟ τ) ⨟ γ
+    ⨟-assoc
+      : σ ⨟ (τ ⨟ γ) ≡ (σ ⨟ τ) ⨟ γ
     π₁,
       : π₁ (σ , t) ≡ σ
     ⨟,
@@ -175,3 +170,6 @@ interleaved mutual
 -- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
 vz↦ : Tm Γ A → Sub Γ (Γ , A)
 vz↦ t = idS , t
+
+_⁺ : (σ : Sub Γ Δ) {A : Ty Δ} → Sub (Γ , [ σ ] A) (Δ , A)
+σ ⁺ = wk ⨟ σ , vz
