@@ -9,118 +9,95 @@ open import Prelude
 infixl 35 _[_] _[_]t _[_]tm
 infixl 10 _,_
 
-data Ctx : Set
-data Ty  : Ctx → Set
-data Sub : Ctx → Ctx → Set
-data Tm  : (Γ : Ctx) → Ty Γ → Set
+interleaved mutual
+  data Ctx : Set
+  data Ty  (Γ : Ctx) : Set
+  data Sub (Γ : Ctx) : Ctx → Set
+  data Tm  : (Γ : Ctx) → Ty Γ → Set
 
-postulate
-  _[_]  : ∀{Δ Γ} → Ty Γ → Sub Δ Γ → Ty Δ
- 
-variable
-  Γ Δ Θ     : Ctx
-  A B A' B' : Ty Γ
-  t u       : Tm Γ A
-  σ τ γ υ σ' τ' : Sub Δ Γ
+  postulate
+    _[_]  : ∀{Δ Γ} → Ty Γ → Sub Δ Γ → Ty Δ
 
-data Ctx where
-  ∅
-    : Ctx
-  _,_
-    : (Γ : Ctx) (A : Ty Γ)
-    → Ctx
+  variable
+    Γ Δ Θ : Ctx
+    A B C : Ty Γ
+    t u   : Tm Γ A
+    σ τ γ : Sub Δ Γ
 
-data Sub where
-  ∅
-    ---------
-    : Sub Δ ∅
-  _,_
-    : (σ : Sub Δ Γ) (t : Tm Δ (A [ σ ]))
-    ------------------------------------
-    → Sub Δ (Γ , A)
-  idS
-    : Sub Δ Δ
-  _∘_
-    : {Γ Δ Θ : Ctx}
-    → (σ : Sub Δ Γ) (δ : Sub Θ Δ)
-    → Sub Θ Γ
-  π₁
-   : (σ : Sub Δ (Γ , A))
-   → Sub Δ Γ
+  data _ where
+    ∅
+      : Ctx
+    _,_
+      : (Γ : Ctx) (A : Ty Γ)
+      → Ctx
+    ∅
+      ---------
+      : Sub Γ ∅
+    _,_
+      : (σ : Sub Γ Δ) (t : Tm Γ (A [ σ ]))
+      ------------------------------------
+      → Sub Γ (Δ , A)
+    idS
+      : Sub Γ Γ
+    _∘_
+      : {Δ Θ : Ctx}
+      → (σ : Sub Δ Θ) (δ : Sub Γ Δ)
+      → Sub Γ Θ
+    π₁
+      : (σ : Sub Γ (Δ , A))
+      → Sub Γ Δ
+    U
+      : Ty Γ
+    π₂
+      : (σ : Sub Δ (Γ , A))
+      → Tm Δ (A [ π₁ σ ])
+    _[_]tm
+      : Tm Γ A → (σ : Sub Δ Γ)
+      → Tm Δ (A [ σ ])
 
-data Ty where
-  U
-    : Ty Γ
+  postulate
+    U[]   : U [ σ ] ≡ U
+    {-# REWRITE U[] #-}
 
-postulate
-  U[]   : U [ σ ] ≡ U
-  {-# REWRITE U[] #-}
+    [id]  : A [ idS ]        ≡ A
+    [∘]   : A [ τ ∘ σ ]      ≡ A [ τ ] [ σ ]
+    [π₁,] : A [ π₁ (σ , t) ] ≡ A [ σ ]
+    [π₁∘] : A [ π₁ (τ ∘ σ) ] ≡ A [ π₁ τ ] [ σ ]
+    {-# REWRITE [id] [∘] [π₁,] [π₁∘] #-}
 
-data Tm where
-  π₂
-    : (σ : Sub Δ (Γ , A))
-    → Tm Δ (A [ π₁ σ ])
-  _[_]tm
-    : Tm Γ A → (σ : Sub Δ Γ)
-    → Tm Δ (A [ σ ])
+  _[_]t : Tm Δ A → (σ : Sub Γ Δ) → Tm Γ (A [ σ ])
+  t [ idS        ]t = t
+  t [ τ ∘ σ      ]t = t [ τ ]t [ σ ]t
+  t [ ∅          ]t = t [ ∅ ]tm
+  t [ σ , u      ]t = t [ σ , u ]tm
+  t [ π₁ (σ , u) ]t = t [ σ ]t
+  t [ π₁ (τ ∘ σ) ]t = t [ π₁ τ ]t [ σ ]t
+  {-# CATCHALL #-}
+  t [ π₁ σ       ]t = t [ π₁ σ ]tm
 
-{-
-  We'd like to define _[_] by overlapping patterns
-
-  A [ idS        ] = A
-  A [ σ ∘ τ      ] = A [ σ ] [ τ ]
-  A [ π₁ (σ , t) ] = A [ σ ]
-  A [ π₁ (τ ∘ σ) ] = A [ π₁ τ ] [ σ ]
-  U      [ σ ]     = U
-  (El t) [ σ ]     = El (t [ σ ]tm) 
--}
-postulate
-  [id]  : A [ idS ]        ≡ A
-  [∘]   : A [ τ ∘ σ ]      ≡ A [ τ ] [ σ ]
-  [π₁,] : A [ π₁ (σ , t) ] ≡ A [ σ ]
-  [π₁∘] : A [ π₁ (τ ∘ σ) ] ≡ A [ π₁ τ ] [ σ ]
-  {-# REWRITE [id] [∘] [π₁,] [π₁∘] #-}
-
-{-# TERMINATING #-}
-_[_]t : Tm Δ A → (σ : Sub Γ Δ) → Tm Γ (A [ σ ])
-t [ idS        ]t = t
-t [ τ ∘ σ      ]t = t [ τ ]t [ σ ]t
-t [ ∅          ]t = t [ ∅ ]tm
-t [ σ , u      ]t = t [ σ , u ]tm
-t [ π₁ (σ , u) ]t = t [ σ ]t
-t [ π₁ (τ ∘ σ) ]t = t [ π₁ τ ]t [ σ ]t
-{-# CATCHALL #-}
-t [ π₁ σ       ]t = t [ π₁ σ ]tm
-
-postulate
-  [id]tm : t [ idS   ]tm ≡ t
-  [∘]tm  : t [ τ ∘ σ ]tm ≡ t [ τ ]tm [ σ ]tm
-
-postulate
-  -- equality constructors
-  idS∘_ 
-    : (σ : Sub Δ Γ)
-    → idS ∘ σ ≡ σ
-  _∘idS
-    : (σ : Sub Δ Γ)
-    → σ ∘ idS ≡ σ
-  assocS
-    : (σ ∘ τ) ∘ υ ≡ σ ∘ (τ ∘ υ)
-  ,∘
-    : {A : Ty Γ}{σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}{τ : Sub Θ Δ}
-    → (_,_ {A = A} σ t) ∘ τ ≡ σ ∘ τ , t [ τ ]t
-  π₁,
-    : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
-    → π₁ (_,_ {A = A} σ t) ≡ σ
-  π₂,
-    : {σ : Sub Δ Γ}{t : Tm Δ (A [ σ ])}
-    → π₂ (_,_ {A = A} σ t) ≡ t
-  η∅
-    : {σ : Sub Δ ∅}
-    → σ ≡ ∅
-  η,
-    : {σ : Sub Δ (Γ , A)}
-    → σ ≡ π₁ σ , π₂ σ
+  postulate
+    [id]tm : t [ idS   ]tm ≡ t
+    [∘]tm  : t [ τ ∘ σ ]tm ≡ t [ τ ]tm [ σ ]tm
+    -- equality constructors
+    idS∘_ 
+      : (σ : Sub Δ Γ)
+      → idS ∘ σ ≡ σ
+    _∘idS
+      : (σ : Sub Δ Γ)
+      → σ ∘ idS ≡ σ
+    assocS
+      : (σ ∘ τ) ∘ γ ≡ σ ∘ (τ ∘ γ)
+    ,∘
+      : (σ , t) ∘ τ ≡ σ ∘ τ , t [ τ ]t
+    π₁,
+      : π₁ (σ , t) ≡ σ
+    π₂,
+      : π₂ (σ , t) ≡ t
+    η∅
+      : {σ : Sub Δ ∅}
+      → σ ≡ ∅
+    η,
+      : σ ≡ π₁ σ , π₂ σ
 
 -- derived computation rules on composition
 π₁∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
@@ -131,7 +108,6 @@ postulate
     π₁ τ ∘ σ                      ∎
   where open ≡-Reasoning
 
--- {-# TERMINATING #-} -- the size of σ is decreasing
 []tm≡[]t : {Γ Δ : Ctx} {A : Ty Δ} (t : Tm Δ A) (σ : Sub Γ Δ) → t [ σ ]tm ≡ t [ σ ]t 
 []tm≡[]t t ∅       = refl
 []tm≡[]t t (_ , _) = refl
@@ -167,11 +143,11 @@ postulate
 π₂∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
   → π₂ (τ ∘ σ) ≡ π₂ τ [ σ ]tm
 π₂∘ {Γ} {Δ} {Θ} {A} σ τ = ≅-to-≡ $ begin
-  π₂ (τ ∘ σ)                         ≅⟨ HEq.cong (λ ν → π₂ (ν ∘ σ)) (≡-to-≅ η,) ⟩
-  π₂ (((π₁ τ) , (π₂ τ)) ∘ σ)         ≅⟨ HEq.cong π₂ (≡-to-≅ ,∘) ⟩
-  π₂ (((π₁ τ ∘ σ) , (π₂ τ [ σ ]t)))  ≡⟨ cong (λ t → π₂ (_,_ {A = A} (π₁ τ ∘ σ) t)) (sym ([]tm≡[]t (π₂ τ) σ)) ⟩
+  π₂ (τ ∘ σ)                         ≅⟨ hcong (λ ν → π₂ (ν ∘ σ)) (≡-to-≅ η,) ⟩
+  π₂ (((π₁ τ) , (π₂ τ)) ∘ σ)         ≅⟨ hcong π₂ (≡-to-≅ ,∘) ⟩
+  π₂ (((π₁ τ ∘ σ) , (π₂ τ [ σ ]t)))  ≡⟨ cong (λ t → π₂ (_,_ {A = A} (π₁ τ ∘ σ) t)) ([]tm≡[]t (π₂ τ) σ) ⟨
   π₂ (((π₁ τ ∘ σ) , (π₂ τ [ σ ]tm))) ≡⟨ π₂, ⟩
-  π₂ τ  [ σ ]tm ∎
+  π₂ τ  [ σ ]tm                      ∎
   where open ≅-Reasoning
 
 -- We will need to prove coherence for the following with another rewriting relation:

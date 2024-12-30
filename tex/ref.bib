@@ -1,0 +1,297 @@
+
+
+@misc{Kaposi2023,
+  author =        {Kaposi, Ambrus},
+  howpublished =  {Presented at TYPES'23 meeting},
+  title =         {Towards quotient inductive-inductive-recursive types},
+  year =          {2023},
+  url =           {https://types2023.webs.upv.es/slides/S13/TYPES2023-
+                  Kaposi.pdf},
+}
+
+@unpublished{Kaposi2024a,
+  author =        {Kaposi, Ambrus and Xie, Szumi},
+  title =         {Type theory in type theory with single substitutions},
+  year =          {2024},
+}
+
+@inproceedings{Cockx2020,
+  address =       {Dagstuhl, Germany},
+  author =        {Cockx, Jesper},
+  booktitle =     {25th International Conference on Types for Proofs and
+                   Programs (TYPES 2019)},
+  editor =        {Bezem, Marc and Mahboubi, Assia},
+  pages =         {2:1--2:27},
+  publisher =     {Schloss Dagstuhl--Leibniz-Zentrum f{\"u}r Informatik},
+  series =        {Leibniz International Proceedings in Informatics
+                   (LIPIcs)},
+  title =         {Type theory unchained: Extending {Agda} with
+                   user-defined rewrite rules},
+  volume =        {175},
+  year =          {2020},
+  annote =        {Keywords: Dependent types, Proof assistants, Rewrite
+                   rules, Higher-order rewriting, Agda},
+  doi =           {10.4230/LIPIcs.TYPES.2019.2},
+  isbn =          {978-3-95977-158-0},
+  issn =          {1868-8969},
+  urn =           {urn:nbn:de:0030-drops-130666},
+}
+
+@inproceedings{Cockx2014,
+  author =        {Cockx, Jesper and Piessens, Frank and
+                   Devriese, Dominique},
+  booktitle =     {Programming Languages and Systems (ESOP)},
+  editor =        {Shao, Zhong},
+  pages =         {87--106},
+  publisher =     {Springer, Berlin, Heidelberg},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Overlapping and order-independent patterns},
+  volume =        {8410},
+  year =          {2014},
+  doi =           {10.1007/978-3-642-54833-8_6},
+}
+
+@article{Cockx2021,
+  address =       {New York, NY, USA},
+  author =        {Cockx, Jesper and Tabareau, Nicolas and
+                   Winterhalter, Th{\'e}o},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  publisher =     {Association for Computing Machinery},
+  title =         {The taming of the {Rew}: a type theory with
+                   computational assumptions},
+  volume =        {5},
+  year =          {2021},
+  abstract =      {Dependently typed programming languages and proof
+                   assistants such as Agda and Coq rely on computation
+                   to automatically simplify expressions during type
+                   checking. To overcome the lack of certain programming
+                   primitives or logical principles in those systems, it
+                   is common to appeal to axioms to postulate their
+                   existence. However, one can only postulate the bare
+                   existence of an axiom, not its computational
+                   behaviour. Instead, users are forced to postulate
+                   equality proofs and appeal to them explicitly to
+                   simplify expressions, making axioms dramatically more
+                   complicated to work with than built-in primitives. On
+                   the other hand, the equality reflection rule from
+                   extensional type theory solves these problems by
+                   collapsing computation and equality, at the cost of
+                   having no practical type checking algorithm. This
+                   paper introduces Rewriting Type Theory (RTT), a type
+                   theory where it is possible to add computational
+                   assumptions in the form of rewrite rules. Rewrite
+                   rules go beyond the computational capabilities of
+                   intensional type theory, but in contrast to
+                   extensional type theory, they are applied
+                   automatically so type checking does not require input
+                   from the user. To ensure type soundness of RTT---as
+                   well as effective type checking---we provide a
+                   framework where confluence of user-defined rewrite
+                   rules can be checked modularly and automatically, and
+                   where adding new rewrite rules is guaranteed to
+                   preserve subject reduction. The properties of RTT
+                   have been formally verified using the MetaCoq
+                   framework and an implementation of rewrite rules is
+                   already available in the Agda proof assistant.},
+  doi =           {10.1145/3434341},
+}
+
+@inproceedings{Altenkirch2016a,
+  address =       {New York, NY, USA},
+  author =        {Altenkirch, Thorsten and Kaposi, Ambrus},
+  booktitle =     {Proceedings of the 43rd Annual ACM SIGPLAN-SIGACT
+                   Symposium on Principles of Programming Languages},
+  pages =         {18--29},
+  publisher =     {Association for Computing Machinery},
+  series =        {POPL '16},
+  title =         {Type theory in type theory using quotient inductive
+                   types},
+  year =          {2016},
+  abstract =      {We present an internal formalisation of a type heory
+                   with dependent types in Type Theory using a special
+                   case of higher inductive types from Homotopy Type
+                   Theory which we call quotient inductive types (QITs).
+                   Our formalisation of type theory avoids referring to
+                   preterms or a typability relation but defines
+                   directly well typed objects by an inductive
+                   definition. We use the elimination principle to
+                   define the set-theoretic and logical predicate
+                   interpretation. The work has been formalized using
+                   the Agda system extended with QITs using postulates.},
+  doi =           {10.1145/2837614.2837638},
+  isbn =          {9781450335492},
+}
+
+@article{Kaposi2019,
+  address =       {New York, NY, USA},
+  author =        {Kaposi, Ambrus and Kov{\'a}cs, Andr{\'a}s and
+                   Altenkirch, Thorsten},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  pages =         {2:1--2:24},
+  publisher =     {Association for Computing Machinery},
+  title =         {Constructing quotient inductive-inductive types},
+  volume =        {3},
+  year =          {2019},
+  abstract =      {Quotient inductive-inductive types (QIITs) generalise
+                   inductive types in two ways: a QIIT can have more
+                   than one sort and the later sorts can be indexed over
+                   the previous ones. In addition, equality constructors
+                   are also allowed. We work in a setting with
+                   uniqueness of identity proofs, hence we use the term
+                   QIIT instead of higher inductive-inductive type. An
+                   example of a QIIT is the well-typed (intrinsic)
+                   syntax of type theory quotiented by conversion. In
+                   this paper first we specify finitary QIITs using a
+                   domain-specific type theory which we call the theory
+                   of signatures. The syntax of the theory of signatures
+                   is given by a QIIT as well. Then, using this syntax
+                   we show that all specified QIITs exist and they have
+                   a dependent elimination principle. We also show that
+                   algebras of a signature form a category with families
+                   (CwF) and use the internal language of this CwF to
+                   show that dependent elimination is equivalent to
+                   initiality.},
+  doi =           {10.1145/3290315},
+}
+
+@article{Pujet2022,
+  address =       {New York, NY, USA},
+  author =        {Pujet, Lo{\"{\i}c} and Tabareau, Nicolas},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  publisher =     {Association for Computing Machinery},
+  title =         {Observational equality: now for good},
+  volume =        {6},
+  year =          {2022},
+  abstract =      {Building on the recent extension of dependent type
+                   theory with a universe of definitionally
+                   proof-irrelevant types, we introduce TTobs, a new
+                   type theory based on the setoidal interpretation of
+                   dependent type theory. TTobs equips every type with
+                   an identity relation that satisfies function
+                   extensionality, propositional extensionality, and
+                   definitional uniqueness of identity proofs (UIP).
+                   Compared to other existing proposals to enrich
+                   dependent type theory with these principles, our
+                   theory features a notion of reduction that is
+                   normalizing and provides an algorithmic canonicity
+                   result, which we formally prove in Agda using the
+                   logical relation framework of Abel et al. Our paper
+                   thoroughly develops the meta-theoretical properties
+                   of TTobs, such as the decidability of the conversion
+                   and of the type checking, as well as consistency. We
+                   also explain how to extend our theory with quotient
+                   types, and we introduce a setoidal version of Swan's
+                   Id types that turn it into a proper extension of MLTT
+                   with inductive equality.},
+  doi =           {10.1145/3498693},
+}
+
+@inproceedings{Pujet2024,
+  author =        {Pujet, Lo{\"\i}c and Tabareau, Nicolas},
+  booktitle =     {Programming Languages and Systems (ESOP)},
+  editor =        {Weirich, Stephanie},
+  pages =         {275--301},
+  publisher =     {Springer, Cham},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Observational equality meets {CIC}},
+  volume =        {14576},
+  year =          {2024},
+  doi =           {10.1007/978-3-031-57262-3_12},
+}
+
+@article{Dybjer2003,
+  author =        {Dybjer, Peter and Setzer, Anton},
+  journal =       {Annals of Pure and Applied Logic},
+  number =        {1},
+  pages =         {1--47},
+  title =         {Induction--recursion and initial algebras},
+  volume =        {124},
+  year =          {2003},
+  abstract =      {Induction--recursion is a powerful definition method
+                   in intuitionistic type theory. It extends
+                   (generalized) inductive definitions and allows us to
+                   define all standard sets of Martin-L{\"o}f type
+                   theory as well as a large collection of commonly
+                   occurring inductive data structures. It also includes
+                   a variety of universes which are constructive
+                   analogues of inaccessibles and other large cardinals
+                   below the first Mahlo cardinal. In this article we
+                   give a new compact formalization of
+                   inductive--recursive definitions by modeling them as
+                   initial algebras in slice categories. We give generic
+                   formation, introduction, elimination, and equality
+                   rules generalizing the usual rules of type theory.
+                   Moreover, we prove that the elimination and equality
+                   rules are equivalent to the principle of the
+                   existence of initial algebras for certain
+                   endofunctors. We also show the equivalence of the
+                   current formulation with the formulation of
+                   induction--recursion as a reflection principle given
+                   in Dybjer and Setzer (Lecture Notes in Comput. Sci.
+                   2183 (2001) 93). Finally, we discuss two
+                   type-theoretic analogues of Mahlo cardinals in set
+                   theory: an external Mahlo universe which is defined
+                   by induction--recursion and captured by our
+                   formalization, and an internal Mahlo universe, which
+                   goes beyond induction--recursion. We show that the
+                   external Mahlo universe, and therefore also the
+                   theory of inductive--recursive definitions, have
+                   proof-theoretical strength of at least Rathjen's
+                   theory KPM.},
+  doi =           {10.1016/S0168-0072(02)00096-9},
+  issn =          {0168-0072},
+}
+
+@article{Dybjer2000,
+  author =        {Dybjer, Peter},
+  journal =       {Journal of Symbolic Logic},
+  number =        {2},
+  pages =         {525--549},
+  title =         {A general formulation of simultaneous
+                   inductive-recursive definitions in type theory},
+  volume =        {65},
+  year =          {2000},
+  doi =           {10.2307/2586554},
+}
+
+@inproceedings{Dybjer1999,
+  address =       {Berlin, Heidelberg},
+  author =        {Dybjer, Peter and Setzer, Anton},
+  booktitle =     {Typed Lambda Calculi and Applications},
+  editor =        {Girard, Jean-Yves},
+  pages =         {129--146},
+  publisher =     {Springer Berlin Heidelberg},
+  series =        {Lecture Notes in Computer Science},
+  title =         {A finite axiomatization of inductive-recursive
+                   definitions},
+  volume =        {1581},
+  year =          {1999},
+  abstract =      {Induction-recursion is a schema which formalizes the
+                   principles for introducing new sets in Martin-L{\"o}f
+                   's type theory. It states that we may inductively
+                   define a set while simultaneously defining a function
+                   from this set into an arbitrary type by structural
+                   recursion. This extends the notion of an inductively
+                   defined set substantially and allows us to introduce
+                   universes and higher order universes (but not a Mahlo
+                   universe). In this article we give a finite
+                   axiomatization of inductive-recursive definitions. We
+                   prove consistency by constructing a set-theoretic
+                   model which makes use of one Mahlo cardinal.},
+  doi =           {10.1007/3-540-48959-2_11},
+  isbn =          {978-3-540-48959-7},
+}
+
+@misc{Coquand2013,
+  author =        {Coquand, Thierry},
+  title =         {Presheaf model of type theory},
+  year =          {2013},
+  url =           {https://www.cse.chalmers.se/~coquand/presheaf.pdf},
+}
+

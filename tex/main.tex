@@ -1,0 +1,150 @@
+
+\documentclass[a4paper,UKenglish,numberwithinsect,cleveref,thm-restate]{lipics-v2021}
+%This is a template for producing LIPIcs articles. 
+%See lipics-v2021-authors-guidelines.pdf for further information.
+%for A4 paper format use option "a4paper", for US-letter use option "letterpaper"
+%for british hyphenation rules use option "UKenglish", for american hyphenation rules use option "USenglish"
+%for section-numbered lemmas etc., use "numberwithinsect"
+%for enabling cleveref support, use "cleveref"
+%for enabling autoref support, use "autoref"
+%for anonymousing the authors (e.g. for double-blind review), add "anonymous"
+%for enabling thm-restate support, use "thm-restate"
+
+%\pdfoutput=1 %uncomment to ensure pdflatex processing (mandatatory e.g. to submit to arXiv)
+%\hideLIPIcs  %uncomment to remove references to LIPIcs series (logo, DOI, ...), e.g. when preparing a pre-final version to be uploaded to arXiv or another public repository
+
+%\graphicspath{{./graphics/}}%helpful if your graphic files are in another directory
+
+\bibliographystyle{plainurl}% the mandatory bibstyle
+\title{Type theory as a quotient inductive-recursive type}
+\author{Liang-Ting Chen\footnote{Corresponding author; authors are listed in alphabetical order.}}{Institute of Information Science, Academia Sinica, Taiwan \and \url{http://l-tchen.github.io}}{ltchen@iis.sinica.edu.tw}{https://orcid.org/0000-0002-3250-1331}{[funding]}
+\author{Tzu-Chun Tsai}{Institute of Information Science, Academia Sinica, Taiwan}{gene0905@icloud.com}{}{Supported by the National Science and Technology Council of Taiwan under grant NSTC 112-2221-E-001-003-MY3.}
+\authorrunning{L.-T.~Chen and T.-C.~Tsai}
+\Copyright{Liang-Ting Chen and Tzu-Chun Tsai}
+\ccsdesc[500]{Theory of computation~Type theory}
+\keywords{inductive-inductive types, quotient inductive types, inductive-recursive types, substitution calculus, category with families}
+\relatedversion{} %optional, e.g. full version hosted on arXiv, HAL, or other respository/website
+%\relatedversiondetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93]{Classification (e.g. Full Version, Extended Version, Previous Version}{URL to related version} %linktext and cite are optional
+
+\supplement{The formal implementation is hosted at \url{https://github.com/genetsai95/DTT-QIIRT}.}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
+%\supplementdetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93, subcategory={Description, Subcategory}, swhid={Software Heritage Identifier}]{General Classification (e.g. Software, Dataset, Model, ...)}{URL to related version} %linktext, cite, and subcategory are optional
+\acknowledgements{We'd like to thank Fredrik Nordvall Forsberg, Hsiang-Shang Ko.}%optional
+
+\nolinenumbers %uncomment to disable line numbering
+
+%Editor-only macros:: begin (do not touch as author)%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\EventEditors{John Q. Open and Joan R. Access}
+\EventNoEds{2}
+\EventLongTitle{42nd Conference on Very Important Topics (CVIT 2016)}
+\EventShortTitle{CVIT 2016}
+\EventAcronym{CVIT}
+\EventYear{2016}
+\EventDate{December 24--27, 2016}
+\EventLocation{Little Whinging, United Kingdom}
+\EventLogo{}
+\SeriesVolume{42}
+\ArticleNo{23}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\input{macro.tex}
+
+\begin{document}
+
+\maketitle
+
+%TODO mandatory: add short abstract of the document
+\begin{abstract}
+  Type theory can be formally defined in a type theory as a quotient inductive-inductive type (QIIT for short), but terms are littered with explicit transports along equality constructors, typically omitted and retouched in presentation, in proofs or even in the definition of type theory.
+  In this paper, we argue that QIITs are sufficient but infeasible to define type theories in practice and propose to use quotient inductive-inductive-recursive types (\emph{QIIRT}s for short) and definitions by overlapping patterns altogether, to reduce the use of transports.
+  As a case study, we investigate (parallel) substitution calculus and type theory with Coquand universes and $\Pi$-types as QIIRTs and prove meta-theoretic properties and compare our definitions with typical definitions using QIITs.
+\end{abstract}
+
+\section{Introduction} \label{sec:intro}
+Points to elaborate:
+\begin{enumerate}
+  \item QIITs are littered with transports, causing too much pains while formalising a type theory.
+  \item Rewrite rules are popular to make structural rules definitional but requires efforts to justify meta-theoretic properties in general.
+  \item Further, the confluence check adopted by \Agda is based on complete development and requires one-step parallel reductions to have a confluent term, making a definition more complicated than necessary.
+  \item Moreover, the use of rewrite rules is typically \emph{not} presented and discussed in literature. We are ignoring the elephant in the room.
+  \item Instead, definitions by overlapping patterns (in theory) requires strong normalisation and local confluence, making definitions simpler to design.
+  \item The rules for type substitutions are \emph{structural} shared with other type theories based on parallel substitution (in particular cwf).
+  
+\end{enumerate}
+
+
+\paragraph*{Contributions}
+\begin{itemize}
+  \item Exploring the potential use of quotient inductive-inductive-recursive types and definitions by overlapping patterns.
+    In particular, we give
+    \begin{itemize}
+      \item a definition of parallel substitution calculus in type theory, whose type substitution rules are definitional and confluent, using quotient inductive-inductive-recursive types and definitions by overlapping patterns;
+      \item a definition of type theory with Coquand universes and $\Pi$-types in type theory, extending the above substitution calculus.
+    \end{itemize}
+  \item Comparison with other definitions using quotient inductive-inductive types.
+\end{itemize}
+
+\paragraph*{Plan of the paper}
+\subsection{Related work}
+\paragraph*{Formalisation of type theory in type theory}
+\cite{Danielsson2006}
+\paragraph*{Single substitution calculus}
+\cite{Kaposi2023,Kaposi2024a}
+\paragraph*{Schemata of inductive types}
+\cite{Altenkirch2016a,Kaposi2019}
+
+\section{Metatheory and formalisation}
+\cite{Pujet2022,Pujet2024}
+
+\subsection{Inductive-recursive types}
+\cite{Dybjer2003,Dybjer2000,Dybjer1999}
+\subsection{Definitions by overlapping patterns}
+\cite{Cockx2014}
+\subsection{Rewrite rules}
+\cite{Cockx2020,Cockx2021}
+\paragraph*{Local confluence}
+\paragraph*{Strong normalisation}
+
+
+\section{Type theories as quotient inductive-inductive-recursive types} \label{sec:QIIRTs}
+\subsection{Parallel substitution calculus} \label{subsec:SC}
+\subsection{... with Coquand universes} \label{subsec:SC+U}
+\cite{Coquand2013}
+\subsection{... and \texorpdfstring{$\Pi$}{Π}-types} \label{subsec:SC+U+Pi}
+
+\section{Metatheoretic properties}
+
+\section{Future work}
+
+\paragraph*{Type theory in (observational) type theory}
+
+\paragraph*{Formalising definitions by overlapping patterns}
+
+\paragraph*{A general schema of quotient inductive-inductive-recursive types}
+
+\IfFileExists{./reference.bib}{
+  \bibliography{reference}
+}{
+  \bibliography{ref}
+}
+
+\appendix
+
+\begin{conjecture}\label{testenv-conjecture}
+\end{conjecture}
+
+\begin{claim}\label{testenv-claim}
+\end{claim}
+
+\begin{claim*}\label{testenv-claim2}
+\end{claim*}
+
+\begin{claimproof}
+\end{claimproof}
+\begin{lstlisting}[caption={Formal definition in \Agda},label=list:8-6,captionpos=t,float,abovecaptionskip=-\medskipamount]
+for i:=maxint to 0 do 
+begin 
+    j:=square(root(i));
+end;
+\end{lstlisting}
+
+\end{document}
