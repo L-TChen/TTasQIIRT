@@ -10,7 +10,7 @@ infixl 20 _↑_ _⁺
 infixl 10 _⨟_
 infixl 6 _,_
 
-private variable
+variable
   i j k : ℕ
 
 interleaved mutual
