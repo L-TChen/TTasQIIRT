@@ -23,12 +23,18 @@ coh[⨟,]
   → [ σ ⨟ (τ , t) ] B ≅ [ (σ ⨟ τ) , [ σ ]t t ] B
 coh[⨟,] σ τ A t U       = refl
 coh[⨟,] σ τ A t (Π B C) = hcong₂ Π
-  (coh[⨟,] σ τ A t B)
-  {!!}
+  (coh[⨟,] σ τ A t B) $
+  begin
+    [ σ ↑ ([ τ , t ] B) ] [ (τ , t) ⁺ ] C ≅⟨ {!!} ⟩
+    [ σ ⁺ ]               [ (τ , t) ⁺ ] C ≅⟨ refl ⟩
+    [ σ ⁺ ⨟ (τ , t) ⁺      ] C            ≅⟨ {!!} ⟩
+    [ (σ ⨟ (τ , t)) ⁺      ] C            ≅⟨ {!!} ⟩
+    [ (σ ⨟ τ , [ σ ]t t) ⁺ ] C            ∎
+  where open ≅-Reasoning
 coh[⨟,] σ τ A t (El u)  = hcong El $ begin
   [ σ ⨟ (τ , t) ]t u            ≅⟨ refl ⟩
-  [ σ ]t  [ τ , t ]tm u         ≅⟨ HEq.sym (≡-to-≅ $ []tm≡[]t _ _) ⟩
-  [ σ ]tm [ τ , t ]tm u         ≅⟨ HEq.sym (≡-to-≅ $ [⨟]tm) ⟩
+  [ σ ]t  [ τ , t ]tm u         ≅⟨ ≡-to-≅ $ []tm≡[]t _ _ ⟨
+  [ σ ]tm [ τ , t ]tm u         ≅⟨ ≡-to-≅ $ [⨟]tm ⟨
   [ σ ⨟ (τ , t) ]tm u           ≅⟨ hcong (λ σ → [ σ ]tm u) (≡-to-≅ ⨟,) ⟩
   [ σ ⨟ τ , [ σ ]t t ]tm u      ∎
   where open ≅-Reasoning
@@ -44,11 +50,14 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
 
   coh[η∅] U       = refl
   coh[η∅] (Π A B) = hcong₂ Π
-    (coh[η∅] A)
-    {!!}
-    -- (icong₂ (λ σ → Sub (Γ , [ σ ] A) (∅ , A)) {i = σ} η∅ [_]_ (cong-↑ σ ∅ η∅) (refl {x = B}))
+    (coh[η∅] A) $ begin
+      [ σ ↑ A ] B ≅⟨ {!!} ⟩
+      [ σ ⁺   ] B ≅⟨ {!!} ⟩
+      [ ∅ ⁺   ] B ≡⟨ {!!} ⟩
+      [ ∅ ↑ A ] B ∎
+    where open ≅-Reasoning
   coh[η∅]  (El u)  = hcong El $ begin
-    [ σ ]t  u ≅⟨ ≡-to-≅ (sym ([]tm≡[]t u σ)) ⟩
+    [ σ ]t  u ≅⟨ ≡-to-≅ ([]tm≡[]t u σ) ⟨
     [ σ ]tm u ≅⟨ hcong ([_]tm u) (≡-to-≅ η∅) ⟩
     [ ∅ ]tm u ∎
 
@@ -59,11 +68,14 @@ module _ {Γ Δ : Ctx} {A : Ty Δ} (σ : Sub Γ (Δ , A)) where
     → [ σ ] B ≅ [ π₁ σ , π₂ σ ] B
   coh[η,] U       = refl
   coh[η,] (Π B C) = hcong₂ Π
-    (coh[η,] B)
-    {!!}
-    -- (icong₂ (λ σ → Sub (Γ , [ σ ] B) (Δ , A , B)) {i = σ} η, [_]_ (cong-↑ σ (π₁ σ , π₂ σ) η,) (refl {x = C}))
+    (coh[η,] B) $ begin
+    [ σ ↑ B ] C             ≅⟨ {!!} ⟩
+    [ σ ⁺ ] C               ≅⟨ {!!} ⟩
+    [ (π₁ σ , π₂ σ) ⁺ ] C   ≡⟨ {!!} ⟩
+    [ (π₁ σ , π₂ σ) ↑ B ] C ∎
+    where open ≅-Reasoning
   coh[η,] (El u)  = hcong El $ begin
-    [ σ ]t            u ≅⟨ ≡-to-≅ (sym ([]tm≡[]t u σ)) ⟩
+    [ σ ]t            u ≅⟨ ≡-to-≅ ([]tm≡[]t u σ) ⟨
     [ σ ]tm           u ≅⟨ hcong ([_]tm u) (≡-to-≅ η,) ⟩
     [ π₁ σ , π₂ σ ]tm u ∎
 
@@ -73,9 +85,9 @@ module _ {Γ Δ : Ctx} {A : Ty Δ} {t u : Tm Δ A} {σ γ : Sub Γ Δ} where
   coh[σ]tm
     : σ ≅ γ → t ≅ u → [ σ ]t t ≅ [ γ ]t u
   coh[σ]tm σ=γ t=u = begin
-    [ σ ]t  t ≅⟨ ≡-to-≅ (sym ([]tm≡[]t t σ)) ⟩
+    [ σ ]t  t ≅⟨ ≡-to-≅ ([]tm≡[]t t σ) ⟨
     [ σ ]tm t ≅⟨ hcong₂ (λ σ t → [ σ ]tm t) σ=γ t=u ⟩
-    [ γ ]tm u ≅⟨ ≡-to-≅ ([]tm≡[]t u γ) ⟩
+    [ γ ]tm u ≡⟨ []tm≡[]t u γ ⟩
     [ γ ]t  u ∎
 
 coh↑ : (σ τ : Sub Γ Δ) (A : Ty Δ)
@@ -84,6 +96,6 @@ coh↑ : (σ τ : Sub Γ Δ) (A : Ty Δ)
 coh↑ σ τ A σ=τ = begin
   σ ↑ A ≅⟨ ≡-to-≅ $ ↑=⁺ A σ ⟩
   σ ⁺   ≅⟨ {!!} ⟩
-  τ ⁺   ≅⟨ ≡-to-≅ $ ↑=⁺ A τ ⟨
+  τ ⁺   ≡⟨ ↑=⁺ A τ ⟨
   τ ↑ A ∎
   where open ≅-Reasoning

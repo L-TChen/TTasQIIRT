@@ -82,8 +82,8 @@ id↑ Γ A = begin
   (wk ⨟ σ) ⨟ τ , vz                                    ≅⟨ hcong₂ {A = Sub (Γ , [ σ ] [ τ ] A) Δ}
                                                                 {B = λ σ' → Tm (Γ , [ σ ] [ τ ] A) ([ σ' ] [ τ ] A)}
                                                                 (λ σ t → _,_ (σ ⨟ τ) {A} t)
-                                                                (≡-to-≅ (sym (⁺⨟wk σ {[ τ ] A}))) (HEq.sym ([⁺]vz σ ([ τ ] A))) ⟩
-  (_⁺ σ {[ τ ] A} ⨟ wk) ⨟ τ , [ _⁺ σ {[ τ ] A} ]t vz   ≅⟨ hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ (sym ⨟-assoc)) refl ⟩
+                                                                (≡-to-≅ (⁺⨟wk σ {[ τ ] A})) ([⁺]vz σ ([ τ ] A)) ⟨
+  (_⁺ σ {[ τ ] A} ⨟ wk) ⨟ τ , [ _⁺ σ {[ τ ] A} ]t vz   ≅⟨ hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ ⨟-assoc) refl ⟨
   σ ⁺ ⨟ (wk ⨟ τ) , [ _⁺ σ {[ τ ] A} ]t vz              ≡⟨ ⨟, ⟨
   σ ⁺ ⨟ ((wk ⨟ τ) , vz)                                ≡⟨⟩
   σ ⁺ ⨟ τ ⁺                                            ∎
@@ -116,12 +116,12 @@ id↑ Γ A = begin
                                                          (λ σ t → _,_ (σ ⨟ π₁ τ) {A} t)
                                                          (≡-to-≅ (⁺⨟wk σ))
                                                          ([⁺]vz σ ([ π₁ τ ] A)) ⟩
-  (wk ⨟ σ) ⨟ π₁ τ  , vz                         ≡⟨ ≅-to-≡ (hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ (sym ⨟-assoc)) refl) ⟩
+  (wk ⨟ σ) ⨟ π₁ τ  , vz                         ≡⟨ ≅-to-≡ (hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ ⨟-assoc) refl) ⟨
    wk ⨟ (σ ⨟ π₁ τ) , vz                         ≡⟨ ≅-to-≡ (hcong₂ {A = Sub Γ Δ}
                                                                  {B = λ σ' → Tm (Γ , [ σ ] [ π₁ τ ] A) ([ wk ] [ σ' ] A)}
                                                                  (λ σ t → _,_ (wk ⨟ σ) {A} t)
-                                                                 (≡-to-≅ (sym (π₁⨟ σ τ)))
-                                                                 refl) ⟩
+                                                                 (≡-to-≅ (π₁⨟ σ τ))
+                                                                 refl) ⟨
    wk ⨟ π₁ (σ ⨟ τ) , vz                         ∎
   where open ≅-Reasoning
 

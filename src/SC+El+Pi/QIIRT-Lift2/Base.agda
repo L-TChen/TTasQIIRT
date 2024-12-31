@@ -54,6 +54,7 @@ interleaved mutual
       : (σ : Sub Γ (Δ , A))
       → Tm Γ ([ π₁ σ ] A)
     [_]tm_
+
       : {Γ Δ : Ctx} (σ : Sub Γ Δ) {A : Ty Δ}
       → Tm Δ A
       → Tm Γ ([ σ ] A)
@@ -84,6 +85,9 @@ interleaved mutual
     -- add [ σ ⁺ ⨟ wk ] A ≡ [ wk ] [ σ ] A ?
     {-# REWRITE [id] [⨟] [π₁,] [π₁⨟] #-}
 
+  _⁺ : (σ : Sub Γ Δ) {A : Ty Δ} → Sub (Γ , [ σ ] A) (Δ , A)
+  σ ⁺ = wk ⨟ σ , vz
+
   _↑_
     : (σ : Sub Γ Δ) (A : Ty Δ)
     → Sub (Γ , [ σ ] A) (Δ , A)
@@ -92,7 +96,7 @@ interleaved mutual
   π₁ (σ , t) ↑ A = σ ↑ A
   π₁ (σ ⨟ τ) ↑ A = σ ↑ ([ π₁ τ ] A) ⨟ (π₁ τ ↑ A)
   {-# CATCHALL #-}
-  σ          ↑ A = π₁ idS ⨟ σ , π₂ idS
+  σ          ↑ A = σ ⁺
 
 {-
   [_]t_ : {Γ Δ : Ctx} (σ : Sub Γ Δ) {A : Ty Δ} (u : Tm Δ A)
@@ -170,6 +174,3 @@ interleaved mutual
 -- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
 vz↦ : Tm Γ A → Sub Γ (Γ , A)
 vz↦ t = idS , t
-
-_⁺ : (σ : Sub Γ Δ) {A : Ty Δ} → Sub (Γ , [ σ ] A) (Δ , A)
-σ ⁺ = wk ⨟ σ , vz
