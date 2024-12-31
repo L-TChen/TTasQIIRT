@@ -68,12 +68,10 @@ interleaved mutual
   _[_]t : Tm Δ A → (σ : Sub Γ Δ) → Tm Γ (A [ σ ])
   t [ idS        ]t = t
   t [ τ ∘ σ      ]t = t [ τ ]t [ σ ]t
-  t [ ∅          ]t = t [ ∅ ]tm
-  t [ σ , u      ]t = t [ σ , u ]tm
   t [ π₁ (σ , u) ]t = t [ σ ]t
   t [ π₁ (τ ∘ σ) ]t = t [ π₁ τ ]t [ σ ]t
   {-# CATCHALL #-}
-  t [ π₁ σ       ]t = t [ π₁ σ ]tm
+  t [ σ       ]t = t [ σ ]tm
 
   postulate
     [id]tm : t [ idS   ]tm ≡ t

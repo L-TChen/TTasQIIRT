@@ -11,12 +11,11 @@
   
 \mathchardef\mhyphen="2D % hyphen in mathmode
 
-\newcommand{\Type}{\mathsf{Ty}}
-\newcommand{\Term}{\mathsf{Tm}}
-\newcommand{\Cxt}{\mathsf{Cxt}}
-
-\newcommand{\Sub}[2]{\mathsf{Sub}_{\Sigma}(#1,#2)}
-\newcommand{\Ren}[2]{\mathsf{Ren}(#1, #2)}
+\newcommand{\Ty}{\ensuremath{\mathsf{Ty}}\xspace}
+\newcommand{\Tm}{\ensuremath{\mathsf{Tm}}\xspace}
+\newcommand{\Ctx}{\ensuremath{\mathsf{Ctx}}\xspace}
+\newcommand{\Sub}{\ensuremath{\mathsf{Sub}}\xspace}
+\newcommand{\Set}{\ensuremath{\mathsf{Set}}\xspace}
 
 \definecolor{dRed}{rgb}{0.45, 0.0, 0.0}
 \definecolor{dBlue}{rgb}{0.0, 0.0, 0.65}
@@ -33,6 +32,7 @@
 %%%% MACROS FOR NOTATION %%%%
 % Use these for any notation where there are multiple options.
 
+\newcommand{\blank}{\mathord{\hspace{1pt}\text{--}\hspace{1pt}}} 
 %%% Definitional equality (used infix) %%%
 \newcommand{\jdeq}{\equiv}      % An equality judgment
 \let\judgeq\jdeq
@@ -381,9 +381,12 @@
 
 %%% Macros for the formal type theory
 \newcommand{\emptyctx}{\ensuremath{\cdot}}
-\newcommand{\production}{\vcentcolon\vcentcolon=}
-\newcommand{\conv}{\downarrow}
+\newcommand{\emptysub}{\ensuremath{\cdot}}
 \newcommand{\ctx}{\ensuremath{\mathsf{ctx}}}
+\newcommand{\idS}{\ensuremath{\mathsf{id}}} 
+
+
+\newcommand{\production}{\vcentcolon\vcentcolon=}
 \newcommand{\wfctx}[1]{#1\ \ctx}
 \newcommand{\oftp}[3]{#1 \vdash #2 : #3}
 \newcommand{\jdeqtp}[4]{#1 \vdash #2 \jdeq #3 : #4}

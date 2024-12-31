@@ -17,7 +17,7 @@
 
 \bibliographystyle{plainurl}% the mandatory bibstyle
 \title{Type theory as a quotient inductive-recursive type}
-\author{Liang-Ting Chen\footnote{Corresponding author; authors are listed in alphabetical order.}}{Institute of Information Science, Academia Sinica, Taiwan \and \url{http://l-tchen.github.io}}{ltchen@iis.sinica.edu.tw}{https://orcid.org/0000-0002-3250-1331}{[funding]}
+\author{Liang-Ting Chen\footnote{Corresponding author; authors are listed in alphabetical order.}}{Institute of Information Science, Academia Sinica, Taiwan \and \url{http://l-tchen.github.io}}{ltchen@iis.sinica.edu.tw}{https://orcid.org/0000-0002-3250-1331}{Supported by the National Science and Technology Council of Taiwan under grant NSTC [funding]}
 \author{Tzu-Chun Tsai}{Institute of Information Science, Academia Sinica, Taiwan}{gene0905@icloud.com}{}{Supported by the National Science and Technology Council of Taiwan under grant NSTC 112-2221-E-001-003-MY3.}
 \authorrunning{L.-T.~Chen and T.-C.~Tsai}
 \Copyright{Liang-Ting Chen and Tzu-Chun Tsai}
@@ -26,7 +26,7 @@
 \relatedversion{} %optional, e.g. full version hosted on arXiv, HAL, or other respository/website
 %\relatedversiondetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93]{Classification (e.g. Full Version, Extended Version, Previous Version}{URL to related version} %linktext and cite are optional
 
-\supplement{The formal implementation is hosted at \url{https://github.com/genetsai95/DTT-QIIRT}.}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
+\supplement{The formal development is hosted at the GitHub repository: \url{https://github.com/genetsai95/DTT-QIIRT}.}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
 %\supplementdetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93, subcategory={Description, Subcategory}, swhid={Software Heritage Identifier}]{General Classification (e.g. Software, Dataset, Model, ...)}{URL to related version} %linktext, cite, and subcategory are optional
 \acknowledgements{We'd like to thank Fredrik Nordvall Forsberg, Hsiang-Shang Ko.}%optional
 
@@ -75,15 +75,16 @@ Points to elaborate:
 \paragraph*{Contributions}
 \begin{itemize}
   \item Exploring the potential use of quotient inductive-inductive-recursive types and definitions by overlapping patterns.
-    In particular, we give
+    In particular, we give in a type theory:
     \begin{itemize}
-      \item a definition of parallel substitution calculus in type theory, whose type substitution rules are definitional and confluent, using quotient inductive-inductive-recursive types and definitions by overlapping patterns;
-      \item a definition of type theory with Coquand universes and $\Pi$-types in type theory, extending the above substitution calculus.
+      \item a definition of parallel substitution calculus;
+      \item a definition of type theory with Coquand universes and $\Pi$-types,
     \end{itemize}
+   whose type substitution rules are definitional using quotient inductive-inductive-recursive types and definitions by overlapping patterns.
   \item Comparison with other definitions using quotient inductive-inductive types.
 \end{itemize}
 
-\paragraph*{Plan of the paper}
+\subsection{Plan of the paper}
 \subsection{Related work}
 \paragraph*{Formalisation of type theory in type theory}
 \cite{Danielsson2006}
@@ -91,12 +92,12 @@ Points to elaborate:
 \cite{Kaposi2023,Kaposi2024a}
 \paragraph*{Schemata of inductive types}
 \cite{Altenkirch2016a,Kaposi2019}
+\cite{Dybjer2003,Dybjer2000,Dybjer1999}
 
 \section{Metatheory and formalisation}
-\cite{Pujet2022,Pujet2024}
+\cite{Pujet2022,Pujet2024,Pujet2022a}
 
-\subsection{Inductive-recursive types}
-\cite{Dybjer2003,Dybjer2000,Dybjer1999}
+\subsection{Quotient inductive-inductive-recursive types}
 \subsection{Definitions by overlapping patterns}
 \cite{Cockx2014}
 \subsection{Rewrite rules}
@@ -107,6 +108,36 @@ Points to elaborate:
 
 \section{Type theories as quotient inductive-inductive-recursive types} \label{sec:QIIRTs}
 \subsection{Parallel substitution calculus} \label{subsec:SC}
+\[
+\begin{alignedat}{10}
+  \Ctx   & : \Set                   \\
+  \Ty    & : \Ctx \to \Set          \\
+  \Sub   & : \Ctx \to \Ctx \to \Set \\
+  \Tm    & : (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Set \\
+  \emptyctx & : \Ctx \\
+  \blank,\blank & : (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Ctx \\
+  [\blank]_{\Ty}\blank &: \Sub\,\Gamma\,\Delta \to \Ty\,\Delta \to \Ty\,\Gamma \\
+  \emptysub & : \Sub\,\Gamma\,\emptyctx \\
+  \blank,\blank & : \Sub\,\Gamma\,\Delta \to \Tm\,\Gamma\,([ \sigma ] A) \to \Sub\,\Gamma,(\Delta, A) \\
+  \idS_{\blank} & : (\Gamma : \Ctx) \to \Sub\,\Gamma\,\Gamma \\
+  \blank;\blank & : \Sub\,\Gamma\,\Delta \to \Sub\,\Delta\,\Theta \to \Sub\,\Gamma\,\Theta \\
+  \pi_1 & : \Sub\,\Gamma\,(\Delta, A) \to \Sub\,\Gamma\,\Delta \\
+  \pi_2 & : (\sigma : \Sub\,\Gamma\,(\Delta, A)) \to \Tm\,\Gamma\,([ \sigma ] A) \\
+  [\blank]_{\Tm}\blank & : (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Delta\,A \to \Tm\,\Gamma\,([\sigma] A) \\
+  [\blank] \blank & : (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Delta\,A \to \Tm\,\Gamma\,([\sigma] A)
+\end{alignedat}
+\qquad
+\begin{alignedat}{10}
+          & [ \idS ]_{\Ty}\,A           && = A \\
+          & [ \idS ]_{\Tm}\,t           && = t \\
+          & [ \sigma ; \tau ]_{\Ty}\,A  && = [ \sigma ]_{\Ty}\,[ \tau ]_{\Ty} A \\
+          & [ \sigma ; \tau ]_{\Tm}\,t  && = [ \sigma ]_{\Tm}\,[ \tau ]_{\Tm} t \\
+          & [ \sigma ]_{\Tm}\,t         && = [ \sigma ]\,t & \text{otherwise}  \\
+  [\idS]t & : [\,\idS\,]\,t             && = t \\
+  [;]t    & : [\,\sigma ; \tau\,]\,t    && = [ \sigma ]\,[ \tau ]\,t \\
+\end{alignedat}
+\]
+
 \subsection{... with Coquand universes} \label{subsec:SC+U}
 \cite{Coquand2013}
 \subsection{... and \texorpdfstring{$\Pi$}{Π}-types} \label{subsec:SC+U+Pi}

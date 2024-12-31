@@ -55,9 +55,6 @@ interleaved mutual
     [π₁⨟] : [ π₁ (σ ⨟ τ) ] A ≡ [ σ ] [ π₁ τ ] A
     {-# REWRITE [id] [⨟] [π₁,] [π₁⨟] #-}
 
-  vz↦ : Tm Γ A → Sub Γ (Γ , A)
-  vz↦ t = idS , t
-
   data _ where
     U
       : (i : ℕ)
@@ -88,6 +85,9 @@ interleaved mutual
   pattern vz   = π₂ idS
   pattern vs x = [ wk ]tm x
 
+  _⁺ : (σ : Sub Γ Δ) {A : Ty Δ i} → Sub (Γ , [ σ ] A) (Δ , A)
+  σ ⁺ = wk ⨟ σ , vz
+
   _↑_
     : (σ : Sub Γ Δ) (A : Ty Δ i)
     → Sub (Γ , [ σ ] A) (Δ , A)
@@ -96,7 +96,7 @@ interleaved mutual
   π₁ (σ , t) ↑ A = σ ↑ A
   π₁ (σ ⨟ τ) ↑ A = σ ↑ ([ π₁ τ ] A) ⨟ (π₁ τ ↑ A)
   {-# CATCHALL #-}
-  σ          ↑ A = π₁ idS ⨟ σ , π₂ idS
+  σ          ↑ A = σ ⁺
 
 -- {-
 --   [_]t_ : {Γ Δ : Ctx} (σ : Sub Γ Δ) {A : Ty Δ} (u : Tm Δ A)
@@ -176,13 +176,13 @@ interleaved mutual
       : Tm Γ A
       → Tm Γ (Lift A)
     []mk
-      : [ σ ]t (mk t) ≡ mk ([ σ ]t t)
+      : [ σ ]tm (mk t) ≡ mk ([ σ ]tm t)
     un
       : Tm Γ (Lift A)
       → Tm Γ A
     []un
       : (σ : Sub Γ Δ) (A : Ty Δ i) (t : Tm Δ (Lift A))
-      → [ σ ]t un t ≡ un ([ σ ]t t)
+      → [ σ ]tm un t ≡ un ([ σ ]tm t)
     Liftβ
       : un (mk u) ≡ u
     Liftη
@@ -191,12 +191,11 @@ interleaved mutual
       : [ σ ] Π A B ≡ Π ([ σ ] A) ([ σ ↑ A ] B)
     {-# REWRITE Π[] #-}
     []ƛ
-      : [ σ ]t (ƛ t) ≡ ƛ ([ σ ↑ _ ]t t )
+      : [ σ ]tm (ƛ t) ≡ ƛ ([ σ ↑ _ ]tm t )
     Πβ
       : app (ƛ t) ≡ t
     Πη
       : ƛ (app t) ≡ t
 
-
-_⁺ : (σ : Sub Γ Δ) {A : Ty Δ i} → Sub (Γ , [ σ ] A) (Δ , A)
-σ ⁺ = wk ⨟ σ , vz
+vz↦ : Tm Γ A → Sub Γ (Γ , A)
+vz↦ t = idS , t
