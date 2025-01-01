@@ -1,101 +1,16 @@
 
 
-@misc{Kaposi2023,
-  author =        {Kaposi, Ambrus},
-  howpublished =  {Presented at TYPES'23 meeting},
-  title =         {Towards quotient inductive-inductive-recursive types},
-  year =          {2023},
-  url =           {https://types2023.webs.upv.es/slides/S13/TYPES2023-
-                  Kaposi.pdf},
-}
-
-@unpublished{Kaposi2024a,
-  author =        {Kaposi, Ambrus and Xie, Szumi},
-  title =         {Type theory in type theory with single substitutions},
-  year =          {2024},
-}
-
-@inproceedings{Cockx2020,
-  address =       {Dagstuhl, Germany},
-  author =        {Cockx, Jesper},
-  booktitle =     {25th International Conference on Types for Proofs and
-                   Programs (TYPES 2019)},
-  editor =        {Bezem, Marc and Mahboubi, Assia},
-  pages =         {2:1--2:27},
-  publisher =     {Schloss Dagstuhl--Leibniz-Zentrum f{\"u}r Informatik},
-  series =        {Leibniz International Proceedings in Informatics
-                   (LIPIcs)},
-  title =         {Type theory unchained: Extending {Agda} with
-                   user-defined rewrite rules},
-  volume =        {175},
-  year =          {2020},
-  annote =        {Keywords: Dependent types, Proof assistants, Rewrite
-                   rules, Higher-order rewriting, Agda},
-  doi =           {10.4230/LIPIcs.TYPES.2019.2},
-  isbn =          {978-3-95977-158-0},
-  issn =          {1868-8969},
-  urn =           {urn:nbn:de:0030-drops-130666},
-}
-
-@inproceedings{Cockx2014,
-  author =        {Cockx, Jesper and Piessens, Frank and
-                   Devriese, Dominique},
-  booktitle =     {Programming Languages and Systems (ESOP)},
-  editor =        {Shao, Zhong},
-  pages =         {87--106},
+@inproceedings{Danielsson2006,
+  author =        {Danielsson, Nils Anders},
+  booktitle =     {Types for Proofs and Programs (TYPES 2006)},
+  editor =        {Altenkirch, Thorsten and McBride, Conor},
   publisher =     {Springer, Berlin, Heidelberg},
   series =        {Lecture Notes in Computer Science},
-  title =         {Overlapping and order-independent patterns},
-  volume =        {8410},
-  year =          {2014},
-  doi =           {10.1007/978-3-642-54833-8_6},
-}
-
-@article{Cockx2021,
-  address =       {New York, NY, USA},
-  author =        {Cockx, Jesper and Tabareau, Nicolas and
-                   Winterhalter, Th{\'e}o},
-  journal =       {Proceedings of the ACM on Programming Languages},
-  month =         jan,
-  number =        {POPL},
-  publisher =     {Association for Computing Machinery},
-  title =         {The taming of the {Rew}: a type theory with
-                   computational assumptions},
-  volume =        {5},
-  year =          {2021},
-  abstract =      {Dependently typed programming languages and proof
-                   assistants such as Agda and Coq rely on computation
-                   to automatically simplify expressions during type
-                   checking. To overcome the lack of certain programming
-                   primitives or logical principles in those systems, it
-                   is common to appeal to axioms to postulate their
-                   existence. However, one can only postulate the bare
-                   existence of an axiom, not its computational
-                   behaviour. Instead, users are forced to postulate
-                   equality proofs and appeal to them explicitly to
-                   simplify expressions, making axioms dramatically more
-                   complicated to work with than built-in primitives. On
-                   the other hand, the equality reflection rule from
-                   extensional type theory solves these problems by
-                   collapsing computation and equality, at the cost of
-                   having no practical type checking algorithm. This
-                   paper introduces Rewriting Type Theory (RTT), a type
-                   theory where it is possible to add computational
-                   assumptions in the form of rewrite rules. Rewrite
-                   rules go beyond the computational capabilities of
-                   intensional type theory, but in contrast to
-                   extensional type theory, they are applied
-                   automatically so type checking does not require input
-                   from the user. To ensure type soundness of RTT---as
-                   well as effective type checking---we provide a
-                   framework where confluence of user-defined rewrite
-                   rules can be checked modularly and automatically, and
-                   where adding new rewrite rules is guaranteed to
-                   preserve subject reduction. The properties of RTT
-                   have been formally verified using the MetaCoq
-                   framework and an implementation of rewrite rules is
-                   already available in the Agda proof assistant.},
-  doi =           {10.1145/3434341},
+  title =         {A formalisation of a dependently typed language as an
+                   inductive-recursive family},
+  volume =        {4502},
+  year =          {2007},
+  doi =           {10.1007/978-3-540-74464-1_7},
 }
 
 @inproceedings{Altenkirch2016a,
@@ -122,6 +37,34 @@
                    the Agda system extended with QITs using postulates.},
   doi =           {10.1145/2837614.2837638},
   isbn =          {9781450335492},
+}
+
+@article{Altenkirch2017,
+  author =        {Altenkirch, Thorsten and Kaposi, Ambrus},
+  journal =       {Logical Methods in Computer Science},
+  month =         oct,
+  number =        {4},
+  title =         {Normalisation by evaluation for type theory, in type
+                   theory},
+  volume =        {13},
+  year =          {2017},
+  doi =           {10.23638/LMCS-13(4:1)2017},
+}
+
+@misc{Kaposi2023,
+  author =        {Kaposi, Ambrus},
+  howpublished =  {Presented at TYPES'23 meeting},
+  title =         {Towards quotient inductive-inductive-recursive types},
+  year =          {2023},
+  url =           {https://types2023.webs.upv.es/slides/S13/TYPES2023-
+                  Kaposi.pdf},
+}
+
+@unpublished{Kaposi2024a,
+  author =        {Kaposi, Ambrus and Xie, Szumi},
+  note =          {Submitted to CPP 2025},
+  title =         {Type theory in type theory with single substitutions},
+  year =          {2024},
 }
 
 @article{Kaposi2019,
@@ -156,53 +99,6 @@
                    show that dependent elimination is equivalent to
                    initiality.},
   doi =           {10.1145/3290315},
-}
-
-@article{Pujet2022,
-  address =       {New York, NY, USA},
-  author =        {Pujet, Lo{\"{\i}c} and Tabareau, Nicolas},
-  journal =       {Proceedings of the ACM on Programming Languages},
-  month =         jan,
-  number =        {POPL},
-  publisher =     {Association for Computing Machinery},
-  title =         {Observational equality: now for good},
-  volume =        {6},
-  year =          {2022},
-  abstract =      {Building on the recent extension of dependent type
-                   theory with a universe of definitionally
-                   proof-irrelevant types, we introduce TTobs, a new
-                   type theory based on the setoidal interpretation of
-                   dependent type theory. TTobs equips every type with
-                   an identity relation that satisfies function
-                   extensionality, propositional extensionality, and
-                   definitional uniqueness of identity proofs (UIP).
-                   Compared to other existing proposals to enrich
-                   dependent type theory with these principles, our
-                   theory features a notion of reduction that is
-                   normalizing and provides an algorithmic canonicity
-                   result, which we formally prove in Agda using the
-                   logical relation framework of Abel et al. Our paper
-                   thoroughly develops the meta-theoretical properties
-                   of TTobs, such as the decidability of the conversion
-                   and of the type checking, as well as consistency. We
-                   also explain how to extend our theory with quotient
-                   types, and we introduce a setoidal version of Swan's
-                   Id types that turn it into a proper extension of MLTT
-                   with inductive equality.},
-  doi =           {10.1145/3498693},
-}
-
-@inproceedings{Pujet2024,
-  author =        {Pujet, Lo{\"\i}c and Tabareau, Nicolas},
-  booktitle =     {Programming Languages and Systems (ESOP)},
-  editor =        {Weirich, Stephanie},
-  pages =         {275--301},
-  publisher =     {Springer, Cham},
-  series =        {Lecture Notes in Computer Science},
-  title =         {Observational equality meets {CIC}},
-  volume =        {14576},
-  year =          {2024},
-  doi =           {10.1007/978-3-031-57262-3_12},
 }
 
 @article{Dybjer2003,
@@ -286,6 +182,145 @@
                    model which makes use of one Mahlo cardinal.},
   doi =           {10.1007/3-540-48959-2_11},
   isbn =          {978-3-540-48959-7},
+}
+
+@article{Pujet2022,
+  address =       {New York, NY, USA},
+  author =        {Pujet, Lo{\"{\i}c} and Tabareau, Nicolas},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  publisher =     {Association for Computing Machinery},
+  title =         {Observational equality: now for good},
+  volume =        {6},
+  year =          {2022},
+  abstract =      {Building on the recent extension of dependent type
+                   theory with a universe of definitionally
+                   proof-irrelevant types, we introduce TTobs, a new
+                   type theory based on the setoidal interpretation of
+                   dependent type theory. TTobs equips every type with
+                   an identity relation that satisfies function
+                   extensionality, propositional extensionality, and
+                   definitional uniqueness of identity proofs (UIP).
+                   Compared to other existing proposals to enrich
+                   dependent type theory with these principles, our
+                   theory features a notion of reduction that is
+                   normalizing and provides an algorithmic canonicity
+                   result, which we formally prove in Agda using the
+                   logical relation framework of Abel et al. Our paper
+                   thoroughly develops the meta-theoretical properties
+                   of TTobs, such as the decidability of the conversion
+                   and of the type checking, as well as consistency. We
+                   also explain how to extend our theory with quotient
+                   types, and we introduce a setoidal version of Swan's
+                   Id types that turn it into a proper extension of MLTT
+                   with inductive equality.},
+  doi =           {10.1145/3498693},
+}
+
+@inproceedings{Pujet2024,
+  author =        {Pujet, Lo{\"\i}c and Tabareau, Nicolas},
+  booktitle =     {Programming Languages and Systems (ESOP)},
+  editor =        {Weirich, Stephanie},
+  pages =         {275--301},
+  publisher =     {Springer, Cham},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Observational equality meets {CIC}},
+  volume =        {14576},
+  year =          {2024},
+  doi =           {10.1007/978-3-031-57262-3_12},
+}
+
+@phdthesis{Pujet2022a,
+  author =        {Pujet, Lo{\"{\i}c}},
+  school =        {Nantes University},
+  title =         {Computing with Extensionality Principles in Type
+                   Theory},
+  year =          {2022},
+  url =           {https://inria.hal.science/tel-03923041/},
+}
+
+@inproceedings{Cockx2014,
+  author =        {Cockx, Jesper and Piessens, Frank and
+                   Devriese, Dominique},
+  booktitle =     {Programming Languages and Systems (ESOP)},
+  editor =        {Shao, Zhong},
+  pages =         {87--106},
+  publisher =     {Springer, Berlin, Heidelberg},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Overlapping and order-independent patterns},
+  volume =        {8410},
+  year =          {2014},
+  doi =           {10.1007/978-3-642-54833-8_6},
+}
+
+@inproceedings{Cockx2020,
+  address =       {Dagstuhl, Germany},
+  author =        {Cockx, Jesper},
+  booktitle =     {25th International Conference on Types for Proofs and
+                   Programs (TYPES 2019)},
+  editor =        {Bezem, Marc and Mahboubi, Assia},
+  pages =         {2:1--2:27},
+  publisher =     {Schloss Dagstuhl--Leibniz-Zentrum f{\"u}r Informatik},
+  series =        {Leibniz International Proceedings in Informatics
+                   (LIPIcs)},
+  title =         {Type theory unchained: Extending {Agda} with
+                   user-defined rewrite rules},
+  volume =        {175},
+  year =          {2020},
+  annote =        {Keywords: Dependent types, Proof assistants, Rewrite
+                   rules, Higher-order rewriting, Agda},
+  doi =           {10.4230/LIPIcs.TYPES.2019.2},
+  isbn =          {978-3-95977-158-0},
+  issn =          {1868-8969},
+  urn =           {urn:nbn:de:0030-drops-130666},
+}
+
+@article{Cockx2021,
+  address =       {New York, NY, USA},
+  author =        {Cockx, Jesper and Tabareau, Nicolas and
+                   Winterhalter, Th{\'e}o},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  publisher =     {Association for Computing Machinery},
+  title =         {The taming of the {Rew}: a type theory with
+                   computational assumptions},
+  volume =        {5},
+  year =          {2021},
+  abstract =      {Dependently typed programming languages and proof
+                   assistants such as Agda and Coq rely on computation
+                   to automatically simplify expressions during type
+                   checking. To overcome the lack of certain programming
+                   primitives or logical principles in those systems, it
+                   is common to appeal to axioms to postulate their
+                   existence. However, one can only postulate the bare
+                   existence of an axiom, not its computational
+                   behaviour. Instead, users are forced to postulate
+                   equality proofs and appeal to them explicitly to
+                   simplify expressions, making axioms dramatically more
+                   complicated to work with than built-in primitives. On
+                   the other hand, the equality reflection rule from
+                   extensional type theory solves these problems by
+                   collapsing computation and equality, at the cost of
+                   having no practical type checking algorithm. This
+                   paper introduces Rewriting Type Theory (RTT), a type
+                   theory where it is possible to add computational
+                   assumptions in the form of rewrite rules. Rewrite
+                   rules go beyond the computational capabilities of
+                   intensional type theory, but in contrast to
+                   extensional type theory, they are applied
+                   automatically so type checking does not require input
+                   from the user. To ensure type soundness of RTT---as
+                   well as effective type checking---we provide a
+                   framework where confluence of user-defined rewrite
+                   rules can be checked modularly and automatically, and
+                   where adding new rewrite rules is guaranteed to
+                   preserve subject reduction. The properties of RTT
+                   have been formally verified using the MetaCoq
+                   framework and an implementation of rewrite rules is
+                   already available in the Agda proof assistant.},
+  doi =           {10.1145/3434341},
 }
 
 @misc{Coquand2013,

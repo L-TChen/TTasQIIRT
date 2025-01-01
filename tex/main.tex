@@ -15,9 +15,10 @@
 
 %\graphicspath{{./graphics/}}%helpful if your graphic files are in another directory
 
-\bibliographystyle{plainurl}% the mandatory bibstyle
+\bibliographystyle{plainurl}
+
 \title{Type theory as a quotient inductive-recursive type}
-\author{Liang-Ting Chen\footnote{Corresponding author; authors are listed in alphabetical order.}}{Institute of Information Science, Academia Sinica, Taiwan \and \url{http://l-tchen.github.io}}{ltchen@iis.sinica.edu.tw}{https://orcid.org/0000-0002-3250-1331}{Supported by the National Science and Technology Council of Taiwan under grant NSTC [funding]}
+\author{Liang-Ting Chen\footnote{Corresponding author; authors are listed in alphabetical order.}}{Institute of Information Science, Academia Sinica, Taiwan \and \url{http://l-tchen.github.io}}{ltchen@iis.sinica.edu.tw}{https://orcid.org/0000-0002-3250-1331}{Supported by the National Science and Technology Council of Taiwan under grant NSTC [funding].}
 \author{Tzu-Chun Tsai}{Institute of Information Science, Academia Sinica, Taiwan}{gene0905@icloud.com}{}{Supported by the National Science and Technology Council of Taiwan under grant NSTC 112-2221-E-001-003-MY3.}
 \authorrunning{L.-T.~Chen and T.-C.~Tsai}
 \Copyright{Liang-Ting Chen and Tzu-Chun Tsai}
@@ -28,7 +29,7 @@
 
 \supplement{The formal development is hosted at the GitHub repository: \url{https://github.com/genetsai95/DTT-QIIRT}.}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
 %\supplementdetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93, subcategory={Description, Subcategory}, swhid={Software Heritage Identifier}]{General Classification (e.g. Software, Dataset, Model, ...)}{URL to related version} %linktext, cite, and subcategory are optional
-\acknowledgements{We'd like to thank Fredrik Nordvall Forsberg, Hsiang-Shang Ko.}%optional
+\acknowledgements{We'd like to thank Fredrik Nordvall Forsberg, Hsiang-Shang Ko, and Meven Lennon-Bertrand.}%optional
 
 \nolinenumbers %uncomment to disable line numbering
 
@@ -52,11 +53,10 @@
 
 \maketitle
 
-%TODO mandatory: add short abstract of the document
 \begin{abstract}
-  Type theory can be formally defined in a type theory as a quotient inductive-inductive type (QIIT for short), but terms are littered with explicit transports along equality constructors, typically omitted and retouched in presentation, in proofs or even in the definition of type theory.
-  In this paper, we argue that QIITs are sufficient but infeasible to define type theories in practice and propose to use quotient inductive-inductive-recursive types (\emph{QIIRT}s for short) and definitions by overlapping patterns altogether, to reduce the use of transports.
-  As a case study, we investigate (parallel) substitution calculus and type theory with Coquand universes and $\Pi$-types as QIIRTs and prove meta-theoretic properties and compare our definitions with typical definitions using QIITs.
+  Type theory can be defined in a type theory as a quotient inductive-inductive type, but terms are painstakingly littered with explicit coercions, i.e.\ \transp's, along equality constructors, typically omitted in presentation for clarity.
+  In this paper, we aim for shortening the gap between formal and informal definitions of type theory in type theory using quotient inductive-inductive-recursive-recursive types and definitions by overlapping patterns altogether, reducing the use of \transp's.
+  As a case study, we investigate (parallel) substitution calculus and type theory with Coquand universes and $\Pi$-types as QIIRTs with meta-theoretic properties proved and compare our definitions with quotient inductive-inductive definitions.
 \end{abstract}
 
 \section{Introduction} \label{sec:intro}
@@ -74,7 +74,7 @@ Points to elaborate:
 
 \paragraph*{Contributions}
 \begin{itemize}
-  \item Exploring the potential use of quotient inductive-inductive-recursive types and definitions by overlapping patterns.
+  \item Exploration of the use of quotient inductive-inductive-recursive types and definitions by overlapping patterns.
     In particular, we give in a type theory:
     \begin{itemize}
       \item a definition of parallel substitution calculus;
@@ -84,32 +84,37 @@ Points to elaborate:
   \item Comparison with other definitions using quotient inductive-inductive types.
 \end{itemize}
 
+
 \subsection{Plan of the paper}
 \subsection{Related work}
 \paragraph*{Formalisation of type theory in type theory}
-\cite{Danielsson2006}
+\cite{Danielsson2006,Altenkirch2016a}
+\cite{Altenkirch2017}
+
 \paragraph*{Single substitution calculus}
 \cite{Kaposi2023,Kaposi2024a}
 \paragraph*{Schemata of inductive types}
-\cite{Altenkirch2016a,Kaposi2019}
+\cite{Kaposi2019}
 \cite{Dybjer2003,Dybjer2000,Dybjer1999}
 
 \section{Metatheory and formalisation}
 \cite{Pujet2022,Pujet2024,Pujet2022a}
 
-\subsection{Quotient inductive-inductive-recursive types}
 \subsection{Definitions by overlapping patterns}
-\cite{Cockx2014}
-\subsection{Rewrite rules}
+\cite{Cockx2014,Altenkirch2016a}
+\subsection{Quotient inductive-inductive-recursive types}
+\subsection{Definitions by rewrite rules}
 \cite{Cockx2020,Cockx2021}
+
+Unfortunately, neither general schemata of quotient inductive-inductive-recursive types nor definitions by overlapping patterns have been developed or implemented in any existing proof assistant.
+
 \paragraph*{Local confluence}
 \paragraph*{Strong normalisation}
 
 
 \section{Type theories as quotient inductive-inductive-recursive types} \label{sec:QIIRTs}
 \subsection{Parallel substitution calculus} \label{subsec:SC}
-\[
-\begin{alignedat}{10}
+\begin{alignat*}{3}
   \Ctx   & : \Set                   \\
   \Ty    & : \Ctx \to \Set          \\
   \Sub   & : \Ctx \to \Ctx \to \Set \\
@@ -117,29 +122,42 @@ Points to elaborate:
   \emptyctx & : \Ctx \\
   \blank,\blank & : (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Ctx \\
   [\blank]_{\Ty}\blank &: \Sub\,\Gamma\,\Delta \to \Ty\,\Delta \to \Ty\,\Gamma \\
+  U & : \Ty \\
   \emptysub & : \Sub\,\Gamma\,\emptyctx \\
-  \blank,\blank & : \Sub\,\Gamma\,\Delta \to \Tm\,\Gamma\,([ \sigma ] A) \to \Sub\,\Gamma,(\Delta, A) \\
+  \blank,\blank & : (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Gamma\,([ \sigma ]_{\Ty} A) \to \Sub\,\Gamma,(\Delta, A) \\
   \idS_{\blank} & : (\Gamma : \Ctx) \to \Sub\,\Gamma\,\Gamma \\
   \blank;\blank & : \Sub\,\Gamma\,\Delta \to \Sub\,\Delta\,\Theta \to \Sub\,\Gamma\,\Theta \\
   \pi_1 & : \Sub\,\Gamma\,(\Delta, A) \to \Sub\,\Gamma\,\Delta \\
-  \pi_2 & : (\sigma : \Sub\,\Gamma\,(\Delta, A)) \to \Tm\,\Gamma\,([ \sigma ] A) \\
-  [\blank]_{\Tm}\blank & : (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Delta\,A \to \Tm\,\Gamma\,([\sigma] A) \\
-  [\blank] \blank & : (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Delta\,A \to \Tm\,\Gamma\,([\sigma] A)
-\end{alignedat}
-\qquad
-\begin{alignedat}{10}
-          & [ \idS ]_{\Ty}\,A           && = A \\
-          & [ \idS ]_{\Tm}\,t           && = t \\
-          & [ \sigma ; \tau ]_{\Ty}\,A  && = [ \sigma ]_{\Ty}\,[ \tau ]_{\Ty} A \\
-          & [ \sigma ; \tau ]_{\Tm}\,t  && = [ \sigma ]_{\Tm}\,[ \tau ]_{\Tm} t \\
-          & [ \sigma ]_{\Tm}\,t         && = [ \sigma ]\,t & \text{otherwise}  \\
-  [\idS]t & : [\,\idS\,]\,t             && = t \\
-  [;]t    & : [\,\sigma ; \tau\,]\,t    && = [ \sigma ]\,[ \tau ]\,t \\
-\end{alignedat}
-\]
+  \pi_2 & : (\sigma : \Sub\,\Gamma\,(\Delta, A)) \to \Tm\,\Gamma\,([ \sigma ]_{\Ty}\, A) \\
+  [\blank] \blank & : (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Delta\,A \to \Tm\,\Gamma\,([\sigma]_{\Ty}\, A)
+\end{alignat*}
+
+\begin{alignat*}{3}
+[ \idS ]_{\Ty}\,A          & = A \\
+[ \sigma ; \tau ]_{\Ty}\,A & = [ \sigma ]_{\Ty}\;[ \tau ]_{\Ty}\;A \\
+[ \sigma ]_{\Ty}\,U & = U
+\end{alignat*}
+
+\begin{alignat*}{3}
+  [\idS]t         & : {[\,\idS\,]\,t}          && =_{\Tm\,\Gamma\,A} && t \\
+  [;]t            & : {[\,\sigma ; \tau\,]\,t} && =_{\Tm\,\Gamma\,[\sigma ; \tau] A} && {[ \sigma ]\,[ \tau ]\,t} \\
+  \mathsf{idr}    & : {\sigma ; \idS_{\Delta}} && =_{\Sub\,\Gamma\,\Delta} && {\sigma} \\
+  \mathsf{idl}    & : {\idS_{\Gamma} ; \sigma} && =_{\Sub\,\Gamma\,\Delta} && {\sigma} \\
+  ;\text{-}\mathsf{assoc} & : (\sigma ; \tau) ; \gamma && =_{\Sub\,\Gamma\,\Theta} &&  \sigma ; (\tau ; \gamma) \\
+  \mathsf{concat} & : \sigma ; (\tau , t)      && =_{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau) , [ \sigma ] t \\
+  \emptyctx\eta   & : \sigma                   && =_{\Sub\,\Gamma\,\emptyctx} & \emptysub \\
+  \pi\eta         & : \sigma                   && =_{\Sub\,\Gamma\,(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma) \\
+  \pi_1\beta      & : \pi_1(\sigma , t)        && =_{\Sub\,\Gamma,\Delta} &&  \sigma \\
+  \pi_2\beta      & : \pi_2(\sigma , t)        && =_{\Tm\,\Gamma\, A} &&  t
+\end{alignat*}
 
 \subsection{... with Coquand universes} \label{subsec:SC+U}
 \cite{Coquand2013}
+\begin{alignat*}{3}
+[ \idS ]_{\Tm}\,t          & = t \\
+[ \sigma ; \tau ]_{\Tm}\,t & = [ \sigma ]_{\Tm}\;[ \tau ]_{\Tm}\;t \\
+[ \sigma ]_{\Tm}\,t        & = [ \sigma ]\,t & \text{otherwise}  \\
+\end{alignat*}
 \subsection{... and \texorpdfstring{$\Pi$}{Π}-types} \label{subsec:SC+U+Pi}
 
 \section{Metatheoretic properties}
@@ -152,11 +170,7 @@ Points to elaborate:
 
 \paragraph*{A general schema of quotient inductive-inductive-recursive types}
 
-\IfFileExists{./reference.bib}{
-  \bibliography{reference}
-}{
-  \bibliography{ref}
-}
+\IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
 
 \appendix
 

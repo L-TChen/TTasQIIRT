@@ -16,7 +16,9 @@
 \newcommand{\Ctx}{\ensuremath{\mathsf{Ctx}}\xspace}
 \newcommand{\Sub}{\ensuremath{\mathsf{Sub}}\xspace}
 \newcommand{\Set}{\ensuremath{\mathsf{Set}}\xspace}
+\newcommand{\Id}[3]{\ensuremath{#2 \;=_{#1}\;#3}\xspace}
 
+\newcommand{\transp}{\ensuremath{\mathsf{transport}}\xspace}
 \definecolor{dRed}{rgb}{0.45, 0.0, 0.0}
 \definecolor{dBlue}{rgb}{0.0, 0.0, 0.65}
 \definecolor{dPurple}{rgb}{0.45, 0.0, 0.65}
@@ -297,11 +299,6 @@
 %Pointed types
 \newcommand{\pointed}[1]{\ensuremath{#1_\bullet}}
 
-%%% Ordinals and cardinals
-\newcommand{\card}{\ensuremath{\mathsf{Card}}\xspace}
-\newcommand{\ord}{\ensuremath{\mathsf{Ord}}\xspace}
-\newcommand{\ordsl}[2]{{#1}_{/#2}}
-
 %
 %%% The empty type
 \newcommand{\emptyt}{\ensuremath{\mathbf{0}}\xspace}
@@ -321,29 +318,6 @@
 \newcommand{\inl}{\ensuremath\inlsym\xspace}
 \newcommand{\inr}{\ensuremath\inrsym\xspace}
 
-%%% Some categories
-\newcommand{\uset}{\ensuremath{\mathcal{S}et}\xspace}
-\newcommand{\ucat}{\ensuremath{{\mathcal{C}at}}\xspace}
-\newcommand{\urel}{\ensuremath{\mathcal{R}el}\xspace}
-\newcommand{\uhilb}{\ensuremath{\mathcal{H}ilb}\xspace}
-\newcommand{\utype}{\ensuremath{\mathcal{T}\!ype}\xspace}
-
-% Pullback corner
-%\newbox\pbbox
-%\setbox\pbbox=\hbox{\xy \POS(65,0)\ar@{-} (0,0) \ar@{-} (65,65)\endxy}
-%\def\pb{\save[]+<3.5mm,-3.5mm>*{\copy\pbbox} \restore}
-
-% Macros for the categories chapter
-\newcommand{\inv}[1]{{#1}^{-1}}
-\newcommand{\idtoiso}{\ensuremath{\mathsf{idtoiso}}\xspace}
-\newcommand{\isotoid}{\ensuremath{\mathsf{isotoid}}\xspace}
-\newcommand{\op}{^{\mathrm{op}}}
-\newcommand{\y}{\ensuremath{\mathbf{y}}\xspace}
-\newcommand{\dgr}[1]{{#1}^{\dagger}}
-\newcommand{\unitaryiso}{\mathrel{\cong^\dagger}}
-\newcommand{\cteqv}[2]{\ensuremath{#1 \simeq #2}\xspace}
-\newcommand{\cteqvsym}{\simeq}     % Symbol for equivalence of categories
-
 %%% Natural numbers
 \newcommand{\N}{\ensuremath{\mathbb{N}}\xspace}
 %\newcommand{\N}{\textbf{N}}
@@ -359,13 +333,6 @@
 \newcommand{\assoc}{\mathsf{assoc}}
 \newcommand{\dbl}{\ensuremath{\mathsf{double}}}
 \newcommand{\dblp}{\ensuremath{\dbl'}\xspace} % alternative double in induction chapter
-
-
-%%% Lists
-\newcommand{\lst}[1]{\mathsf{List}(#1)}
-\newcommand{\nil}{\mathsf{nil}}
-%\newcommand{\cons}{\mathsf{cons}}
-\newcommand{\lost}[1]{\mathsf{Lost}(#1)}
 
 
 % Function definition with domain and codomain
@@ -384,7 +351,6 @@
 \newcommand{\emptysub}{\ensuremath{\cdot}}
 \newcommand{\ctx}{\ensuremath{\mathsf{ctx}}}
 \newcommand{\idS}{\ensuremath{\mathsf{id}}} 
-
 
 \newcommand{\production}{\vcentcolon\vcentcolon=}
 \newcommand{\wfctx}[1]{#1\ \ctx}
