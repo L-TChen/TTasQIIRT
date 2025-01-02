@@ -6,8 +6,10 @@ open import Prelude
 open import SC.QIIRT2.Base
 open import SC.QIIRT2.Cong
 
-variable
+private variable
   Φ : Ctx
+  A' B' C' : Ty Γ
+  σ' τ' γ' : Sub Δ Γ
 
 record Pdc {i j} : Set (lsuc (i ⊔ j)) where
   field
@@ -166,9 +168,9 @@ record IHEq {i j}(P : Pdc {i} {j})(indP : IH P) : Set (i ⊔ j) where
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}
       → {PA : PTy PΓ A}{Pσ : PSub PΔ PΓ σ}{Pt : PTm PΔ (PA [ Pσ ]P) t}{Pτ : PSub PΘ PΔ τ}
       ------------------------------------------------------------------------------------------
-      → conv (congPSub refl refl refl refl ,∘) ((Pσ ,Sub Pt) ∘P Pτ)
-      ≡ (Pσ ∘P Pτ) ,Sub conv (sym (congPTmPΓ refl ([∘P] PA Pσ Pτ) (sym ([]tm≡[]t t τ))))
-                             (Pt [ Pτ ]tmP)
+      → conv (congPSub refl refl refl refl ,∘)
+      ((Pσ ,Sub Pt) ∘P Pτ)
+      ≡ ((Pσ ∘P Pτ) ,Sub conv (sym (congPTmPΓ refl ([∘P] PA Pσ Pτ) refl)) (Pt [ Pτ ]tmP)) 
     Pπ₁,
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΓ A}
       → {Pσ : PSub PΔ PΓ σ}{Pt : PTm PΔ (PA [ Pσ ]P) t}

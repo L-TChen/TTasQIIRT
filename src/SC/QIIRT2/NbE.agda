@@ -16,7 +16,7 @@ data Var : (Γ : Ctx) → Ty Γ → Set where
 
 ⌞_⌟V : Var Γ A → Tm Γ A
 ⌞ here    ⌟V  = π₂ idS
-⌞ there x ⌟V  = ⌞ x ⌟V [ π₁ idS ]t
+⌞ there x ⌟V  = ⌞ x ⌟V [ π₁ idS ]tm
 
 data Ren : Ctx → Ctx → Set
 ⌞_⌟R : Ren Δ Γ → Sub Δ Γ
@@ -49,18 +49,18 @@ _↑R_ {Δ} (_,_ {A = A'} ρ x) A = (ρ ↑R A) , conv eq (there x)
 ⌞↑R⌟ {Δ} (_,_ {A = A'} ρ x) A = ≅-to-≡ $ begin
     (⌞ ρ ⌟R , ⌞ x ⌟V) ∘ π₁ idS
   ≡⟨ ,∘ ⟩
-    ⌞ ρ ⌟R ∘ π₁ idS , ⌞ x ⌟V [ π₁ idS ]t
+    ⌞ ρ ⌟R ∘ π₁ idS , ⌞ x ⌟V [ π₁ idS ]tm
   ≡⟨ cong,Sub' {A = A'} refl (⌞↑R⌟ ρ A) eq,r ⟩
     ⌞ ρ ↑R A ⌟R , ⌞ conv eq (there x) ⌟V
   ∎
   where
     open ≅-Reasoning
     eq = cong (Var (Δ , A)) (congA[] {A = A'} (⌞↑R⌟ ρ A)) -- [∘] is no longer needed
-    eq,r : conv (congTmΓ (congA[] {A = A'} (⌞↑R⌟ ρ A))) (⌞ x ⌟V [ π₁ idS ]t) ≡ ⌞ conv eq  (there x) ⌟V
+    eq,r : conv (congTmΓ (congA[] {A = A'} (⌞↑R⌟ ρ A))) (⌞ x ⌟V [ π₁ idS ]tm) ≡ ⌞ conv eq  (there x) ⌟V
     eq,r = ≅-to-≡ $ begin
-        conv (congTmΓ (congA[] (⌞↑R⌟ ρ A))) (⌞ x ⌟V [ π₁ idS ]t)
+        conv (congTmΓ (congA[] (⌞↑R⌟ ρ A))) (⌞ x ⌟V [ π₁ idS ]tm)
       ≅⟨ conv-rm (congTmΓ (congA[] (⌞↑R⌟ ρ A))) _ ⟩
-        ⌞ x ⌟V [ π₁ idS ]t
+        ⌞ x ⌟V [ π₁ idS ]tm
       ≅⟨ HEq.icong (Var (Δ , A)) (congA[] {A = A'} (⌞↑R⌟ ρ A)) ⌞_⌟V (HEq.sym (conv-rm eq _)) ⟩
         ⌞ conv eq (there x) ⌟V
       ∎
@@ -118,9 +118,9 @@ lookupVar {Δ} {Γ , _} (_,_ {A = A} ρ x') (there {A = A'} x) =
   conv (cong (Var Δ) (lkVarEq.eq Γ A ρ x' {A'} {_} {x'})) (lookupVar ρ x)
 
 -- Several lemmas
-⌞lookup⌟ : (ρ : Ren Δ Γ)(x : Var Γ A) → ⌞ x ⌟V [ ⌞ ρ ⌟R ]t ≡ ⌞ lookupVar ρ x ⌟V
+⌞lookup⌟ : (ρ : Ren Δ Γ)(x : Var Γ A) → ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm ≡ ⌞ lookupVar ρ x ⌟V
 ⌞lookup⌟ {Δ} {Γ , A} (ρ , x) here = ≅-to-≡ $ begin
-    π₂ idS [ ⌞ ρ ⌟R , ⌞ x ⌟V ]t
+    π₂ idS [ ⌞ ρ ⌟R , ⌞ x ⌟V ]tm
   ≡⟨ sym (π₂∘ (⌞ ρ ⌟R , ⌞ x ⌟V) idS) ⟩
     π₂ (idS ∘ (⌞ ρ ⌟R , ⌞ x ⌟V))
   ≅⟨ HEq.cong π₂ (≡-to-≅ (idS∘ (⌞ ρ ⌟R , ⌞ x ⌟V))) ⟩
@@ -132,9 +132,11 @@ lookupVar {Δ} {Γ , _} (_,_ {A = A} ρ x') (there {A = A'} x) =
   ∎
   where open ≅-Reasoning
 ⌞lookup⌟ {Δ} {Γ , A'} (ρ , x') (there {A = A} x) = ≅-to-≡ $ begin
-    ⌞ x ⌟V [ π₁ idS ]t [ ⌞ ρ ⌟R , ⌞ x' ⌟V ]t  -- reduced by recursion _[_]t
-  ≅⟨ HEq.cong {A = Sub Δ Γ} {B = λ σ → Tm Δ (A [ σ ])} (⌞ x ⌟V [_]t) eq ⟩
-    ⌞ x ⌟V [ ⌞ ρ ⌟R ]t
+    ⌞ x ⌟V [ wk ]tm [ ⌞ ρ ⌟R , ⌞ x' ⌟V ]tm  -- reduced by recursion _[_]t
+  ≡⟨ [∘]tm ⟨
+    ⌞ x ⌟V [ wk ∘ (⌞ ρ ⌟R , ⌞ x' ⌟V) ]tm  
+  ≅⟨  hcong {B = λ σ → Tm Δ (A [ σ ])} (λ σ → ⌞ x ⌟V [ σ ]tm) eq  ⟩
+    ⌞ x ⌟V [ ⌞ ρ ⌟R ]tm
   ≅⟨ ≡-to-≅ (⌞lookup⌟ ρ x) ⟩
     ⌞ lookupVar ρ x ⌟V
   ≅⟨ HEq.icong (Var Δ) (lkVarEq.eq Γ A' ρ x' {A} {A'} {x'}) ⌞_⌟V (HEq.sym (conv-rm (cong (Var Δ) (lkVarEq.eq Γ A' ρ x' {A} {_} {x'})) _)) ⟩
@@ -164,18 +166,18 @@ _⊙_ {Θ = Θ} (_,_ {A = A} ρ x) ρ' = (ρ ⊙ ρ') , conv (cong (Var Θ) eqA[
 ⌞⊙⌟ {Δ} {Γ , A} {Θ} (ρ , x) ρ' = ≅-to-≡ $ begin
     (⌞ ρ ⌟R , ⌞ x ⌟V) ∘ ⌞ ρ' ⌟R
   ≡⟨ ,∘ ⟩
-    (⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R) , ⌞ x ⌟V [ ⌞ ρ' ⌟R ]t
+    (⌞ ρ ⌟R ∘ ⌞ ρ' ⌟R) , ⌞ x ⌟V [ ⌞ ρ' ⌟R ]tm
   ≡⟨ cong,Sub' {A = A} refl (⌞⊙⌟ ρ ρ') eq,r ⟩
     ⌞ ρ ⊙ ρ' ⌟R , ⌞ conv (cong (Var Θ) (⊙Eq.eqA[] {A = A} ρ x ρ')) (lookupVar ρ' x) ⌟V
   ∎
   where
     open ≅-Reasoning
-    eq,r : conv (congTmΓ (congA[] {A = A} (⌞⊙⌟ ρ ρ'))) (⌞ x ⌟V [ ⌞ ρ' ⌟R ]t)
+    eq,r : conv (congTmΓ (congA[] {A = A} (⌞⊙⌟ ρ ρ'))) (⌞ x ⌟V [ ⌞ ρ' ⌟R ]tm)
          ≡ ⌞ conv (cong (Var Θ) (⊙Eq.eqA[] {A = A} ρ x ρ')) (lookupVar ρ' x) ⌟V
     eq,r = ≅-to-≡ $ begin
-        conv (congTmΓ (congA[] {A = A} (⌞⊙⌟ ρ ρ'))) (⌞ x ⌟V [ ⌞ ρ' ⌟R ]t)
+        conv (congTmΓ (congA[] {A = A} (⌞⊙⌟ ρ ρ'))) (⌞ x ⌟V [ ⌞ ρ' ⌟R ]tm)
       ≅⟨ conv-rm _ _ ⟩
-        ⌞ x ⌟V [ ⌞ ρ' ⌟R ]t
+        ⌞ x ⌟V [ ⌞ ρ' ⌟R ]tm
       ≅⟨ ≡-to-≅ (⌞lookup⌟ ρ' x) ⟩
         ⌞ lookupVar ρ' x ⌟V
       ≅⟨ HEq.icong (Var Θ) (⊙Eq.eqA[] {A = A} ρ x ρ') ⌞_⌟V (HEq.sym (conv-rm (cong (Var Θ) (⊙Eq.eqA[] {A = A} ρ x ρ')) _)) ⟩
@@ -205,7 +207,7 @@ Domain .IH.PU[] {PΓ = Γ / refl} {Δ / refl} {ρ / refl} = refl
 Domain .IH.π₂P {PΔ = Δ / refl} {Γ / refl} {A / refl} ((ρ , x) / refl) = x / eq
   where
     open ≅-Reasoning
-    eq : conv (congTmΓ (congA[] {A = A} (π₁, {A = A} {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}))) (π₂ {A = A} (⌞ ρ ⌟R , ⌞ x ⌟V)) ≡ ⌞ x ⌟V
+    eq : conv (congTmΓ (congA[] {A = A} (π₁, {σ = ⌞ ρ ⌟R}))) (π₂ {A = A} (⌞ ρ ⌟R , ⌞ x ⌟V)) ≡ ⌞ x ⌟V
     eq = ≅-to-≡ $ begin
         conv (congTmΓ (congA[] π₁,)) (π₂ {A = A} (⌞ ρ ⌟R , ⌞ x ⌟V))
       ≅⟨ conv-rm _ _ ⟩
@@ -213,7 +215,7 @@ Domain .IH.π₂P {PΔ = Δ / refl} {Γ / refl} {A / refl} ((ρ , x) / refl) = x
       ≡⟨ π₂, ⟩
         ⌞ x ⌟V
       ∎
-IH._[_]tmP Domain {PΓ = Γ / refl} {A / refl} {Δ / refl} (x / refl) (ρ / refl) = lookupVar ρ x / trans ([]tm≡[]t ⌞ x ⌟V ⌞ ρ ⌟R) (⌞lookup⌟ ρ x)
+IH._[_]tmP Domain {PΓ = Γ / refl} {A / refl} {Δ / refl} (x / refl) (ρ / refl) = lookupVar ρ x / ⌞lookup⌟ ρ x
 
 open elim DomainDecl Domain
 
@@ -237,17 +239,15 @@ accVar (here {A = A}) σ = conv (congTmΓ (eqTy {A = A})) (π₂ σ)
     eqTy {A = A} = congA[] {A = A} (sym (π₁idS∘ σ))
 accVar (there {A = A} x) σ = conv (congTmΓ (accVarEq.eqTy σ {A})) (accVar x (π₁ σ))
 
-accVar[]t : (x : Var Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ) → accVar x (σ ∘ τ) ≡ accVar x σ [ τ ]t
+accVar[]t : (x : Var Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ) → accVar x (σ ∘ τ) ≡ accVar x σ [ τ ]tm
 accVar[]t {Γ , A} {_} {Δ} {Θ} here σ τ = ≅-to-≡ $ begin
     conv (congTmΓ (accVarEq.eqTy (σ ∘ τ))) (π₂ (σ ∘ τ))
   ≅⟨ conv-rm (congTmΓ (accVarEq.eqTy (σ ∘ τ))) _ ⟩
     π₂ (σ ∘ τ)
   ≅⟨ ≡-to-≅ (π₂∘ τ σ) ⟩
     π₂ σ [ τ ]tm
-  ≅⟨ ≡-to-≅ ([]tm≡[]t (π₂ σ) τ) ⟩
-    π₂ σ [ τ ]t
-  ≅⟨ HEq.icong (Tm Δ) (accVarEq.eqTy σ {A}) (_[ τ ]t) (HEq.sym (conv-rm (congTmΓ (accVarEq.eqTy σ)) _)) ⟩
-    conv (congTmΓ (accVarEq.eqTy σ)) (π₂ σ) [ τ ]t
+  ≅⟨ HEq.icong (Tm Δ) (accVarEq.eqTy σ {A}) (_[ τ ]tm) (HEq.sym (conv-rm (congTmΓ (accVarEq.eqTy σ)) _)) ⟩
+    conv (congTmΓ (accVarEq.eqTy σ)) (π₂ σ) [ τ ]tm
   ∎
   where open ≅-Reasoning
 accVar[]t {Γ , A'} {_} {Δ} {Θ} (there {A = A} x) σ τ = ≅-to-≡ $ begin
@@ -257,9 +257,9 @@ accVar[]t {Γ , A'} {_} {Δ} {Θ} (there {A = A} x) σ τ = ≅-to-≡ $ begin
   ≅⟨ HEq.cong (accVar x) (≡-to-≅ (π₁∘ τ σ)) ⟩
     accVar x (π₁ σ ∘ τ)
   ≅⟨ ≡-to-≅ (accVar[]t x (π₁ σ) τ) ⟩
-    accVar x (π₁ σ) [ τ ]t
-  ≅⟨ HEq.icong (Tm Δ) (accVarEq.eqTy σ {A}) (_[ τ ]t) (HEq.sym (conv-rm (congTmΓ (accVarEq.eqTy σ)) _)) ⟩
-    conv (congTmΓ (accVarEq.eqTy σ)) (accVar x (π₁ σ)) [ τ ]t
+    accVar x (π₁ σ) [ τ ]tm
+  ≅⟨ HEq.icong (Tm Δ) (accVarEq.eqTy σ {A}) (_[ τ ]tm) (HEq.sym (conv-rm (congTmΓ (accVarEq.eqTy σ)) _)) ⟩
+    conv (congTmΓ (accVarEq.eqTy σ)) (accVar x (π₁ σ)) [ τ ]tm
   ∎
   where open ≅-Reasoning
 
@@ -280,9 +280,9 @@ soundnessNfVar {Γ , B} (there {A = A} x) = ≅-to-≡ $ begin
   ≅⟨ HEq.cong (accVar x) (≡-to-≅ (sym (idS∘ π₁ idS))) ⟩
     accVar x (idS ∘ π₁ idS)
   ≡⟨ accVar[]t x idS (π₁ idS) ⟩
-    accVar x idS [ π₁ idS ]t
-  ≡⟨ cong (_[ π₁ {A = B} idS ]t) (soundnessNfVar x) ⟩
-    ⌞ x ⌟V [ π₁ idS ]t
+    accVar x idS [ π₁ idS ]tm
+  ≡⟨ cong (_[ π₁ {A = B} idS ]tm) (soundnessNfVar x) ⟩
+    ⌞ x ⌟V [ π₁ idS ]tm
   ∎
   where open ≅-Reasoning
 

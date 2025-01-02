@@ -6,7 +6,7 @@ open import Prelude
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 
-infixl 35 _[_] _[_]t _[_]tm
+infixl 35 _[_] _[_]tm
 infixl 10 _,_
 
 interleaved mutual
@@ -31,11 +31,9 @@ interleaved mutual
       : (Γ : Ctx) (A : Ty Γ)
       → Ctx
     ∅
-      ---------
       : Sub Γ ∅
     _,_
       : (σ : Sub Γ Δ) (t : Tm Γ (A [ σ ]))
-      ------------------------------------
       → Sub Γ (Δ , A)
     idS
       : Sub Γ Γ
@@ -65,14 +63,6 @@ interleaved mutual
     [π₁∘] : A [ π₁ (τ ∘ σ) ] ≡ A [ π₁ τ ] [ σ ]
     {-# REWRITE [id] [∘] [π₁,] [π₁∘] #-}
 
-  _[_]t : Tm Δ A → (σ : Sub Γ Δ) → Tm Γ (A [ σ ])
-  t [ idS        ]t = t
-  t [ τ ∘ σ      ]t = t [ τ ]t [ σ ]t
-  t [ π₁ (σ , u) ]t = t [ σ ]t
-  t [ π₁ (τ ∘ σ) ]t = t [ π₁ τ ]t [ σ ]t
-  {-# CATCHALL #-}
-  t [ σ       ]t = t [ σ ]tm
-
   postulate
     [id]tm : t [ idS   ]tm ≡ t
     [∘]tm  : t [ τ ∘ σ ]tm ≡ t [ τ ]tm [ σ ]tm
@@ -86,7 +76,7 @@ interleaved mutual
     assocS
       : (σ ∘ τ) ∘ γ ≡ σ ∘ (τ ∘ γ)
     ,∘
-      : (σ , t) ∘ τ ≡ σ ∘ τ , t [ τ ]t
+      : (σ , t) ∘ τ ≡ σ ∘ τ , t [ τ ]tm
     π₁,
       : π₁ (σ , t) ≡ σ
     π₂,
@@ -98,55 +88,31 @@ interleaved mutual
       : σ ≡ π₁ σ , π₂ σ
 
 -- derived computation rules on composition
-π₁∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
+π₁∘
+  : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
+  → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
 π₁∘ σ τ = begin
-    π₁ (τ ∘ σ)                    ≡⟨ cong (λ σ' → π₁ (σ' ∘ σ)) η, ⟩
-    π₁ ((π₁ τ , π₂ τ) ∘ σ)        ≡⟨ cong π₁ ,∘ ⟩ 
-    π₁ (π₁ τ ∘ σ , (π₂ τ) [ σ ]t) ≡⟨ π₁, ⟩
-    π₁ τ ∘ σ                      ∎
+    π₁ (τ ∘ σ)                     ≡⟨ cong (λ σ' → π₁ (σ' ∘ σ)) η, ⟩
+    π₁ ((π₁ τ , π₂ τ) ∘ σ)         ≡⟨ cong π₁ ,∘ ⟩ 
+    π₁ (π₁ τ ∘ σ , (π₂ τ) [ σ ]tm) ≡⟨ π₁, ⟩
+    π₁ τ ∘ σ                       ∎
   where open ≡-Reasoning
-
-[]tm≡[]t : {Γ Δ : Ctx} {A : Ty Δ} (t : Tm Δ A) (σ : Sub Γ Δ) → t [ σ ]tm ≡ t [ σ ]t 
-[]tm≡[]t t ∅       = refl
-[]tm≡[]t t (_ , _) = refl
-[]tm≡[]t t idS     = [id]tm
-[]tm≡[]t t (π₁ idS)     = refl
-[]tm≡[]t t (π₁ (τ ∘ σ)) = ≅-to-≡ $ begin
-  t [ π₁ (τ ∘ σ) ]tm                                       ≅⟨ HEq.cong (t [_]tm) (≡-to-≅ (π₁∘ σ τ)) ⟩
-  t [ π₁ τ ∘ σ ]tm                                         ≡⟨ [∘]tm ⟩
-  t [ π₁ τ ]tm [ σ ]tm                                     ≡⟨ cong (_[ σ ]tm) ([]tm≡[]t t (π₁ τ)) ⟩
-  t [ π₁ τ ]t [ σ ]tm                                      ≡⟨ []tm≡[]t (t [ π₁ τ ]t) σ ⟩
-  t [ π₁ τ ]t [ σ ]t                                       ∎
-  where open ≅-Reasoning
-[]tm≡[]t t (π₁ (π₁ σ))  = refl
-[]tm≡[]t t (τ ∘ σ) = begin
-  t [ τ ∘ σ ]tm                                            ≡⟨ [∘]tm ⟩
-  t [ τ ]tm [ σ ]tm                                        ≡⟨ cong (_[ σ ]tm) ([]tm≡[]t t τ)  ⟩
-  t [ τ ]t [ σ ]tm                                         ≡⟨ []tm≡[]t (t [ τ ]t) σ ⟩
-  t [ τ ]t [ σ ]t                                          ∎
-  where open ≡-Reasoning
-[]tm≡[]t t (π₁ (σ , u)) = ≅-to-≡ $ begin
-  t [ π₁ (σ , u) ]tm                                       ≅⟨ HEq.cong (t [_]tm) (≡-to-≅ π₁,) ⟩
-  t [ σ ]tm                                                ≡⟨ []tm≡[]t t σ ⟩
-  t [ σ ]t                                                 ∎
-  where open ≅-Reasoning
 
 π₁idS∘ : {A : Ty Γ}(σ : Sub Δ (Γ , A)) → π₁ idS ∘ σ ≡ π₁ σ
 π₁idS∘ σ = begin
-  π₁ idS ∘ σ      ≡⟨ sym (π₁∘ σ idS) ⟩
+  π₁ idS ∘ σ      ≡⟨ π₁∘ σ idS ⟨
   π₁ (idS ∘ σ)    ≡⟨ cong π₁ (idS∘ σ) ⟩
   π₁ σ            ∎
   where open ≡-Reasoning
 
 π₂∘ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
   → π₂ (τ ∘ σ) ≡ π₂ τ [ σ ]tm
-π₂∘ {Γ} {Δ} {Θ} {A} σ τ = ≅-to-≡ $ begin
-  π₂ (τ ∘ σ)                         ≅⟨ hcong (λ ν → π₂ (ν ∘ σ)) (≡-to-≅ η,) ⟩
-  π₂ (((π₁ τ) , (π₂ τ)) ∘ σ)         ≅⟨ hcong π₂ (≡-to-≅ ,∘) ⟩
-  π₂ (((π₁ τ ∘ σ) , (π₂ τ [ σ ]t)))  ≡⟨ cong (λ t → π₂ (_,_ {A = A} (π₁ τ ∘ σ) t)) ([]tm≡[]t (π₂ τ) σ) ⟨
+π₂∘ {Γ} {Δ} {Θ} {A} σ τ = begin
+  π₂ (τ ∘ σ)                         ≡⟨ ≅-to-≡ $ hcong (λ ν → π₂ (ν ∘ σ)) (≡-to-≅ η,) ⟩
+  π₂ (((π₁ τ) , (π₂ τ)) ∘ σ)         ≡⟨ ≅-to-≡ $ hcong π₂ (≡-to-≅ ,∘) ⟩
   π₂ (((π₁ τ ∘ σ) , (π₂ τ [ σ ]tm))) ≡⟨ π₂, ⟩
   π₂ τ  [ σ ]tm                      ∎
-  where open ≅-Reasoning
+  where open ≡-Reasoning
 
 -- We will need to prove coherence for the following with another rewriting relation:
 -- coherence of postulates
@@ -159,25 +125,14 @@ coh[∘idS] = refl
 coh[assocS] : A [ (σ ∘ τ) ∘ γ ] ≡ A [ σ ∘ (τ ∘ γ) ]
 coh[assocS] = refl
 
-coh[,∘] : A [ (σ , t) ∘ τ ] ≡ A [ σ ∘ τ , t [ τ ]t ]
-coh[,∘] {A = U}     = refl
-
 coh[βπ₁] : A [ π₁ (σ , t) ] ≡ A [ σ ]
 coh[βπ₁] = refl
 
-coh[βπ₂] : π₂ (σ , t) [ τ ]t ≡ t [ τ ]t
-coh[βπ₂] {σ = σ} {t = t} {τ = τ} = begin
-  π₂ (σ , t) [ τ ]t         ≡⟨ sym ([]tm≡[]t _ _) ⟩
-  π₂ (σ , t) [ τ ]tm        ≡⟨ cong (_[ τ ]tm) π₂, ⟩
-  t [ τ ]tm                 ≡⟨ []tm≡[]t _ _ ⟩
-  t [ τ ]t                  ∎
-  where open ≡-Reasoning
+coh[η,] : ∀ A → A [ σ ] ≡ A [ π₁ σ , π₂ σ ]
+coh[η,] U = refl
 
-coh[η,] : A [ σ ] ≡ A [ π₁ σ , π₂ σ ]
-coh[η,] {A = U}    {σ} = refl
-
-coh[η∅] : A [ σ ] ≡ A [ ∅ ]
-coh[η∅] {A = U} = refl
+coh[η∅] : ∀ A → A [ σ ] ≡ A [ ∅ ]
+coh[η∅] U = refl
     
 -- syntax abbreviations
 -- wk : Sub (Δ , A) Δ
