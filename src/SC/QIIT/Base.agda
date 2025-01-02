@@ -153,7 +153,7 @@ interleaved mutual
       → A [ idS ] ≡ A
     [∘]
       : (A : Ty Θ)(τ : Sub Δ Θ)(σ : Sub Γ Δ)
-      → A [ τ ∘ σ ] ≡ A [ τ ] [ σ ] -- A [ τ ∘ σ ] ≡ A [ τ ] [ σ ]
+      → A [ τ ∘ σ ] ≡ A [ τ ] [ σ ]
 
     -- equality on substitutions
     idS∘_ 
@@ -165,7 +165,8 @@ interleaved mutual
     assocS
       : (δ ∘ τ) ∘ σ ≡ δ ∘ (τ ∘ σ)
     ,∘
-      : (σ , t) ∘ τ ≡ ((σ ∘ τ) , conv (congTmΓ (sym ([∘] A σ τ))) (t [ τ ]))
+      : (σ , t) ∘ τ ≡ ((σ ∘ τ) , tr (Tm Γ) (sym $ [∘] A σ τ) (t [ τ ]))
+      -- conv (congTmΓ (sym ([∘] A σ τ))) (t [ τ ]))
     βπ₁
       : π₁ (σ , t) ≡ σ
     ηπ
@@ -181,17 +182,24 @@ interleaved mutual
       : (t : Tm Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ)
       → conv (congTmΓ ([∘] A σ τ)) (t [ σ ∘ τ ]) ≡ t [ σ ] [ τ ]
     βπ₂
-      : conv (congTmΓ (cong[] refl refl refl βπ₁)) (π₂ (σ , t)) ≡ t
+      : tr (λ σ → Tm Γ (A [ σ ])) βπ₁ (π₂ (σ , t)) ≡ t
 
 -- derived computation rules on composition
+
+βπ : (σ : Sub Γ Δ) (t : Tm Γ (A [ σ ]))
+  → _≡_ {_} {Σ _ (λ σ → Tm Γ (A [ σ ]))}
+    (π₁ (σ , t) , π₂ (σ , t))
+    (σ , t)
+βπ σ t = Σ-≡,≡→≡ (βπ₁ , βπ₂)
+
 π₁∘ : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ) → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
-π₁∘ {A = A} {Θ} σ τ =
+π₁∘ {Δ} {Γ} {A} {Θ} σ τ =
   begin
     π₁ (σ ∘ τ)
   ≡⟨ cong (λ σ' → π₁ (σ' ∘ τ)) ηπ ⟩
     π₁ ((π₁ σ , π₂ σ) ∘ τ)
   ≡⟨ cong π₁ ,∘ ⟩
-    π₁ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]))
+    π₁ ((π₁ σ ∘ τ) , tr (Tm Θ) (sym $ [∘] _ _ _) (π₂ σ [ τ ]))
   ≡⟨ βπ₁ {σ = π₁ σ ∘ τ} ⟩
     π₁ σ ∘ τ
   ∎
@@ -208,147 +216,28 @@ interleaved mutual
 
 π₂∘ : (σ : Sub Γ Δ) {A : Ty Θ} (τ : Sub Δ (Θ , A))
   → _≡_ {_} {∃ (Tm Γ)} (A [ π₁ (τ ∘ σ) ] , π₂ (τ ∘ σ)) (A [ π₁ τ ] [ σ ] , π₂ τ [ σ ])
-π₂∘ {Γ} {Δ} σ {A} τ = begin
-  A [ π₁ (τ ∘ σ) ] , π₂ (τ ∘ σ)
-    ≡⟨ to-Σ≡ eq1L eq1R ⟩
+π₂∘ {Γ} {Δ} {Θ} σ {A} τ = begin
+
+  A [ π₁ (τ ∘ σ) ] , π₂ (τ ∘ σ) 
+
+    ≡⟨ apΣ (Tm Γ) (λ τ → A [ π₁ (τ ∘ σ) ]) (apdΣ (λ τ → π₂ (τ ∘ σ)) ηπ) ⟩
+
   A [ π₁ ((π₁ τ , π₂ τ) ∘ σ) ] , π₂ ((π₁ τ , π₂ τ) ∘ σ)
-    ≡⟨ to-Σ≡ eq2L eq2R ⟩
-  A [ π₁ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ])) ] , π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ]))
-    ≡⟨ to-Σ≡ eq3L eq3R ⟩
-  A [ π₁ τ ∘ σ ] , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ])
-    ≡⟨ to-Σ≡ eq4L eq4R ⟩
+
+    ≡⟨ apΣ (Tm Γ) (λ τ → A [ π₁ τ ]) (apdΣ π₂ ,∘) ⟩
+
+  let t = tr (Tm Γ) (sym $ [∘] _ _ _) (π₂ τ [ σ ]) in
+  A [ π₁ (π₁ τ ∘ σ , t) ] , π₂ (π₁ τ ∘ σ , t)
+
+    ≡⟨ apΣ (Tm Γ) (A [_]) (βπ (π₁ τ ∘ σ) t) ⟩
+
+  A [ π₁ τ ∘ σ ] , tr (Tm Γ) (sym $ [∘] _ _ _) (π₂ τ [ σ ])
+
+    ≡⟨ sym $ lift (Tm Γ) (π₂ τ [ σ ]) (sym $ [∘] _ _ _) ⟩
+
   A [ π₁ τ ] [ σ ] , π₂ τ [ σ ]
-    ∎
-  where
-    eq1L : A [ π₁ (τ ∘ σ) ] ≡ A [ π₁ ((π₁ τ , π₂ τ) ∘ σ) ]
-    eq1L = cong (λ τ → A [ π₁ (τ ∘ σ) ]) ηπ
-
-    eq1R : conv (cong (Tm Γ) eq1L) (π₂ (τ ∘ σ)) ≡ π₂ ((π₁ τ , π₂ τ) ∘ σ)
-    eq1R = begin
-      conv (cong (Tm Γ) eq1L) (π₂ (τ ∘ σ))
-        ≡⟨ cong (conv (cong (Tm Γ) eq1L)) (sym (apd (λ τ → π₂ (τ ∘ σ)) (sym ηπ))) ⟩
-      conv (cong (Tm Γ) eq1L) (tr (λ z → Tm Γ (A [ π₁ (z ∘ σ) ])) (sym ηπ) (π₂ ((π₁ τ , π₂ τ) ∘ σ)))
-        ≡⟨ cong (conv (cong (Tm Γ) eq1L)) (tr-conv (sym ηπ)) ⟩
-      conv (cong (Tm Γ) eq1L) (conv (cong (λ z → Tm Γ (A [ π₁ (z ∘ σ) ])) (sym ηπ)) (π₂ ((π₁ τ , π₂ τ) ∘ σ)))
-        ≡⟨ conv² (cong (λ z → Tm Γ (A [ π₁ (z ∘ σ) ])) (sym ηπ)) (cong (Tm Γ) eq1L) ⟩
-      conv _ (π₂ ((π₁ τ , π₂ τ) ∘ σ))
-        ≡⟨ conv-unique _ refl _ ⟩
-      π₂ ((π₁ τ , π₂ τ) ∘ σ)
-        ∎
-    
-    eq2L : A [ π₁ ((π₁ τ , π₂ τ) ∘ σ) ] ≡ A [ π₁ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ])) ]
-    eq2L = cong (λ σ → A [ π₁ σ ]) ,∘
-
-    eq2R : conv (cong (Tm Γ) eq2L) (π₂ ((π₁ τ , π₂ τ) ∘ σ))
-         ≡ π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ]))
-    eq2R = begin
-      conv (cong (Tm Γ) eq2L) (π₂ ((π₁ τ , π₂ τ) ∘ σ))
-        ≡⟨ cong (conv (cong (Tm Γ) eq2L)) (sym (apd π₂ (sym ,∘))) ⟩
-      conv (cong (Tm Γ) eq2L) (tr (λ σ → Tm Γ (A [ π₁ σ ])) (sym ,∘) (π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ]))))
-        ≡⟨ cong (conv (cong (Tm Γ) eq2L)) (tr-conv (sym ,∘)) ⟩
-      conv (cong (Tm Γ) eq2L)
-           (conv (cong (λ σ → Tm Γ (A [ π₁ σ ])) (sym ,∘))
-                 (π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ]))))
-        ≡⟨ conv² (cong (λ σ → Tm Γ (A [ π₁ σ ])) (sym ,∘)) (cong (Tm Γ) eq2L) ⟩
-      conv _ (π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ])))
-        ≡⟨ conv-unique _ refl _ ⟩
-      π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ]))
-        ∎
-    
-    eq3L : A [ π₁ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ])) ]
-         ≡ A [ π₁ τ ∘ σ ]
-    eq3L = cong (A [_]) βπ₁
-
-    eq3R : conv (cong (Tm Γ) eq3L) (π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ])))
-         ≡ conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ])
-    eq3R = begin
-      conv (cong (Tm Γ) eq3L) (π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ])))
-        ≡⟨ cong (conv (cong (Tm Γ) eq3L)) (conv-unique refl (trans (congTmΓ (congA[] βπ₁)) (sym (cong (Tm Γ) eq3L))) _) ⟩
-      conv (cong (Tm Γ) eq3L)
-           (conv (trans (congTmΓ (congA[] βπ₁)) (sym (cong (Tm Γ) eq3L)))
-                 (π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ]))))
-        ≡⟨ cong (conv (cong (Tm Γ) eq3L)) (conv² (congTmΓ (congA[] βπ₁)) (sym (cong (Tm Γ) eq3L))) ⟨
-      conv (cong (Tm Γ) eq3L)
-           (conv (sym (cong (Tm Γ) eq3L))
-                 (conv (congTmΓ (congA[] βπ₁))
-                       ((π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ])))))) 
-        ≡⟨ conv² (sym (cong (Tm Γ) eq3L)) (cong (Tm Γ) eq3L) ⟩
-      conv (trans (sym (cong (Tm Γ) eq3L)) (cong (Tm Γ) eq3L))
-           (conv (congTmΓ (congA[] βπ₁)) (π₂ (π₁ τ ∘ σ , conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ]))))
-        ≡⟨ cong (conv (trans (sym (cong (Tm Γ) eq3L)) (cong (Tm Γ) eq3L))) βπ₂ ⟩
-      conv (trans (sym (cong (Tm Γ) eq3L)) (cong (Tm Γ) eq3L)) (conv (congTmΓ (sym ([∘] A _ _))) (π₂ τ [ σ ]))
-        ≡⟨ cong (λ p → conv p (conv (congTmΓ (sym ([∘] A _ _))) (π₂ τ [ σ ]))) (trans-symˡ (cong (Tm Γ) eq3L)) ⟩
-      conv (congTmΓ (sym ([∘] A _ _))) (π₂ τ [ σ ])
-        ∎
-
-    eq4L : A [ π₁ τ ∘ σ ] ≡ A [ π₁ τ ] [ σ ]
-    eq4L = [∘] A _ _
-
-    eq4R : conv (cong (Tm Γ) eq4L) (conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ])) ≡ π₂ τ [ σ ]
-    eq4R = begin
-      conv (cong (Tm Γ) eq4L) (conv (congTmΓ (sym $ [∘] A _ _)) (π₂ τ [ σ ]))
-        ≡⟨ conv² (congTmΓ (sym $ [∘] A _ _)) (cong (Tm Γ) eq4L) ⟩
-      conv (trans (congTmΓ (sym $ [∘] A _ _)) (cong (Tm Γ) eq4L)) (π₂ τ [ σ ])
-        ≡⟨ conv-unique _ refl _ ⟩
-      π₂ τ [ σ ]
-        ∎
-
-{-
-π₂∘ : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ) → conv (congTmΓ (trans (congA[] (π₁∘ σ τ)) ([∘] A (π₁ σ) τ))) (π₂ (σ ∘ τ))
-                                         ≡ π₂ σ [ τ ]
-π₂∘ {Δ} {Γ} {A} {Θ} σ τ =
-  begin
-    conv (congTmΓ (trans (congA[] (π₁∘ σ τ)) ([∘] A (π₁ σ) τ))) (π₂ (σ ∘ τ))
-  ≡⟨
-    conv-unique (congTmΓ (trans (congA[] (π₁∘ σ τ)) ([∘] A (π₁ σ) τ)))
-                (trans (trans (trans p1 p2) p3) p4)
-                (π₂ (σ ∘ τ))
-  ⟩
-    conv (trans (trans (trans p1 p2) p3) p4) (π₂ (σ ∘ τ))
-  ≡⟨ 
-    ((eq1 ⟫ p1                     , p2 ⟫ eq2)
-          ⟫ trans p1 p2            , p3 ⟫ eq3)
-          ⟫ trans (trans p1 p2) p3 , p4 ⟫ eq4
-  ⟩
-    π₂ σ [ τ ]
-  ∎
-
   
-  where
-    p1 : Tm Θ (A [ π₁ (σ ∘ τ) ]) ≡ Tm Θ (A [ π₁ ((π₁ σ , π₂ σ) ∘ τ) ])
-    p1 = congTmΓ (congA[] (congπ₁ refl refl refl (cong∘ refl refl refl ηπ refl)))
-
-    p2 : Tm Θ (A [ π₁ ((π₁ σ , π₂ σ) ∘ τ) ]) ≡ Tm Θ (A [ π₁ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])) ])
-    p2 = congTmΓ (congA[] (congπ₁ refl refl refl ,∘))
-    
-    p3 : Tm Θ (A [ π₁ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])) ])
-         ≡ Tm Θ (A [ π₁ σ ∘ τ ])
-    p3 = congTmΓ (congA[] βπ₁)
-
-    p4 : Tm Θ (A [ π₁ σ ∘ τ ]) ≡ Tm Θ (A [ π₁ σ ] [ τ ])
-    p4 = congTmΓ ([∘] A (π₁ σ) τ)
-    
-    eq1 : conv (congTmΓ (congA[] (congπ₁ refl refl refl (cong∘ refl refl refl ηπ refl)))) (π₂ (σ ∘ τ)) ≡ π₂ ((π₁ σ , π₂ σ) ∘ τ)
-    eq1 = congπ₂ refl refl {σ = σ ∘ τ} refl (cong∘ refl refl refl {σ = σ} {τ = τ} ηπ refl)
-
-    eq2 : conv (congTmΓ (congA[] (congπ₁ refl refl refl ,∘))) (π₂ ((π₁ σ , π₂ σ) ∘ τ)) ≡ π₂ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]))
-    eq2 = congπ₂ refl refl refl ,∘
-
-    eq3 : conv (congTm refl (congA[] βπ₁)) (π₂ ((π₁ σ ∘ τ) , conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])))
-           ≡ conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])
-    eq3 = βπ₂
-
-    eq4 : conv (congTmΓ ([∘] A (π₁ σ) τ)) (conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])) ≡ π₂ σ [ τ ]
-    eq4 = begin
-        conv (congTmΓ ([∘] A (π₁ σ) τ)) (conv (congTmΓ (sym ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ]))
-      ≡⟨ conv² (congTmΓ (sym ([∘] A (π₁ σ) τ))) (congTmΓ ([∘] A (π₁ σ) τ)) ⟩
-        conv (trans (congTmΓ (sym ([∘] A (π₁ σ) τ))) (congTmΓ ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])
-      ≡⟨ cong (λ eq → conv eq (π₂ σ [ τ ])) (trans-congTmΓ {p = sym ([∘] A (π₁ σ) τ)} {[∘] A (π₁ σ) τ}) ⟩
-        conv (congTmΓ (trans (sym ([∘] A (π₁ σ) τ)) ([∘] A (π₁ σ) τ))) (π₂ σ [ τ ])
-      ≡⟨ cong (λ eq → conv (congTmΓ eq) (π₂ σ [ τ ])) (trans-symˡ ([∘] A (π₁ σ) τ)) ⟩
-        π₂ σ [ τ ]
-      ∎
--}
+    ∎
 
 -- syntax abbreviations
 wk : Sub (Δ , A) Δ

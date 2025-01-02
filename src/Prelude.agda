@@ -9,6 +9,8 @@ open import Function.Base                 public
 open import Data.Empty                    public
 open import Data.Unit                     public
 open import Data.Product                  public
+open import Data.Product.Properties       public
+  using (Σ-≡,≡→≡; Σ-≡,≡←≡)
 
 open import Relation.Binary.PropositionalEquality.WithK public
 open import Relation.Binary.PropositionalEquality       public
@@ -95,3 +97,20 @@ refl ,Σ≡ refl = refl
 
 UIP : {X : Set ℓ}{x y : X}(p q : x ≡ y) → p ≡ q
 UIP refl refl = refl 
+
+apdΣ
+  : {A : Set} {B : A → Set} (f : (x : A) → B x) {x y : A}
+  → (p : x ≡ y) → _≡_ {_} {Σ A B} (x , f x) (y , f y)
+apdΣ f refl = refl
+
+apΣ
+  : {B : Set} (P : B → Set) {A : Set} (f : A → B)
+  → {(x , t) (y , u) : Σ A (λ x → P (f x)) }
+  → (x , t) ≡ (y , u)
+  → _≡_ {_} {Σ B P} (f x , t) (f y , u)
+apΣ P f refl = refl
+
+lift : (P : A → Set) {x y : A} (t : P x)
+  → (p : x ≡ y)
+  → (x , t) ≡ (y , tr P p t)
+lift P t refl = refl
