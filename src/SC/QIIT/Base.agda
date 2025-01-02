@@ -68,14 +68,14 @@ interleaved mutual
   congTy = cong Ty
 
   congSub : Γ ≡ Γ' → Δ ≡ Δ' → Sub Γ Δ ≡ Sub Γ' Δ'
-  congSub refl refl = refl
+  congSub = cong₂ Sub
 
   congTm : (Γ≡Γ' : Γ ≡ Γ'){A : Ty Γ}{A' : Ty Γ'}
         → conv (congTy Γ≡Γ') A ≡ A' → Tm Γ A ≡ Tm Γ' A'
   congTm refl refl = refl
 
   congTmΓ : {A A' : Ty Γ} → A ≡ A' → Tm Γ A ≡ Tm Γ A'
-  congTmΓ = congTm refl
+  congTmΓ = cong (Tm _)
 
   trans-congTmΓ : {A B C : Ty Γ}{p : A ≡ B}{q : B ≡ C} → trans (congTmΓ p) (congTmΓ q) ≡ congTmΓ (trans p q)
   trans-congTmΓ {p = refl} = refl
@@ -170,19 +170,22 @@ interleaved mutual
     βπ₁
       : π₁ (σ , t) ≡ σ
     ηπ
-      : σ ≡ (π₁ σ , π₂ σ)
+      : {σ : Sub Γ (Δ , A)}
+      → σ ≡ (π₁ σ , π₂ σ)
     η∅
-      : σ ≡ ∅
+      : {σ : Sub Γ ∅}
+      → σ ≡ ∅
 
     -- equality on terms
     [idS]tm
       : (t : Tm Γ A)
-      → conv (congTmΓ ([idS] A)) (t [ idS ]) ≡ t
+      → tr (Tm Γ) ([idS] A) (t [ idS ]) ≡ t
     [∘]tm
       : (t : Tm Γ A)(σ : Sub Δ Γ)(τ : Sub Θ Δ)
-      → conv (congTmΓ ([∘] A σ τ)) (t [ σ ∘ τ ]) ≡ t [ σ ] [ τ ]
+      → tr (Tm Θ) ([∘] A σ τ) (t [ σ ∘ τ ]) ≡ t [ σ ] [ τ ]
     βπ₂
-      : tr (λ σ → Tm Γ (A [ σ ])) βπ₁ (π₂ (σ , t)) ≡ t
+      : {σ : Sub Γ Δ} {A : Ty Δ} {t : Tm Γ (A [ σ ])}
+      → tr (λ σ → Tm Γ (A [ σ ])) βπ₁ (π₂ (σ , t)) ≡ t
 
 -- derived computation rules on composition
 
@@ -199,16 +202,19 @@ interleaved mutual
 π∘ {Γ} {Δ} {Θ} σ {A} τ = begin
 
   π₁ (τ ∘ σ) , π₂ (τ ∘ σ)
+
     ≡⟨ apΣ (λ σ → Tm Γ (A [ σ ])) (λ τ → π₁ (τ ∘ σ)) (apdΣ (λ τ → π₂ (τ ∘ σ)) ηπ) ⟩
 
   π₁ ((π₁ τ , π₂ τ) ∘ σ) , π₂ ((π₁ τ , π₂ τ) ∘ σ)
+
     ≡⟨ apΣ (λ σ → Tm Γ (A [ σ ])) π₁ (apdΣ π₂ ,∘) ⟩ 
 
   let t = tr (Tm Γ) (sym $ [∘] _ _ _) (π₂ τ [ σ ]) in
   π₁ (π₁ τ ∘ σ , t) , π₂ (π₁ τ ∘ σ , t)
 
     ≡⟨ βπ (π₁ τ ∘ σ) t ⟩
-  π₁ τ ∘ σ , tr (Tm Γ) (sym $ [∘] A (π₁ τ) σ) (π₂ τ [ σ ])
+
+  π₁ τ ∘ σ , t
 
     ∎
 

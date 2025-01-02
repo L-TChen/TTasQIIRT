@@ -1,4 +1,5 @@
 \usepackage{xspace,bbold}
+\usepackage{mathtools}
 
 \newcommand{\mathsc}[1]{\textnormal{\textsc{#1}}}
 
@@ -19,12 +20,10 @@
 \newcommand{\Id}[3]{\ensuremath{#2 \;=_{#1}\;#3}\xspace}
 \newcommand{\implicit}[1]{{\color{gray}\{#1\}}}
 
+\newcommand{\sub}[2]{[#1]\,{#2}}
+
 \newcommand{\transp}{\ensuremath{\mathsf{transport}}\xspace}
 \newcommand{\alert}[1]{{\color{red}#1}}
-\definecolor{dRed}{rgb}{0.45, 0.0, 0.0}
-\definecolor{dBlue}{rgb}{0.0, 0.0, 0.65}
-\definecolor{dPurple}{rgb}{0.45, 0.0, 0.65}
-\definecolor{dDark}{rgb}{0.2, 0.2, 0.2}
 
 % Shamelessly copied from the HoTT book
 
@@ -341,9 +340,6 @@
 \newcommand{\function}[4]{\left\{\begin{array}{rcl}#1 &
       \longrightarrow & #2 \\ #3 & \longmapsto & #4 \end{array}\right.}
 
-%%% Arrows
-\newcommand{\epi}{\ensuremath{\twoheadrightarrow}}
-\newcommand{\mono}{\ensuremath{\rightarrowtail}}
 
 %%% Sets
 \newcommand{\bin}{\ensuremath{\mathrel{\widetilde{\in}}}}
@@ -353,21 +349,3 @@
 \newcommand{\emptysub}{\ensuremath{\cdot}}
 \newcommand{\ctx}{\ensuremath{\mathsf{ctx}}}
 \newcommand{\idS}{\ensuremath{\mathsf{id}}} 
-
-\newcommand{\production}{\vcentcolon\vcentcolon=}
-\newcommand{\wfctx}[1]{#1\ \ctx}
-\newcommand{\oftp}[3]{#1 \vdash #2 : #3}
-\newcommand{\jdeqtp}[4]{#1 \vdash #2 \jdeq #3 : #4}
-\newcommand{\judg}[2]{#1 \vdash #2}
-\newcommand{\tmtp}[2]{#1 \mathord{:} #2}
-
-% rule names
-\newcommand{\rform}{\textsc{form}}
-\newcommand{\rintro}{\textsc{intro}}
-\newcommand{\relim}{\textsc{elim}}
-\newcommand{\rcomp}{\textsc{comp}}
-\newcommand{\runiq}{\textsc{uniq}}
-\newcommand{\Weak}{\mathsf{Wkg}}
-\newcommand{\Vble}{\mathsf{Vble}}
-\newcommand{\Exch}{\mathsf{Exch}}
-\newcommand{\Subst}{\mathsf{Subst}}

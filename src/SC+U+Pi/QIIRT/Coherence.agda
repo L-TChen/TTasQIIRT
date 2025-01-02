@@ -4,7 +4,7 @@ open import Prelude
   hiding (_,_)
 
 open import SC+U+Pi.QIIRT.Base
--- open import SC+U+Pi.QIIRT.Properties
+open import SC+U+Pi.QIIRT.Properties
 
 coh[idS⨟]
   : [ idS ⨟ σ ] A ≡ [ σ ] A
@@ -27,7 +27,7 @@ coh[⨟,] σ τ A t (Π B C) = hcong₂ Π
   {!!}
 coh[⨟,] σ τ A t (El u)  = hcong El $ begin
   [ σ ⨟ (τ , t) ]t u            ≅⟨ refl ⟩
-  [ σ ]t  [ τ , t ]tm u         ≅⟨ ≡-to-≅ $ {!!} ⟨ -- []tm≡[]t _ _) ⟩
+  [ σ ]t  [ τ , t ]tm u         ≅⟨ ≡-to-≅ $ {![]tm≡[]t!} ⟨ -- []tm≡[]t _ _) ⟩
   [ σ ]tm [ τ , t ]tm u         ≅⟨ ≡-to-≅ $ [⨟]tm ⟨
   [ σ ⨟ (τ , t) ]tm u           ≅⟨ hcong (λ σ → [ σ ]tm u) (≡-to-≅ ⨟,) ⟩
   [ σ ⨟ τ , [ σ ]t t ]tm u      ∎

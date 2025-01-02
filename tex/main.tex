@@ -58,9 +58,9 @@
 
 \begin{abstract}
   Type theory can be defined in a type theory as a quotient inductive-inductive type, but terms are painstakingly littered with explicit coercions, i.e.\ \transp's, along equality constructors.
-  This mess has been dubbed the \emph{transport hell} by the community in private but typically suppressed in public presentation for clarity, ignoring the elephant in the room.
-  In this paper, we aim for shortening the gap between formal and informal definitions of type theory in type theory using quotient inductive-inductive-recursive-recursive types and definitions by overlapping patterns altogether, reducing the use of \transp's.
-  As a case study, we investigate (parallel) substitution calculus and type theory with Coquand universes and $\Pi$-types as QIIRTs with meta-theoretic properties proved and compare our definitions with quotient inductive-inductive definitions.
+  This mess has been dubbed the \emph{transport hell} by the community in private but typically suppressed in presentation for clarity, ignoring the elephant in the room.
+  In this paper, we aim for shortening the gap between formal and informal definitions of type theory in type theory using quotient inductive-inductive-recursive types and definitions by overlapping patterns altogether, reducing the use of \transp's.
+  As a case study, we investigate (parallel) substitution calculus and type theory with Coquand universes and $\Pi$-types as quotient inductive-inductive-recursive types with meta-theoretic properties proved and compare our definitions with quotient inductive-inductive definitions.
 \end{abstract}
 
 \section{Introduction} \label{sec:intro}
@@ -105,7 +105,7 @@ Points to elaborate:
 \cite{Pujet2022,Pujet2024,Pujet2022a}
 Points to include:
 \begin{enumerate}
-  \item dependent identity type (heterogeneous equality in \Agda)
+  \item identity type $x =^{A} y$ for $x, y : A$, dependent identity type, $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P y} u$ for $t : P(x)$ and $u : P(y)$, heterogeneous equality in \Agda $x \simeq y$ for $x : A$ and $y : B$
   \item 
 \end{enumerate}
 
@@ -155,16 +155,15 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
   \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t} && \sigma ; (\tau , t)      && =^{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau) , \alert{\transfib{\Tm\,\Gamma}{[;]_{\Ty}^{-1}}{\color{black}[ \sigma ] t}} \\
   \emptyctx\eta   & : \implicit{\Gamma, \sigma} && \sigma                   && =^{\Sub\,\Gamma\,\emptyctx} & \emptysub \\
   \pi\eta         & : \implicit{\Gamma, \Delta, \sigma} && \sigma                   && =^{\Sub\,\Gamma\,(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma) \\
-  \pi_1\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t} && \pi_1(\sigma , t)        && =^{\Sub\,\Gamma,\Delta} &&  \sigma \\
-  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t} && \pi_2(\sigma , t)        && =^{\Tm\,\Gamma\,([\blank]\,A)}_{\alert{\pi_1\beta}} &&  t \\
+  \pi_1\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_1(\sigma , t)        && =^{\Sub\,\Gamma,\Delta} &&  \sigma \\
+  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_2(\sigma , t)        && =^{\Tm\,\Gamma\,([\blank]\,A)}_{\alert{\pi_1\beta}} &&  t \\
   [\idS]_t         & : \implicit{\Gamma, A, t} && {[\,\idS\,]\,t}          && =^{\Tm\,\Gamma}_{\alert{[\idS]_\Ty}}  && t \\
   [;]_t            & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t} && {[\,\sigma ; \tau\,]\,t} && =^{\Tm\,\Gamma}_{\alert{[;]_{\Ty}}}   && {[ \sigma ]\,[ \tau ]\,t} \\
 \end{alignat*}
 
 \begin{example}
-  Given substitutions $\sigma : \Sub\;\Gamma\; \Delta$ and $\tau : \Sub\;\Delta\;(\Theta, A)$, we may apply the projection $\pi_2$ to the composite $(\sigma; \tau)$ to access the first term $\pi_2(\sigma; \tau)$ of type $[\sigma;\tau] A$ under the context $\Gamma$. 
-  Intuitively, this term should be equal to the first term $\pi_2\,\tau$ of $\tau$ applied by the substitution $\sigma$. 
-  That is, the following equality apparently holds
+  Given substitutions $\sigma : \Sub\;\Gamma\; \Delta$ and $\tau : \Sub\;\Delta\;(\Theta, A)$ for any $A : \Ty\,\Theta$, we may apply the projection $\pi_2$ to the composite $(\sigma; \tau)$ to access the first term $\pi_2(\sigma; \tau)$ of type $[\sigma;\tau] A$ under the context $\Gamma$, and this term should be equal to the first term $\pi_2\,\tau$ of $\tau$ after applying the substitution $\sigma$. 
+  In short, the following equality apparently holds
   \[
     \pi_2\,(\sigma ; \tau) = [\sigma] (\pi_2\,\tau)
   \]
@@ -175,18 +174,27 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
     = \pi_2\,(\sigma;\pi_1\,\tau, [\sigma]\,(\pi_2\,\tau))
     = [\sigma] (\pi_2\,\tau).
   \end{equation}
-
   Yet, the left-hand side is a term of type $[\pi_1\,(\sigma;\tau)] A$, but the other is $[\sigma] [\pi_1\,\tau] A$.
   Hence the above identity does not even make sense, since their types do not match.
-  Alas, instead, we have to write $\pi_2\,(\sigma ; \tau) =^{\Tm\,\Gamma}_{p} [\sigma] (\pi_2\,\tau)$ or, more verbosely,
+  Alas, instead, we have to write $\pi_2\,(\sigma ; \tau) =^{\Tm\,\Gamma}_{p} [\sigma] (\pi_2\,\tau)$ or, equivalently
   \[
-    \transfib{\Tm\,\Gamma}{p}{\pi_2\,(\sigma ; \tau)} =^{\Tm\,\Gamma\,([\sigma][\pi_1\,\tau]\,A)}  [\sigma] (\pi_2\,\tau)
+    ([\pi_1(\sigma; \tau)]\,A, \pi_2(\sigma; \tau)) =^{(A : \Ty\,\Gamma) \times (\Tm \Gamma A)} ([\sigma]\,[\pi_1\,\tau]A, [\sigma] (\pi_2\,\tau))
   \]
-  where $p$ is a term of the identity $[\pi_1(\sigma; \tau)]\,A = [\sigma]\,[\pi_1\,\tau]A$.
-  Now that we have a transported term we have to carry out our proof with coercion rules explicitly, and moreover in~\eqref{eq:pi2-comp-proof} we have used the rule $\mathsf{concat}$ and $\pi_2\beta$ which introduced another transported terms.
-  It turns out that we have to `eliminate' these $\transp$'s to derive the right-hand side of~\eqref{eq:pi2-comp-proof}, making the actual proof barely readable.
-  \todo{write down the actual proof}
+  as inhabitants of a $\Sigma$-type, so we can reason about term equalities along with type equalities.
+  Moreover, in~\eqref{eq:pi2-comp-proof} we have used the rule $\mathsf{concat}$ which introduced another transported term, so we will have to eliminate that $\transp$ to derive the right hand side.
+
+  To better illustrate the annoyance, we provide a complete proof.
+  First, we claim each of the following steps holds:
+  \begin{alignat}{3}
+         & ([\pi_1(\sigma; \tau)]\,A                    &&, \pi_2\,(\sigma ; \tau)) \label{eq:pi2-proof-1} \\
+    = {} & ([\pi_1(\sigma; (\pi_1\tau , \pi_2\tau))]\,A &&, \pi_2\,(\sigma; (\pi_1\,\tau, \pi_2\,\tau))) \\
+    = {} & ([\pi_1(\sigma;\pi_1\,\tau, t)]\,A &&, \pi_2\,(\sigma;\pi_1\,\tau, t)) \nonumber \\
+    = {} & ([\pi_1(\sigma;\pi_1\,\tau, t)]\,A &&, \pi_2\,(\sigma;\pi_1\,\tau, t)) \nonumber \\
+    = {} & (\sub{\sigma;\pi_1\tau}{A} &&, [\sigma] (\pi_2\,\tau)) \nonumber
+  \end{alignat}
+  where $p \judgeq [;]_{\Ty}^{-1} : \sub{\sigma}{\sub{\pi_1\,\tau}{A}} \to \sub{\sigma; \pi_1 \tau}{A}$ and $t \judgeq\transfib{\Tm\,\Gamma}{p}{[\sigma]\,(\pi_2\,\tau)}$.
 \end{example}
+
 \begin{alignat*}{3}
 [ \idS ]_{\Ty}\,A             & \jdeq A \\
 [ \sigma ; \tau ]_{\Ty}\,A    & \jdeq [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \\
