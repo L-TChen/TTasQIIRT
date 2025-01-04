@@ -10,12 +10,12 @@ cong-↑ σ τ refl = refl
 
 []tapp : (σ : Sub Γ Δ)
   → (A : Ty Δ i) (B : Ty (Δ , A) i) (t : Tm Δ (Π A B))
-  → app ([ σ ]t t) ≡ [ σ ↑ A ]t (app t)
+  → app ([ σ ]tm t) ≡ [ σ ↑ A ]tm (app t)
 []tapp σ A B t = begin
-  app ([ σ ]t t)               ≡⟨ cong app (cong ([ σ ]t_) Πη) ⟨
-  app ([ σ ]t (ƛ (app t)))     ≡⟨ cong app {!!} ⟩
-  app (ƛ ([ σ ↑ A ]t (app t))) ≡⟨ Πβ ⟩
-  [ σ ↑ A ]t (app t)             ∎
+  app ([ σ ]tm t)               ≡⟨ cong app (cong ([ σ ]tm_) Πη) ⟨
+  app ([ σ ]tm (ƛ (app t)))     ≡⟨ cong app []ƛ ⟩
+  app (ƛ ([ σ ↑ A ]tm (app t))) ≡⟨ Πβ ⟩
+  [ σ ↑ A ]tm (app t)             ∎
   where open ≡-Reasoning
 
 -- derived computation rules on composition
@@ -23,7 +23,7 @@ cong-↑ σ τ refl = refl
 π₁⨟ σ τ = begin
   π₁ (σ ⨟ τ)                    ≡⟨ cong (λ τ → π₁ (σ ⨟ τ)) η, ⟩
   π₁ (σ ⨟ (π₁ τ , π₂ τ))        ≡⟨ cong π₁ ⨟, ⟩ 
-  π₁ (σ ⨟ π₁ τ , [ σ ]tm π₂ τ)   ≡⟨ π₁, ⟩
+  π₁ (σ ⨟ π₁ τ , [ σ ]tm π₂ τ)  ≡⟨ π₁, ⟩
   σ ⨟ π₁ τ                      ∎
   where open ≡-Reasoning
 
@@ -36,12 +36,12 @@ cong-↑ σ τ refl = refl
 
 π₂⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
   → π₂ (σ ⨟ τ) ≡ [ σ ]tm (π₂ τ)
-π₂⨟ {Γ} {Δ} {Θ} {A} σ τ = ≅-to-≡ $ begin
-  π₂ (σ ⨟ τ)                      ≅⟨ hcong (λ ν → π₂ (σ ⨟ ν)) (≡-to-≅ η,) ⟩
-  π₂ (σ ⨟ (π₁ τ , π₂ τ))          ≅⟨ hcong π₂ (≡-to-≅ ⨟,) ⟩
+π₂⨟ {Γ} {Δ} {Θ} {A} σ τ = begin
+  π₂ (σ ⨟ τ)                       ≡⟨ ≅-to-≡ $ hcong (λ ν → π₂ (σ ⨟ ν)) (≡-to-≅ η,) ⟩
+  π₂ (σ ⨟ (π₁ τ , π₂ τ))           ≡⟨ ≅-to-≡ $ hcong π₂ (≡-to-≅ ⨟,) ⟩
   π₂ ((σ ⨟ π₁ τ) , [ σ ]tm (π₂ τ)) ≡⟨ π₂, ⟩
   [ σ ]tm π₂ τ ∎
-  where open ≅-Reasoning
+  where open ≡-Reasoning
 
 ⁺⨟wk : (σ : Sub Γ Δ) {A : Ty Δ i} → (_⁺ σ {A}) ⨟ wk ≡ wk ⨟ σ
 ⁺⨟wk σ = begin
@@ -71,17 +71,21 @@ id↑ Γ A = begin
   idS ⁺ ∎
   where open ≡-Reasoning
 
-σ⨟τ↑ : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ i) → σ ⁺ ⨟ τ ⁺ ≅ (σ ⨟ τ) ⁺
-σ⨟τ↑ {Γ} {Δ} {Θ} σ τ A = HEq.sym $ begin
-  (σ ⨟ τ) ⁺                               ≡⟨⟩
-  wk ⨟ (σ ⨟ τ) , vz                       ≡⟨ ≅-to-≡ (hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ ⨟-assoc) refl) ⟩
-  (wk ⨟ σ) ⨟ τ , vz                       ≅⟨ {!vz!} ⟩
-  (_⁺ σ {[ τ ] A} ⨟ wk) ⨟ τ , {!!}        ≡⟨ {!!} ⟩
-  _⁺ σ {[ τ ] A} ⨟ (wk ⨟ τ) , {!!}        ≅⟨ {!!} ⟩
+σ⨟τ↑ : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ i) → σ ⁺ ⨟ τ ⁺ ≡ (σ ⨟ τ) ⁺
+σ⨟τ↑ {Γ} {Δ} {Θ} σ τ A = sym $ begin
+  (σ ⨟ τ) ⁺                    ≡⟨⟩
+  wk ⨟ (σ ⨟ τ) , vz            ≡⟨ ≅-to-≡ (hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ ⨟-assoc) refl) ⟩
+  (wk ⨟ σ) ⨟ τ , vz            ≡⟨ ≅-to-≡ $ hcong₂
+                                   {A = Sub (Γ , [ σ ⨟ τ ] A) Δ}
+                                   {B = λ γ → Tm (Γ , [ σ ] [ τ ] A)
+                                   ([ γ ] [ τ ] A)} (λ σ t → _,_ (σ ⨟ τ) {A} t) (≡-to-≅ (⁺⨟wk σ))
+                                   ([⁺]vz σ ([ τ ] A)) ⟨
+  (_⁺ σ {[ τ ] A} ⨟ wk) ⨟ τ , [ _⁺ σ {[ τ ] A} ]t vz
+    ≡⟨ ≅-to-≡ $ hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ ⨟-assoc) refl ⟨
   σ ⁺ ⨟ (wk ⨟ τ) , [ _⁺ σ {[ τ ] A} ]t vz ≡⟨ ⨟, ⟨
   σ ⁺ ⨟ ((wk ⨟ τ) , vz)                   ≡⟨⟩
   σ ⁺ ⨟ τ ⁺                               ∎
-  where open ≅-Reasoning
+  where open ≡-Reasoning
 
 ↑=⁺ : (A : Ty Δ i) (σ : Sub Γ Δ) → σ ↑ A ≡ σ ⁺
 ↑=⁺ A ∅            = refl
@@ -89,27 +93,30 @@ id↑ Γ A = begin
 ↑=⁺ A wk           = refl
 ↑=⁺ A (π₁ (π₁ σ))  = refl
 ↑=⁺ {Γ} A idS      = id↑ _ _
-↑=⁺ A (σ ⨟ τ)      = ≅-to-≡ $ begin
+↑=⁺ A (σ ⨟ τ)      = begin
   (σ ⨟ τ) ↑ A                 ≡⟨ refl ⟩
   (σ ↑ ([ τ ] A)) ⨟ (τ ↑ A)   ≡⟨ cong₂ _⨟_ (↑=⁺ _ σ) (↑=⁺ A τ) ⟩
-  σ ⁺ ⨟ τ ⁺                   ≅⟨ σ⨟τ↑ σ τ A ⟩
+  σ ⁺ ⨟ τ ⁺                   ≡⟨ σ⨟τ↑ σ τ A ⟩
   (σ ⨟ τ) ⁺                   ∎
-  where open ≅-Reasoning
+  where open ≡-Reasoning
 ↑=⁺ A (π₁ (σ , t)) = begin
   σ ↑ A        ≡⟨ ↑=⁺ A σ ⟩
   σ ⁺          ≡⟨ ≅-to-≡ (hcong (λ σ → _⁺ σ {A}) (≡-to-≅ π₁,)) ⟨
   π₁ (σ , t) ⁺ ∎
   where open ≡-Reasoning
-↑=⁺ A (π₁ (σ ⨟ τ)) = ≅-to-≡ $ begin
+↑=⁺ {Δ} {i} {Γ} A (π₁ (_⨟_ {Δ = Θ} σ τ)) = begin
   (σ ↑ _) ⨟ (π₁ τ ↑ _)               ≡⟨ cong₂ _⨟_ (↑=⁺ _ σ) (↑=⁺ _ (π₁ τ)) ⟩
   σ ⁺ ⨟ π₁ τ ⁺                       ≡⟨⟩
   σ ⁺ ⨟ (wk ⨟ π₁ τ , vz)             ≡⟨ ⨟, ⟩
-  (σ ⁺ ⨟ (wk ⨟ π₁ τ)) , [ _⁺ σ {[ π₁ τ ] A} ]t vz ≅⟨ hcong (σ ⁺ ⨟ (wk ⨟ π₁ τ) ,_) {!!} ⟩
-  σ ⁺ ⨟ (wk ⨟ π₁ τ) , vz           ≡⟨ {!!} ⟩
-  (σ ⁺ ⨟ wk) ⨟ π₁ τ , vz           ≅⟨ {!!} ⟩
-  wk ⨟ (σ ⨟ π₁ τ)   , vz           ≡⟨ refl ⟩
-  wk ⨟ π₁ (σ ⨟ τ)   , vz   ∎
-  where open ≅-Reasoning
+  σ ⁺ ⨟ (wk ⨟ π₁ τ) , [ _⁺ σ {[ π₁ τ ] A} ]t vz
+    ≡⟨ ≅-to-≡ $ hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ ⨟-assoc) refl ⟩
+  (σ ⁺ ⨟ wk) ⨟ π₁ τ , [ _⁺ σ {[ π₁ τ ] A} ]t vz
+    ≡⟨ ≅-to-≡ $ hcong₂ {A = Sub (Γ , [ σ ] [ π₁ τ ] A) Θ} {B = λ γ → Tm (Γ , [ σ ⨟ π₁ τ ] A) ([ γ ⨟ π₁ τ ] A)} (λ σ t → _,_ (σ ⨟ π₁ τ) {A} t) (≡-to-≅ (⁺⨟wk σ)) ([⁺]vz σ ([ π₁ τ ] A)) ⟩
+  (wk ⨟ σ) ⨟ π₁ τ   , vz           ≡⟨ ≅-to-≡ $ hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ ⨟-assoc) refl ⟨
+  wk ⨟ (σ ⨟ π₁ τ)   , vz           ≡⟨
+    (≅-to-≡ $ hcong₂ {A = Sub Γ Δ} {B = λ γ → Tm (Γ , [ σ ⨟ π₁ τ ] A) ([ wk ] [ γ ] A)} (λ σ t → _,_ (wk ⨟ σ) {A} t) (≡-to-≅ (π₁⨟ σ τ))  refl)  ⟨
+  wk ⨟ π₁ (σ ⨟ τ)   , vz           ∎
+  where open ≡-Reasoning
 
 -- Soundness of term substitution
 []tm≡[]t : {A : Ty Δ i}(u : Tm Δ A)(σ : Sub Γ Δ)

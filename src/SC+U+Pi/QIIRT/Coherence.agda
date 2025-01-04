@@ -6,6 +6,16 @@ open import Prelude
 open import SC+U+Pi.QIIRT.Base
 open import SC+U+Pi.QIIRT.Properties
 
+coh↑ : (σ τ : Sub Γ Δ) (A : Ty Δ i)
+  → σ ≡ τ
+  → σ ↑ A ≅ τ ↑ A
+coh↑ {Γ} {Δ} σ τ A σ=τ = begin
+  σ ↑ A ≅⟨ ≡-to-≅ $ ↑=⁺ A σ ⟩
+  σ ⁺   ≅⟨ hcong (λ σ → σ ⁺) (≡-to-≅ σ=τ) ⟩
+  τ ⁺   ≡⟨ ↑=⁺ A τ ⟨
+  τ ↑ A ∎
+  where open ≅-Reasoning
+  
 coh[idS⨟]
   : [ idS ⨟ σ ] A ≡ [ σ ] A
 coh[idS⨟] = refl
