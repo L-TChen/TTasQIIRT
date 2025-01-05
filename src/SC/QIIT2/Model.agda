@@ -80,6 +80,13 @@ record IH {i j}(P : Pdc {i} {j}) : Set (i ⊔ j) where
         (Pt : PTm PΓ PA t)(Pσ : PSub PΔ PΓ σ)
       ---------------------------------------
       → PTm PΔ (PA [ Pσ ]P) (t [ σ ])
+  
+  tr[]P
+    : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
+      {Pσ : PSub PΓ PΔ σ}{Pσ' : PSub PΓ PΔ σ'}{PA : PTy PΔ A}
+      (σ≡σ' : σ ≡ σ') → tr (PSub PΓ PΔ) σ≡σ' Pσ ≡ Pσ'
+    → tr (PTy PΓ) (cong (A [_]) σ≡σ') (PA [ Pσ ]P) ≡ PA [ Pσ' ]P
+  tr[]P refl refl = refl
 
 record IHEq {i j}(P : Pdc {i} {j})(indP : IH P) : Set (i ⊔ j) where
   open Pdc P
@@ -145,6 +152,6 @@ record IHEq {i j}(P : Pdc {i} {j})(indP : IH P) : Set (i ⊔ j) where
     Pβπ₂
       : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΔ A}
         {Pσ : PSub PΓ PΔ σ}{Pt : PTm PΓ (PA [ Pσ ]P) t}
-      → trPTm (cong (A [_]) βπ₁) {!   !} (trans (sym (tr-cong βπ₁)) βπ₂) (π₂P (Pσ ,Sub Pt)) ≡ Pt
+      → trPTm (cong (A [_]) βπ₁) (tr[]P βπ₁ Pβπ₁) (trans (sym (tr-cong βπ₁)) βπ₂) (π₂P (Pσ ,Sub Pt)) ≡ Pt
     
   

@@ -18,7 +18,7 @@ interleaved mutual
       Γ Γ' Δ Δ' Θ Θ' Φ : Ctx
       A A' B B'      : Ty Γ
       t t' s            : Tm Γ A
-      σ τ δ          : Sub Δ Γ
+      σ σ' τ δ          : Sub Δ Γ
 
   data _ where
     ∅
