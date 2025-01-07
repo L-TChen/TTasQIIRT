@@ -12,6 +12,9 @@ open import Data.Product                  public
 open import Data.Product.Properties       public
   using (Σ-≡,≡→≡; Σ-≡,≡←≡)
 
+open import Data.Nat                      public
+  using (ℕ; suc; zero)
+
 open import Relation.Binary.PropositionalEquality.WithK public
 open import Relation.Binary.PropositionalEquality       public
   using (_≡_; refl; sym; trans; cong; cong₂; trans-symˡ; trans-symʳ; J; module ≡-Reasoning)
