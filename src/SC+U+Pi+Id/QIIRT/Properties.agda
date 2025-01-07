@@ -5,7 +5,6 @@ module SC+U+Pi+Id.QIIRT.Properties where
 
 open import SC+U+Pi+Id.QIIRT.Base
 
-
 cong-↑ : (σ τ : Sub Γ Δ) → σ ≡ τ → σ ↑ A ≅ τ ↑ A
 cong-↑ σ τ refl = refl
 
@@ -31,11 +30,11 @@ cong-U refl = refl
   σ ⨟ π₁ τ                      ∎
   where open ≡-Reasoning
 
-π₁idS⨟ : (σ : Sub Γ (Δ , A)) → σ ⨟ π₁ idS ≡ π₁ σ
+π₁idS⨟ : (σ : Sub Γ (Δ , A)) → π₁ σ ≡ σ ⨟ π₁ idS
 π₁idS⨟ σ = begin
-  σ ⨟ π₁ idS   ≡⟨ π₁⨟ σ idS ⟨
-  π₁ (σ ⨟ idS) ≡⟨ cong π₁ (σ ⨟idS) ⟩
-  π₁ σ         ∎
+  π₁ σ         ≡⟨ cong π₁ (σ ⨟idS) ⟨
+  π₁ (σ ⨟ idS) ≡⟨ π₁⨟ σ idS ⟩
+  σ ⨟ π₁ idS   ∎
   where open ≡-Reasoning
 
 π₂⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
@@ -49,7 +48,7 @@ cong-U refl = refl
 
 ⁺⨟wk : (σ : Sub Γ Δ) {A : Ty Δ i} → (_⁺ σ {A}) ⨟ wk ≡ wk ⨟ σ
 ⁺⨟wk σ = begin
-  σ ⁺ ⨟ π₁ idS             ≡⟨ π₁idS⨟ (σ ⁺) ⟩
+  σ ⁺ ⨟ π₁ idS             ≡⟨ π₁idS⨟ (σ ⁺) ⟨
   π₁ (σ ⁺)                 ≡⟨⟩
   π₁ (π₁ idS ⨟ σ , π₂ idS) ≡⟨ π₁, ⟩
   π₁ idS ⨟ σ ∎
@@ -153,45 +152,19 @@ id↑ Γ A = begin
   [ σ ]t  u          ∎
   where open ≡-Reasoning
 
-⨟,⇈ : (Ξ : Tel (Δ , A))
-  → (σ ⨟ (τ , t)) ⇈ Ξ ≅ (σ ⨟ τ , [ σ ]tm t) ⇈ Ξ
-⨟,⇈ ∅       = ≡-to-≅ $ ⨟,
-⨟,⇈ {σ = σ} {τ} {t} (Ξ , A) = begin
-  ((σ ⨟ (τ , t)) ⇈ Ξ) ↑ A
-    ≅⟨ ≡-to-≅ (↑=⁺ A ((σ ⨟ (τ , t)) ⇈ Ξ)) ⟩
-  ((σ ⨟ (τ , t)) ⇈ Ξ) ⁺
-  ≅⟨ (let p = ⨟,⇈ {σ = σ} {τ} {t} Ξ in icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) ⨟, (λ σ → _⁺ σ {A}) p) ⟩
-  ((σ ⨟ τ , [ σ ]tm t) ⇈ Ξ) ⁺
-    ≡⟨ ↑=⁺ A ((σ ⨟ τ , [ σ ]tm t) ⇈ Ξ) ⟨
-  ((σ ⨟ τ , [ σ ]tm t) ⇈ Ξ) ↑ A
-    ∎
-  where open ≅-Reasoning
+module _ {σ γ : Sub Γ Δ} (σ=γ : σ ≡ γ) where
+  open ≅-Reasoning
 
-η∅⇈ : {σ : Sub Γ ∅} (Ξ : Tel ∅)
-  → σ ⇈ Ξ ≅ ∅ {Γ} ⇈ Ξ
-η∅⇈ ∅       = ≡-to-≅ $ η∅
-η∅⇈ {Γ} {σ} (Ξ , A) = begin
-  σ ⇈ Ξ ↑ A
-    ≅⟨ ≡-to-≅ (↑=⁺ A (σ ⇈ Ξ)) ⟩
-  _⁺ (σ ⇈ Ξ) {A}
-    ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) η∅ (λ σ → _⁺ σ {A}) (η∅⇈ Ξ) ⟩
-  _⁺ (∅ {Γ} ⇈ Ξ) {A}
-    ≡⟨ ↑=⁺ A (∅ ⇈ Ξ) ⟨
-  ∅ {Γ} ⇈ Ξ ↑ A
-    ∎
-  where open ≅-Reasoning
-
-η,⇈ : (Ξ : Tel (Δ , A))
-  → σ ⇈ Ξ ≅ (π₁ σ , π₂ σ) ⇈ Ξ
-η,⇈ ∅               = ≡-to-≅ η,
-η,⇈ {σ = σ} (Ξ , A) = begin
-  σ ⇈ Ξ ↑ A
-    ≅⟨ ≡-to-≅ (↑=⁺ A (σ ⇈ Ξ)) ⟩
-  _⁺ (σ ⇈ Ξ) {A}
-    ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) η, (λ σ → (σ ⁺) {A}) (η,⇈ Ξ) ⟩
-  _⁺ ((π₁ σ , π₂ σ) ⇈ Ξ) {A}
-    ≡⟨ ↑=⁺ A ((π₁ σ , π₂ σ) ⇈ Ξ) ⟨
-  (π₁ σ , π₂ σ) ⇈ Ξ ↑ A
-    ∎
-  where open ≅-Reasoning
-
+  ⇈-cong
+    : (Ξ : Tel Δ)
+    → σ ⇈ Ξ ≅ γ ⇈ Ξ
+  ⇈-cong ∅       = ≡-to-≅ σ=γ
+  ⇈-cong (Ξ , A) = begin
+    σ ⇈ Ξ ↑ A
+      ≅⟨ ≡-to-≅ (↑=⁺ A (σ ⇈ Ξ)) ⟩
+    (σ ⇈ Ξ) ⁺
+      ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) σ=γ (λ σ → _⁺ σ {A}) (⇈-cong Ξ) ⟩
+    (γ ⇈ Ξ) ⁺
+      ≡⟨ ↑=⁺ A (_ ⇈ Ξ) ⟨
+    γ ⇈ Ξ ↑ A
+      ∎
