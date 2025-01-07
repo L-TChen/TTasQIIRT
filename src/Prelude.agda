@@ -130,3 +130,12 @@ lift : (P : A → Set) {x y : A} (t : P x)
   → (p : x ≡ y)
   → (x , t) ≡ (y , tr P p t)
 lift P t refl = refl
+
+module _ {a b c : Level} {I : Set ℓ} (A : I → Set a) {B : {k : I} → A k → Set b} where
+  icong₃ : {C : {k : I} → (a : A k) → B a → B a → Set c}
+           {i j : I} {x : A i} {y : A j} {u₁ u₂ : B x} {v₁ v₂ : B y} →
+           i ≡ j →
+           (f : {k : I} → (z : A k) → (w₁ w₂ : B z) → C z w₁ w₂) →
+           x ≅ y → u₁ ≅ v₁ → u₂ ≅ v₂ →
+           f x u₁ u₂ ≅ f y v₁ v₂
+  icong₃ refl _ refl refl refl = refl

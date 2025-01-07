@@ -69,8 +69,8 @@ cong-U refl = refl
   
 id↑ : (Γ : Ctx) (A : Ty Γ i) → idS {Γ , A} ≡ idS ⁺
 id↑ Γ A = begin
-  idS             ≡⟨ η, ⟩
-  π₁ idS , π₂ idS ≡⟨ ≅-to-≡ $ hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ $ π₁ idS ⨟idS) refl ⟨
+  idS                   ≡⟨ η, ⟩
+  π₁ idS , π₂ idS       ≡⟨ ≅-to-≡ $ hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ $ π₁ idS ⨟idS) refl ⟨
   π₁ idS ⨟ idS , π₂ idS ≡⟨⟩
   idS ⁺ ∎
   where open ≡-Reasoning
@@ -152,13 +152,6 @@ id↑ Γ A = begin
   [ σ ]tm u          ≡⟨ []tm≡[]t u σ ⟩
   [ σ ]t  u          ∎
   where open ≡-Reasoning
-
-{-
-?0 : [ (σ ⨟ (τ , t)) ⇈ Ξ ]tm u HEq.≅ [ (σ ⨟ τ , [ σ ]t t) ⇈ Ξ ]tm u
-?2 : [ σ ⇈ Ξ ]tm u HEq.≅ [ ∅ ⇈ Ξ ]tm u
-?4 : [ σ ⇈ Ξ ]tm u HEq.≅ [ (π₁ σ , π₂ σ) ⇈ Ξ ]tm u
--}
-
 
 ⨟,⇈ : (Ξ : Tel (Δ , A))
   → (σ ⨟ (τ , t)) ⇈ Ξ ≅ (σ ⨟ τ , [ σ ]tm t) ⇈ Ξ

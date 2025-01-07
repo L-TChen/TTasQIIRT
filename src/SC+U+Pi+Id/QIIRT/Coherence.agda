@@ -70,7 +70,22 @@ module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) {i : ℕ} (A : Ty Θ i) (t : Tm Δ ([
   coh[⨟,]' Ξ eq (Π B C)    = icong₂ (λ Γ → Ty Γ _) (cong (Γ ⧺_) (≅-to-≡ eq)) Π
     (coh[⨟,]' Ξ eq B)
     (coh[⨟,]' (Ξ , B) (hcong₂ _,_ eq (coh[⨟,]' Ξ eq B)) C)
-  coh[⨟,]' Ξ eq (Id a u v) = {!!} -- we need icong₃
+  coh[⨟,]' Ξ eq (Id a u v) =  icong₃ (λ Γ → Tm Γ _) (cong (Γ ⧺_) (≅-to-≡ eq)) Id
+    (begin -- basically the same proof for every instance
+      [ (σ ⨟ (τ , t)) ⇈ Ξ ]t a       ≅⟨ ≡-to-≅ $ []tm≡[]t a _ ⟨
+      [ _ ⇈ Ξ ]tm a                  ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) ⨟, ([_]tm a) (⨟,⇈ Ξ) ⟩
+      [ _ ⇈ Ξ ]tm a                  ≡⟨ []tm≡[]t a _ ⟩
+      [ (σ ⨟ τ , [ σ ]tm t) ⇈ Ξ ]t a ∎)
+    (begin
+       [ (σ ⨟ (τ , t)) ⇈ Ξ ]t u       ≅⟨ ≡-to-≅ $ []tm≡[]t u _ ⟨
+       [ _ ⇈ Ξ ]tm u                  ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) ⨟, ([_]tm u) (⨟,⇈ Ξ) ⟩
+       [ _ ⇈ Ξ ]tm u                  ≡⟨ []tm≡[]t u _ ⟩
+       [ (σ ⨟ τ , [ σ ]tm t) ⇈ Ξ ]t u ∎)
+    (begin
+       [ (σ ⨟ (τ , t)) ⇈ Ξ ]t v       ≅⟨ ≡-to-≅ $ []tm≡[]t v _ ⟨
+       [ _ ⇈ Ξ ]tm v                  ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) ⨟, ([_]tm v) (⨟,⇈ Ξ) ⟩
+       [ _ ⇈ Ξ ]tm v                  ≡⟨ []tm≡[]t v _ ⟩
+       [ (σ ⨟ τ , [ σ ]tm t) ⇈ Ξ ]t v ∎)
 
   coh[⨟,]
     : (Ξ : Tel (Θ , A))
@@ -107,7 +122,34 @@ module _ {Γ : Ctx} (σ : Sub Γ ∅) where
   coh[η∅]' Ξ eq (Π B C)    = icong₂ (λ Γ → Ty Γ _) (cong (Γ ⧺_) (≅-to-≡ eq)) Π
     (coh[η∅]' Ξ eq B)
     (coh[η∅]' (Ξ , B) (hcong₂ _,_ eq (coh[η∅]' Ξ eq B)) C)
-  coh[η∅]' Ξ eq (Id a t u) = {!!}
+  coh[η∅]' Ξ eq (Id a t u) = icong₃ (λ Γ → Tm Γ _) (cong (Γ ⧺_) (≅-to-≡ eq)) Id
+    (begin
+      [ σ ⇈ Ξ ]t a
+        ≅⟨ ≡-to-≅ $ []tm≡[]t a (σ ⇈ Ξ) ⟨
+      [ σ ⇈ Ξ ]tm a
+        ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) η∅ ([_]tm a) (η∅⇈ Ξ) ⟩
+      [ ∅ ⇈ Ξ ]tm a
+        ≡⟨ []tm≡[]t a (∅ ⇈ Ξ) ⟩
+      [ ∅ ⇈ Ξ ]t a
+        ∎)
+    (begin
+      [ σ ⇈ Ξ ]t t
+        ≅⟨ ≡-to-≅ $ []tm≡[]t t (σ ⇈ Ξ) ⟨
+      [ σ ⇈ Ξ ]tm t
+        ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) η∅ ([_]tm t) (η∅⇈ Ξ) ⟩
+      [ ∅ ⇈ Ξ ]tm t
+        ≡⟨ []tm≡[]t t (∅ ⇈ Ξ) ⟩
+      [ ∅ ⇈ Ξ ]t t
+        ∎)
+    (begin
+      [ σ ⇈ Ξ ]t u
+        ≅⟨ ≡-to-≅ $ []tm≡[]t u (σ ⇈ Ξ) ⟨
+      [ σ ⇈ Ξ ]tm u
+        ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) η∅ ([_]tm u) (η∅⇈ Ξ) ⟩
+      [ ∅ ⇈ Ξ ]tm u
+        ≡⟨ []tm≡[]t u (∅ ⇈ Ξ) ⟩
+      [ ∅ ⇈ Ξ ]t u
+        ∎)
 
   coh[η∅] : (Ξ : Tel ∅)
     → (A : Ty (∅ ⧺ Ξ) i)
@@ -143,7 +185,34 @@ module _ {Γ Δ : Ctx} {A : Ty Δ i} (σ : Sub Γ (Δ , A)) where
   coh[η,]' Ξ eq (Π B C)    = icong₂ (λ Γ → Ty Γ _) (cong (Γ ⧺_) (≅-to-≡ eq)) Π
     (coh[η,]' Ξ eq B)
     (coh[η,]' (Ξ , B) (hcong₂ _,_ eq (coh[η,]' Ξ eq B)) C)
-  coh[η,]' Ξ eq (Id a t u) = {!!}
+  coh[η,]' Ξ eq (Id a t u) = icong₃ (λ Γ → Tm Γ _) (cong (Γ ⧺_) (≅-to-≡ eq)) Id
+    (begin
+      [ σ ⇈ Ξ ]t a
+        ≅⟨ ≡-to-≅ $ []tm≡[]t a (σ ⇈ Ξ) ⟨
+      [ σ ⇈ Ξ ]tm a
+        ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) η, ([_]tm a) (η,⇈ Ξ) ⟩
+      [ (π₁ σ , π₂ σ) ⇈ Ξ ]tm a
+        ≡⟨ []tm≡[]t a ((π₁ σ , π₂ σ) ⇈ Ξ) ⟩
+      [ (π₁ σ , π₂ σ) ⇈ Ξ ]t a
+        ∎)
+    (begin
+      [ σ ⇈ Ξ ]t t
+        ≅⟨ ≡-to-≅ $ []tm≡[]t t (σ ⇈ Ξ) ⟨
+      [ σ ⇈ Ξ ]tm t
+        ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) ((Δ , A) ⧺ Ξ)) η, ([_]tm t) (η,⇈ Ξ) ⟩
+      [ (π₁ σ , π₂ σ) ⇈ Ξ ]tm t
+        ≡⟨ []tm≡[]t t ((π₁ σ , π₂ σ) ⇈ Ξ) ⟩
+      [ (π₁ σ , π₂ σ) ⇈ Ξ ]t t
+        ∎)
+    (begin
+      [ σ ⇈ Ξ ]t u
+        ≅⟨ ≡-to-≅ $ []tm≡[]t u (σ ⇈ Ξ) ⟨
+      [ σ ⇈ Ξ ]tm u
+        ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) ((Δ , A) ⧺ Ξ)) η, ([_]tm u) (η,⇈ Ξ) ⟩
+      [ (π₁ σ , π₂ σ) ⇈ Ξ ]tm u
+        ≡⟨ []tm≡[]t u ((π₁ σ , π₂ σ) ⇈ Ξ) ⟩
+      [ (π₁ σ , π₂ σ) ⇈ Ξ ]t u
+        ∎)
 
   coh[η,]l ∅       = refl
   coh[η,]l (Ξ , A) = hcong₂ _,_ (coh[η,]l Ξ) (coh[η,]' Ξ (coh[η,]l Ξ) A)
