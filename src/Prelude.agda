@@ -15,7 +15,8 @@ open import Data.Product.Properties       public
 open import Relation.Binary.PropositionalEquality.WithK public
 open import Relation.Binary.PropositionalEquality       public
   using (_≡_; refl; sym; trans; cong; cong₂; trans-symˡ; trans-symʳ; J; module ≡-Reasoning)
-  renaming (subst to tr; dcong to apd; subst-subst to tr²; subst-∘ to tr-cong)
+  renaming (subst to tr; subst₂ to tr₂; dcong to apd; dcong₂ to apd₂;
+            subst-∘ to tr-cong; subst-subst to tr²; subst-application′ to tr-nat)
 open import Relation.Binary.HeterogeneousEquality       public
   using (_≅_; refl; ≅-to-≡; ≡-to-≅; module ≅-Reasoning)
   using (icong; icong₂)
@@ -89,6 +90,11 @@ to-Σ≡ : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}(x≡x' : x ≡ x'){y : Y 
       → _≡_ {A = Σ X Y} (x , y) (x' , y')
 to-Σ≡ refl refl = refl
 
+from-Σ≡ : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}{y : Y x}{y' : Y x'}
+        → _≡_ {A = Σ X Y} (x , y) (x' , y')
+        → Σ[ p ∈ x ≡ x' ] tr Y p y ≡ y'
+from-Σ≡ refl = refl , refl
+
 infix 10 _,Σ≡_
 _,Σ≡_ : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}(x≡x' : x ≡ x'){y : Y x}{y' : Y x'}
       → tr Y x≡x' y ≡ y'
@@ -109,6 +115,13 @@ apΣ
   → (x , t) ≡ (y , u)
   → _≡_ {_} {Σ B P} (f x , t) (f y , u)
 apΣ P f refl = refl
+
+ap₂Σ : {A : Set}{B : Set}{C : B → Set}
+       (f : A → B)(g : (x : A) → C (f x))
+       {x y : A}
+     → x ≡ y
+     → _≡_ {_} {Σ B C} (f x , g x) (f y , g y)
+ap₂Σ f g refl = refl
 
 lift : (P : A → Set) {x y : A} (t : P x)
   → (p : x ≡ y)
