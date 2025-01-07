@@ -1,10 +1,10 @@
-module SC+U+Pi.QIIRT.Coherence where
+module SC+U+Pi+Id.QIIRT.Coherence where
 
 open import Prelude
   hiding (_,_)
 
-open import SC+U+Pi.QIIRT.Base
-open import SC+U+Pi.QIIRT.Properties
+open import SC+U+Pi+Id.QIIRT.Base
+open import SC+U+Pi+Id.QIIRT.Properties
 
 coh↑ : (σ τ : Sub Γ Δ) (A : Ty Δ i)
   → σ ≡ τ

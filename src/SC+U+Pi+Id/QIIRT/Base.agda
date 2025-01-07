@@ -1,4 +1,4 @@
-module SC+U+Pi.QIIRT.Base where
+module SC+U+Pi+Id.QIIRT.Base where
  
 open import Prelude
   hiding (_,_)
