@@ -1,12 +1,12 @@
 -- Methods of Model of Substitution Calculus
-module SC+U+Pi.QIIRT.Model.Methods where
+module SC+U+Pi+Id.QIIRT.Model.Methods where
 
 open import Prelude
   hiding (_,_)
 open import Data.Nat hiding (_⊔_)
-open import SC+U+Pi.QIIRT.Base
-open import SC+U+Pi.QIIRT.Properties
-open import SC+U+Pi.QIIRT.Model.Motives
+open import SC+U+Pi+Id.QIIRT.Base
+open import SC+U+Pi+Id.QIIRT.Properties
+open import SC+U+Pi+Id.QIIRT.Model.Motives
 
 private variable
   Δ' Φ : Ctx
@@ -67,11 +67,6 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
         : {PΓ : PCtx Γ}(i : ℕ)
         ----------------------
         → PTy PΓ (suc i) (U i)
-      PΠ
-        : {PΓ : PCtx Γ}
-          (PA : PTy PΓ i A)(PB : PTy (PΓ ,Ctx PA) i B)
-        -----------------------------------------------
-        → PTy PΓ i (Π A B)
       PEl
         : {PΓ : PCtx Γ}
           (Pt : PTm PΓ (PU i) t)
@@ -82,6 +77,16 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
           (PA : PTy PΓ i A)
         → -----------------------
           PTy PΓ (suc i) (Lift A)
+      PΠ
+        : {PΓ : PCtx Γ}
+          (PA : PTy PΓ i A)(PB : PTy (PΓ ,Ctx PA) i B)
+        -----------------------------------------------
+        → PTy PΓ i (Π A B)
+      PId
+        : {a : Tm Γ (U i)}{t u : Tm Γ (El a)}{PΓ : PCtx Γ}
+          (Pa : PTm PΓ (PU i) a)(Pt : PTm PΓ (PEl Pa) t)(Pu : PTm PΓ (PEl Pa) u)
+          ----------------------------------------------------------------------
+        → PTy PΓ i (Id a t u)
       
       -- induction on terms
       π₂P
@@ -98,16 +103,6 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
         : {PΓ : PCtx Γ}(PA : PTy PΓ i A)
         ------------------------------
         → PTm PΓ (PU i) (c A)
-      ƛP
-        : {PΓ : PCtx Γ}{PA : PTy PΓ i A}{PB : PTy (PΓ ,Ctx PA) i B}
-          (Pt : PTm (PΓ ,Ctx PA) PB t)
-        ----------------------------
-        → PTm PΓ (PΠ PA PB) (ƛ t)
-      appP
-        : {PΓ : PCtx Γ}{PA : PTy PΓ i A}{PB : PTy (PΓ ,Ctx PA) i B}
-          (Pt : PTm PΓ (PΠ PA PB) t)
-        -----------------------------
-        → PTm (PΓ ,Ctx PA) PB (app t)
       mkP
         : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
           (Pt : PTm PΓ PA t)
@@ -118,6 +113,16 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
           (Pt : PTm PΓ (PLift PA) t)
         → --------------------------
           PTm PΓ PA (un t)
+      ƛP
+        : {PΓ : PCtx Γ}{PA : PTy PΓ i A}{PB : PTy (PΓ ,Ctx PA) i B}
+          (Pt : PTm (PΓ ,Ctx PA) PB t)
+        ----------------------------
+        → PTm PΓ (PΠ PA PB) (ƛ t)
+      appP
+        : {PΓ : PCtx Γ}{PA : PTy PΓ i A}{PB : PTy (PΓ ,Ctx PA) i B}
+          (Pt : PTm PΓ (PΠ PA PB) t)
+        -----------------------------
+        → PTm (PΓ ,Ctx PA) PB (app t)
       
       -- induction on lifting
       _↑P_
@@ -134,27 +139,6 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
     record InductionRec : Set (ℓ ⊔ ℓ′) where
       field
         -- Induction on computation rules of [_]_
-        ---- compute [_]P_ w.r.t. types 
-        PU[] 
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{Pσ : PSub PΓ PΔ σ}
-          -------------------
-          → [ Pσ ]P (PU i) ≡ PU i
-        PEl[]
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-            (Pσ : PSub PΓ PΔ σ)(Pu : PTm PΔ (PU i) u)
-            -----------------------------------------
-          → ([ Pσ ]P (PEl Pu)) ≡ PEl (tr PTmFamₜ PU[] ([ Pσ ]tP Pu))
-        PΠ[]
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΔ i A}{PB : PTy (PΔ ,Ctx PA) i B}
-            (Pσ : PSub PΓ PΔ σ)
-            -------------------------------------------------------
-          → [ Pσ ]P (PΠ PA PB) ≡ PΠ ([ Pσ ]P PA) ([ Pσ ↑P PA ]P PB)
-        PLift[]
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΔ i A}
-            {Pσ : PSub PΓ PΔ σ}
-          → --------------------------------------------
-            [ Pσ ]P (PLift PA) ≡ PLift ([ Pσ ]P PA)
-        
         ---- compute [_]P_ w.r.t. substitutions
         [PidS]
             : {PΓ : PCtx Γ}
@@ -178,8 +162,7 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
             {Pσ : PSub PΓ PΔ σ}{Pτ : PSub PΔ (PΘ ,Ctx PB) τ}
             -------------------------------------------------
           → [ π₁P (Pσ ⨟P Pτ) ]P PA ≡ [ Pσ ]P ([ π₁P Pτ ]P PA)
-
-        -- compute [_]tP_
+        -- compute [_]tP_ w.r.t substitutions
         [PidS]tP
           : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
             {Pt : PTm PΓ PA t}
@@ -204,6 +187,36 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
             -------------------------------------------------
           → tr PTmFamₜ [π₁P⨟P]P ([ π₁P (Pσ ⨟P Pτ) ]tP Pt) ≡ [ Pσ ]tP ([ π₁P Pτ ]tP Pt)
         -- Should we put rest of each cases here or catch all ?
+        
+        ---- compute [_]P_ w.r.t. types 
+        []PU
+          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{Pσ : PSub PΓ PΔ σ}
+          -------------------
+          → [ Pσ ]P (PU i) ≡ PU i
+        []PEl
+          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
+            (Pσ : PSub PΓ PΔ σ)(Pu : PTm PΔ (PU i) u)
+            -----------------------------------------
+          → ([ Pσ ]P (PEl Pu)) ≡ PEl (tr PTmFamₜ []PU ([ Pσ ]tP Pu))
+        []PLift
+          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΔ i A}
+            {Pσ : PSub PΓ PΔ σ}
+          → --------------------------------------------
+            [ Pσ ]P (PLift PA) ≡ PLift ([ Pσ ]P PA)
+        []PΠ
+          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΔ i A}{PB : PTy (PΔ ,Ctx PA) i B}
+            (Pσ : PSub PΓ PΔ σ)
+            -------------------------------------------------------
+          → [ Pσ ]P (PΠ PA PB) ≡ PΠ ([ Pσ ]P PA) ([ Pσ ↑P PA ]P PB)
+        []PId
+          : {a : Tm Δ (U i)}{t u : Tm Δ (El a)}{PΓ : PCtx Γ}{PΔ : PCtx Δ}
+            {Pσ : PSub PΓ PΔ σ}{Pa : PTm PΔ (PU i) a}
+            {Pt : PTm PΔ (PEl Pa) t}{Pu : PTm PΔ (PEl Pa) u}
+            ------------------------------------------------
+          → [ Pσ ]P (PId Pa Pt Pu) ≡ PId (tr PTmFamₜ []PU ([ Pσ ]tP Pa))
+                                         (tr PTmFamₜ ([]PEl Pσ Pa) ([ Pσ ]tP Pt))
+                                         (tr PTmFamₜ ([]PEl Pσ Pa) ([ Pσ ]tP Pu))
+        
       _⁺ᴾ
         : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
           (Pσ : PSub PΓ PΔ σ){PA : PTy PΔ i A}
@@ -214,7 +227,7 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
       open InductionRec indR
       record Induction≡ : Set (ℓ ⊔ ℓ′) where
         field
-          -- induction on substitution equalities
+          -- induction on substitution equality constructors
           _⨟PPidS
             : {PΓ : PCtx Γ}{PΔ : PCtx Γ}
             → (Pσ : PSub PΔ PΓ σ)
@@ -251,7 +264,7 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
             -------------------------------
             → tr PSubFam η, Pσ ≡ π₁P Pσ ,Sub π₂P Pσ
           
-          -- induction on term equalities
+          -- induction on term equality constructors
           [PidS]tmP
             : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
               {Pt : PTm PΓ PA t}
@@ -267,26 +280,26 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
               {Pσ : PSub PΓ PΔ σ}{Pt : PTm PΓ ([ Pσ ]P PA) t}
               --------------------------------------------
             → tr₂ (PTm PΓ) [π₁P,Sub]P π₂, (π₂P (Pσ ,Sub Pt)) ≡ Pt
-          cP[]tP
+          []tPcP
             : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
               (Pσ : PSub PΓ PΔ σ)(PA : PTy PΔ i A)
               ------------------------------------
-            → tr₂ (PTm PΓ) PU[] (c[]t σ A) ([ Pσ ]tP (cP PA)) ≡ cP ([ Pσ ]P PA)
-          PUη
-            : {PΓ : PCtx Γ}{Pu : PTm PΓ (PU i) u}
-            → tr PTmFam Uη (cP (PEl Pu)) ≡ Pu
+            → tr₂ (PTm PΓ) []PU ([]tc σ A) ([ Pσ ]tP (cP PA)) ≡ cP ([ Pσ ]P PA)
           []mkP
             : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
               {Pσ : PSub PΓ PΔ σ}{PA : PTy PΔ i A}
               {Pt : PTm PΔ PA t}
               ------------------
-            → tr₂ (PTm PΓ) PLift[] []mk ([ Pσ ]tmP mkP Pt) ≡ mkP ([ Pσ ]tmP Pt)
+            → tr₂ (PTm PΓ) []PLift []mk ([ Pσ ]tmP mkP Pt) ≡ mkP ([ Pσ ]tmP Pt)
           []unP
             : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
               {Pσ : PSub PΓ PΔ σ}{PA : PTy PΔ i A}
               {Pt : PTm PΔ (PLift PA) t}
               --------------------------
-            → tr PTmFam ([]un σ A t) ([ Pσ ]tmP unP Pt) ≡ unP (tr PTmFamₜ PLift[] ([ Pσ ]tmP Pt))
+            → tr PTmFam ([]un σ A t) ([ Pσ ]tmP unP Pt) ≡ unP (tr PTmFamₜ []PLift ([ Pσ ]tmP Pt))
+          PUη
+            : {PΓ : PCtx Γ}{Pu : PTm PΓ (PU i) u}
+            → tr PTmFam Uη (cP (PEl Pu)) ≡ Pu
           PLiftβ
             : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
               {Pt : PTm PΓ PA t}
@@ -297,12 +310,18 @@ module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
               {Pt : PTm PΓ (PLift PA) t}
               --------------------------
             → tr PTmFam Liftη (mkP (unP Pt)) ≡ Pt
+          reflectP
+            : {PΓ : PCtx Γ}{a : Tm Γ (U i)}{t u : Tm Γ (El a)}{p : Tm Γ (Id a t u)}
+              {Pa : PTm PΓ (PU i) a}{Pt : PTm PΓ (PEl Pa) t}{Pu : PTm PΓ (PEl Pa) u}
+            → (Pp : PTm PΓ (PId Pa Pt Pu) p)
+              -------------------------------
+            → tr PTmFam (reflect p) Pt ≡ Pu
           []ƛP
             : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
               {PA : PTy PΔ i A}{PB : PTy (PΔ ,Ctx PA) i B}
               {Pt : PTm (PΔ ,Ctx PA) PB t}{Pσ : PSub PΓ PΔ σ}
               ---------------------------------------------------------
-            → tr₂ (PTm PΓ) (PΠ[] Pσ) []ƛ ([ Pσ ]tmP (ƛP Pt)) ≡ ƛP ([ Pσ ↑P PA ]tmP Pt)
+            → tr₂ (PTm PΓ) ([]PΠ Pσ) []ƛ ([ Pσ ]tmP (ƛP Pt)) ≡ ƛP ([ Pσ ↑P PA ]tmP Pt)
           PΠβ
             : {PΓ : PCtx Γ}{PA : PTy PΓ i A}{PB : PTy (PΓ ,Ctx PA) i B}
               {Pt : PTm (PΓ ,Ctx PA) PB t}

@@ -1,10 +1,10 @@
 -- Motives of Model of Substitution Calculus
-module SC+U+Pi.QIIRT.Model.Motives where
+module SC+U+Pi+Id.QIIRT.Model.Motives where
 
 open import Prelude
   hiding (_,_)
 open import Data.Nat hiding (_⊔_)
-open import SC+U+Pi.QIIRT.Base
+open import SC+U+Pi+Id.QIIRT.Base
 
 record Predicate {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
