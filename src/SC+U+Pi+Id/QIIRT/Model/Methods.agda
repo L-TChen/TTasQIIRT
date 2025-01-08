@@ -8,347 +8,286 @@ open import SC+U+Pi+Id.QIIRT.Base
 open import SC+U+Pi+Id.QIIRT.Properties
 open import SC+U+Pi+Id.QIIRT.Model.Motives
 
-private variable
-  Δ' Φ : Ctx
-  A' B' C' : Ty Γ i
-  σ' τ' γ' : Sub Γ Δ
+module _ {ℓ ℓ′} (P : Pred {ℓ} {ℓ′}) where
+  open Pred P
 
-module _ {ℓ ℓ′}(P : Predicate {ℓ} {ℓ′}) where
-  open Predicate P
-  record InductionCtor : Set (ℓ ⊔ ℓ′) where
+  private variable
+    PΓ PΔ PΘ : PCtx Δ
+    PA PB    : PTy PΔ i A
+    Pσ Pτ Pγ : PSub PΔ PΘ σ
+    Pt Pu Pa : PTm PΓ PA t
+    
+  module _
+    -- constructors before Ty and Sub
+    (P[_]_
+      : {Γ : Ctx} {PΓ : PCtx Γ} {Δ : Ctx} {PΔ : PCtx Δ} {σ : Sub Γ Δ} {i : ℕ} {A : Ty Δ i} (Pσ : PSub PΓ PΔ σ) (PA : PTy PΔ i A)
+      → PTy PΓ i ([ σ ] A))
+    (PCtx∅ : PCtx ∅)
+    (_,PCtx_
+      : {Γ : Ctx} {i : ℕ} {A : Ty Γ i} (PΓ : PCtx Γ) (PA : PTy PΓ i A)
+      → PCtx (Γ , A))
+    {Γ : Ctx}
+    (PΓ : Pred.PCtx P Γ) where
+  -- generalised variables will be shadowed by this module parameter PΓ 
+
+    PTyΓ : (i : ℕ) → Ty Γ i → Set ℓ
+    PTyΓ  = PTy PΓ
+
+    PSubΓ : PCtx Δ → Sub Γ Δ → Set ℓ′
+    PSubΓ = PSub PΓ 
+
+    PTmΓ : PTyΓ i A → Tm Γ A → Set _
+    PTmΓ = PTm PΓ
+
+    record MethodOver : Set (ℓ ⊔ ℓ′) where
+      field
+        PSub∅
+          : PSubΓ PCtx∅ ∅
+        _,PSub_
+          : (Pσ : PSubΓ PΔ σ) (Pt : PTm PΓ (P[ Pσ ] PA) t)
+          → PSubΓ (PΔ ,PCtx PA) (σ , t)
+        PidS
+          : PSubΓ PΓ idS
+        _P⨟_
+          : (Pσ : PSubΓ PΔ σ)(Pτ : PSub PΔ PΘ τ)
+          → PSubΓ PΘ (σ ⨟ τ)
+        Pπ₁
+          : PSubΓ (PΔ ,PCtx PA) σ
+          → PSubΓ PΔ (π₁ σ)
+        P⟨_⟩
+          : PTmΓ PA t
+          → PSubΓ (PΓ ,PCtx PA) ⟨ t ⟩
+        PU
+          : (i : ℕ)
+          → PTyΓ (suc i) (U i)
+        PEl
+          : PTm PΓ (PU i) u
+          → PTyΓ i (El u)
+        PLift
+          : PTyΓ i       A
+          → PTyΓ (suc i) (Lift A)
+        PΠ
+          : (PA : PTyΓ i A) (PB : PTy (PΓ ,PCtx PA) i B)
+          → PTyΓ i (Π A B)
+        PId
+          : {a : Tm Γ (U i)} {t u : Tm Γ (El a)}
+          → (Pa : PTmΓ (PU i) a)
+            (Pt : PTmΓ (PEl Pa) t) (Pu : PTmΓ (PEl Pa) u)
+          → PTyΓ i (Id a t u)
+
+  record Method : Set (ℓ ⊔ ℓ′) where
     field
-      -- induction on type and term substitution function
-      [_]P_
-        : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-          (Pσ : PSub PΔ PΓ σ)(PA : PTy PΓ i A)
-        --------------------------------------
-        → PTy PΔ i ([ σ ] A)
-      [_]tP_
-        : {PΓ : PCtx Γ}{PA : PTy PΓ i A}{PΔ : PCtx Δ}
-          (Pσ : PSub PΔ PΓ σ)(Pt : PTm PΓ PA t)
-        ---------------------------------------
-        → PTm PΔ ([ Pσ ]P PA) ([ σ ]t t)
-      
-      -- induction on contexts
+      P[_]_
+        : (Pσ : PSub PΓ PΔ σ) (PA : PTy PΔ i A)
+        → PTy PΓ i ([ σ ] A)
       ∅Ctx
         : PCtx ∅
       _,Ctx_
-        : (PΓ : PCtx Γ)(PA : PTy PΓ i A)
-        ------------------------------
+        : (PΓ : PCtx Γ) (PA : PTy PΓ i A)
         → PCtx (Γ , A)
-      
-      -- induction on substitutions
-      ∅Sub
-        : {PΔ : PCtx Δ}
-        ---------------
-        → PSub PΔ ∅Ctx ∅
-      _,Sub_
-        : {PΔ : PCtx Δ}{PΓ : PCtx Γ}{PA : PTy PΓ i A}
-          (Pσ : PSub PΔ PΓ σ)(Pt : PTm PΔ ([ Pσ ]P PA) t)
-        --------------------------------------------------
-        → PSub PΔ (PΓ ,Ctx PA) (σ , t)
-      PidS
-        : {PΔ : PCtx Γ}
-        ---------------
-        → PSub PΔ PΔ idS
-      _⨟P_
-        : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}
-          (Pτ : PSub PΓ PΔ τ)(Pσ : PSub PΔ PΘ σ)
-        -----------------------------------------
-        → PSub PΓ PΘ (τ ⨟ σ)
-      π₁P
-        : {PΔ : PCtx Δ}{PΓ : PCtx Γ}{PA : PTy PΓ i A}
-          (Pσ : PSub PΔ (PΓ ,Ctx PA) σ)
-        -------------------------------
-        → PSub PΔ PΓ (π₁ σ)
-      
-      -- induction on types
-      PU
-        : {PΓ : PCtx Γ}(i : ℕ)
-        ----------------------
-        → PTy PΓ (suc i) (U i)
-      PEl
-        : {PΓ : PCtx Γ}
-          (Pt : PTm PΓ (PU i) t)
-        -------------------------
-        → PTy PΓ i (El t)
-      PLift
-        : {PΓ : PCtx Γ}
-          (PA : PTy PΓ i A)
-        → -----------------------
-          PTy PΓ (suc i) (Lift A)
-      PΠ
-        : {PΓ : PCtx Γ}
-          (PA : PTy PΓ i A)(PB : PTy (PΓ ,Ctx PA) i B)
-        -----------------------------------------------
-        → PTy PΓ i (Π A B)
-      PId
-        : {a : Tm Γ (U i)}{t u : Tm Γ (El a)}{PΓ : PCtx Γ}
-          (Pa : PTm PΓ (PU i) a)(Pt : PTm PΓ (PEl Pa) t)(Pu : PTm PΓ (PEl Pa) u)
-          ----------------------------------------------------------------------
-        → PTy PΓ i (Id a t u)
-      
-      -- induction on terms
-      π₂P
-        : {PΔ : PCtx Δ}{PΓ : PCtx Γ}{PA : PTy PΓ i A}
-          (Pσ : PSub PΔ (PΓ ,Ctx PA) σ)
-        ---------------------------------
-        → PTm PΔ ([ π₁P Pσ ]P PA) (π₂ σ)
-      [_]tmP_
-        : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΔ i A}
-          (Pσ : PSub PΓ PΔ σ)(Pt : PTm PΔ PA t)
-        ---------------------------------------
-        → PTm PΓ ([ Pσ ]P PA) ([ σ ]tm t)
-      cP
-        : {PΓ : PCtx Γ}(PA : PTy PΓ i A)
-        ------------------------------
-        → PTm PΓ (PU i) (c A)
-      mkP
-        : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
-          (Pt : PTm PΓ PA t)
-        → ------------------------
-          PTm PΓ (PLift PA) (mk t)
-      unP
-        : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
-          (Pt : PTm PΓ (PLift PA) t)
-        → --------------------------
-          PTm PΓ PA (un t)
-      ƛP
-        : {PΓ : PCtx Γ}{PA : PTy PΓ i A}{PB : PTy (PΓ ,Ctx PA) i B}
-          (Pt : PTm (PΓ ,Ctx PA) PB t)
-        ----------------------------
-        → PTm PΓ (PΠ PA PB) (ƛ t)
-      appP
-        : {PΓ : PCtx Γ}{PA : PTy PΓ i A}{PB : PTy (PΓ ,Ctx PA) i B}
-          (Pt : PTm PΓ (PΠ PA PB) t)
-        -----------------------------
-        → PTm (PΓ ,Ctx PA) PB (app t)
-      
-      -- induction on lifting
-      _↑P_
-        : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-          (Pσ : PSub PΓ PΔ σ)(PA : PTy PΔ i A)
-          ------------------------------------
-        → PSub (PΓ ,Ctx ([ Pσ ]P PA)) (PΔ ,Ctx PA) (σ ↑ A)
-    PTmFamₛ : {PΔ : PCtx Δ}{PΓ : PCtx Γ}(PA : PTy PΔ i A){t : Tm Γ ([ σ ] A)}
+      PSubTyOp
+        : (PΓ : PCtx Γ) → MethodOver P[_]_ ∅Ctx _,Ctx_ PΓ
+    
+    PTmFamₛ : (PA : PTy PΔ i A) {t : Tm Γ ([ σ ] A)}
             → (Pσ : PSub PΓ PΔ σ) → Set ℓ′
-    PTmFamₛ {PΓ = PΓ} PA {t} Pσ = PTm PΓ ([ Pσ ]P PA) t
+    PTmFamₛ PA {t} Pσ = PTm _ (P[ Pσ ] PA) t
 
-  module _ (indC : InductionCtor) where
-    open InductionCtor indC
-    record InductionRec : Set (ℓ ⊔ ℓ′) where
-      field
-        -- Induction on computation rules of [_]_
-        ---- compute [_]P_ w.r.t. substitutions
-        [PidS]
-            : {PΓ : PCtx Γ}
-            → {PA : PTy PΓ i A}
-              ------------------
-            → [ PidS ]P PA ≡ PA
-        [⨟P]P
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}
-            {Pτ : PSub PΓ PΔ τ}{Pσ : PSub PΔ PΘ σ}{PA : PTy PΘ i A}
-            -------------------------------------------------------
-          → [ Pτ ⨟P Pσ ]P PA ≡ [ Pτ ]P ([ Pσ ]P PA)
-        [π₁P,Sub]P
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA' : PTy PΔ i A'}
-            {Pσ : PSub PΓ PΔ σ}{Pt : PTm PΓ ([ Pσ ]P PA') t}
-            {PA : PTy PΔ i A}
-            ----------------------------------------
-          → ([ π₁P (Pσ ,Sub Pt) ]P PA) ≡ [ Pσ ]P PA
-        [π₁P⨟P]P
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}
-            {PA : PTy PΘ i A}{PB : PTy PΘ j B}
-            {Pσ : PSub PΓ PΔ σ}{Pτ : PSub PΔ (PΘ ,Ctx PB) τ}
-            -------------------------------------------------
-          → [ π₁P (Pσ ⨟P Pτ) ]P PA ≡ [ Pσ ]P ([ π₁P Pτ ]P PA)
-        -- compute [_]tP_ w.r.t substitutions
-        [PidS]tP
-          : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
-            {Pt : PTm PΓ PA t}
-            -------------------------------------------
-          → tr PTmFamₜ [PidS] ([ PidS ]tP Pt) ≡ Pt
-        [⨟P]tP
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}
-            {PA : PTy PΘ i A}{Pσ : PSub PΓ PΔ σ}{Pτ : PSub PΔ PΘ τ}{Pt : PTm PΘ PA t}
-            --------------------------------------------------------------------------
-          → tr PTmFamₜ [⨟P]P ([ Pσ ⨟P Pτ ]tP Pt) ≡ [ Pσ ]tP ([ Pτ ]tP Pt)
-        [π₁P,Sub]tP
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA' : PTy PΔ i A'}
-            {Pσ : PSub PΓ PΔ σ}{Pt : PTm PΓ ([ Pσ ]P PA') t}
-            {PA : PTy PΔ i A}{Pu : PTm PΔ PA u}
-            -------------------------------------------
-          → tr PTmFamₜ [π₁P,Sub]P ([ π₁P (Pσ ,Sub Pt) ]tP Pu) ≡ [ Pσ ]tP Pu
-        [π₁P⨟P]tP
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}
-            {PA : PTy PΘ i A}{PB : PTy PΘ j B}
-            {Pσ : PSub PΓ PΔ σ}{Pτ : PSub PΔ (PΘ ,Ctx PB) τ}
-            {Pt : PTm PΘ PA t}
-            -------------------------------------------------
-          → tr PTmFamₜ [π₁P⨟P]P ([ π₁P (Pσ ⨟P Pτ) ]tP Pt) ≡ [ Pσ ]tP ([ π₁P Pτ ]tP Pt)
-        -- Should we put rest of each cases here or catch all ?
-        
-        ---- compute [_]P_ w.r.t. types 
-        []PU
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{Pσ : PSub PΓ PΔ σ}
-          -------------------
-          → [ Pσ ]P (PU i) ≡ PU i
-        []PEl
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-            (Pσ : PSub PΓ PΔ σ)(Pu : PTm PΔ (PU i) u)
-            -----------------------------------------
-          → ([ Pσ ]P (PEl Pu)) ≡ PEl (tr PTmFamₜ []PU ([ Pσ ]tP Pu))
-        []PLift
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΔ i A}
-            {Pσ : PSub PΓ PΔ σ}
-          → --------------------------------------------
-            [ Pσ ]P (PLift PA) ≡ PLift ([ Pσ ]P PA)
-        []PΠ
-          : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΔ i A}{PB : PTy (PΔ ,Ctx PA) i B}
-            (Pσ : PSub PΓ PΔ σ)
-            -------------------------------------------------------
-          → [ Pσ ]P (PΠ PA PB) ≡ PΠ ([ Pσ ]P PA) ([ Pσ ↑P PA ]P PB)
-        []PId
-          : {a : Tm Δ (U i)}{t u : Tm Δ (El a)}{PΓ : PCtx Γ}{PΔ : PCtx Δ}
-            {Pσ : PSub PΓ PΔ σ}{Pa : PTm PΔ (PU i) a}
-            {Pt : PTm PΔ (PEl Pa) t}{Pu : PTm PΔ (PEl Pa) u}
-            ------------------------------------------------
-          → [ Pσ ]P (PId Pa Pt Pu) ≡ PId (tr PTmFamₜ []PU ([ Pσ ]tP Pa))
-                                         (tr PTmFamₜ ([]PEl Pσ Pa) ([ Pσ ]tP Pt))
-                                         (tr PTmFamₜ ([]PEl Pσ Pa) ([ Pσ ]tP Pu))
-        
-      _⁺ᴾ
-        : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-          (Pσ : PSub PΓ PΔ σ){PA : PTy PΔ i A}
-        → PSub (PΓ ,Ctx ([ Pσ ]P PA)) (PΔ ,Ctx PA) (σ ⁺)
-      Pσ ⁺ᴾ = (π₁P PidS ⨟P Pσ) ,Sub tr PTmFamₜ (sym $ [⨟P]P) (π₂P PidS)
-    
-    module _ (indR : InductionRec) where
-      open InductionRec indR
-      record Induction≡ : Set (ℓ ⊔ ℓ′) where
-        field
-          -- induction on substitution equality constructors
-          _⨟PPidS
-            : {PΓ : PCtx Γ}{PΔ : PCtx Γ}
-            → (Pσ : PSub PΔ PΓ σ)
-            --------------------------------------
-            → tr PSubFam (σ ⨟idS) (Pσ ⨟P PidS) ≡ Pσ
-          PidS⨟P_
-            : {PΓ : PCtx Γ}{PΔ : PCtx Γ}
-            → (Pσ : PSub PΔ PΓ σ)
-            ---------------------
-            → tr PSubFam (idS⨟ σ) (PidS ⨟P Pσ) ≡ Pσ
-          ⨟P-assoc
-            : {PΓ : PCtx Γ}{PΔ : PCtx Γ}{PΘ : PCtx Θ}{PΦ : PCtx Φ}
-            → {Pσ : PSub PΓ PΔ σ}{Pτ : PSub PΔ PΘ τ}{Pγ : PSub PΘ PΦ γ}
-            --------------------------------------------------------------
-            → tr PSubFam ⨟-assoc (Pσ ⨟P (Pτ ⨟P Pγ)) ≡ (Pσ ⨟P Pτ) ⨟P Pγ
-          π₁P,Sub
-            : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΔ i A}
-              {Pσ : PSub PΓ PΔ σ}{Pt : PTm PΓ ([ Pσ ]P PA) t}
-            -------------------------------------------------
-            → tr (PSub PΓ PΔ) π₁, (π₁P (Pσ ,Sub Pt)) ≡ Pσ
-          ⨟P,Sub -- the transport equation seems too long
-            : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}{PA : PTy PΘ i A}
-            → {Pσ : PSub PΓ PΔ σ}{Pτ : PSub PΔ PΘ τ}{Pt : PTm PΔ ([ Pτ ]P PA) t}
-            ------------------------------------------------------------------------------------------
-            → tr PSubFam ⨟, (Pσ ⨟P (Pτ ,Sub Pt)) ≡ (Pσ ⨟P Pτ) ,Sub tr PTmFamₜ (sym $ [⨟P]P) ([ Pσ ]tmP Pt)
-          η∅Sub
-            : {PΔ : PCtx Δ}
-            → {Pσ : PSub PΔ ∅Ctx σ}
-            -----------------------
-            → tr PSubFam η∅ Pσ ≡ ∅Sub
-          η,Sub
-            : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΓ i A}
-            → {Pσ : PSub PΔ (PΓ ,Ctx PA) σ}
-            -------------------------------
-            → tr PSubFam η, Pσ ≡ π₁P Pσ ,Sub π₂P Pσ
-          
-          -- induction on term equality constructors
-          [PidS]tmP
-            : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
-              {Pt : PTm PΓ PA t}
-              -------------------------------------------
-            → tr₂ (PTm PΓ) [PidS] [id]tm ([ PidS ]tmP Pt) ≡ Pt
-          [⨟P]tmP
-            : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PΘ : PCtx Θ}
-              {PA : PTy PΘ i A}{Pσ : PSub PΓ PΔ σ}{Pτ : PSub PΔ PΘ τ}{Pt : PTm PΘ PA t}
-              --------------------------------------------------------------------------
-            → tr₂ (PTm PΓ) [⨟P]P [⨟]tm ([ Pσ ⨟P Pτ ]tmP Pt) ≡ [ Pσ ]tmP ([ Pτ ]tmP Pt)
-          π₂P,Sub
-            : {PΓ : PCtx Γ}{PΔ : PCtx Δ}{PA : PTy PΔ i A}
-              {Pσ : PSub PΓ PΔ σ}{Pt : PTm PΓ ([ Pσ ]P PA) t}
-              --------------------------------------------
-            → tr₂ (PTm PΓ) [π₁P,Sub]P π₂, (π₂P (Pσ ,Sub Pt)) ≡ Pt
-          []tPcP
-            : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-              (Pσ : PSub PΓ PΔ σ)(PA : PTy PΔ i A)
-              ------------------------------------
-            → tr₂ (PTm PΓ) []PU ([]tc σ A) ([ Pσ ]tP (cP PA)) ≡ cP ([ Pσ ]P PA)
-          []mkP
-            : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-              {Pσ : PSub PΓ PΔ σ}{PA : PTy PΔ i A}
-              {Pt : PTm PΔ PA t}
-              ------------------
-            → tr₂ (PTm PΓ) []PLift []mk ([ Pσ ]tmP mkP Pt) ≡ mkP ([ Pσ ]tmP Pt)
-          []unP
-            : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-              {Pσ : PSub PΓ PΔ σ}{PA : PTy PΔ i A}
-              {Pt : PTm PΔ (PLift PA) t}
-              --------------------------
-            → tr PTmFam ([]un σ A t) ([ Pσ ]tmP unP Pt) ≡ unP (tr PTmFamₜ []PLift ([ Pσ ]tmP Pt))
-          PUη
-            : {PΓ : PCtx Γ}{Pu : PTm PΓ (PU i) u}
-            → tr PTmFam Uη (cP (PEl Pu)) ≡ Pu
-          PLiftβ
-            : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
-              {Pt : PTm PΓ PA t}
-              ------------------
-            → tr PTmFam Liftβ (unP (mkP Pt)) ≡ Pt
-          PLiftη
-            : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
-              {Pt : PTm PΓ (PLift PA) t}
-              --------------------------
-            → tr PTmFam Liftη (mkP (unP Pt)) ≡ Pt
-          reflectP
-            : {PΓ : PCtx Γ}{a : Tm Γ (U i)}{t u : Tm Γ (El a)}{p : Tm Γ (Id a t u)}
-              {Pa : PTm PΓ (PU i) a}{Pt : PTm PΓ (PEl Pa) t}{Pu : PTm PΓ (PEl Pa) u}
-            → (Pp : PTm PΓ (PId Pa Pt Pu) p)
-              -------------------------------
-            → tr PTmFam (reflect p) Pt ≡ Pu
-          []ƛP
-            : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-              {PA : PTy PΔ i A}{PB : PTy (PΔ ,Ctx PA) i B}
-              {Pt : PTm (PΔ ,Ctx PA) PB t}{Pσ : PSub PΓ PΔ σ}
-              ---------------------------------------------------------
-            → tr₂ (PTm PΓ) ([]PΠ Pσ) []ƛ ([ Pσ ]tmP (ƛP Pt)) ≡ ƛP ([ Pσ ↑P PA ]tmP Pt)
-          PΠβ
-            : {PΓ : PCtx Γ}{PA : PTy PΓ i A}{PB : PTy (PΓ ,Ctx PA) i B}
-              {Pt : PTm (PΓ ,Ctx PA) PB t}
-              ----------------------------
-            → tr PTmFam Πβ (appP (ƛP Pt)) ≡ Pt
-          PΠη
-            : {PΓ : PCtx Γ}{PA : PTy PΓ i A}{PB : PTy (PΓ ,Ctx PA) i B}
-              {Pt : PTm PΓ (PΠ PA PB) t}
-              --------------------------
-            → tr PTmFam Πη (ƛP (appP Pt)) ≡ Pt
-          
-          -- induction on type equalities
-          PUβ
-            : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
-            → tr PTyFam Uβ (PEl (cP PA)) ≡ PA
-          ↑P=⁺ᴾ
-            : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-              (Pσ : PSub PΓ PΔ σ)(PA : PTy PΔ i A)
-            → tr (PSub (PΓ ,Ctx ([ Pσ ]P PA)) (PΔ ,Ctx PA)) (↑=⁺ A σ) (Pσ ↑P PA) ≡ Pσ ⁺ᴾ
-  
-  record Induction : Set (ℓ ⊔ ℓ′) where
+    -- unfold the definitions in IndCtorOver manually
+    PSub∅
+      : PSub PΓ ∅Ctx ∅
+    PSub∅ = PSubTyOp _ .MethodOver.PSub∅
+
+    _,PSub_
+      : (Pσ : PSub PΓ PΔ σ) (Pt : PTm PΓ (P[ Pσ ] PA) t)
+      → PSub PΓ (PΔ ,Ctx PA) (σ , t)
+    _,PSub_ = PSubTyOp _ .MethodOver._,PSub_
+
+    PidS
+      : PSub PΓ PΓ idS
+    PidS = PSubTyOp _ .MethodOver.PidS
+
+    _P⨟_
+      : (Pσ : PSub PΓ PΔ σ) (Pτ : PSub PΔ PΘ τ)
+      → PSub PΓ PΘ (σ ⨟ τ)
+    _P⨟_ = PSubTyOp _ .MethodOver._P⨟_
+
+    Pπ₁
+      : (Pσ : PSub PΓ (PΔ ,Ctx PA) σ)
+      → PSub PΓ PΔ (π₁ σ)
+    Pπ₁ = PSubTyOp _ .MethodOver.Pπ₁
+
+    P⟨_⟩
+      : PTm PΓ PA t
+      → PSub PΓ (PΓ ,Ctx PA) ⟨ t ⟩
+    P⟨_⟩ = PSubTyOp _ .MethodOver.P⟨_⟩
+
+    PU
+      : (i : ℕ)
+      → PTy PΓ (suc i) (U i)
+    PU = PSubTyOp _ .MethodOver.PU
+
+    PEl
+      : PTm PΓ (PU i) u
+      → PTy PΓ i (El u)
+    PEl = PSubTyOp _ .MethodOver.PEl
+
+    PLift
+      : PTy PΓ i       A
+      → PTy PΓ (suc i) (Lift A)
+    PLift = PSubTyOp _ .MethodOver.PLift
+
+    PΠ
+      : (PA : PTy PΓ i A) (PB : PTy (PΓ ,Ctx PA) i B)
+      → PTy PΓ i (Π A B)
+    PΠ = PSubTyOp _ .MethodOver.PΠ
+
+    PId
+      : {a : Tm Γ (U i)} {t u : Tm Γ (El a)}
+      → (Pa : PTm PΓ (PU i) a)
+        (Pt : PTm PΓ (PEl Pa) t) (Pu : PTm PΓ (PEl Pa) u)
+      → PTy PΓ i (Id a t u)
+    PId = PSubTyOp _.MethodOver.PId
+
     field
-      indC : InductionCtor
-      indR : InductionRec indC
-      ind≡ : Induction≡ indC indR
-    
-    open InductionCtor indC public
-    open InductionRec indR public
-    open Induction≡ ind≡ public
- 
+      Pπ₂
+        : (Pσ : PSub PΓ (PΔ ,Ctx PA) σ)
+        → PTm PΓ (P[ Pπ₁ Pσ ] PA) (π₂ σ)
+      P[_]tm_
+        : (Pσ : PSub PΓ PΔ σ)(Pt : PTm PΔ PA t)
+        ---------------------------------------
+        → PTm PΓ (P[ Pσ ] PA) ([ σ ]tm t)
+      Pc
+        : PTy PΓ i A
+        → PTm PΓ (PU i) (c A)
+      Pmk
+        : (Pt : PTm PΓ PA t)
+        → PTm PΓ (PLift PA) (mk t)
+      Pun
+        : (Pt : PTm PΓ (PLift PA) t)
+        → PTm PΓ PA (un t)
+      Pƛ_
+        : PTm (PΓ ,Ctx PA) PB t
+        → PTm PΓ (PΠ PA PB) (ƛ t)
+      Papp
+        : PTm PΓ (PΠ PA PB) t
+        → PTm (PΓ ,Ctx PA) PB (app t)
+      _P⁺
+        : (Pσ : PSub PΓ PΔ σ) {PA : PTy PΔ i A}
+        → PSub (PΓ ,Ctx (P[ Pσ ] PA)) (PΔ ,Ctx PA) (σ ⁺)
+      _P↑_
+        : (Pσ : PSub PΓ PΔ σ) (PA : PTy PΔ i A)
+        → PSub (PΓ ,Ctx (P[ Pσ ] PA)) (PΔ ,Ctx PA) (σ ↑ A)
+      P[_]t_
+        : (Pσ : PSub PΓ PΔ σ)(Pt : PTm PΔ PA u)
+        → PTm PΓ (P[ Pσ ] PA) ([ σ ]t u)
+
+  --module _ (indC : IndCtor) where
+  --  open IndCtor indC
+  --  record IndRec : Set (ℓ ⊔ ℓ′) where
+  
+    field
+      -- Induction on computation rules of [_]_
+      ---- compute [_]P_ w.r.t. substitutions
+      [PidS]
+        : P[ PidS ] PA ≡ PA
+      [P⨟]
+        : P[ Pτ P⨟ Pσ ] PA ≡ P[ Pτ ] P[ Pσ ] PA
+      [Pπ₁,]
+        : P[ Pπ₁ (Pσ ,PSub Pt) ] PA ≡ P[ Pσ ] PA
+      [Pπ₁⨟]
+        : P[ Pπ₁ (Pσ P⨟ Pτ) ] PA ≡ P[ Pσ ] P[ Pπ₁ Pτ ] PA
+      -- compute [_]tP_ w.r.t substitutions
+      [PidS]tP
+        : tr PTmFamₜ [PidS] (P[ PidS ]t Pt) ≡ Pt
+      [⨟P]tP
+        : tr PTmFamₜ [P⨟] (P[ Pσ P⨟ Pτ ]t Pt) ≡ P[ Pσ ]t (P[ Pτ ]t Pt)
+      [π₁P,Sub]tP
+        : tr PTmFamₜ [Pπ₁,] (P[ Pπ₁ (Pσ ,PSub Pt) ]t Pu) ≡ P[ Pσ ]t Pu
+      [π₁P⨟P]tP
+        : tr PTmFamₜ [Pπ₁⨟] (P[ Pπ₁ (Pσ P⨟ Pτ) ]t Pt)
+        ≡ P[ Pσ ]t (P[ Pπ₁ Pτ ]t Pt)
+-- Should we put rest of each cases here or catch all ?
+
+      ---- compute [_]P_ w.r.t. types 
+      []PU
+        : P[ Pσ ] (PU i) ≡ PU i
+      []PEl
+        : (Pσ : PSub PΓ PΔ σ) (Pu : PTm PΔ (PU i) u)
+        → (P[ Pσ ] (PEl Pu)) ≡ PEl (tr PTmFamₜ []PU (P[ Pσ ]t Pu))
+      []PLift
+        : P[ Pσ ] (PLift PA) ≡ PLift (P[ Pσ ] PA)
+      []PΠ
+        : (Pσ : PSub PΓ PΔ σ)
+        → P[ Pσ ] (PΠ PA PB) ≡ PΠ (P[ Pσ ] PA) (P[ Pσ P↑ PA ] PB)
+      []PId
+        : P[ Pσ ] (PId Pa Pt Pu)
+        ≡ PId (tr PTmFamₜ []PU (P[ Pσ ]t Pa))
+          (tr PTmFamₜ ([]PEl Pσ Pa) (P[ Pσ ]t Pt))
+          (tr PTmFamₜ ([]PEl Pσ Pa) (P[ Pσ ]t Pu))
+      _⁺ᴾ
+        : (Pσ : PSub PΓ PΔ σ) 
+        → _P⁺ Pσ {PA} ≡ (Pπ₁ PidS P⨟ Pσ) ,PSub (tr PTmFamₜ (sym $ [P⨟]) $ Pπ₂ PidS)
+
+      _⨟PidS
+        : (Pσ : PSub PΔ PΓ σ)
+        --------------------------------------
+        → tr PSubFam (σ ⨟idS) (Pσ P⨟ PidS) ≡ Pσ
+      PidS⨟P_
+        : (Pσ : PSub PΔ PΓ σ)
+        ---------------------
+        → tr PSubFam (idS⨟ σ) (PidS P⨟ Pσ) ≡ Pσ
+      ⨟P-assoc
+        : tr PSubFam ⨟-assoc (Pσ P⨟ (Pτ P⨟ Pγ)) ≡ (Pσ P⨟ Pτ) P⨟ Pγ
+      π₁P,Sub
+        : tr (PSub PΓ PΔ) π₁, (Pπ₁ (Pσ ,PSub Pt)) ≡ Pσ
+      ⨟P,Sub -- the transport equation seems too long
+        : tr PSubFam ⨟, (Pσ P⨟ (Pτ ,PSub Pt)) ≡
+        (Pσ P⨟ Pτ) ,PSub tr PTmFamₜ (sym $ [P⨟]) (P[ Pσ ]tm Pt)
+      η∅Sub
+        : tr PSubFam η∅ Pσ ≡ PSub∅
+      η,Sub
+        : tr PSubFam η, Pσ ≡ Pπ₁ Pσ ,PSub Pπ₂ Pσ
+
+      -- induction on term equality constructors
+      [PidS]tmP
+        : tr₂ (PTm PΓ) [PidS] [id]tm (P[ PidS ]tm Pt) ≡ Pt
+      [⨟P]tmP
+        : tr₂ (PTm PΓ) [P⨟] [⨟]tm (P[ Pσ P⨟ Pτ ]tm Pt) ≡ P[ Pσ ]tm (P[ Pτ ]tm Pt)
+      π₂P,Sub
+        : tr₂ (PTm PΓ) [Pπ₁,] π₂, (Pπ₂ (Pσ ,PSub Pt)) ≡ Pt
+      []tPcP
+        : (Pσ : PSub PΓ PΔ σ)(PA : PTy PΔ i A)
+        → tr₂ (PTm PΓ) []PU ([]tc σ A) (P[ Pσ ]t (Pc PA))
+        ≡ Pc (P[ Pσ ] PA)
+      []mkP
+        : tr₂ (PTm PΓ) []PLift []mk (P[ Pσ ]tm Pmk Pt)
+        ≡ Pmk (P[ Pσ ]tm Pt)
+      []unP
+        : tr PTmFam ([]un σ A t) (P[ Pσ ]tm Pun Pt)
+        ≡ Pun (tr PTmFamₜ []PLift (P[ Pσ ]tm Pt))
+      PUη
+        : tr PTmFam Uη (Pc (PEl Pu)) ≡ Pu
+      PLiftβ
+        : tr PTmFam Liftβ (Pun (Pmk Pt)) ≡ Pt
+      PLiftη
+        : tr PTmFam Liftη (Pmk (Pun Pt)) ≡ Pt
+      reflectP
+        : {p : Tm Γ (Id _ t u)}
+        → (Pp : PTm PΓ (PId Pa Pt Pu) p)
+          -------------------------------
+        → tr PTmFam (reflect p) Pt ≡ Pu
+      []ƛP
+        : tr₂ (PTm PΓ) ([]PΠ Pσ) []ƛ (P[ Pσ ]tm (Pƛ Pt))
+        ≡ Pƛ (P[ Pσ P↑ PA ]tm Pt)
+      PΠβ
+        : tr PTmFam Πβ (Papp (Pƛ Pt)) ≡ Pt
+      PΠη
+        : tr PTmFam Πη (Pƛ (Papp Pt)) ≡ Pt
+
+      -- induction on type equalities
+      PUβ
+        : {PΓ : PCtx Γ}{PA : PTy PΓ i A}
+        → tr PTyFam Uβ (PEl (Pc PA)) ≡ PA
+--        ↑P=⁺ᴾ
+--          : (Pσ : PSub PΓ PΔ σ)(PA : PTy PΔ i A)
+--          → tr (PSub (PΓ ,Ctx (P[ Pσ ] PA)) (PΔ ,Ctx PA)) (↑=⁺ A σ) (Pσ P↑ PA) ≡ {!!} -- Pσ ⁺ᴾ
