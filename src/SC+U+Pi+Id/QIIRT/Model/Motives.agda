@@ -6,17 +6,30 @@ open import Prelude
 open import Data.Nat hiding (_⊔_)
 open import SC+U+Pi+Id.QIIRT.Base
 
-record Predicate {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
+record PredOverPCtx {ℓ ℓ′ : Level} (PCtx : Ctx → Set ℓ) {Γ : Ctx} (PΓ : PCtx Γ) : Set (lsuc (ℓ ⊔ ℓ′)) where
+  field
+    PTy'  : (i : ℕ) → Ty Γ i → Set ℓ
+    PSub' : PCtx Δ → Sub Γ Δ → Set ℓ′
+open PredOverPCtx
+
+record Pred {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
     PCtx
       : Ctx → Set ℓ
-    PTy
-      : PCtx Γ → (i : ℕ) → Ty Γ i → Set ℓ
-    PSub
-      : PCtx Γ → PCtx Δ → Sub Γ Δ → Set ℓ′
+    PTySub
+      : (PΓ : PCtx Γ)
+      → PredOverPCtx {ℓ} {ℓ′} PCtx PΓ
     PTm
-      : (PΓ : PCtx Γ) → PTy PΓ i A → Tm Γ A → Set ℓ′
-  
+      : (PΓ : PCtx Γ) (PA : PTySub PΓ .PTy' i A)
+      → Tm Γ A → Set ℓ′
+      -- PTySub Γ .PTy' i A → Tm Γ A → Set ℓ′
+
+  PTy : (PΓ : PCtx Γ) → (i : ℕ) → Ty Γ i → Set ℓ
+  PTy PΓ = PTySub PΓ .PTy'
+
+  PSub : (PΓ : PCtx Γ) (PΔ : PCtx Δ) → Sub Γ Δ → Set ℓ′
+  PSub PΓ = PTySub PΓ .PSub'
+
   PTyFam : {PΓ : PCtx Γ}{i : ℕ} → Ty Γ i → Set ℓ
   PTyFam {PΓ = PΓ} {i} = PTy PΓ i
 
