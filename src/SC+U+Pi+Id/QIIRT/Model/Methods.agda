@@ -8,188 +8,199 @@ open import SC+U+Pi+Id.QIIRT.Base
 open import SC+U+Pi+Id.QIIRT.Properties
 open import SC+U+Pi+Id.QIIRT.Model.Motives
 
-module _ {ℓ ℓ′}(P : Pred {ℓ} {ℓ′}) where
-  open Pred P
+module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
+  open Motive Mot
   private variable
-    PΓ PΔ PΘ : PCtx Γ
-    Pσ Pτ Pγ : PSub PΔ PΓ σ
-    PA PB PC : PTy PΓ i A
-    Pa Pt Pu : PTm PΓ PA t
+    Γᴹ Δᴹ Θᴹ : Ctxᴹ Γ
+    σᴹ τᴹ γᴹ : Subᴹ Δᴹ Γᴹ σ
+    Aᴹ Bᴹ Cᴹ : Tyᴹ Γᴹ i A
+    aᴹ tᴹ uᴹ : Tmᴹ Γᴹ Aᴹ t
     p : Tm Γ (Id a t u)
     
   record Method : Set (ℓ ⊔ ℓ′) where
     field
       -- induction on type and term substitution function
-      [_]P_
-        : (Pσ : PSub PΔ PΓ σ)(PA : PTy PΓ i A)
-        → PTy PΔ i ([ σ ] A)
+      [_]ᴹ_
+        : (σᴹ : Subᴹ Δᴹ Γᴹ σ)(Aᴹ : Tyᴹ Γᴹ i A)
+        → Tyᴹ Δᴹ i ([ σ ] A)
       
-    PTmFamₛ : {PΔ : PCtx Δ}{PΓ : PCtx Γ}(PA : PTy PΔ i A){t : Tm Γ ([ σ ] A)}
-            → (Pσ : PSub PΓ PΔ σ) → Set ℓ′
-    PTmFamₛ {PΓ = PΓ} PA {t} Pσ = PTm PΓ ([ Pσ ]P PA) t
+    -- TmᴹFamₛ : {Γᴹ : Ctxᴹ Γ}{Δᴹ : Ctxᴹ Δ}(Aᴹ : Tyᴹ Δᴹ i A){t : Tm Γ ([ σ ] A)} → (σᴹ : Subᴹ Γᴹ Δᴹ σ) → Set ℓ′
+    -- TmᴹFamₛ {Γᴹ = Γᴹ} Aᴹ {t} σᴹ = Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ) t
 
     field
-      ∅Ctx
-        : PCtx ∅
-      _,Ctx_
-        : (PΓ : PCtx Γ)(PA : PTy PΓ i A)
-        → PCtx (Γ , A)
-      ∅Sub
-        : PSub PΔ ∅Ctx ∅
-      _,Sub_
-        : (Pσ : PSub PΓ PΔ σ)(Pt : PTm PΓ ([ Pσ ]P PA) t)
-        → PSub PΓ (PΔ ,Ctx PA) (σ , t)
-      PidS
-        : PSub PΔ PΔ idS
-      _⨟P_
-        : (Pτ : PSub PΓ PΔ τ)(Pσ : PSub PΔ PΘ σ)
-        → PSub PΓ PΘ (τ ⨟ σ)
-      π₁P
-        : (Pσ : PSub PΔ (PΓ ,Ctx PA) σ)
-        → PSub PΔ PΓ (π₁ σ)
-      [PidS]
-        : [ PidS ]P PA ≡ PA
-      [⨟P]P
-        : [ Pτ ⨟P Pσ ]P PA ≡ [ Pτ ]P ([ Pσ ]P PA)
-      [π₁P,Sub]P
-        : ([ π₁P (Pσ ,Sub Pt) ]P PA) ≡ [ Pσ ]P PA
-      [π₁P⨟P]P
-        : [ π₁P (Pσ ⨟P Pτ) ]P PA ≡ [ Pσ ]P ([ π₁P Pτ ]P PA)
-      PU
+      ∅ᶜᴹ
+        : Ctxᴹ ∅
+      _,ᶜᴹ_
+        : (Γᴹ : Ctxᴹ Γ)(Aᴹ : Tyᴹ Γᴹ i A)
+        → Ctxᴹ (Γ , A)
+      ∅ˢᴹ
+        : Subᴹ Δᴹ ∅ᶜᴹ ∅
+      _,ˢᴹ_
+        : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ) t)
+        → Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ) (σ , t)
+      idSᴹ
+        : Subᴹ Δᴹ Δᴹ idS
+      _⨟ᴹ_
+        : (τᴹ : Subᴹ Γᴹ Δᴹ τ)(σᴹ : Subᴹ Δᴹ Θᴹ σ)
+        → Subᴹ Γᴹ Θᴹ (τ ⨟ σ)
+      π₁ᴹ
+        : (σᴹ : Subᴹ Δᴹ (Γᴹ ,ᶜᴹ Aᴹ) σ)
+        → Subᴹ Δᴹ Γᴹ (π₁ σ)
+      [idSᴹ]
+        : [ idSᴹ ]ᴹ Aᴹ ≡ Aᴹ
+      [⨟ᴹ]ᴹ
+        : [ τᴹ ⨟ᴹ σᴹ ]ᴹ Aᴹ ≡ [ τᴹ ]ᴹ ([ σᴹ ]ᴹ Aᴹ)
+      [π₁ᴹ,ˢᴹ]ᴹ
+        : ([ π₁ᴹ (σᴹ ,ˢᴹ tᴹ) ]ᴹ Aᴹ) ≡ [ σᴹ ]ᴹ Aᴹ
+      [π₁ᴹ⨟ᴹ]ᴹ
+        : [ π₁ᴹ (σᴹ ⨟ᴹ τᴹ) ]ᴹ Aᴹ ≡ [ σᴹ ]ᴹ ([ π₁ᴹ τᴹ ]ᴹ Aᴹ)
+      Uᴹ
         : (i : ℕ)
-        → PTy PΓ (suc i) (U i)
-      PEl
-        : PTm PΓ (PU i) t
-        → PTy PΓ i (El t)
-      PLift
-        : PTy PΓ i A
-        → PTy PΓ (suc i) (Lift A)
-      PΠ
-        : (PA : PTy PΓ i A)(PB : PTy (PΓ ,Ctx PA) i B)
-        → PTy PΓ i (Π A B)
-      PId
-        : (Pa : PTm PΓ (PU i) a)(Pt : PTm PΓ (PEl Pa) t)(Pu : PTm PΓ (PEl Pa) u)
-        → PTy PΓ i (Id a t u)
-      π₂P
-        : (Pσ : PSub PΔ (PΓ ,Ctx PA) σ)
+        → Tyᴹ Γᴹ (suc i) (U i)
+      Elᴹ
+        : Tmᴹ Γᴹ (Uᴹ i) t
+        → Tyᴹ Γᴹ i (El t)
+      Liftᴹ
+        : Tyᴹ Γᴹ i A
+        → Tyᴹ Γᴹ (suc i) (Lift A)
+      Πᴹ
+        : (Aᴹ : Tyᴹ Γᴹ i A)(Bᴹ : Tyᴹ (Γᴹ ,ᶜᴹ Aᴹ) i B)
+        → Tyᴹ Γᴹ i (Π A B)
+      Idᴹ
+        : (aᴹ : Tmᴹ Γᴹ (Uᴹ i) a)(tᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ) t)(uᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ) u)
+        → Tyᴹ Γᴹ i (Id a t u)
+      π₂ᴹ
+        : (σᴹ : Subᴹ Δᴹ (Γᴹ ,ᶜᴹ Aᴹ) σ)
         ---------------------------------
-        → PTm PΔ ([ π₁P Pσ ]P PA) (π₂ σ)
-      [_]tmP_
-        : (Pσ : PSub PΓ PΔ σ) {PA : PTy PΔ i A}
-        → (Pt : PTm PΔ PA t)
-        → PTm PΓ ([ Pσ ]P PA) ([ σ ]tm t)
-      cP
-        : PTy PΓ i A
-        → PTm PΓ (PU i) (c A)
-      mkP
-        : PTm PΓ PA t
-        → PTm PΓ (PLift PA) (mk t)
-      unP
-        : PTm PΓ (PLift PA) t
-        → PTm PΓ PA (un t)
-      ƛP_
-        : PTm (PΓ ,Ctx PA) PB t
-        → PTm PΓ (PΠ PA PB) (ƛ t)
-      appP
-        : PTm PΓ (PΠ PA PB) t
-        → PTm (PΓ ,Ctx PA) PB (app t)
-    _⁺ᴾ
-      : (Pσ : PSub PΓ PΔ σ)
-      → PSub (PΓ ,Ctx ([ Pσ ]P PA)) (PΔ ,Ctx PA) (σ ⁺)
-    Pσ ⁺ᴾ = (π₁P PidS ⨟P Pσ) ,Sub tr PTmFamₜ (sym $ [⨟P]P) (π₂P PidS)
+        → Tmᴹ Δᴹ ([ π₁ᴹ σᴹ ]ᴹ Aᴹ) (π₂ σ)
+      [_]tmᴹ_
+        : (σᴹ : Subᴹ Γᴹ Δᴹ σ) {Aᴹ : Tyᴹ Δᴹ i A}
+        → (tᴹ : Tmᴹ Δᴹ Aᴹ t)
+        → Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σ ]tm t)
+      cᴹ
+        : Tyᴹ Γᴹ i A
+        → Tmᴹ Γᴹ (Uᴹ i) (c A)
+      mkᴹ
+        : Tmᴹ Γᴹ Aᴹ t
+        → Tmᴹ Γᴹ (Liftᴹ Aᴹ) (mk t)
+      unᴹ
+        : Tmᴹ Γᴹ (Liftᴹ Aᴹ) t
+        → Tmᴹ Γᴹ Aᴹ (un t)
+      ƛᴹ_
+        : Tmᴹ (Γᴹ ,ᶜᴹ Aᴹ) Bᴹ t
+        → Tmᴹ Γᴹ (Πᴹ Aᴹ Bᴹ) (ƛ t)
+      appᴹ
+        : Tmᴹ Γᴹ (Πᴹ Aᴹ Bᴹ) t
+        → Tmᴹ (Γᴹ ,ᶜᴹ Aᴹ) Bᴹ (app t)
+    _⁺ᴹ
+      : (σᴹ : Subᴹ Γᴹ Δᴹ σ)
+      → Subᴹ (Γᴹ ,ᶜᴹ ([ σᴹ ]ᴹ Aᴹ)) (Δᴹ ,ᶜᴹ Aᴹ) (σ ⁺)
+    σᴹ ⁺ᴹ = (π₁ᴹ idSᴹ ⨟ᴹ σᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
 
     field
-      _↑P_
-        : (Pσ : PSub PΓ PΔ σ)(PA : PTy PΔ i A)
-        → PSub (PΓ ,Ctx ([ Pσ ]P PA)) (PΔ ,Ctx PA) (σ ↑ A)
+      _↑ᴹ_
+        : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(Aᴹ : Tyᴹ Δᴹ i A)
+        → Subᴹ (Γᴹ ,ᶜᴹ ([ σᴹ ]ᴹ Aᴹ)) (Δᴹ ,ᶜᴹ Aᴹ) (σ ↑ A)
       -- [TODO]: the definitional equalities for _↑_ should go here
-      -- [TODO]: Add _↑P_ ≡ _⁺ᴾ_
+      -- [TODO]: Add _↑ᴹ_ ≡ _⁺ᴾ_
       -- [TODO]: the deifnitional equalities for [_]t_ should go here
       -- [TODO]: Add [_]t_ ≡ [_]tm_
-      [_]tP_
-        : (Pσ : PSub PΔ PΓ σ)(Pt : PTm PΓ PA t)
-        → PTm PΔ ([ Pσ ]P PA) ([ σ ]t t)
-      [PidS]tP
-        : tr PTmFamₜ [PidS] ([ PidS ]tP Pt) ≡ Pt
-      [⨟P]tP
-        : tr PTmFamₜ [⨟P]P ([ Pσ ⨟P Pτ ]tP Pt)
-        ≡ [ Pσ ]tP [ Pτ ]tP Pt
-      [π₁P,Sub]tP
-        : tr PTmFamₜ [π₁P,Sub]P ([ π₁P (Pσ ,Sub Pt) ]tP Pu)
-        ≡ [ Pσ ]tP Pu
-      [π₁P⨟P]tP
-        : tr PTmFamₜ [π₁P⨟P]P ([ π₁P (Pσ ⨟P Pτ) ]tP Pt)
-        ≡ [ Pσ ]tP ([ π₁P Pτ ]tP Pt)
+      [_]tᴹ_
+        : (σᴹ : Subᴹ Δᴹ Γᴹ σ)(tᴹ : Tmᴹ Γᴹ Aᴹ t)
+        → Tmᴹ Δᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σ ]t t)
+      [idSᴹ]tᴹ
+        : tr TmᴹFamₜ [idSᴹ] ([ idSᴹ ]tᴹ tᴹ) ≡ tᴹ
+      [⨟ᴹ]tᴹ
+        : tr TmᴹFamₜ [⨟ᴹ]ᴹ ([ σᴹ ⨟ᴹ τᴹ ]tᴹ tᴹ)
+        ≡ [ σᴹ ]tᴹ [ τᴹ ]tᴹ tᴹ
+      [π₁ᴹ,ˢᴹ]tᴹ
+        : tr TmᴹFamₜ [π₁ᴹ,ˢᴹ]ᴹ ([ π₁ᴹ (σᴹ ,ˢᴹ tᴹ) ]tᴹ uᴹ)
+        ≡ [ σᴹ ]tᴹ uᴹ
+      [π₁ᴹ⨟ᴹ]tᴹ
+        : tr TmᴹFamₜ [π₁ᴹ⨟ᴹ]ᴹ ([ π₁ᴹ (σᴹ ⨟ᴹ τᴹ) ]tᴹ tᴹ)
+        ≡ [ σᴹ ]tᴹ ([ π₁ᴹ τᴹ ]tᴹ tᴹ)
       -- [TODO]: Please put the remaining cases here.
 
       -- 
-      _⨟PPidS
-        : (Pσ : PSub PΔ PΓ σ)
-        → tr PSubFam (σ ⨟idS) (Pσ ⨟P PidS) ≡ Pσ
-      PidS⨟P_
-        : (Pσ : PSub PΔ PΓ σ)
-        → tr PSubFam (idS⨟ σ) (PidS ⨟P Pσ) ≡ Pσ
-      ⨟P-assoc
-        : tr PSubFam ⨟-assoc (Pσ ⨟P (Pτ ⨟P Pγ))
-        ≡ (Pσ ⨟P Pτ) ⨟P Pγ
-      π₁P,Sub
-        : tr (PSub PΓ PΔ) π₁, (π₁P (Pσ ,Sub Pt)) ≡ Pσ
-      ⨟P,Sub -- the transport equation seems too long
-        : tr PSubFam ⨟, (Pσ ⨟P (Pτ ,Sub Pt))
-        ≡ (Pσ ⨟P Pτ) ,Sub tr PTmFamₜ (sym $ [⨟P]P) ([ Pσ ]tmP Pt)
-      η∅Sub
-        : tr PSubFam η∅ Pσ ≡ ∅Sub
-      η,Sub
-        : tr PSubFam η, Pσ ≡ π₁P Pσ ,Sub π₂P Pσ
-      [PidS]tmP
-        : tr₂ (PTm PΓ) [PidS] [id]tm ([ PidS ]tmP Pt)
-        ≡ Pt
-      [⨟P]tmP
-        : tr₂ (PTm PΓ) [⨟P]P [⨟]tm ([ Pσ ⨟P Pτ ]tmP Pt)
-        ≡ [ Pσ ]tmP ([ Pτ ]tmP Pt)
-      π₂P,Sub
-        : tr₂ (PTm PΓ) [π₁P,Sub]P π₂, (π₂P (Pσ ,Sub Pt))
-        ≡ Pt
-      []PU
-        : [ Pσ ]P (PU i) ≡ PU i
-      []PEl
-        : (Pσ : PSub PΓ PΔ σ)(Pu : PTm PΔ (PU i) u)
-        → ([ Pσ ]P (PEl Pu)) ≡ PEl (tr PTmFamₜ []PU ([ Pσ ]tP Pu))
-      []PLift
-        : [ Pσ ]P (PLift PA) ≡ PLift ([ Pσ ]P PA)
-      []PΠ
-        : [ Pσ ]P (PΠ PA PB) ≡ PΠ ([ Pσ ]P PA) ([ Pσ ↑P PA ]P PB)
-      []PId
-        : [ Pσ ]P (PId Pa Pt Pu)
-        ≡ PId (tr PTmFamₜ []PU ([ Pσ ]tP Pa))
-            (tr PTmFamₜ ([]PEl Pσ Pa) ([ Pσ ]tP Pt))
-            (tr PTmFamₜ ([]PEl Pσ Pa) ([ Pσ ]tP Pu))
-      []tPcP
-        : (Pσ : PSub PΓ PΔ σ)(PA : PTy PΔ i A)
-        → tr₂ (PTm PΓ) []PU ([]tc σ A) ([ Pσ ]tmP (cP PA))
-        ≡ cP ([ Pσ ]P PA)
-      []mkP
-        : tr₂ (PTm PΓ) []PLift []mk ([ Pσ ]tmP mkP Pt)
-        ≡ mkP ([ Pσ ]tmP Pt)
-      []unP
-        : tr PTmFam ([]un σ A t) ([ Pσ ]tmP unP Pt)
-        ≡ unP (tr PTmFamₜ []PLift ([ Pσ ]tmP Pt))
-      PUβ
-        : tr PTyFam Uβ (PEl (cP PA)) ≡ PA
-      PUη
-        : tr PTmFam Uη (cP (PEl Pu)) ≡ Pu
-      PLiftβ
-        : tr PTmFam Liftβ (unP (mkP Pt)) ≡ Pt
-      PLiftη
-        : tr PTmFam Liftη (mkP (unP Pt)) ≡ Pt
-      reflectP
-        : (Pp : PTm PΓ (PId Pa Pt Pu) p)
-        → tr PTmFam (reflect p) Pt ≡ Pu
-      []ƛP
-        : tr₂ (PTm PΓ) []PΠ []ƛ ([ Pσ ]tmP (ƛP Pt))
-        ≡ ƛP ([ Pσ ↑P PA ]tmP Pt)
-      PΠβ
-        : tr PTmFam Πβ (appP (ƛP Pt)) ≡ Pt
-      PΠη
-        : tr PTmFam Πη (ƛP (appP Pt)) ≡ Pt
+      _⨟ᴹidSᴹ
+        : (σᴹ : Subᴹ Δᴹ Γᴹ σ)
+        → tr SubᴹFam (σ ⨟idS) (σᴹ ⨟ᴹ idSᴹ) ≡ σᴹ
+      idSᴹ⨟ᴹ_
+        : (σᴹ : Subᴹ Δᴹ Γᴹ σ)
+        → tr SubᴹFam (idS⨟ σ) (idSᴹ ⨟ᴹ σᴹ) ≡ σᴹ
+      ⨟ᴹ-assoc
+        : tr SubᴹFam ⨟-assoc (σᴹ ⨟ᴹ (τᴹ ⨟ᴹ γᴹ))
+        ≡ (σᴹ ⨟ᴹ τᴹ) ⨟ᴹ γᴹ
+      π₁ᴹ,ˢᴹ
+        : tr (Subᴹ Γᴹ Δᴹ) π₁, (π₁ᴹ (σᴹ ,ˢᴹ tᴹ)) ≡ σᴹ
+      ⨟ᴹ,ˢᴹ -- the transport equation seems too long
+        : tr SubᴹFam ⨟, (σᴹ ⨟ᴹ (τᴹ ,ˢᴹ tᴹ))
+        ≡ (σᴹ ⨟ᴹ τᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) ([ σᴹ ]tmᴹ tᴹ)
+      η∅ˢᴹ
+        : tr SubᴹFam η∅ σᴹ ≡ ∅ˢᴹ
+      η,ˢᴹ
+        : tr SubᴹFam η, σᴹ ≡ π₁ᴹ σᴹ ,ˢᴹ π₂ᴹ σᴹ
+      [idSᴹ]tmᴹ
+        : tr₂ (Tmᴹ Γᴹ) [idSᴹ] [id]tm ([ idSᴹ ]tmᴹ tᴹ)
+        ≡ tᴹ
+      [⨟ᴹ]tmᴹ
+        : tr₂ (Tmᴹ Γᴹ) [⨟ᴹ]ᴹ [⨟]tm ([ σᴹ ⨟ᴹ τᴹ ]tmᴹ tᴹ)
+        ≡ [ σᴹ ]tmᴹ ([ τᴹ ]tmᴹ tᴹ)
+      π₂ᴹ,ˢᴹ
+        : tr₂ (Tmᴹ Γᴹ) [π₁ᴹ,ˢᴹ]ᴹ π₂, (π₂ᴹ (σᴹ ,ˢᴹ tᴹ))
+        ≡ tᴹ
+      []ᴹUᴹ
+        : [ σᴹ ]ᴹ (Uᴹ i) ≡ Uᴹ i
+      []ᴹElᴹ
+        : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(uᴹ : Tmᴹ Δᴹ (Uᴹ i) u)
+        → ([ σᴹ ]ᴹ (Elᴹ uᴹ)) ≡ Elᴹ (tr TmᴹFamₜ []ᴹUᴹ ([ σᴹ ]tᴹ uᴹ))
+      []ᴹLiftᴹ
+        : [ σᴹ ]ᴹ (Liftᴹ Aᴹ) ≡ Liftᴹ ([ σᴹ ]ᴹ Aᴹ)
+      []ᴹΠᴹ
+        : [ σᴹ ]ᴹ (Πᴹ Aᴹ Bᴹ) ≡ Πᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σᴹ ↑ᴹ Aᴹ ]ᴹ Bᴹ)
+      []ᴹIdᴹ
+        : [ σᴹ ]ᴹ (Idᴹ aᴹ tᴹ uᴹ)
+        ≡ Idᴹ (tr TmᴹFamₜ []ᴹUᴹ ([ σᴹ ]tᴹ aᴹ))
+            (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ tᴹ))
+            (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ uᴹ))
+      []tᴹcᴹ
+        : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(Aᴹ : Tyᴹ Δᴹ i A)
+        → tr₂ (Tmᴹ Γᴹ) []ᴹUᴹ ([]tc σ A) ([ σᴹ ]tmᴹ (cᴹ Aᴹ))
+        ≡ cᴹ ([ σᴹ ]ᴹ Aᴹ)
+      []mkᴹ
+        : tr₂ (Tmᴹ Γᴹ) []ᴹLiftᴹ []mk ([ σᴹ ]tmᴹ mkᴹ tᴹ)
+        ≡ mkᴹ ([ σᴹ ]tmᴹ tᴹ)
+      []unᴹ
+        : tr TmᴹFam ([]un σ A t) ([ σᴹ ]tmᴹ unᴹ tᴹ)
+        ≡ unᴹ (tr TmᴹFamₜ []ᴹLiftᴹ ([ σᴹ ]tmᴹ tᴹ))
+      Uᴹβ
+        : tr TyᴹFam Uβ (Elᴹ (cᴹ Aᴹ)) ≡ Aᴹ
+      Uᴹη
+        : tr TmᴹFam Uη (cᴹ (Elᴹ uᴹ)) ≡ uᴹ
+      Liftᴹβ
+        : tr TmᴹFam Liftβ (unᴹ (mkᴹ tᴹ)) ≡ tᴹ
+      Liftᴹη
+        : tr TmᴹFam Liftη (mkᴹ (unᴹ tᴹ)) ≡ tᴹ
+      reflectᴹ
+        : (Pp : Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ uᴹ) p)
+        → tr TmᴹFam (reflect p) tᴹ ≡ uᴹ
+      []ƛᴹ
+        : tr₂ (Tmᴹ Γᴹ) []ᴹΠᴹ []ƛ ([ σᴹ ]tmᴹ (ƛᴹ tᴹ))
+        ≡ ƛᴹ ([ σᴹ ↑ᴹ Aᴹ ]tmᴹ tᴹ)
+      Πᴹβ
+        : tr TmᴹFam Πβ (appᴹ (ƛᴹ tᴹ)) ≡ tᴹ
+      Πᴹη
+        : tr TmᴹFam Πη (ƛᴹ (appᴹ tᴹ)) ≡ tᴹ
+      
+      []tmᴹ≡[]tᴹ
+        : {Γᴹ : Ctxᴹ Γ}{Δᴹ : Ctxᴹ Δ}{Aᴹ : Tyᴹ Δᴹ i A}
+          (σᴹ : Subᴹ Γᴹ Δᴹ σ)(tᴹ : Tmᴹ Δᴹ Aᴹ t)
+          -------------------------------------
+        → tr TmᴹFam ([]tm≡[]t t σ) ([ σᴹ ]tmᴹ tᴹ) ≡ [ σᴹ ]tᴹ tᴹ
+      ↑ᴹ=⁺ᴹ
+        : {Γᴹ : Ctxᴹ Γ}{Δᴹ : Ctxᴹ Δ}
+          (σᴹ : Subᴹ Γᴹ Δᴹ σ)(Aᴹ : Tyᴹ Δᴹ i A)
+          --------------------------------------------------------------------------
+        → tr (Subᴹ (Γᴹ ,ᶜᴹ ([ σᴹ ]ᴹ Aᴹ)) (Δᴹ ,ᶜᴹ Aᴹ)) (↑=⁺ A σ) (σᴹ ↑ᴹ Aᴹ) ≡ σᴹ ⁺ᴹ
+
  

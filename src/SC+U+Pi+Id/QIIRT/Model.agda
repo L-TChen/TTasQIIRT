@@ -17,8 +17,8 @@ open import SC+U+Pi+Id.QIIRT.Model.Methods public
 
 record Model {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
-    Pdc : Pred {ℓ} {ℓ′}
-    Ind : Method Pdc
+    Mot : Motive {ℓ} {ℓ′}
+    Met : Method Mot
   
-  open Pred Pdc public
-  open Method Ind public
+  open Motive Mot public
+  open Method Met public

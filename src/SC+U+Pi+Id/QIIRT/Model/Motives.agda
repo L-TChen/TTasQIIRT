@@ -6,37 +6,37 @@ open import Prelude
 open import Data.Nat hiding (_⊔_)
 open import SC+U+Pi+Id.QIIRT.Base
 
-record PredOverPCtx {ℓ ℓ′ : Level} (PCtx : Ctx → Set ℓ) {Γ : Ctx} (PΓ : PCtx Γ) : Set (lsuc (ℓ ⊔ ℓ′)) where
+record PredOverCtxᴹ {ℓ ℓ′ : Level} (Ctxᴹ : Ctx → Set ℓ) {Γ : Ctx} (Γᴹ : Ctxᴹ Γ) : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
-    PTy'  : (i : ℕ) → Ty Γ i → Set ℓ
-    PSub' : PCtx Δ → Sub Γ Δ → Set ℓ′
-open PredOverPCtx
+    Tyᴹ'  : (i : ℕ) → Ty Γ i → Set ℓ
+    Subᴹ' : Ctxᴹ Δ → Sub Γ Δ → Set ℓ′
+open PredOverCtxᴹ
 
-record Pred {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
+record Motive {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
-    PCtx
+    Ctxᴹ
       : Ctx → Set ℓ
-    PTySub
-      : (PΓ : PCtx Γ)
-      → PredOverPCtx {ℓ} {ℓ′} PCtx PΓ
-    PTm
-      : (PΓ : PCtx Γ) (PA : PTySub PΓ .PTy' i A)
+    TyᴹSub
+      : (Γᴹ : Ctxᴹ Γ)
+      → PredOverCtxᴹ {ℓ} {ℓ′} Ctxᴹ Γᴹ
+    Tmᴹ
+      : (Γᴹ : Ctxᴹ Γ) (Aᴹ : TyᴹSub Γᴹ .Tyᴹ' i A)
       → Tm Γ A → Set ℓ′
 
-  PTy : (PΓ : PCtx Γ) → (i : ℕ) → Ty Γ i → Set ℓ
-  PTy PΓ = PTySub PΓ .PTy'
+  Tyᴹ : (Γᴹ : Ctxᴹ Γ) → (i : ℕ) → Ty Γ i → Set ℓ
+  Tyᴹ Γᴹ = TyᴹSub Γᴹ .Tyᴹ'
 
-  PSub : (PΓ : PCtx Γ) (PΔ : PCtx Δ) → Sub Γ Δ → Set ℓ′
-  PSub PΓ = PTySub PΓ .PSub'
+  Subᴹ : (Γᴹ : Ctxᴹ Γ) (Δᴹ : Ctxᴹ Δ) → Sub Γ Δ → Set ℓ′
+  Subᴹ Γᴹ = TyᴹSub Γᴹ .Subᴹ'
 
-  PTyFam : {PΓ : PCtx Γ}{i : ℕ} → Ty Γ i → Set ℓ
-  PTyFam {PΓ = PΓ} {i} = PTy PΓ i
+  TyᴹFam : {Γᴹ : Ctxᴹ Γ}{i : ℕ} → Ty Γ i → Set ℓ
+  TyᴹFam {Γᴹ = Γᴹ} {i} = Tyᴹ Γᴹ i
 
-  PTmFam : {PΓ : PCtx Γ}{PA : PTy PΓ i A} → Tm Γ A → Set ℓ′
-  PTmFam {PΓ = PΓ} {PA} = PTm PΓ PA
+  TmᴹFam : {Γᴹ : Ctxᴹ Γ}{Aᴹ : Tyᴹ Γᴹ i A} → Tm Γ A → Set ℓ′
+  TmᴹFam {Γᴹ = Γᴹ} {Aᴹ} = Tmᴹ Γᴹ Aᴹ
   
-  PTmFamₜ : {PΓ : PCtx Γ}{t : Tm Γ A} → PTy PΓ i A → Set ℓ′
-  PTmFamₜ {PΓ = PΓ} {t} PA = PTm PΓ PA t
+  TmᴹFamₜ : {Γᴹ : Ctxᴹ Γ}{t : Tm Γ A} → Tyᴹ Γᴹ i A → Set ℓ′
+  TmᴹFamₜ {Γᴹ = Γᴹ} {t} Aᴹ = Tmᴹ Γᴹ Aᴹ t
 
-  PSubFam : {PΓ : PCtx Γ}{PΔ : PCtx Δ} → Sub Γ Δ → Set ℓ′
-  PSubFam {PΓ = PΓ} {PΔ} = PSub PΓ PΔ
+  SubᴹFam : {Γᴹ : Ctxᴹ Γ}{Δᴹ : Ctxᴹ Δ} → Sub Γ Δ → Set ℓ′
+  SubᴹFam {Γᴹ = Γᴹ} {Δᴹ} = Subᴹ Γᴹ Δᴹ
