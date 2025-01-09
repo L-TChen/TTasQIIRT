@@ -6,28 +6,17 @@ open import Prelude
 open import Data.Nat hiding (_⊔_)
 open import SC+U+Pi+Id.QIIRT.Base
 
-record PredOverCtxᴹ {ℓ ℓ′ : Level} (Ctxᴹ : Ctx → Set ℓ) {Γ : Ctx} (Γᴹ : Ctxᴹ Γ) : Set (lsuc (ℓ ⊔ ℓ′)) where
-  field
-    Tyᴹ'  : (i : ℕ) → Ty Γ i → Set ℓ
-    Subᴹ' : Ctxᴹ Δ → Sub Γ Δ → Set ℓ′
-open PredOverCtxᴹ
-
 record Motive {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
     Ctxᴹ
       : Ctx → Set ℓ
-    TyᴹSub
-      : (Γᴹ : Ctxᴹ Γ)
-      → PredOverCtxᴹ {ℓ} {ℓ′} Ctxᴹ Γᴹ
+    Tyᴹ
+      : Ctxᴹ Γ → (i : ℕ) → Ty Γ i → Set ℓ
+    Subᴹ
+      : Ctxᴹ Γ → Ctxᴹ Δ → Sub Γ Δ → Set ℓ′
     Tmᴹ
-      : (Γᴹ : Ctxᴹ Γ) (Aᴹ : TyᴹSub Γᴹ .Tyᴹ' i A)
+      : (Γᴹ : Ctxᴹ Γ) (Aᴹ : Tyᴹ Γᴹ i A)
       → Tm Γ A → Set ℓ′
-
-  Tyᴹ : (Γᴹ : Ctxᴹ Γ) → (i : ℕ) → Ty Γ i → Set ℓ
-  Tyᴹ Γᴹ = TyᴹSub Γᴹ .Tyᴹ'
-
-  Subᴹ : (Γᴹ : Ctxᴹ Γ) (Δᴹ : Ctxᴹ Δ) → Sub Γ Δ → Set ℓ′
-  Subᴹ Γᴹ = TyᴹSub Γᴹ .Subᴹ'
 
   TyᴹFam : {Γᴹ : Ctxᴹ Γ}{i : ℕ} → Ty Γ i → Set ℓ
   TyᴹFam {Γᴹ = Γᴹ} {i} = Tyᴹ Γᴹ i
@@ -39,4 +28,4 @@ record Motive {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   TmᴹFamₜ {Γᴹ = Γᴹ} {t} Aᴹ = Tmᴹ Γᴹ Aᴹ t
 
   SubᴹFam : {Γᴹ : Ctxᴹ Γ}{Δᴹ : Ctxᴹ Δ} → Sub Γ Δ → Set ℓ′
-  SubᴹFam {Γᴹ = Γᴹ} {Δᴹ} = Subᴹ Γᴹ Δᴹ
+  SubᴹFam {Γᴹ = Γᴹ} {Δᴹ = Δᴹ} = Subᴹ Γᴹ Δᴹ

@@ -7,11 +7,6 @@ open import Data.Nat hiding (_⊔_)
 open import SC+U+Pi+Id.QIIRT.Base
 open import SC+U+Pi+Id.QIIRT.Properties
 
-private variable
-  Δ' Φ : Ctx
-  A' B' C' : Ty Γ i
-  σ' τ' γ' : Sub Γ Δ
-
 open import SC+U+Pi+Id.QIIRT.Model.Motives public
 open import SC+U+Pi+Id.QIIRT.Model.Methods public
 
