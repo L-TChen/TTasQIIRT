@@ -56,7 +56,9 @@ interleaved mutual
     {-# REWRITE [id] [⨟] [π₁,] [π₁⨟] #-}
 
   -- ⟨_⟩ : Tm Γ A → Sub Γ (Γ , A)
-  pattern ⟨_⟩ t = idS , t 
+  -- pattern ⟨_⟩ t = idS , t 
+  -- ⟨_⟩ : Tm Γ A → Sub Γ (Γ , A)
+  -- ⟨ t ⟩ = idS , {!t!}
 
   data _ where
     U
@@ -78,7 +80,7 @@ interleaved mutual
       : (σ : Sub Γ (Δ , A))
       → Tm Γ ([ π₁ σ ] A)
     [_]tm_
-      : {Γ Δ : Ctx} (σ : Sub Γ Δ) {A : Ty Δ i}
+      : (σ : Sub Γ Δ) {A : Ty Δ i}
       → Tm Δ A
       → Tm Γ ([ σ ] A)
     c
@@ -101,7 +103,7 @@ interleaved mutual
   pattern vs x = [ wk ]tm x
 
   _⁺ : (σ : Sub Γ Δ) → {A : Ty Δ i} → Sub (Γ , [ σ ] A) (Δ , A)
-  _⁺ σ {A} = wk ⨟ σ , vz
+  _⁺ σ {A} = π₁ idS ⨟ σ , π₂ idS
 
   _↑_
     : (σ : Sub Γ Δ) (A : Ty Δ i)
@@ -164,17 +166,18 @@ interleaved mutual
     []Lift
       : [ σ ] (Lift A) ≡ Lift ([ σ ] A)
     {-# REWRITE []Lift #-}
-    Π[]
+    []Π
       : [ σ ] Π A B ≡ Π ([ σ ] A) ([ σ ↑ A ] B)
-    {-# REWRITE Π[] #-}
+    {-# REWRITE []Π #-}
     []Id
       : {σ : Sub Γ Δ} {a : Tm Δ (U i)} {t u : Tm Δ (El a)}
-      → [ σ ] (Id a t u) ≡ Id ([ σ ]t a) ([ σ ]t t) ([ σ ]t u)
+      → [ σ ] (Id a t u)
+      ≡ Id ([ σ ]t a) ([ σ ]t t) ([ σ ]t u)
     {-# REWRITE []Id #-}
 
   -- Structural rules for term formers
     []tc    : (σ : Sub Γ Δ) (A : Ty Δ i)
-      → [ σ ]t (c A) ≡ c ([ σ ] A)
+      → [ σ ]tm (c A) ≡ c ([ σ ] A)
     []mk
       : [ σ ]tm (mk t) ≡ mk ([ σ ]tm t)
     []un

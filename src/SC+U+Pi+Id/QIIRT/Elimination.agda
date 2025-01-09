@@ -25,7 +25,8 @@ module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
     → [ ElimSub σ ]P ElimTy A ≡ ElimTy ([ σ ] A)
   ElimTm[]
     : {A : Ty Γ i}(σ : Sub Δ Γ)(t : Tm Γ A)
-    → tr PTmFamₜ (ElimTy[] σ A) ([ ElimSub σ ]tP ElimTm t) ≡ ElimTm ([ σ ]t t)
+    → tr PTmFamₜ (ElimTy[] σ A) ([ ElimSub σ ]tP ElimTm t)
+    ≡ ElimTm ([ σ ]t t)
   
   ElimCtx ∅          = ∅Ctx
   ElimCtx (Γ , A)    = ElimCtx Γ ,Ctx ElimTy A
@@ -57,7 +58,7 @@ module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
   ElimTy[] σ (Lift A)   = {!!}
   ElimTy[] σ (Π B C)    = {!!}
   ElimTy[] σ (Id a t u) = {!!}
-  ElimSub↑ = {!!}
+  ElimSub↑ σ A = {!!}
   ElimTm[] = {!!}
   -- ElimTy[] σ (U i) = []PU
   -- ElimTy[] σ (El u) = begin

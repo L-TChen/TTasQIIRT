@@ -37,8 +37,8 @@ module _ {ℓ ℓ′}(P : Pred {ℓ} {ℓ′}) where
       ∅Sub
         : PSub PΔ ∅Ctx ∅
       _,Sub_
-        : (Pσ : PSub PΔ PΓ σ)(Pt : PTm PΔ ([ Pσ ]P PA) t)
-        → PSub PΔ (PΓ ,Ctx PA) (σ , t)
+        : (Pσ : PSub PΓ PΔ σ)(Pt : PTm PΓ ([ Pσ ]P PA) t)
+        → PSub PΓ (PΔ ,Ctx PA) (σ , t)
       PidS
         : PSub PΔ PΔ idS
       _⨟P_
@@ -47,7 +47,6 @@ module _ {ℓ ℓ′}(P : Pred {ℓ} {ℓ′}) where
       π₁P
         : (Pσ : PSub PΔ (PΓ ,Ctx PA) σ)
         → PSub PΔ PΓ (π₁ σ)
-      -- [TODO]: equalities about type substitution should go here
       [PidS]
         : [ PidS ]P PA ≡ PA
       [⨟P]P
@@ -56,15 +55,14 @@ module _ {ℓ ℓ′}(P : Pred {ℓ} {ℓ′}) where
         : ([ π₁P (Pσ ,Sub Pt) ]P PA) ≡ [ Pσ ]P PA
       [π₁P⨟P]P
         : [ π₁P (Pσ ⨟P Pτ) ]P PA ≡ [ Pσ ]P ([ π₁P Pτ ]P PA)
-      -- [TODO]: Shall we include ⟨_⟩?
       PU
         : (i : ℕ)
         → PTy PΓ (suc i) (U i)
       PEl
-        : (Pt : PTm PΓ (PU i) t)
+        : PTm PΓ (PU i) t
         → PTy PΓ i (El t)
       PLift
-        : (PA : PTy PΓ i A)
+        : PTy PΓ i A
         → PTy PΓ (suc i) (Lift A)
       PΠ
         : (PA : PTy PΓ i A)(PB : PTy (PΓ ,Ctx PA) i B)
@@ -77,49 +75,51 @@ module _ {ℓ ℓ′}(P : Pred {ℓ} {ℓ′}) where
         ---------------------------------
         → PTm PΔ ([ π₁P Pσ ]P PA) (π₂ σ)
       [_]tmP_
-        : (Pσ : PSub PΓ PΔ σ)(Pt : PTm PΔ PA t)
+        : (Pσ : PSub PΓ PΔ σ) {PA : PTy PΔ i A}
+        → (Pt : PTm PΔ PA t)
         → PTm PΓ ([ Pσ ]P PA) ([ σ ]tm t)
       cP
-        : (PA : PTy PΓ i A)
+        : PTy PΓ i A
         → PTm PΓ (PU i) (c A)
       mkP
-        : (Pt : PTm PΓ PA t)
+        : PTm PΓ PA t
         → PTm PΓ (PLift PA) (mk t)
       unP
-        : (Pt : PTm PΓ (PLift PA) t)
+        : PTm PΓ (PLift PA) t
         → PTm PΓ PA (un t)
       ƛP_
-        : (Pt : PTm (PΓ ,Ctx PA) PB t)
+        : PTm (PΓ ,Ctx PA) PB t
         → PTm PΓ (PΠ PA PB) (ƛ t)
       appP
-        : (Pt : PTm PΓ (PΠ PA PB) t)
+        : PTm PΓ (PΠ PA PB) t
         → PTm (PΓ ,Ctx PA) PB (app t)
-      _⁺ᴾ
-        : (Pσ : PSub PΓ PΔ σ)
-        → PSub (PΓ ,Ctx ([ Pσ ]P PA)) (PΔ ,Ctx PA) (σ ⁺)
-      -- [TODO]: the definitional equality should go here
-      {-  
     _⁺ᴾ
-      : {PΓ : PCtx Γ}{PΔ : PCtx Δ}
-        (Pσ : PSub PΓ PΔ σ){PA : PTy PΔ i A}
+      : (Pσ : PSub PΓ PΔ σ)
       → PSub (PΓ ,Ctx ([ Pσ ]P PA)) (PΔ ,Ctx PA) (σ ⁺)
     Pσ ⁺ᴾ = (π₁P PidS ⨟P Pσ) ,Sub tr PTmFamₜ (sym $ [⨟P]P) (π₂P PidS)
-    -}
+
+    field
       _↑P_
         : (Pσ : PSub PΓ PΔ σ)(PA : PTy PΔ i A)
         → PSub (PΓ ,Ctx ([ Pσ ]P PA)) (PΔ ,Ctx PA) (σ ↑ A)
-       -- [TODO]: the deifnitional equalities should go here
+      -- [TODO]: the definitional equalities for _↑_ should go here
+      -- [TODO]: Add _↑P_ ≡ _⁺ᴾ_
+      -- [TODO]: the deifnitional equalities for [_]t_ should go here
+      -- [TODO]: Add [_]t_ ≡ [_]tm_
       [_]tP_
         : (Pσ : PSub PΔ PΓ σ)(Pt : PTm PΓ PA t)
         → PTm PΔ ([ Pσ ]P PA) ([ σ ]t t)
       [PidS]tP
         : tr PTmFamₜ [PidS] ([ PidS ]tP Pt) ≡ Pt
       [⨟P]tP
-        : tr PTmFamₜ [⨟P]P ([ Pσ ⨟P Pτ ]tP Pt) ≡ [ Pσ ]tP ([ Pτ ]tP Pt)
+        : tr PTmFamₜ [⨟P]P ([ Pσ ⨟P Pτ ]tP Pt)
+        ≡ [ Pσ ]tP [ Pτ ]tP Pt
       [π₁P,Sub]tP
-        : tr PTmFamₜ [π₁P,Sub]P ([ π₁P (Pσ ,Sub Pt) ]tP Pu) ≡ [ Pσ ]tP Pu
+        : tr PTmFamₜ [π₁P,Sub]P ([ π₁P (Pσ ,Sub Pt) ]tP Pu)
+        ≡ [ Pσ ]tP Pu
       [π₁P⨟P]tP
-        : tr PTmFamₜ [π₁P⨟P]P ([ π₁P (Pσ ⨟P Pτ) ]tP Pt) ≡ [ Pσ ]tP ([ π₁P Pτ ]tP Pt)
+        : tr PTmFamₜ [π₁P⨟P]P ([ π₁P (Pσ ⨟P Pτ) ]tP Pt)
+        ≡ [ Pσ ]tP ([ π₁P Pτ ]tP Pt)
       -- [TODO]: Please put the remaining cases here.
 
       -- 
@@ -158,8 +158,7 @@ module _ {ℓ ℓ′}(P : Pred {ℓ} {ℓ′}) where
       []PLift
         : [ Pσ ]P (PLift PA) ≡ PLift ([ Pσ ]P PA)
       []PΠ
-        : (Pσ : PSub PΓ PΔ σ)
-        → [ Pσ ]P (PΠ PA PB) ≡ PΠ ([ Pσ ]P PA) ([ Pσ ↑P PA ]P PB)
+        : [ Pσ ]P (PΠ PA PB) ≡ PΠ ([ Pσ ]P PA) ([ Pσ ↑P PA ]P PB)
       []PId
         : [ Pσ ]P (PId Pa Pt Pu)
         ≡ PId (tr PTmFamₜ []PU ([ Pσ ]tP Pa))
@@ -167,7 +166,7 @@ module _ {ℓ ℓ′}(P : Pred {ℓ} {ℓ′}) where
             (tr PTmFamₜ ([]PEl Pσ Pa) ([ Pσ ]tP Pu))
       []tPcP
         : (Pσ : PSub PΓ PΔ σ)(PA : PTy PΔ i A)
-        → tr₂ (PTm PΓ) []PU ([]tc σ A) ([ Pσ ]tP (cP PA))
+        → tr₂ (PTm PΓ) []PU ([]tc σ A) ([ Pσ ]tmP (cP PA))
         ≡ cP ([ Pσ ]P PA)
       []mkP
         : tr₂ (PTm PΓ) []PLift []mk ([ Pσ ]tmP mkP Pt)
@@ -187,7 +186,8 @@ module _ {ℓ ℓ′}(P : Pred {ℓ} {ℓ′}) where
         : (Pp : PTm PΓ (PId Pa Pt Pu) p)
         → tr PTmFam (reflect p) Pt ≡ Pu
       []ƛP
-        : tr₂ (PTm PΓ) ([]PΠ Pσ) []ƛ ([ Pσ ]tmP (ƛP Pt)) ≡ ƛP ([ Pσ ↑P PA ]tmP Pt)
+        : tr₂ (PTm PΓ) []PΠ []ƛ ([ Pσ ]tmP (ƛP Pt))
+        ≡ ƛP ([ Pσ ↑P PA ]tmP Pt)
       PΠβ
         : tr PTmFam Πβ (appP (ƛP Pt)) ≡ Pt
       PΠη
