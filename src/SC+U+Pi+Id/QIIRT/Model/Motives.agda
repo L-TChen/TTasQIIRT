@@ -22,7 +22,6 @@ record Pred {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
     PTm
       : (PΓ : PCtx Γ) (PA : PTySub PΓ .PTy' i A)
       → Tm Γ A → Set ℓ′
-      -- PTySub Γ .PTy' i A → Tm Γ A → Set ℓ′
 
   PTy : (PΓ : PCtx Γ) → (i : ℕ) → Ty Γ i → Set ℓ
   PTy PΓ = PTySub PΓ .PTy'

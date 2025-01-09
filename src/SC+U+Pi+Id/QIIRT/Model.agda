@@ -17,8 +17,8 @@ open import SC+U+Pi+Id.QIIRT.Model.Methods public
 
 record Model {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
-    Pdc : Predicate {ℓ} {ℓ′}
+    Pdc : Pred {ℓ} {ℓ′}
     Ind : Induction Pdc
   
-  open Predicate Pdc public
+  open Pred Pdc public
   open Induction Ind public

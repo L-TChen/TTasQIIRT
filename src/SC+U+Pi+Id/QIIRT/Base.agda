@@ -22,7 +22,7 @@ interleaved mutual
   variable
     Γ Δ Θ : Ctx
     A B C : Ty Γ i
-    t u   : Tm Γ A
+    t u a : Tm Γ A
     σ τ γ : Sub Γ Δ
 
   postulate
