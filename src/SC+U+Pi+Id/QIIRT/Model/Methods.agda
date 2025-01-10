@@ -61,13 +61,32 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
       : (σᴹ : Subᴹ Γᴹ Δᴹ σ)
       → Subᴹ (Γᴹ ,ᶜᴹ ([ σᴹ ]ᴹ Aᴹ)) (Δᴹ ,ᶜᴹ Aᴹ) (σ ⁺)
     σᴹ ⁺ᴹ = (π₁ᴹ idSᴹ ⨟ᴹ σᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
+    
+    Subᴹ,ᶜᴹFam
+      : {Γᴹ : Ctxᴹ Γ} → {Ctxᴹ Δ} → {Sub (Γ , A) Δ} → Tyᴹ Γᴹ i A → Set ℓ′
+    Subᴹ,ᶜᴹFam {_} {_} {_} {_} {Γᴹ} {Δᴹ} {σ} Aᴹ = Subᴹ (Γᴹ ,ᶜᴹ Aᴹ) Δᴹ σ
 
     field
       _↑ᴹ_
         : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(Aᴹ : Tyᴹ Δᴹ i A)
         → Subᴹ (Γᴹ ,ᶜᴹ ([ σᴹ ]ᴹ Aᴹ)) (Δᴹ ,ᶜᴹ Aᴹ) (σ ↑ A)
-      -- [TODO]: the definitional equalities for _↑_ should go here
-      -- [TODO]: the deifnitional equalities for [_]t_ should go here
+      idSᴹ↑ᴹ
+          : tr Subᴹ,ᶜᴹFam [idSᴹ] (idSᴹ ↑ᴹ Aᴹ) ≡ idSᴹ
+      ⨟ᴹ↑ᴹ
+        : tr Subᴹ,ᶜᴹFam [⨟ᴹ]ᴹ ((σᴹ ⨟ᴹ τᴹ) ↑ᴹ Aᴹ)
+        ≡ (σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (τᴹ ↑ᴹ Aᴹ)
+      π₁ᴹ,ˢᴹ↑ᴹ
+        : tr Subᴹ,ᶜᴹFam [π₁ᴹ,ˢᴹ]ᴹ (π₁ᴹ (σᴹ ,ˢᴹ tᴹ) ↑ᴹ Aᴹ) ≡ σᴹ ↑ᴹ Aᴹ
+      π₁ᴹ⨟ᴹ↑ᴹ
+        : tr Subᴹ,ᶜᴹFam [π₁ᴹ⨟ᴹ]ᴹ (π₁ᴹ (σᴹ ⨟ᴹ τᴹ) ↑ᴹ Aᴹ) ≡ (σᴹ ↑ᴹ ([ π₁ᴹ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (π₁ᴹ τᴹ ↑ᴹ Aᴹ)
+      ∅ˢᴹ↑ᴹ
+        : ∅ˢᴹ {Δᴹ = Δᴹ} ↑ᴹ Aᴹ ≡ ∅ˢᴹ ⁺ᴹ
+      ,ˢᴹ↑ᴹ
+        : (σᴹ ,ˢᴹ tᴹ) ↑ᴹ Aᴹ ≡ (σᴹ ,ˢᴹ tᴹ) ⁺ᴹ
+      π₁ᴹidSᴹ↑ᴹ
+        : π₁ᴹ {Aᴹ = Aᴹ} idSᴹ ↑ᴹ Aᴹ ≡ π₁ᴹ idSᴹ ⁺ᴹ
+      π₁ᴹπ₁ᴹ↑ᴹ
+        : π₁ᴹ (π₁ᴹ σᴹ) ↑ᴹ Aᴹ ≡ π₁ᴹ (π₁ᴹ σᴹ) ⁺ᴹ
 
       [_]tᴹ_
         : (σᴹ : Subᴹ Δᴹ Γᴹ σ)(tᴹ : Tmᴹ Γᴹ Aᴹ t)
