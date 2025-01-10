@@ -53,28 +53,29 @@ module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) {i : ℕ} (A : Ty Θ i) (t : Tm Δ ([
   open ≅-Reasoning
   coh[⨟,]l
     : (Ξ : Tel (Θ , A))
-    → [ σ ⨟ (τ , t) ]l Ξ ≅ [ σ ⨟ τ , [ σ ]tm t ]l Ξ
+    → [ σ ⨟ (τ , t) ]l Ξ ≅ [ σ ⨟ τ , [ σ ]t t ]l Ξ
   coh[⨟,]'
     : (Ξ : Tel (Θ , A))
-    → [ σ ⨟ (τ , t) ]l Ξ ≅ [ σ ⨟ τ , [ σ ]tm t ]l Ξ
+    → [ σ ⨟ (τ , t) ]l Ξ ≅ [ σ ⨟ τ , [ σ ]t t ]l Ξ
     → (B : Ty ((Θ , A) ⧺ Ξ) j)
-    → [ (σ ⨟ (τ , t)) ⇈ Ξ ] B ≅ [ ((σ ⨟ τ) , [ σ ]tm t) ⇈ Ξ ] B
+    → [ (σ ⨟ (τ , t)) ⇈ Ξ ] B ≅ [ ((σ ⨟ τ) , [ σ ]t t) ⇈ Ξ ] B
   coh[⨟,]l ∅       = refl
   coh[⨟,]l (Ξ , B) = hcong₂ _,_ (coh[⨟,]l Ξ) (coh[⨟,]' Ξ (coh[⨟,]l Ξ) B)
 
   coh[⨟,]' Ξ eq (U j)      = cong-U (hcong (Γ ⧺_) eq)
-  coh[⨟,]' Ξ eq (El u)     = icong (λ Γ → Tm Γ (U _)) (cong (Γ ⧺_) (≅-to-≡ eq)) El (coh[⇈]tm Ξ ⨟,)
+  coh[⨟,]' Ξ eq (El u)     = icong (λ Γ → Tm Γ (U _)) (cong (Γ ⧺_) (≅-to-≡ eq)) El
+    (coh[⇈]tm Ξ ⨟,)
   coh[⨟,]' Ξ eq (Lift B)   = icong (λ Γ → Ty Γ _) (cong (Γ ⧺_) (≅-to-≡ eq)) Lift (coh[⨟,]' Ξ eq B)
   coh[⨟,]' Ξ eq (Π B C)    = icong₂ (λ Γ → Ty Γ _) (cong (Γ ⧺_) (≅-to-≡ eq)) Π
     (coh[⨟,]' Ξ eq B)
     (coh[⨟,]' (Ξ , B) (hcong₂ _,_ eq (coh[⨟,]' Ξ eq B)) C)
-  coh[⨟,]' Ξ eq (Id a u v) =  icong₃ (λ Γ → Tm Γ _) (cong (Γ ⧺_) (≅-to-≡ eq)) Id
+  coh[⨟,]' Ξ eq (Id a u v) = icong₃ (λ Γ → Tm Γ _) (cong (Γ ⧺_) (≅-to-≡ eq)) Id
     (coh[⇈]tm Ξ ⨟,) (coh[⇈]tm Ξ ⨟,) (coh[⇈]tm Ξ ⨟,)
 
   coh[⨟,]
     : (Ξ : Tel (Θ , A))
     → (B : Ty ((Θ , A) ⧺ Ξ) j)
-    → [ (σ ⨟ (τ , t)) ⇈ Ξ ] B ≅ [ ((σ ⨟ τ) , [ σ ]tm t) ⇈ Ξ ] B
+    → [ (σ ⨟ (τ , t)) ⇈ Ξ ] B ≅ [ ((σ ⨟ τ) , [ σ ]t t) ⇈ Ξ ] B
   coh[⨟,] Ξ B = coh[⨟,]' Ξ (coh[⨟,]l Ξ) B
 
 coh[βπ₁] : [ π₁ (σ , t) ] A ≡ [ σ ] A

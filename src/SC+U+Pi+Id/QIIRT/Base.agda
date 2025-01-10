@@ -3,7 +3,6 @@ module SC+U+Pi+Id.QIIRT.Base where
 open import Prelude
   hiding (_,_)
 
-
 infixl 20 _↑_ _⁺ _⇈_
 infixr 15 [_]_ [_]t_ [_]tm_ [_]l_
 infixl 10 _⧺_
@@ -141,7 +140,7 @@ interleaved mutual
     π₁,
       : π₁ (σ , t) ≡ σ
     ⨟,
-      : (σ ⨟ (τ , t)) ≡ (σ ⨟ τ , [ σ ]tm t)
+      : (σ ⨟ (τ , t)) ≡ (σ ⨟ τ , [ σ ]t t)
     η∅
       : {σ : Sub Γ ∅}
       → σ ≡ ∅
@@ -178,13 +177,15 @@ interleaved mutual
     {-# REWRITE []Id #-}
 
   -- Structural rules for term formers
-    []tc    : (σ : Sub Γ Δ) (A : Ty Δ i)
-      → [ σ ]tm (c A) ≡ c ([ σ ] A)
+    []tc
+      : (σ : Sub Γ Δ) (A : Ty Δ i)
+      → [ σ ]t (c A) ≡ c ([ σ ] A)
     []mk
-      : [ σ ]tm (mk t) ≡ mk ([ σ ]tm t)
+      : (σ : Sub Γ Δ) (t : Tm Δ A)
+      → [ σ ]t (mk t) ≡ mk ([ σ ]t t)
     []un
       : (σ : Sub Γ Δ) (A : Ty Δ i) (t : Tm Δ (Lift A))
-      → [ σ ]tm un t ≡ un ([ σ ]tm t)
+      → [ σ ]t un t ≡ un ([ σ ]t t)
   -- Computational rules
     Uβ
       : El (c A) ≡ A
@@ -198,7 +199,8 @@ interleaved mutual
       : {a : Tm Γ (U i)} {t u : Tm Γ (El a)} → Tm Γ (Id a t u)
       → t ≡ u
     []ƛ
-      : [ σ ]tm (ƛ t) ≡ ƛ ([ σ ↑ _ ]tm t )
+      : (σ : Sub Γ Δ) (t : Tm (Δ , A) B)
+      → [ σ ]t (ƛ t) ≡ ƛ ([ σ ↑ _ ]t t )
     Πβ
       : app (ƛ t) ≡ t
     Πη

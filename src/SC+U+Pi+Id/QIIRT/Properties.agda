@@ -13,21 +13,21 @@ cong-U refl = refl
 
 []tapp : (σ : Sub Γ Δ)
   → (A : Ty Δ i) (B : Ty (Δ , A) i) (t : Tm Δ (Π A B))
-  → app ([ σ ]tm t) ≡ [ σ ↑ A ]tm (app t)
+  → app ([ σ ]t t) ≡ [ σ ↑ A ]t (app t)
 []tapp σ A B t = begin
-  app ([ σ ]tm t)               ≡⟨ cong app (cong ([ σ ]tm_) Πη) ⟨
-  app ([ σ ]tm (ƛ (app t)))     ≡⟨ cong app []ƛ ⟩
-  app (ƛ ([ σ ↑ A ]tm (app t))) ≡⟨ Πβ ⟩
-  [ σ ↑ A ]tm (app t)             ∎
+  app ([ σ ]t t)               ≡⟨ cong app (cong ([ σ ]t_) Πη) ⟨
+  app ([ σ ]t (ƛ (app t)))     ≡⟨ cong app ([]ƛ σ (app t)) ⟩
+  app (ƛ ([ σ ↑ A ]t (app t))) ≡⟨ Πβ ⟩
+  [ σ ↑ A ]t (app t)             ∎
   where open ≡-Reasoning
 
 -- derived computation rules on composition
 π₁⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ
 π₁⨟ σ τ = begin
-  π₁ (σ ⨟ τ)                    ≡⟨ cong (λ τ → π₁ (σ ⨟ τ)) η, ⟩
-  π₁ (σ ⨟ (π₁ τ , π₂ τ))        ≡⟨ cong π₁ ⨟, ⟩ 
-  π₁ (σ ⨟ π₁ τ , [ σ ]tm π₂ τ)  ≡⟨ π₁, ⟩
-  σ ⨟ π₁ τ                      ∎
+  π₁ (σ ⨟ τ)                   ≡⟨ cong (λ τ → π₁ (σ ⨟ τ)) η, ⟩
+  π₁ (σ ⨟ (π₁ τ , π₂ τ))       ≡⟨ cong π₁ ⨟, ⟩ 
+  π₁ (σ ⨟ π₁ τ , [ σ ]t π₂ τ)  ≡⟨ π₁, ⟩
+  σ ⨟ π₁ τ                     ∎
   where open ≡-Reasoning
 
 π₁idS⨟ : (σ : Sub Γ (Δ , A)) → π₁ σ ≡ σ ⨟ π₁ idS
@@ -38,12 +38,12 @@ cong-U refl = refl
   where open ≡-Reasoning
 
 π₂⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
-  → π₂ (σ ⨟ τ) ≡ [ σ ]tm (π₂ τ)
+  → π₂ (σ ⨟ τ) ≡ [ σ ]t (π₂ τ)
 π₂⨟ {Γ} {Δ} {Θ} {A} σ τ = begin
   π₂ (σ ⨟ τ)                       ≡⟨ ≅-to-≡ $ hcong (λ ν → π₂ (σ ⨟ ν)) (≡-to-≅ η,) ⟩
   π₂ (σ ⨟ (π₁ τ , π₂ τ))           ≡⟨ ≅-to-≡ $ hcong π₂ (≡-to-≅ ⨟,) ⟩
-  π₂ ((σ ⨟ π₁ τ) , [ σ ]tm (π₂ τ)) ≡⟨ π₂, ⟩
-  [ σ ]tm π₂ τ ∎
+  π₂ ((σ ⨟ π₁ τ) , [ σ ]t (π₂ τ)) ≡⟨ π₂, ⟩
+  [ σ ]t π₂ τ ∎
   where open ≡-Reasoning
 
 ⁺⨟wk : (σ : Sub Γ Δ) {A : Ty Δ i} → (_⁺ σ {A}) ⨟ wk ≡ wk ⨟ σ
@@ -139,7 +139,7 @@ id↑ Γ A = begin
   [ σ ]t  [ π₁ τ ]t  u  ≡⟨⟩
   [ π₁ (σ ⨟ τ) ]t u ∎
   where open ≡-Reasoning
-[]tm≡[]t u idS          = [id]tm
+[]tm≡[]t u idS      = [id]tm
 []tm≡[]t u (σ ⨟ τ) = begin
   [ σ ⨟ τ ]tm u     ≡⟨ [⨟]tm ⟩
   [ σ ]tm [ τ ]tm u ≡⟨ cong ([ σ ]tm_) ([]tm≡[]t u τ) ⟩

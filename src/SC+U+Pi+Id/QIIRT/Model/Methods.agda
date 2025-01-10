@@ -16,18 +16,12 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
     Aᴹ Bᴹ Cᴹ : Tyᴹ Γᴹ i A
     aᴹ tᴹ uᴹ : Tmᴹ Γᴹ Aᴹ t
     p : Tm Γ (Id a t u)
-    
-  record Method : Set (ℓ ⊔ ℓ′) where
+
+  record CwF : Set (ℓ ⊔ ℓ′) where
     field
-      -- induction on type and term substitution function
       [_]ᴹ_
         : (σᴹ : Subᴹ Δᴹ Γᴹ σ)(Aᴹ : Tyᴹ Γᴹ i A)
         → Tyᴹ Δᴹ i ([ σ ] A)
-      
-    -- TmᴹFamₛ : {Γᴹ : Ctxᴹ Γ}{Δᴹ : Ctxᴹ Δ}(Aᴹ : Tyᴹ Δᴹ i A){t : Tm Γ ([ σ ] A)} → (σᴹ : Subᴹ Γᴹ Δᴹ σ) → Set ℓ′
-    -- TmᴹFamₛ {Γᴹ = Γᴹ} Aᴹ {t} σᴹ = Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ) t
-
-    field
       ∅ᶜᴹ
         : Ctxᴹ ∅
       _,ᶜᴹ_
@@ -54,21 +48,6 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         : ([ π₁ᴹ (σᴹ ,ˢᴹ tᴹ) ]ᴹ Aᴹ) ≡ [ σᴹ ]ᴹ Aᴹ
       [π₁ᴹ⨟ᴹ]ᴹ
         : [ π₁ᴹ (σᴹ ⨟ᴹ τᴹ) ]ᴹ Aᴹ ≡ [ σᴹ ]ᴹ ([ π₁ᴹ τᴹ ]ᴹ Aᴹ)
-      Uᴹ
-        : (i : ℕ)
-        → Tyᴹ Γᴹ (suc i) (U i)
-      Elᴹ
-        : Tmᴹ Γᴹ (Uᴹ i) t
-        → Tyᴹ Γᴹ i (El t)
-      Liftᴹ
-        : Tyᴹ Γᴹ i A
-        → Tyᴹ Γᴹ (suc i) (Lift A)
-      Πᴹ
-        : (Aᴹ : Tyᴹ Γᴹ i A)(Bᴹ : Tyᴹ (Γᴹ ,ᶜᴹ Aᴹ) i B)
-        → Tyᴹ Γᴹ i (Π A B)
-      Idᴹ
-        : (aᴹ : Tmᴹ Γᴹ (Uᴹ i) a)(tᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ) t)(uᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ) u)
-        → Tyᴹ Γᴹ i (Id a t u)
       π₂ᴹ
         : (σᴹ : Subᴹ Δᴹ (Γᴹ ,ᶜᴹ Aᴹ) σ)
         ---------------------------------
@@ -77,21 +56,7 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         : (σᴹ : Subᴹ Γᴹ Δᴹ σ) {Aᴹ : Tyᴹ Δᴹ i A}
         → (tᴹ : Tmᴹ Δᴹ Aᴹ t)
         → Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σ ]tm t)
-      cᴹ
-        : Tyᴹ Γᴹ i A
-        → Tmᴹ Γᴹ (Uᴹ i) (c A)
-      mkᴹ
-        : Tmᴹ Γᴹ Aᴹ t
-        → Tmᴹ Γᴹ (Liftᴹ Aᴹ) (mk t)
-      unᴹ
-        : Tmᴹ Γᴹ (Liftᴹ Aᴹ) t
-        → Tmᴹ Γᴹ Aᴹ (un t)
-      ƛᴹ_
-        : Tmᴹ (Γᴹ ,ᶜᴹ Aᴹ) Bᴹ t
-        → Tmᴹ Γᴹ (Πᴹ Aᴹ Bᴹ) (ƛ t)
-      appᴹ
-        : Tmᴹ Γᴹ (Πᴹ Aᴹ Bᴹ) t
-        → Tmᴹ (Γᴹ ,ᶜᴹ Aᴹ) Bᴹ (app t)
+    
     _⁺ᴹ
       : (σᴹ : Subᴹ Γᴹ Δᴹ σ)
       → Subᴹ (Γᴹ ,ᶜᴹ ([ σᴹ ]ᴹ Aᴹ)) (Δᴹ ,ᶜᴹ Aᴹ) (σ ⁺)
@@ -102,9 +67,8 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(Aᴹ : Tyᴹ Δᴹ i A)
         → Subᴹ (Γᴹ ,ᶜᴹ ([ σᴹ ]ᴹ Aᴹ)) (Δᴹ ,ᶜᴹ Aᴹ) (σ ↑ A)
       -- [TODO]: the definitional equalities for _↑_ should go here
-      -- [TODO]: Add _↑ᴹ_ ≡ _⁺ᴾ_
       -- [TODO]: the deifnitional equalities for [_]t_ should go here
-      -- [TODO]: Add [_]t_ ≡ [_]tm_
+
       [_]tᴹ_
         : (σᴹ : Subᴹ Δᴹ Γᴹ σ)(tᴹ : Tmᴹ Γᴹ Aᴹ t)
         → Tmᴹ Δᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σ ]t t)
@@ -142,7 +106,7 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         : tr (Subᴹ Γᴹ Δᴹ) π₁, (π₁ᴹ (σᴹ ,ˢᴹ tᴹ)) ≡ σᴹ
       ⨟ᴹ,ˢᴹ -- the transport equation seems too long
         : tr SubᴹFam ⨟, (σᴹ ⨟ᴹ (τᴹ ,ˢᴹ tᴹ))
-        ≡ (σᴹ ⨟ᴹ τᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) ([ σᴹ ]tmᴹ tᴹ)
+        ≡ (σᴹ ⨟ᴹ τᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) ([ σᴹ ]tᴹ tᴹ)
       η∅ˢᴹ
         : tr SubᴹFam η∅ σᴹ ≡ ∅ˢᴹ
       η,ˢᴹ
@@ -156,6 +120,29 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
       π₂ᴹ,ˢᴹ
         : tr₂ (Tmᴹ Γᴹ) [π₁ᴹ,ˢᴹ]ᴹ π₂, (π₂ᴹ (σᴹ ,ˢᴹ tᴹ))
         ≡ tᴹ
+
+  record Univ (C : CwF) : Set (ℓ ⊔ ℓ′) where
+    open CwF C
+
+    field
+      Uᴹ
+        : (i : ℕ)
+        → Tyᴹ Γᴹ (suc i) (U i)
+      Elᴹ
+        : Tmᴹ Γᴹ (Uᴹ i) t
+        → Tyᴹ Γᴹ i (El t)
+      Liftᴹ
+        : Tyᴹ Γᴹ i A
+        → Tyᴹ Γᴹ (suc i) (Lift A)
+      cᴹ
+        : Tyᴹ Γᴹ i A
+        → Tmᴹ Γᴹ (Uᴹ i) (c A)
+      mkᴹ
+        : Tmᴹ Γᴹ Aᴹ t
+        → Tmᴹ Γᴹ (Liftᴹ Aᴹ) (mk t)
+      unᴹ
+        : Tmᴹ Γᴹ (Liftᴹ Aᴹ) t
+        → Tmᴹ Γᴹ Aᴹ (un t)
       []ᴹUᴹ
         : [ σᴹ ]ᴹ (Uᴹ i) ≡ Uᴹ i
       []ᴹElᴹ
@@ -163,23 +150,18 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         → ([ σᴹ ]ᴹ (Elᴹ uᴹ)) ≡ Elᴹ (tr TmᴹFamₜ []ᴹUᴹ ([ σᴹ ]tᴹ uᴹ))
       []ᴹLiftᴹ
         : [ σᴹ ]ᴹ (Liftᴹ Aᴹ) ≡ Liftᴹ ([ σᴹ ]ᴹ Aᴹ)
-      []ᴹΠᴹ
-        : [ σᴹ ]ᴹ (Πᴹ Aᴹ Bᴹ) ≡ Πᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σᴹ ↑ᴹ Aᴹ ]ᴹ Bᴹ)
-      []ᴹIdᴹ
-        : [ σᴹ ]ᴹ (Idᴹ aᴹ tᴹ uᴹ)
-        ≡ Idᴹ (tr TmᴹFamₜ []ᴹUᴹ ([ σᴹ ]tᴹ aᴹ))
-            (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ tᴹ))
-            (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ uᴹ))
       []tᴹcᴹ
         : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(Aᴹ : Tyᴹ Δᴹ i A)
-        → tr₂ (Tmᴹ Γᴹ) []ᴹUᴹ ([]tc σ A) ([ σᴹ ]tmᴹ (cᴹ Aᴹ))
+        → tr₂ (Tmᴹ Γᴹ) []ᴹUᴹ ([]tc σ A) ([ σᴹ ]tᴹ (cᴹ Aᴹ))
         ≡ cᴹ ([ σᴹ ]ᴹ Aᴹ)
       []mkᴹ
-        : tr₂ (Tmᴹ Γᴹ) []ᴹLiftᴹ []mk ([ σᴹ ]tmᴹ mkᴹ tᴹ)
-        ≡ mkᴹ ([ σᴹ ]tmᴹ tᴹ)
+        : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ σ)
+        → tr₂ (Tmᴹ Γᴹ) []ᴹLiftᴹ ([]mk σ _) ([ σᴹ ]tᴹ mkᴹ tᴹ)
+        ≡ mkᴹ ([ σᴹ ]tᴹ tᴹ)
       []unᴹ
-        : tr TmᴹFam ([]un σ A t) ([ σᴹ ]tmᴹ unᴹ tᴹ)
-        ≡ unᴹ (tr TmᴹFamₜ []ᴹLiftᴹ ([ σᴹ ]tmᴹ tᴹ))
+        : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ σ)
+        → tr TmᴹFam ([]un σ A t) ([ σᴹ ]tᴹ unᴹ tᴹ)
+        ≡ unᴹ (tr TmᴹFamₜ []ᴹLiftᴹ ([ σᴹ ]tᴹ tᴹ))
       Uᴹβ
         : tr TyᴹFam Uβ (Elᴹ (cᴹ Aᴹ)) ≡ Aᴹ
       Uᴹη
@@ -188,26 +170,50 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         : tr TmᴹFam Liftβ (unᴹ (mkᴹ tᴹ)) ≡ tᴹ
       Liftᴹη
         : tr TmᴹFam Liftη (mkᴹ (unᴹ tᴹ)) ≡ tᴹ
+
+  record Π-type (C : CwF) : Set (ℓ ⊔ ℓ′) where
+    open CwF C
+    field 
+      Πᴹ
+        : (Aᴹ : Tyᴹ Γᴹ i A)(Bᴹ : Tyᴹ (Γᴹ ,ᶜᴹ Aᴹ) i B)
+        → Tyᴹ Γᴹ i (Π A B)
+      ƛᴹ_
+        : Tmᴹ (Γᴹ ,ᶜᴹ Aᴹ) Bᴹ t
+        → Tmᴹ Γᴹ (Πᴹ Aᴹ Bᴹ) (ƛ t)
+      appᴹ
+        : Tmᴹ Γᴹ (Πᴹ Aᴹ Bᴹ) t
+        → Tmᴹ (Γᴹ ,ᶜᴹ Aᴹ) Bᴹ (app t)
+      []ᴹΠᴹ
+        : [ σᴹ ]ᴹ (Πᴹ Aᴹ Bᴹ) ≡ Πᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σᴹ ↑ᴹ Aᴹ ]ᴹ Bᴹ)
+      []ƛᴹ
+        : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ σ)
+        → tr₂ (Tmᴹ Γᴹ) []ᴹΠᴹ ([]ƛ σ _) ([ σᴹ ]tᴹ (ƛᴹ tᴹ))
+        ≡ ƛᴹ ([ σᴹ ↑ᴹ Aᴹ ]tᴹ tᴹ)
+
+  record Id-type (C : CwF) (U : Univ C) : Set (ℓ ⊔ ℓ′) where
+    open CwF C
+    open Univ U
+    field
+      Idᴹ
+        : (aᴹ : Tmᴹ Γᴹ (Uᴹ i) a)(tᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ) t)(uᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ) u)
+        → Tyᴹ Γᴹ i (Id a t u)
+      []ᴹIdᴹ
+        : [ σᴹ ]ᴹ (Idᴹ aᴹ tᴹ uᴹ)
+        ≡ Idᴹ (tr TmᴹFamₜ []ᴹUᴹ ([ σᴹ ]tᴹ aᴹ))
+            (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ tᴹ))
+            (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ uᴹ))
       reflectᴹ
         : (Pp : Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ uᴹ) p)
         → tr TmᴹFam (reflect p) tᴹ ≡ uᴹ
-      []ƛᴹ
-        : tr₂ (Tmᴹ Γᴹ) []ᴹΠᴹ []ƛ ([ σᴹ ]tmᴹ (ƛᴹ tᴹ))
-        ≡ ƛᴹ ([ σᴹ ↑ᴹ Aᴹ ]tmᴹ tᴹ)
-      Πᴹβ
-        : tr TmᴹFam Πβ (appᴹ (ƛᴹ tᴹ)) ≡ tᴹ
-      Πᴹη
-        : tr TmᴹFam Πη (ƛᴹ (appᴹ tᴹ)) ≡ tᴹ
-      
-      []tmᴹ≡[]tᴹ
-        : {Γᴹ : Ctxᴹ Γ}{Δᴹ : Ctxᴹ Δ}{Aᴹ : Tyᴹ Δᴹ i A}
-          (σᴹ : Subᴹ Γᴹ Δᴹ σ)(tᴹ : Tmᴹ Δᴹ Aᴹ t)
-          -------------------------------------
-        → tr TmᴹFam ([]tm≡[]t t σ) ([ σᴹ ]tmᴹ tᴹ) ≡ [ σᴹ ]tᴹ tᴹ
-      ↑ᴹ=⁺ᴹ
-        : {Γᴹ : Ctxᴹ Γ}{Δᴹ : Ctxᴹ Δ}
-          (σᴹ : Subᴹ Γᴹ Δᴹ σ)(Aᴹ : Tyᴹ Δᴹ i A)
-          --------------------------------------------------------------------------
-        → tr (Subᴹ (Γᴹ ,ᶜᴹ ([ σᴹ ]ᴹ Aᴹ)) (Δᴹ ,ᶜᴹ Aᴹ)) (↑=⁺ A σ) (σᴹ ↑ᴹ Aᴹ) ≡ σᴹ ⁺ᴹ
 
- 
+  record Method : Set (ℓ ⊔ ℓ′) where
+    field
+      𝒞    : CwF
+      univ : Univ 𝒞
+      piTy : Π-type 𝒞
+      idTy : Id-type 𝒞 univ
+
+    open CwF 𝒞        public
+    open Univ univ    public
+    open Π-type piTy  public
+    open Id-type idTy public
