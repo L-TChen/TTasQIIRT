@@ -119,7 +119,14 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
       [π₁ᴹ⨟ᴹ]tᴹ
         : tr TmᴹFamₜ [π₁ᴹ⨟ᴹ]ᴹ ([ π₁ᴹ (σᴹ ⨟ᴹ τᴹ) ]tᴹ tᴹ)
         ≡ [ σᴹ ]tᴹ ([ π₁ᴹ τᴹ ]tᴹ tᴹ)
-      -- [TODO]: Please put the remaining cases here.
+      [∅ˢᴹ]tᴹ
+        : [ ∅ˢᴹ {Δ} {Δᴹ} ]tᴹ tᴹ ≡ [ ∅ˢᴹ ]tmᴹ tᴹ
+      [,ˢᴹ]tᴹ
+        : [ σᴹ ,ˢᴹ tᴹ ]tᴹ uᴹ ≡ [ σᴹ ,ˢᴹ tᴹ ]tmᴹ uᴹ
+      [π₁ᴹidSᴹ]tᴹ
+        : [ π₁ᴹ {Δᴹ = Γᴹ ,ᶜᴹ Aᴹ} idSᴹ ]tᴹ tᴹ ≡ [ π₁ᴹ idSᴹ ]tmᴹ tᴹ
+      [π₁ᴹπ₁ᴹ]tᴹ
+        : [ π₁ᴹ (π₁ᴹ σᴹ) ]tᴹ tᴹ ≡ [ π₁ᴹ (π₁ᴹ σᴹ) ]tmᴹ tᴹ
 
       -- 
       _⨟ᴹidSᴹ
