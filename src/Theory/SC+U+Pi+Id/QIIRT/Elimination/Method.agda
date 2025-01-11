@@ -19,8 +19,8 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
   record CwF : Set (ℓ ⊔ ℓ′) where
     field
       [_]ᴹ_
-        : (σᴹ : Subᴹ Δᴹ Γᴹ σ)(Aᴹ : Tyᴹ Γᴹ i A)
-        → Tyᴹ Δᴹ i ([ σ ] A)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(Aᴹ : Tyᴹ Δᴹ i A)
+        → Tyᴹ Γᴹ i ([ σ ] A)
       ∅ᶜᴹ
         : Ctxᴹ ∅
       _,ᶜᴹ_
@@ -42,7 +42,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       [idSᴹ]
         : [ idSᴹ ]ᴹ Aᴹ ≡ Aᴹ
       [⨟ᴹ]ᴹ
-        : [ τᴹ ⨟ᴹ σᴹ ]ᴹ Aᴹ ≡ [ τᴹ ]ᴹ ([ σᴹ ]ᴹ Aᴹ)
+        : [ σᴹ ⨟ᴹ τᴹ ]ᴹ Aᴹ ≡ [ σᴹ ]ᴹ ([ τᴹ ]ᴹ Aᴹ)
       [π₁ᴹ,ˢᴹ]ᴹ
         : ([ π₁ᴹ (σᴹ ,ˢᴹ tᴹ) ]ᴹ Aᴹ) ≡ [ σᴹ ]ᴹ Aᴹ
       [π₁ᴹ⨟ᴹ]ᴹ
@@ -91,8 +91,8 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : π₁ᴹ (π₁ᴹ σᴹ) ↑ᴹ Aᴹ ≡ π₁ᴹ (π₁ᴹ σᴹ) ⁺ᴹ
 
       [_]tᴹ_
-        : (σᴹ : Subᴹ Δᴹ Γᴹ σ)(tᴹ : Tmᴹ Γᴹ Aᴹ t)
-        → Tmᴹ Δᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σ ]t t)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(tᴹ : Tmᴹ Δᴹ Aᴹ t)
+        → Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σ ]t t)
 
       [idSᴹ]tᴹ
         : tr TmᴹFamₜ [idSᴹ] ([ idSᴹ ]tᴹ tᴹ) ≡ tᴹ

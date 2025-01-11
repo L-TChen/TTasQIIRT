@@ -51,7 +51,7 @@ cong-U refl = refl
   where open ≡-Reasoning
 
 -- derived computation rules on composition
-abstract 
+opaque 
   π₁⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ
   π₁⨟ σ τ = Σ-≡,≡←≡ (π⨟ σ τ) .proj₁
 
@@ -110,27 +110,28 @@ abstract
   where open ≅-Reasoning
 -}
   
-{-
-id⁺
-  : (Γ : Ctx) (A : Ty Γ i)
-  → tr (λ B → Sub (Γ , B) (Γ , A)) {!!} (idS ⁺)
-  ≡ idS {Γ , A}
-id⁺ Γ A = begin
-  tr (λ B → Sub (Γ , B) (Γ , A)) [id] (idS ⁺)
-    ≡⟨⟩
-  tr (λ B → Sub (Γ , B) (Γ , A)) [id]
-    (wk ⨟ idS , tr (Tm _) (sym [⨟]) vz)
-    ≡⟨ {!!} ⟩
-  tr (λ B → Sub (Γ , B) (Γ , A)) [id]
-    (wk  , tr (Tm _) {!sym !} vz)
-    ≡⟨ {!!} ⟩
-  wk , π₂ idS
-    ≡⟨ sym $ η, ⟩
-  idS
-    ∎
-  where open ≡-Reasoning
--}
 
+opaque
+  id⁺
+    : (Γ : Ctx) (A : Ty Γ i)
+    → tr (λ B → Sub (Γ , B) (Γ , A)) [idS] (idS ⁺)
+    ≡ idS {Γ , A}
+  id⁺ Γ A = begin
+    tr (λ B → Sub (Γ , B) (Γ , A)) [idS] (idS ⁺)
+      ≡⟨⟩
+    tr (λ B → Sub (Γ , B) (Γ , A)) [idS]
+      (wk ⨟ idS , tr (Tm _) (sym [⨟]) (π₂ idS))
+      ≡⟨ {!!} ⟩
+    wk , π₂ idS
+      ≡⟨ sym $ η, ⟩
+    idS
+      ∎
+    where open ≡-Reasoning
+
+  ⨟⁺
+    : tr (λ A → Sub (Γ , A) (Δ , B)) [⨟] ((σ ⨟ τ) ⁺) ≡ σ ⁺ ⨟ τ ⁺
+  ⨟⁺ = {!!}
+  
 -- σ⨟τ↑ : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ i) → σ ⁺ ⨟ τ ⁺ ≡ (σ ⨟ τ) ⁺
 -- σ⨟τ↑ {Γ} {Δ} {Θ} σ τ A = sym $ begin
 --   (σ ⨟ τ) ⁺                    ≡⟨⟩
@@ -146,3 +147,37 @@ id⁺ Γ A = begin
 --   σ ⁺ ⨟ ((wk ⨟ τ) , vz)                   ≡⟨⟩
 --   σ ⁺ ⨟ τ ⁺                               ∎
 --   where open ≡-Reasoning
+
+  π₁,⁺
+    : tr (λ A → Sub (Γ , A) (Δ , B)) (cong ([_] B) π₁,) (π₁ (σ , t) ⁺)
+    ≡ σ ⁺ 
+  π₁,⁺ {Γ} {Δ} {i} {B} {σ} {j} {C} {t} = begin
+    tr (λ A → Sub (Γ , A) (Δ , B)) (cong ([_] B) π₁,)
+    (π₁ (σ , t) ⁺)
+      ≡⟨ tr-cong π₁, ⟨
+    tr (λ σ → Sub (Γ , [ σ ] B) (Δ , B)) π₁,
+    (π₁ (σ , t) ⁺)
+      ≡⟨ apd (λ σ → _⁺ σ {B}) π₁, ⟩
+    σ ⁺
+      ∎
+    where open ≡-Reasoning
+
+  π₁⨟⁺
+    : tr (λ A → Sub (Γ , A) (Θ , B)) (cong ([_] B) (π₁⨟ σ τ) ∙ [⨟])
+      ((π₁ (σ ⨟ τ)) ⁺)
+    ≡ σ ⁺ ⨟ (π₁ τ) ⁺
+  π₁⨟⁺ {Γ} {Θ} {i} {B} {Δ} {σ} {j} {A} {τ} = begin
+    tr (λ A → Sub (Γ , A) (Θ , B)) (cong ([_] B) (π₁⨟ σ τ) ∙ [⨟])
+      ((π₁ (σ ⨟ τ)) ⁺)
+      ≡⟨  tr² (cong ([_] B) (π₁⨟ σ τ)) ⟨
+    tr (λ A → Sub (Γ , A) (Θ , B)) [⨟] (tr (λ A → Sub (Γ , A) (Θ , B)) (cong ([_] B) (π₁⨟ σ τ))
+      ((π₁ (σ ⨟ τ)) ⁺) )
+      ≡⟨ cong (tr (λ A → Sub (Γ , A) (Θ , B)) [⨟]) (tr-cong (π₁⨟ σ τ)) ⟨
+    tr (λ A → Sub (Γ , A) (Θ , B)) [⨟] (tr (λ σ → Sub (Γ , [ σ ] B) (Θ , B)) (π₁⨟ σ τ)
+      ((π₁ (σ ⨟ τ)) ⁺)) 
+      ≡⟨ cong (tr (λ A → Sub (Γ , A) (Θ , B)) [⨟]) (apd (λ σ → _⁺ σ {B}) (π₁⨟ σ τ)) ⟩
+    tr (λ A → Sub (Γ , A) (Θ , B)) [⨟] ((σ ⨟ π₁ τ) ⁺)
+      ≡⟨ ⨟⁺ ⟩
+    σ ⁺ ⨟ (π₁ τ) ⁺
+      ∎ 
+    where open ≡-Reasoning
