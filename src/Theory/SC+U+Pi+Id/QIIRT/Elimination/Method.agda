@@ -1,11 +1,11 @@
 -- Methods of Model of Substitution Calculus
 open import Prelude
 
-module Theory.SC+U+Pi+Id.QIIRT.Elimination.Methods where
+module Theory.SC+U+Pi+Id.QIIRT.Elimination.Method where
 
 open import Theory.SC+U+Pi+Id.QIIRT.Syntax
 open import Theory.SC+U+Pi+Id.QIIRT.Properties
-open import Theory.SC+U+Pi+Id.QIIRT.Elimination.Motives
+open import Theory.SC+U+Pi+Id.QIIRT.Elimination.Motive
 
 module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
   open Motive Mot
@@ -32,13 +32,13 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ) t)
         → Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ) (σ , t)
       idSᴹ
-        : Subᴹ Δᴹ Δᴹ idS
+        : Subᴹ Γᴹ Γᴹ idS
       _⨟ᴹ_
         : (τᴹ : Subᴹ Γᴹ Δᴹ τ)(σᴹ : Subᴹ Δᴹ Θᴹ σ)
         → Subᴹ Γᴹ Θᴹ (τ ⨟ σ)
       π₁ᴹ
-        : (σᴹ : Subᴹ Δᴹ (Γᴹ ,ᶜᴹ Aᴹ) σ)
-        → Subᴹ Δᴹ Γᴹ (π₁ σ)
+        : (σᴹ : Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ) σ)
+        → Subᴹ Γᴹ Δᴹ (π₁ σ)
       [idSᴹ]
         : [ idSᴹ ]ᴹ Aᴹ ≡ Aᴹ
       [⨟ᴹ]ᴹ
@@ -110,17 +110,17 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       [,ˢᴹ]tᴹ
         : [ σᴹ ,ˢᴹ tᴹ ]tᴹ uᴹ ≡ [ σᴹ ,ˢᴹ tᴹ ]tmᴹ uᴹ
       [π₁ᴹidSᴹ]tᴹ
-        : [ π₁ᴹ {Δᴹ = Γᴹ ,ᶜᴹ Aᴹ} idSᴹ ]tᴹ tᴹ
+        : [ π₁ᴹ {Γᴹ = Γᴹ ,ᶜᴹ Aᴹ} idSᴹ ]tᴹ tᴹ
         ≡ [ π₁ᴹ idSᴹ ]tmᴹ tᴹ
       [π₁ᴹπ₁ᴹ]tᴹ
         : [ π₁ᴹ (π₁ᴹ σᴹ) ]tᴹ tᴹ ≡ [ π₁ᴹ (π₁ᴹ σᴹ) ]tmᴹ tᴹ
 
       -- 
       _⨟ᴹidSᴹ
-        : (σᴹ : Subᴹ Δᴹ Γᴹ σ)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ σ)
         → tr SubᴹFam (σ ⨟idS) (σᴹ ⨟ᴹ idSᴹ) ≡ σᴹ
       idSᴹ⨟ᴹ_
-        : (σᴹ : Subᴹ Δᴹ Γᴹ σ)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ σ)
         → tr SubᴹFam (idS⨟ σ) (idSᴹ ⨟ᴹ σᴹ) ≡ σᴹ
       ⨟ᴹ-assoc
         : tr SubᴹFam ⨟-assoc (σᴹ ⨟ᴹ (τᴹ ⨟ᴹ γᴹ))
@@ -135,7 +135,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       η,ˢᴹ
         : tr SubᴹFam η, σᴹ ≡ π₁ᴹ σᴹ ,ˢᴹ π₂ᴹ σᴹ
       [idSᴹ]tmᴹ
-        : tr₂ (Tmᴹ Γᴹ) [idSᴹ] [id]tm ([ idSᴹ ]tmᴹ tᴹ)
+        : tr₂ (Tmᴹ Γᴹ) [idSᴹ] [idS]tm ([ idSᴹ ]tmᴹ tᴹ)
         ≡ tᴹ
       [⨟ᴹ]tmᴹ
         : tr₂ (Tmᴹ Γᴹ) [⨟ᴹ]ᴹ [⨟]tm ([ σᴹ ⨟ᴹ τᴹ ]tmᴹ tᴹ)

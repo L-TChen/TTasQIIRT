@@ -1,6 +1,6 @@
 open import Prelude
 -- Motives of Model of Substitution Calculus
-module Theory.SC+U+Pi+Id.QIIRT.Elimination.Motives where
+module Theory.SC+U+Pi+Id.QIIRT.Elimination.Motive where
 
 open import Theory.SC+U+Pi+Id.QIIRT.Syntax
 

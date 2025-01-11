@@ -139,7 +139,7 @@ id↑ Γ A = begin
   [ σ ]t  [ π₁ τ ]t  u  ≡⟨⟩
   [ π₁ (σ ⨟ τ) ]t u ∎
   where open ≡-Reasoning
-[]tm≡[]t u idS      = [id]tm
+[]tm≡[]t u idS      = [idS]tm
 []tm≡[]t u (σ ⨟ τ) = begin
   [ σ ⨟ τ ]tm u     ≡⟨ [⨟]tm ⟩
   [ σ ]tm [ τ ]tm u ≡⟨ cong ([ σ ]tm_) ([]tm≡[]t u τ) ⟩

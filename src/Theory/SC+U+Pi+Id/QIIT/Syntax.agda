@@ -45,7 +45,7 @@ interleaved mutual
       → Sub Γ Δ
 
   postulate
-    [id]    : [ idS        ] A ≡ A
+    [idS]   : [ idS        ] A ≡ A
     [⨟]     : [ σ ⨟ τ      ] A ≡ [ σ ] [ τ ] A
 
   data _ where
@@ -114,8 +114,8 @@ interleaved mutual
       : {σ : Sub Γ (Δ , A)}
       → σ ≡ (π₁ σ , π₂ σ)
   -- Equality constructors for terms
-    [id]tm
-      : tr (Tm Γ) [id] ([ idS   ]tm t) ≡ t
+    [idS]tm
+      : tr (Tm Γ) [idS] ([ idS   ]tm t) ≡ t
     [⨟]tm
       : tr (Tm Γ) [⨟] ([ σ ⨟ τ ]tm t) ≡ [ σ ]tm [ τ ]tm t
     π₂,

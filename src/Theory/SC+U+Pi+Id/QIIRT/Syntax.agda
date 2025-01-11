@@ -141,7 +141,7 @@ interleaved mutual
       : {σ : Sub Γ (Δ , A)}
       → σ ≡ (π₁ σ , π₂ σ)
   -- Equality constructors for terms
-    [id]tm
+    [idS]tm
       : [ idS   ]tm t ≡ t
     [⨟]tm
       : [ σ ⨟ τ ]tm t ≡ [ σ ]tm [ τ ]tm t
