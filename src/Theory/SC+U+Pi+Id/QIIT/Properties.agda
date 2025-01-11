@@ -51,8 +51,9 @@ cong-U refl = refl
   where open ≡-Reasoning
 
 -- derived computation rules on composition
-π₁⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ
-π₁⨟ σ τ = Σ-≡,≡←≡ (π⨟ σ τ) .proj₁
+abstract 
+  π₁⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A)) → π₁ (σ ⨟ τ) ≡ σ ⨟ π₁ τ
+  π₁⨟ σ τ = Σ-≡,≡←≡ (π⨟ σ τ) .proj₁
 
 π₂⨟ : (σ : Sub Γ Δ) {A : Ty Θ i} (τ : Sub Δ (Θ , A))
   → _≡_ {_} {∃ (Tm Γ)}

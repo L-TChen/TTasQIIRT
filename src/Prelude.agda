@@ -16,9 +16,11 @@ open import Data.Nat                      public
   using (ℕ; suc; zero)
 
 open import Relation.Binary.PropositionalEquality.WithK public
+open import Axiom.UniquenessOfIdentityProofs.WithK      public
+  using (uip)
 open import Relation.Binary.PropositionalEquality       public
   using (_≡_; refl; sym; trans; cong; cong₂; trans-symˡ; trans-symʳ; J; module ≡-Reasoning)
-  renaming (subst to tr; subst₂ to tr₂; dcong to apd; dcong₂ to apd₂;
+  renaming (subst to tr; dcong to apd; dcong₂ to apd₂;
             subst-∘ to tr-cong; subst-subst to tr²; subst-application′ to tr-nat)
 open import Relation.Binary.HeterogeneousEquality       public
   using (_≅_; refl; ≅-to-≡; ≡-to-≅; module ≅-Reasoning)
@@ -32,23 +34,29 @@ private variable
   ℓ ℓ' ℓ'' : Level
   A B C : Set ℓ
 
+tr₂ : ∀ (_∼_ : A → B → Set ℓ) {x y u v} → x ≡ y → u ≡ v → x ∼ u → y ∼ v
+tr₂ _∼_ {x} {y} {u} {v} p q x∼u = tr (λ x → x ∼ v) p (tr (λ v → x ∼ v) q x∼u)
+
 conv : A ≡ B → A → B
 conv = tr id
 
-conv² : (p : A ≡ B)(q : B ≡ C){x : A}
-      → conv q (conv p x) ≡ conv (trans p q) x
-conv² p q = tr² p {q} 
-
+{-
 cvtr :  (p : A ≡ B)(q : B ≡ C)
       → {a : A}{b : B}{c : C}
       → conv p a ≡ b → conv q b ≡ c
       → conv (trans p q) a ≡ c
-cvtr p q refl refl = sym (conv² p q)
+cvtr p _ refl refl = sym (tr² p)
 
 syntax cvtr p q eq1 eq2 = eq1 ⟫ p , q ⟫ eq2
+-}
+
+tr-unique
+  : {A : Set ℓ}(P : A → Set ℓ'){x y : A} (p q : x ≡ y)(a : P x)
+  → tr P p a ≡ tr P q a
+tr-unique P p q a = cong (λ p → tr P p a) (uip p q) 
 
 conv-unique : {A B : Set ℓ}(p q : A ≡ B)(a : A) → conv p a ≡ conv q a
-conv-unique refl refl _ = refl
+conv-unique = tr-unique id
 
 conv~unique : {A B C : Set ℓ}(p : A ≡ B)(q : A ≡ C)(a : A) → conv p a ≅ conv q a
 conv~unique refl refl _ = refl
@@ -56,15 +64,19 @@ conv~unique refl refl _ = refl
 conv-rm : {A B : Set ℓ}(p : A ≡ B)(a : A) → conv p a ≅ a
 conv-rm p a = conv~unique p refl a
 
+{-
 tr-conv : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}{y : Y x}
-        → (p : x ≡ x') → tr Y p y ≡ conv (cong Y p) y
-tr-conv refl = refl
+        → (p : x ≡ x') → tr Y p y ≡ tr id (cong Y p) y
+tr-conv p = tr-cong p
+-}
 
+{-
 tr-comp : {X : Set ℓ}{Y : X → Set ℓ'}{Z : (x : X) → Set ℓ''}
            {x x' : X}{y : Y x}{y' : Y x'}
         → (f : {x : X}(y : Y x) → Z x)(p : x ≡ x') → tr Y p y ≡ y'
         → tr Z p (f y) ≡ f y'
 tr-comp f refl refl = refl
+-}
 
 flip-tr : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}{y : Y x}{y' : Y x'}{p : x ≡ x'}
         → tr Y p y ≡ y' → tr Y (sym p) y' ≡ y
