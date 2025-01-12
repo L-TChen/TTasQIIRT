@@ -4,7 +4,7 @@ open import Agda.Builtin.Equality.Rewrite public
 open import Agda.Primitive                public
 
 open import Function.Base                 public
-  using (id; _$_)
+  using (id; _$_; _∘_)
 
 open import Data.Empty                    public
 open import Data.Unit                     public
@@ -156,10 +156,24 @@ module _ {a b c : Level} {I : Set ℓ} (A : I → Set a) {B : {k : I} → A k �
   icong₃ refl _ refl refl refl = refl
 
 tr-const
-  : {A B : Set ℓ} {x y : A} (p : x ≡ y) {b : B}
+  : {A : Set ℓ} {B : Set ℓ'} {x y : A} (p : x ≡ y) {b : B}
   → tr (λ _ → B) p b ≡ b
 tr-const refl = refl
 
 infixr 30 _∙_
 _∙_ : {A : Set ℓ} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
 p ∙ q = trans p q
+
+tr≡-to-≅
+  : {A : Set ℓ} (P : A → Set ℓ') {x y : A} {u : P x} {v : P y}
+  → (p : x ≡ y)
+  → tr P p u ≡ v → u ≅ v
+tr≡-to-≅ P refl eq = ≡-to-≅ eq
+{-
+apd₂′ : {A : Set ℓ} {B : A → Set ℓ'} {C : (x : A) (y : B x) → Set ℓ''}
+  → (f : (x : A) (y : B x) → C x y)
+  → {x₁ x₂ : A} (p : x₁ ≡ x₂)
+  → {y₁ : B x₁} {y₂ : B x₂} (q : tr B p y₁ ≡ y₂)
+  → tr (C x₂) q (f x₂ (tr B p y₁)) ≡ f x₂ y₂
+apd₂′ {A = A} {B} {C} f {x₁} {x₂} p {y₁} {y₂} q = apd {B = (C x₂)} (f x₂) q
+-}

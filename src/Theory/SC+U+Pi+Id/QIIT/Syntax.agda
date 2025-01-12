@@ -90,8 +90,8 @@ interleaved mutual
   pattern vz   = π₂ idS
   pattern vs x = [ wk ]tm x
 
-  _⁺ : (σ : Sub Γ Δ) → {A : Ty Δ i} → Sub (Γ , [ σ ] A) (Δ , A)
-  _⁺ σ {A} = π₁ idS ⨟ σ , tr (Tm _) (sym $ [⨟]) (π₂ idS)
+  _↑_ : (σ : Sub Γ Δ) (A : Ty Δ i) → Sub (Γ , [ σ ] A) (Δ , A)
+  σ ↑ A = π₁ idS ⨟ σ , tr (Tm _) (sym [⨟]) (π₂ idS)
 
   postulate
   -- Equality constructors for substitutions
@@ -131,7 +131,7 @@ interleaved mutual
     []Lift
       : [ σ ] (Lift A) ≡ Lift ([ σ ] A)
     []Π
-      : [ σ ] Π A B ≡ Π ([ σ ] A) ([ σ ⁺ ] B)
+      : [ σ ] Π A B ≡ Π ([ σ ] A) ([ σ ↑ A ] B)
     []Id
       : {σ : Sub Γ Δ} {a : Tm Δ (U i)} {t u : Tm Δ (El a)}
       → [ σ ] (Id a t u)
@@ -165,7 +165,7 @@ interleaved mutual
       → t ≡ u
     []ƛ
       : (σ : Sub Γ Δ) (t : Tm (Δ , A) B)
-      → tr (Tm Γ) []Π ([ σ ]tm (ƛ t)) ≡ (ƛ ([ σ ⁺ ]tm t))
+      → tr (Tm Γ) []Π ([ σ ]tm (ƛ t)) ≡ (ƛ ([ σ ↑ A ]tm t))
     Πβ
       : app (ƛ t) ≡ t
     Πη

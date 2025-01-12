@@ -11,7 +11,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
   open Motive Mot
   private variable
     Γᴹ Δᴹ Θᴹ : Ctxᴹ Γ
-    σᴹ τᴹ γᴹ : Subᴹ Δᴹ Γᴹ σ
+    σᴹ τᴹ γᴹ : Subᴹ Γᴹ Δᴹ σ
     Aᴹ Bᴹ Cᴹ : Tyᴹ Γᴹ i A
     aᴹ tᴹ uᴹ : Tmᴹ Γᴹ Aᴹ t
     p : Tm Γ (Id a t u)
