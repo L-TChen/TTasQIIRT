@@ -103,9 +103,9 @@ opaque
     ≅ π₂ idS
   [⁺]vz {Γ} {Δ} σ A = begin
     [ σ ↑ A ]tm (π₂ idS)
-      ≅⟨ ≡-to-≅ $ from-Σ≡ (π₂⨟ (σ ↑ A) idS) .proj₂ ⟨
-    tr (Tm (Γ , [ σ ] A)) (from-Σ≡ (π₂⨟ (σ ↑ A) idS) .proj₁) (π₂ ((σ ↑ A) ⨟ idS))
-      ≅⟨ {!!} ⟩
+      ≅⟨ ≡-to-≅ $ Σ-≡,≡←≡ (π₂⨟ (σ ↑ A) idS) .proj₂ ⟨
+    tr (Tm (Γ , [ σ ] A)) (Σ-≡,≡←≡ (π₂⨟ (σ ↑ A) idS) .proj₁) (π₂ ((σ ↑ A) ⨟ idS))
+      ≅⟨ {! !} ⟩
     π₂ idS
       ∎
     where open ≅-Reasoning
@@ -119,19 +119,41 @@ opaque
       let vz' = tr (Tm _) (sym [⨟]) vz in
     tr (λ B → Sub (Γ , B) (Γ , A)) [idS]
       (wk ⨟ idS , vz')
-      ≡⟨ {!wk ⨟ idS!} ⟩
+      ≡⟨ tr-nat (λ B → Tm (Γ , B) ([ wk ⨟ idS ] A)) (λ _ t → wk ⨟ idS , t) [idS] ⟩
+    wk ⨟ idS , tr (λ B → Tm (Γ , B) ([ wk ⨟ idS ] A)) [idS] vz'
+      ≡⟨ apd₂ (λ σ t → _,_ σ {A} t) (wk ⨟idS) eq ⟩
     wk , π₂ idS
       ≡⟨ sym $ η, ⟩
     idS
       ∎
-    where open ≡-Reasoning
+    where
+      open ≡-Reasoning
+      tr≅ : ∀{ℓ ℓ'}{A : Set ℓ}(P : A → Set ℓ'){x y : A}(p : x ≡ y)(a : P x)
+          → tr P p a ≅ a
+      tr≅ P p a = tr≡-to-≅ P (sym p) (trans (tr² p) (cong (λ p' → tr P p' a) (trans-symʳ p)))
+
+      vz≅ : π₂ {Γ , [ idS ] A} idS ≅ π₂ {Γ , A} idS
+      vz≅ = HEq.cong (λ A → π₂ {Γ , A} idS) (≡-to-≅ [idS])
+
+      eq : tr (λ σ → Tm (Γ , A) ([ σ ] A)) (wk ⨟idS)
+              (tr (λ B → Tm (Γ , B) ([ wk ⨟ idS ] A)) [idS]
+                  (tr (Tm (Γ , [ idS ] A)) (sym [⨟]) vz))
+         ≡ vz
+      eq = ≅-to-≡ $
+        HEq.trans (tr≅ (λ σ → Tm (Γ , A) ([ σ ] A)) (wk ⨟idS)
+                       (tr (λ B → Tm (Γ , B) ([ wk ⨟ idS ] A)) [idS]
+                           (tr (Tm (Γ , [ idS ] A)) (sym [⨟]) vz)))
+       (HEq.trans (tr≅ (λ B → Tm (Γ , B) ([ wk ⨟ idS ] A)) [idS]
+                       (tr (Tm (Γ , [ idS ] A)) (sym [⨟]) vz))
+       (HEq.trans (tr≅ (Tm (Γ , [ idS ] A)) (sym [⨟]) vz)
+                   vz≅))
 
   ⨟⁺
     : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (B : Ty Θ i)
     → tr (λ A → Sub (Γ , A) (Θ , B)) [⨟] ((σ ⨟ τ) ↑ B) ≡ (σ ↑ ([ τ ] B))  ⨟ (τ ↑ B)
   ⨟⁺ {Γ} {Δ} {Θ} σ τ B = begin
     tr (λ A → Sub (Γ , A) (Θ , B)) [⨟] ((σ ⨟ τ) ↑ B)
-      ≡⟨ {!!} ⟩
+      ≡⟨ {!  !} ⟩
     (σ ↑ ([ τ ] B))  ⨟ (τ ↑ B)
       ∎
     where open ≡-Reasoning
