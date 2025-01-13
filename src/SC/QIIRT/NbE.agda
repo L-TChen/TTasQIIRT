@@ -135,7 +135,7 @@ Domain .IH.π₂P {PΔ = Δ , refl} {Γ , refl} {A , refl} ((ρ ‣ x) , refl) =
     eq : conv (congTmΓ (cong[] refl refl refl (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}))) (π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)) ≡ ⌞ x ⌟V
     eq = begin
         conv (congTmΓ (cong[] refl refl refl (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}))) (π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V))
-      ≡⟨ conv-unique (congTmΓ (cong[] refl refl refl (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}))) refl (π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)) ⟩
+      ≡⟨ tr-unique (congTmΓ (cong[] refl refl refl (βπ₁ {σ = ⌞ ρ ⌟R} {⌞ x ⌟V}))) refl (π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)) ⟩
         π₂ (⌞ ρ ⌟R ‣ ⌞ x ⌟V)
       ≡⟨ βπ₂ ⟩
         ⌞ x ⌟V

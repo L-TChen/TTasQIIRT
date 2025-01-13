@@ -130,7 +130,7 @@ module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
             ≡⟨ tr² ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) {cong Elᴹ eqa} ⟩
           tr TmᴹFamₜ (trans ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) (cong Elᴹ eqa)) ([ ElimSub σ ]tᴹ ElimTm t)
             ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ ElimSub σ ]tᴹ ElimTm t)) 
-                    (UIP (trans ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) (cong Elᴹ eqa))
+                    (uip (trans ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) (cong Elᴹ eqa))
                          (ElimTy[] σ (El a))) ⟩
           tr TmᴹFamₜ (ElimTy[] σ (El a)) ([ ElimSub σ ]tᴹ ElimTm t)
             ≡⟨ ElimTm[] σ t ⟩
@@ -145,7 +145,7 @@ module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
             ≡⟨ tr² ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) {cong Elᴹ eqa} ⟩
           tr TmᴹFamₜ (trans ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) (cong Elᴹ eqa)) ([ ElimSub σ ]tᴹ ElimTm u)
             ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ ElimSub σ ]tᴹ ElimTm u)) 
-                    (UIP (trans ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) (cong Elᴹ eqa))
+                    (uip (trans ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) (cong Elᴹ eqa))
                          (ElimTy[] σ (El a))) ⟩
           tr TmᴹFamₜ (ElimTy[] σ (El a)) ([ ElimSub σ ]tᴹ ElimTm u)
             ≡⟨ ElimTm[] σ u ⟩
@@ -154,14 +154,14 @@ module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
 
   ElimTm[] idS {A} t = begin
     tr TmᴹFamₜ (ElimTy[] idS A) ([ ElimSub idS ]tᴹ ElimTm t)
-      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ ElimSub idS ]tᴹ ElimTm t)) (UIP _ [idSᴹ]) ⟩
+      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ ElimSub idS ]tᴹ ElimTm t)) (uip _ [idSᴹ]) ⟩
     tr TmᴹFamₜ [idSᴹ] ([ ElimSub idS ]tᴹ ElimTm t)
       ≡⟨ [idSᴹ]tᴹ ⟩
     ElimTm t
       ∎
   ElimTm[] (τ ⨟ σ) {A} t = begin
     tr TmᴹFamₜ (ElimTy[] (τ ⨟ σ) A) ([ ElimSub τ ⨟ᴹ ElimSub σ ]tᴹ ElimTm t)
-      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ ElimSub τ ⨟ᴹ ElimSub σ ]tᴹ ElimTm t)) (UIP _ (trans [⨟ᴹ]ᴹ eq)) ⟩
+      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ ElimSub τ ⨟ᴹ ElimSub σ ]tᴹ ElimTm t)) (uip _ (trans [⨟ᴹ]ᴹ eq)) ⟩
     tr TmᴹFamₜ (trans [⨟ᴹ]ᴹ eq) ([ ElimSub τ ⨟ᴹ ElimSub σ ]tᴹ ElimTm t)
       ≡⟨ tr² [⨟ᴹ]ᴹ ⟨
     tr TmᴹFamₜ eq (tr TmᴹFamₜ [⨟ᴹ]ᴹ ([ ElimSub τ ⨟ᴹ ElimSub σ ]tᴹ ElimTm t))
@@ -191,7 +191,7 @@ module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
   ElimTm[] (π₁ (σ , u))  {A} t = begin
     tr TmᴹFamₜ (ElimTy[] (π₁ (σ , u)) A) ([ π₁ᴹ (ElimSub σ ,ˢᴹ _) ]tᴹ ElimTm t)
       ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ π₁ᴹ (ElimSub σ ,ˢᴹ _) ]tᴹ ElimTm t))
-              (UIP _ (trans [π₁ᴹ,ˢᴹ]ᴹ (ElimTy[] σ A))) ⟩
+              (uip _ (trans [π₁ᴹ,ˢᴹ]ᴹ (ElimTy[] σ A))) ⟩
     tr TmᴹFamₜ (trans [π₁ᴹ,ˢᴹ]ᴹ (ElimTy[] σ A)) ([ π₁ᴹ (ElimSub σ ,ˢᴹ _) ]tᴹ ElimTm t)
       ≡⟨ tr² {P = TmᴹFamₜ} [π₁ᴹ,ˢᴹ]ᴹ ⟨
     tr TmᴹFamₜ (ElimTy[] σ A)
@@ -205,7 +205,7 @@ module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
     tr TmᴹFamₜ (ElimTy[] (π₁ (σ ⨟ τ)) A)
           ([ π₁ᴹ (ElimSub σ ⨟ᴹ ElimSub τ) ]tᴹ ElimTm t)
       ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ π₁ᴹ (ElimSub σ ⨟ᴹ ElimSub τ) ]tᴹ ElimTm t))
-              (UIP _ (trans [π₁ᴹ⨟ᴹ]ᴹ eq)) ⟩
+              (uip _ (trans [π₁ᴹ⨟ᴹ]ᴹ eq)) ⟩
     tr TmᴹFamₜ (trans [π₁ᴹ⨟ᴹ]ᴹ eq) ([ π₁ᴹ (ElimSub σ ⨟ᴹ ElimSub τ) ]tᴹ ElimTm t)
       ≡⟨ tr² {P = TmᴹFamₜ} [π₁ᴹ⨟ᴹ]ᴹ ⟨
     tr TmᴹFamₜ eq (tr TmᴹFamₜ [π₁ᴹ⨟ᴹ]ᴹ ([ π₁ᴹ (ElimSub σ ⨟ᴹ ElimSub τ) ]tᴹ ElimTm t))

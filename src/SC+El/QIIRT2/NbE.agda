@@ -215,7 +215,7 @@ Domain .IH.PEl[] {PΓ = Γ / refl} {Δ / refl} {Pu = x / refl} (ρ / refl) = to-
     eq,l = cong El (⌞lookup⌟ ρ x)
 
     eq,r : conv (cong (El (⌞ x ⌟V [ ⌞ ρ ⌟R ]t) ≡_) eq,l) refl ≡ cong El (⌞lookup⌟ ρ x)
-    eq,r = UIP _ _
+    eq,r = uip _ _
 
 Domain .IH.[]tmP≡[]tP {PΓ = Γ / refl} {A / refl} {Δ / refl} (x / refl) (ρ / refl) = eq
   where
@@ -236,7 +236,7 @@ Domain .IH.[]tmP≡[]tP {PΓ = Γ / refl} {A / refl} {Δ / refl} (x / refl) (ρ 
         lookupVar ρ x / conv (cong (_≡ ⌞ lookupVar ρ x ⌟V) ([]tm≡[]t ⌞ x ⌟V ⌞ ρ ⌟R))
                              (trans ([]tm≡[]t ⌞ x ⌟V ⌞ ρ ⌟R) (⌞lookup⌟ ρ x))
       ≡⟨ cong (lookupVar ρ x /_)
-              (UIP (conv (cong (_≡ ⌞ lookupVar ρ x ⌟V) ([]tm≡[]t ⌞ x ⌟V ⌞ ρ ⌟R))
+              (uip (conv (cong (_≡ ⌞ lookupVar ρ x ⌟V) ([]tm≡[]t ⌞ x ⌟V ⌞ ρ ⌟R))
                            (trans ([]tm≡[]t ⌞ x ⌟V ⌞ ρ ⌟R) (⌞lookup⌟ ρ x)))
                    (⌞lookup⌟ ρ x)) ⟩
         lookupVar ρ x / ⌞lookup⌟ ρ x
