@@ -10,10 +10,6 @@ open import SC+U+Pi+Id.QIIRT.Properties
 module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
   open Model M
 
-  tr≅ : ∀{ℓ ℓ'}{A : Set ℓ}(P : A → Set ℓ'){x y : A}(p : x ≡ y)(a : P x)
-          → tr P p a ≅ a
-  tr≅ P p a = tr≡-to-≅ P (sym p) (trans (tr² p) (cong (λ p' → tr P p' a) (trans-symʳ p)))
-
   {-# TERMINATING #-}
   ElimCtx
     : (Γ : Ctx) → Ctxᴹ Γ

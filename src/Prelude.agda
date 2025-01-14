@@ -78,19 +78,6 @@ tr-comp : {X : Set ℓ}{Y : X → Set ℓ'}{Z : (x : X) → Set ℓ''}
 tr-comp f refl refl = refl
 -}
 
-flip-tr : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}{y : Y x}{y' : Y x'}{p : x ≡ x'}
-        → tr Y p y ≡ y' → tr Y (sym p) y' ≡ y
-flip-tr {Y = Y} {y = y} {y'} {p} eq = begin
-  tr Y (sym p) y'
-    ≡⟨ cong (tr Y (sym p)) (sym eq) ⟩
-  tr Y (sym p) (tr Y p y)
-    ≡⟨ tr² p ⟩
-  tr Y (trans p (sym p)) y
-    ≡⟨ cong (λ p → tr Y p y) (trans-symʳ p) ⟩
-  y
-    ∎
-  where open ≡-Reasoning
-
 conv-in-func : {X : Set ℓ}{Y : X → Set ℓ'}{Z : X → Set ℓ''}{x x' : X}
              → (x≡x' : x ≡ x')(f : {x : X} → Y x → Z x)(eq : Y x ≡ Y x')(y : Y x)(eq' : Z x ≡ Z x')
              → f (conv eq y) ≡ conv eq' (f y)
@@ -112,10 +99,10 @@ from-Σ≡ : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}{y : Y x}{y' : Y x'}
 from-Σ≡ refl = refl , refl
 
 infix 10 _,Σ≡_
-_,Σ≡_ : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}(x≡x' : x ≡ x'){y : Y x}{y' : Y x'}
+_,Σ≡_ : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}{y : Y x}{y' : Y x'}(x≡x' : x ≡ x')
       → tr Y x≡x' y ≡ y'
       → _≡_ {A = Σ X Y} (x , y) (x' , y')
-refl ,Σ≡ refl = refl
+_,Σ≡_ = curry Σ-≡,≡→≡
 
 {-
 UIP : {X : Set ℓ}{x y : X}(p q : x ≡ y) → p ≡ q
@@ -123,28 +110,42 @@ UIP refl refl = refl
 -}
 
 apdΣ
-  : {A : Set} {B : A → Set} (f : (x : A) → B x) {x y : A}
+  : {A : Set ℓ} {B : A → Set ℓ'} (f : (x : A) → B x) {x y : A}
   → (p : x ≡ y) → _≡_ {_} {Σ A B} (x , f x) (y , f y)
 apdΣ f refl = refl
 
 apΣ
-  : {B : Set} (P : B → Set) {A : Set} (f : A → B)
+  : {B : Set ℓ} (P : B → Set ℓ') {A : Set ℓ''} (f : A → B)
   → {(x , t) (y , u) : Σ A (λ x → P (f x)) }
   → (x , t) ≡ (y , u)
   → _≡_ {_} {Σ B P} (f x , t) (f y , u)
 apΣ P f refl = refl
 
-ap₂Σ : {A : Set}{B : Set}{C : B → Set}
+ap₂Σ
+  : {A : Set ℓ} {B : A → Set ℓ'} {C : A → Set ℓ''}(f : {x : A} → B x → C x)
+    {x x' : A}{y : B x}{y' : B x'}
+  → _≡_ {_} {Σ A B} (x , y) (x' , y') → _≡_ {_} {Σ A C} (x , f y) (x' , f y')
+ap₂Σ f refl = refl 
+
+ap,Σ : {A : Set ℓ}{B : Set ℓ'}{C : B → Set ℓ''}
        (f : A → B)(g : (x : A) → C (f x))
        {x y : A}
      → x ≡ y
      → _≡_ {_} {Σ B C} (f x , g x) (f y , g y)
-ap₂Σ f g refl = refl
+ap,Σ f g refl = refl
 
 lift : (P : A → Set) {x y : A} (t : P x)
   → (p : x ≡ y)
   → (x , t) ≡ (y , tr P p t)
 lift P t refl = refl
+
+cong₃ : ∀{a b c d} 
+      → {A : Set a}{B : A → Set b}{C : A → Set c}{D : Set d}
+        {x y : A}{u₁ : B x}{v₁ : B y}{u₂ : C x}{v₂ : C y}
+        (f : (z : A)(w₁ : B z)(w₂ : C z) → D)
+      → (p : x ≡ y) → tr B p u₁ ≡ v₁ → tr C p u₂ ≡ v₂
+      → f x u₁ u₂ ≡ f y v₁ v₂
+cong₃ {x = x} f refl = cong₂ (f x)
 
 module _ {a b c : Level} {I : Set ℓ} (A : I → Set a) {B : {k : I} → A k → Set b} where
   icong₃ : {C : {k : I} → (a : A k) → B a → B a → Set c}
@@ -169,6 +170,11 @@ tr≡-to-≅
   → (p : x ≡ y)
   → tr P p u ≡ v → u ≅ v
 tr≡-to-≅ P refl eq = ≡-to-≅ eq
+
+tr≅ : ∀{ℓ ℓ'}{A : Set ℓ}(P : A → Set ℓ'){x y : A}(p : x ≡ y)(a : P x)
+    → tr P p a ≅ a
+tr≅ P p a = tr≡-to-≅ P (sym p) (trans (tr² p) (cong (λ p' → tr P p' a) (trans-symʳ p)))
+
 {-
 apd₂′ : {A : Set ℓ} {B : A → Set ℓ'} {C : (x : A) (y : B x) → Set ℓ''}
   → (f : (x : A) (y : B x) → C x y)
