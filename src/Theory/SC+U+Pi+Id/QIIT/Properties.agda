@@ -58,7 +58,7 @@ opaque
     ([ σ ] [ π₁ τ ] A , [ σ ]tm (π₂ τ))
   π₂⨟ {Γ} σ {A} τ = begin
     [ π₁ (σ ⨟ τ) ] A , π₂ (σ ⨟ τ)
-      ≡⟨ apΣ (Tm Γ) ([_] A) (π⨟ σ τ) ⟩ 
+      ≡⟨ apΣ (Tm Γ) ([_] A) (π⨟ σ τ) ⟩
     [ σ ⨟ π₁ τ ] A , tr (Tm Γ) (sym [⨟]) ([ σ ]tm π₂ τ)
       ≡⟨ (sym $ lift (Tm Γ) ([ σ ]tm π₂ τ) (sym [⨟])) ⟩ 
     [ σ ] [ π₁ τ ] A , [ σ ]tm (π₂ τ)
@@ -73,7 +73,7 @@ opaque
     σ ⨟ π₁ idS   ∎
     where open ≡-Reasoning
 
-  ⨟π₂id : (σ : Sub Γ (Δ , A)) 
+  ⨟π₂id : (σ : Sub Γ (Δ , A))
     → _≡_ {_} {∃ (Tm Γ)}
     ([ π₁ σ ] A , π₂ σ)
     ([ σ ] [ wk ] A , [ σ ]tm vz)
@@ -100,17 +100,24 @@ opaque
 
   [⁺]vz : (σ : Sub Γ Δ) (A : Ty Δ i)
     → [ σ ↑ A ]tm (π₂ idS)
-    ≅ π₂ idS
+    ≅ π₂ {A = [ σ ] A} idS
   [⁺]vz {Γ} {Δ} σ A = begin
     [ σ ↑ A ]tm (π₂ idS)
       ≅⟨ ≡-to-≅ $ Σ-≡,≡←≡ (π₂⨟ (σ ↑ A) idS) .proj₂ ⟨
     tr (Tm (Γ , [ σ ] A)) (Σ-≡,≡←≡ (π₂⨟ (σ ↑ A) idS) .proj₁) (π₂ ((σ ↑ A) ⨟ idS))
-      ≅⟨ {! !} ⟩
+      ≅⟨ tr≅ (Tm (Γ , [ σ ] A)) (Σ-≡,≡←≡ (π₂⨟ (σ ↑ A) idS) .proj₁) _ ⟩
+    π₂ ((σ ↑ A) ⨟ idS)
+      ≅⟨ hcong π₂ (≡-to-≅ $ (σ ↑ A) ⨟idS) ⟩
+    π₂ (π₁ idS ⨟ σ , tr (Tm (Γ , [ σ ] A)) (sym [⨟]) (π₂ idS))
+      ≅⟨ tr≅ (λ σ' → Tm (Γ , [ σ ] A) ([ σ' ] A)) π₁, _ ⟨
+    tr (λ σ' → Tm (Γ , [ σ ] A) ([ σ' ] A)) π₁, _
+      ≅⟨ ≡-to-≅ π₂, ⟩
+    tr (Tm (Γ , [ σ ] A)) (sym [⨟]) (π₂ idS)
+      ≅⟨ tr≅ (Tm (Γ , [ σ ] A)) (sym [⨟]) _ ⟩
     π₂ idS
       ∎
     where open ≅-Reasoning
 
-  
   id⁺
     : (Γ : Ctx) (A : Ty Γ i)
     → tr (λ B → Sub (Γ , B) (Γ , A)) [idS] (idS {Γ} ↑ A)
@@ -128,9 +135,6 @@ opaque
       ∎
     where
       open ≡-Reasoning
-      tr≅ : ∀{ℓ ℓ'}{A : Set ℓ}(P : A → Set ℓ'){x y : A}(p : x ≡ y)(a : P x)
-          → tr P p a ≅ a
-      tr≅ P p a = tr≡-to-≅ P (sym p) (trans (tr² p) (cong (λ p' → tr P p' a) (trans-symʳ p)))
 
       vz≅ : π₂ {Γ , [ idS ] A} idS ≅ π₂ {Γ , A} idS
       vz≅ = HEq.cong (λ A → π₂ {Γ , A} idS) (≡-to-≅ [idS])
@@ -151,28 +155,62 @@ opaque
   ⨟⁺
     : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (B : Ty Θ i)
     → tr (λ A → Sub (Γ , A) (Θ , B)) [⨟] ((σ ⨟ τ) ↑ B) ≡ (σ ↑ ([ τ ] B))  ⨟ (τ ↑ B)
-  ⨟⁺ {Γ} {Δ} {Θ} σ τ B = begin
-    tr (λ A → Sub (Γ , A) (Θ , B)) [⨟] ((σ ⨟ τ) ↑ B)
-      ≡⟨ {!  !} ⟩
-    (σ ↑ ([ τ ] B))  ⨟ (τ ↑ B)
+  ⨟⁺ {Γ} {Δ} {Θ} {i} σ τ B = ≅-to-≡ $ begin
+    tr (λ A → Sub (Γ , A) (Θ , B)) [⨟]
+       (wk ⨟ (σ ⨟ τ) , tr (Tm (Γ , [ σ ⨟ τ ] B)) (sym [⨟]) vz)
+      ≡⟨ tr-nat (λ B' → Tm (Γ , B') ([ wk ⨟ (σ ⨟ τ) ] B)) (λ _ t' → wk ⨟ (σ ⨟ τ) , t') [⨟] ⟩
+    wk ⨟ (σ ⨟ τ) ,
+      tr (λ B' → Tm (Γ , B') ([ wk ⨟ (σ ⨟ τ) ] B)) [⨟]
+         (tr (Tm (Γ , [ σ ⨟ τ ] B)) (sym [⨟]) vz)
+      ≡⟨ eq ≡,≅ heq ⟩
+    (σ ↑ ([ τ ] B)) ⨟ (wk ⨟ τ) ,
+      tr (Tm (Γ , [ σ ] [ τ ] B)) (sym [⨟])
+         ([ σ ↑ ([ τ ] B) ]tm tr (Tm (Δ , [ τ ] B)) (sym [⨟]) vz)
+      ≡⟨ ⨟, ⟨
+    (σ ↑ ([ τ ] B)) ⨟ (wk ⨟ τ , tr (Tm _) (sym [⨟]) vz)
       ∎
-    where open ≡-Reasoning
-  
--- σ⨟τ↑ : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (A : Ty Θ i) → σ ⁺ ⨟ τ ⁺ ≡ (σ ⨟ τ) ⁺
--- σ⨟τ↑ {Γ} {Δ} {Θ} σ τ A = sym $ begin
---   (σ ⨟ τ) ⁺                    ≡⟨⟩
---   wk ⨟ (σ ⨟ τ) , vz            ≡⟨ ≅-to-≡ (hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ ⨟-assoc) refl) ⟩
---   (wk ⨟ σ) ⨟ τ , vz            ≡⟨ ≅-to-≡ $ hcong₂
---                                    {A = Sub (Γ , [ σ ⨟ τ ] A) Δ}
---                                    {B = λ γ → Tm (Γ , [ σ ] [ τ ] A)
---                                    ([ γ ] [ τ ] A)} (λ σ t → _,_ (σ ⨟ τ) {A} t) (≡-to-≅ (⁺⨟wk σ))
---                                    ([⁺]vz σ ([ τ ] A)) ⟨
---   (_⁺ σ {[ τ ] A} ⨟ wk) ⨟ τ , [ _⁺ σ {[ τ ] A} ]t vz
---     ≡⟨ ≅-to-≡ $ hcong₂ (λ σ t → _,_ σ {A} t) (≡-to-≅ ⨟-assoc) refl ⟨
---   σ ⁺ ⨟ (wk ⨟ τ) , [ _⁺ σ {[ τ ] A} ]t vz ≡⟨ ⨟, ⟨
---   σ ⁺ ⨟ ((wk ⨟ τ) , vz)                   ≡⟨⟩
---   σ ⁺ ⨟ τ ⁺                               ∎
---   where open ≡-Reasoning
+    where
+      open ≅-Reasoning
+      _≡,≅_
+        : ∀{Γ Δ i}{A : Ty Δ i}
+          {σ σ' : Sub Γ Δ}{t : Tm Γ ([ σ ] A)}{t' : Tm Γ ([ σ' ] A)}
+        → σ ≡ σ' → t ≅ t'
+        → _≡_ {A = Sub Γ (Δ , A)} (σ , t) (σ' , t')
+      refl ≡,≅ eq = cong (_ ,_) (≅-to-≡ eq)
+
+      eq : wk ⨟ (σ ⨟ τ) ≡ (σ ↑ ([ τ ] B)) ⨟ (wk ⨟ τ)
+      eq = ≅-to-≡ $ begin
+        wk ⨟ (σ ⨟ τ)
+          ≡⟨ ⨟-assoc ⟩
+        (wk ⨟ σ) ⨟ τ
+          ≡⟨ cong (_⨟ τ) (⁺⨟wk σ) ⟨
+        (σ ↑ ([ τ ] B)) ⨟ wk ⨟ τ
+          ≡⟨ ⨟-assoc ⟨
+        (σ ↑ ([ τ ] B)) ⨟ (wk ⨟ τ)
+          ∎
+      
+      heq : tr (λ B' → Tm (Γ , B') ([ wk ⨟ (σ ⨟ τ) ] B)) [⨟]
+               (tr (Tm (Γ , [ σ ⨟ τ ] B)) (sym [⨟]) vz)
+          ≅ tr (Tm (Γ , [ σ ] [ τ ] B)) (sym [⨟])
+               ([ σ ↑ ([ τ ] B) ]tm tr (Tm (Δ , [ τ ] B)) (sym [⨟]) vz)
+      heq = begin
+        tr (λ B' → Tm (Γ , B') ([ wk ⨟ (σ ⨟ τ) ] B)) [⨟]
+           (tr (Tm (Γ , [ σ ⨟ τ ] B)) (sym [⨟]) vz)
+          ≅⟨ tr≅ (λ B' → Tm (Γ , B') ([ wk ⨟ (σ ⨟ τ) ] B)) [⨟] _ ⟩
+        tr (Tm (Γ , [ σ ⨟ τ ] B)) (sym [⨟]) vz
+          ≅⟨ tr≅ (Tm (Γ , [ σ ⨟ τ ] B)) (sym [⨟]) _ ⟩
+        π₂ {A = [ σ ⨟ τ ] B} idS
+          ≅⟨ hcong (λ A → π₂ {A = A} idS) (≡-to-≅ [⨟]) ⟩
+        π₂ {A = [ σ ] [ τ ] B} idS
+          ≅⟨ [⁺]vz σ ([ τ ] B) ⟨
+        [ σ ↑ ([ τ ] B) ]tm π₂ {A = [ τ ] B} idS -- : Tm (Δ , [ τ ] B) ([ wk ] [ τ ] B)
+          ≅⟨ icong (Tm (Δ , [ τ ] B)) [⨟] ([ σ ↑ ([ τ ] B) ]tm_)
+                    (tr≅ (Tm (Δ , [ τ ] B)) (sym [⨟]) _) ⟨
+        [ σ ↑ ([ τ ] B) ]tm tr (Tm (Δ , [ τ ] B)) (sym [⨟]) vz
+          ≅⟨ tr≅ (Tm (Γ , [ σ ] [ τ ] B)) (sym [⨟]) _ ⟨
+        tr (Tm (Γ , [ σ ] [ τ ] B)) (sym [⨟])
+           ([ σ ↑ ([ τ ] B) ]tm tr (Tm (Δ , [ τ ] B)) (sym [⨟]) vz)
+          ∎
 
   π₁,⁺
     : tr (λ A → Sub (Γ , A) (Δ , B)) (cong ([_] B) π₁,) (π₁ (σ , t) ↑ B)
