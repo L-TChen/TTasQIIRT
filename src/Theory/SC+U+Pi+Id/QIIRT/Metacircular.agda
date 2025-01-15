@@ -71,5 +71,5 @@ intp .met = record
     ; []ᴹΠᴹ = refl
     ; []ƛᴹ  = λ σ σᴹ → tr-const ([]ƛ σ _) 
     }
-  ; idTy = {!!} -- requires a proper treatment for Coquand universes
+  ; idTy = {!!} -- requires a proper treatment for Coquand universes and function extensionality
   }

@@ -2,7 +2,7 @@ module Theory.SC+U+Pi+Id.QIIT.Syntax where
  
 open import Prelude
 
-infixl 20 _⁺
+-- infixl 20 _⁺
 infixr 15 [_]_ [_]tm_
 infixl 10 _⨟_
 infixl 4 _,_
