@@ -21,7 +21,8 @@ open import Axiom.UniquenessOfIdentityProofs.WithK      public
 open import Relation.Binary.PropositionalEquality       public
   using (_≡_; refl; sym; trans; cong; cong₂; trans-symˡ; trans-symʳ; J; module ≡-Reasoning)
   renaming (subst to tr; dcong to apd; dcong₂ to apd₂;
-            subst-∘ to tr-cong; subst-subst to tr²; subst-application′ to tr-nat)
+            subst-∘ to tr-cong; subst-subst to tr²; subst-application′ to tr-nat;
+            subst-subst-sym to tr-tr-sym; subst-sym-subst to tr-sym-tr)
 open import Relation.Binary.HeterogeneousEquality       public
   using (_≅_; refl; ≅-to-≡; ≡-to-≅; module ≅-Reasoning)
   using (icong; icong₂)
@@ -174,6 +175,18 @@ tr≡-to-≅ P refl eq = ≡-to-≅ eq
 tr≅ : ∀{ℓ ℓ'}{A : Set ℓ}(P : A → Set ℓ'){x y : A}(p : x ≡ y)(a : P x)
     → tr P p a ≅ a
 tr≅ P p a = tr≡-to-≅ P (sym p) (trans (tr² p) (cong (λ p' → tr P p' a) (trans-symʳ p)))
+
+flip-tr : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}{y : Y x}{y' : Y x'}{p : x ≡ x'}
+        → tr Y p y ≡ y' → tr Y (sym p) y' ≡ y
+flip-tr {Y = Y} {y = y} {y'} {p} eq = begin
+  tr Y (sym p) y'
+    ≡⟨ cong (tr Y (sym p)) (sym eq) ⟩
+  tr Y (sym p) (tr Y p y)
+    ≡⟨ tr-sym-tr p ⟩
+  y
+    ∎
+  where open ≡-Reasoning
+
 
 {-
 apd₂′ : {A : Set ℓ} {B : A → Set ℓ'} {C : (x : A) (y : B x) → Set ℓ''}
