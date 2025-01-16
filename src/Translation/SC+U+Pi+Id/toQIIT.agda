@@ -13,7 +13,7 @@ open import Theory.SC+U+Pi+Id.QIIRT.Elimination
 open Eliminator
 
 open ≡-Reasoning
-toQIIT : Eliminator lzero lzero
+toQIIT : Eliminator 
 toQIIT .mot = record
   { Ctxᴹ = λ Γ → Ctx
   ; Tyᴹ  = λ Γ i A → Ty Γ i
@@ -38,7 +38,7 @@ toQIIT .met = record
     ; [_]tmᴹ_     = [_]tm_
     ; _↑ᴹ_        = λ σ A → σ ↑ A
     ; idSᴹ↑ᴹ      = id⁺ _ _
-    ; ⨟ᴹ↑ᴹ        = ⨟⁺
+    ; ⨟ᴹ↑ᴹ        = λ {Γ} {Γᴹ} {Δ} {Δᴹ} {σ} {σᴹ} {Θ} {Θᴹ} {τ} {τᴹ} {_} {A} {Aᴹ} → ⨟⁺ σᴹ τᴹ Aᴹ
     ; π₁ᴹ,ˢᴹ↑ᴹ    = π₁,⁺
     ; π₁ᴹ⨟ᴹ↑ᴹ     = π₁⨟⁺
     ; ∅ˢᴹ↑ᴹ       = refl
