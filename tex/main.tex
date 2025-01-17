@@ -17,7 +17,7 @@
 
 \bibliographystyle{plainurl}
 
-\title{Type theory as a quotient inductive-recursive type}
+\title{Type theories as quotient inductive-recursive types}
 \author{Liang-Ting Chen\footnote{Corresponding author; authors are listed in alphabetical order.}}{Institute of Information Science, Academia Sinica, Taiwan \and \url{http://l-tchen.github.io}}{ltchen@iis.sinica.edu.tw}{https://orcid.org/0000-0002-3250-1331}{Supported by the National Science and Technology Council of Taiwan under grant NSTC [funding].}
 \author{Tzu-Chun Tsai}{Institute of Information Science, Academia Sinica, Taiwan}{gene0905@icloud.com}{}{Supported by the National Science and Technology Council of Taiwan under grant NSTC 112-2221-E-001-003-MY3.}
 \authorrunning{L.-T.~Chen and T.-C.~Tsai}
@@ -99,7 +99,6 @@ Points to elaborate:
 \cite{Kaposi2023,Kaposi2024a}
 \paragraph*{Schemata of inductive types}
 \cite{Kaposi2019}
-\cite{Dybjer2003,Dybjer2000,Dybjer1999}
 
 \section{Metatheory and formalisation}
 \cite{Pujet2022,Pujet2024,Pujet2022a}
@@ -108,6 +107,11 @@ Points to include:
   \item identity type $x =^{A} y$ for $x, y : A$, dependent identity type, $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P y} u$ for $t : P(x)$ and $u : P(y)$, heterogeneous equality in \Agda $x \simeq y$ for $x : A$ and $y : B$
   \item 
 \end{enumerate}
+
+\subsection{Inductive-recursive types}
+\cite{Dybjer2003,Dybjer2000,Dybjer1999}
+
+Mention that the recursion part of induction-recursion are already not defined by elimination rule.
 
 \subsection{Definitions by overlapping patterns}
 \cite{Cockx2014,Altenkirch2016a}
@@ -127,11 +131,17 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
   \Ctx   & : \Set                   \\
   \Ty    & : \Ctx \to \Set          \\
   \Sub   & : \Ctx \to \Ctx \to \Set \\
-  \Tm    & : (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Set \\
+  \Tm    & : (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Set
+\end{alignat*}
+\begin{alignat*}{3}
   \emptyctx & : \Ctx \\
-  \blank,\blank & : (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Ctx \\
+  \blank,\blank & : (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Ctx
+\end{alignat*}
+\begin{alignat*}{3}
   [\blank]\blank &: \implicit{\Gamma, \Delta} \; \Sub\,\Gamma\,\Delta \to \Ty\,\Delta \to \Ty\,\Gamma \\
-  U & : \implicit{\Gamma}\;\Ty\, \Gamma\\
+  U & : \implicit{\Gamma}\;\Ty\, \Gamma
+\end{alignat*}
+\begin{alignat*}{3}
   \emptysub & : \implicit{\Gamma}\;\Sub\,\Gamma\,\emptyctx \\
   \blank,\blank & : \implicit{\Gamma, \Delta, A}\;(\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Gamma\,([ \sigma ]_{\Ty} A) \to \Sub\,\Gamma,(\Delta, A) \\
   \idS & : \implicit{\Gamma}\;\Sub\,\Gamma\,\Gamma \\
@@ -177,21 +187,20 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
   Yet, the left-hand side is a term of type $[\pi_1\,(\sigma;\tau)] A$, but the other is $[\sigma] [\pi_1\,\tau] A$.
   Hence the above identity does not even make sense, since their types do not match.
   Alas, instead, we have to write $\pi_2\,(\sigma ; \tau) =^{\Tm\,\Gamma}_{p} [\sigma] (\pi_2\,\tau)$ or, equivalently
-  \[
+  \begin{equation}\label{eq:pi2-comp-real-proof}
     ([\pi_1(\sigma; \tau)]\,A, \pi_2(\sigma; \tau)) =^{(A : \Ty\,\Gamma) \times (\Tm \Gamma A)} ([\sigma]\,[\pi_1\,\tau]A, [\sigma] (\pi_2\,\tau))
-  \]
+  \end{equation}
   as inhabitants of a $\Sigma$-type, so we can reason about term equalities along with type equalities.
   Moreover, in~\eqref{eq:pi2-comp-proof} we have used the rule $\mathsf{concat}$ which introduced another transported term, so we will have to eliminate that $\transp$ to derive the right hand side.
 
-  To better illustrate the annoyance, we provide a complete proof.
-  First, we claim each of the following steps holds:
-  \begin{alignat}{3}
+  To better illustrate the annoyance, the complete proof of \eqref{eq:pi2-comp-real-proof} requires to show first three equations and the last equation explicitly by Lemma~2.3.4 and 2.3.2 in \cite{UFP2013} respectively:
+  \begin{alignat*}{3}
          & ([\pi_1(\sigma; \tau)]\,A                    &&, \pi_2\,(\sigma ; \tau)) \label{eq:pi2-proof-1} \\
     = {} & ([\pi_1(\sigma; (\pi_1\tau , \pi_2\tau))]\,A &&, \pi_2\,(\sigma; (\pi_1\,\tau, \pi_2\,\tau))) \\
-    = {} & ([\pi_1(\sigma;\pi_1\,\tau, t)]\,A &&, \pi_2\,(\sigma;\pi_1\,\tau, t)) \nonumber \\
+    = {} & ([\pi_1(\sigma;\pi_1\,\tau, t)]\,A &&, \pi_2\,(\sigma;\pi_1\,\tau, t)) \\
     = {} & ([\pi_1(\sigma;\pi_1\,\tau, t)]\,A &&, \pi_2\,(\sigma;\pi_1\,\tau, t)) \nonumber \\
     = {} & (\sub{\sigma;\pi_1\tau}{A} &&, [\sigma] (\pi_2\,\tau)) \nonumber
-  \end{alignat}
+  \end{alignat*}
   where $p \judgeq [;]_{\Ty}^{-1} : \sub{\sigma}{\sub{\pi_1\,\tau}{A}} \to \sub{\sigma; \pi_1 \tau}{A}$ and $t \judgeq\transfib{\Tm\,\Gamma}{p}{[\sigma]\,(\pi_2\,\tau)}$.
 \end{example}
 
@@ -199,6 +208,7 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
 [ \idS ]_{\Ty}\,A             & \jdeq A \\
 [ \sigma ; \tau ]_{\Ty}\,A    & \jdeq [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \\
 [ \pi_1(\sigma, t) ]_{\Ty}\,A & \jdeq [\sigma]_\Ty\,A \\
+[ \pi_1(\sigma; \tau) ]_{\Ty}\,A & \jdeq [\sigma]_\Ty ([\pi\_1\tau]_\Ty \,A) \\
 [ \sigma ]_{\Ty}\,U           & \jdeq U
 \end{alignat*}
 
@@ -215,15 +225,27 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
   [;]t            & : {[\,\sigma ; \tau\,]\,t} && =^{\Tm\,\Gamma\,[\sigma ; \tau] A} && {[ \sigma ]\,[ \tau ]\,t} \\
 \end{alignat*}
 
-\subsection{... with Coquand universes} \label{subsec:SC+U}
+\subsection{... with a Coquand universe} \label{subsec:SC+U}
 \cite{Coquand2013}
 \begin{alignat*}{3}
 [ \idS ]_{\Tm}\,t          & = t \\
 [ \sigma ; \tau ]_{\Tm}\,t & = [ \sigma ]_{\Tm}\;[ \tau ]_{\Tm}\;t \\
+[ \pi_1(\sigma, t) ]_{\Tm}\,t & \jdeq [\sigma]_\Tm\,t \\
+[ \pi_1(\sigma; \tau) ]_{\Tm}\,t & \jdeq [\sigma]_\Tm ([\pi\_1\tau]_\Tm \,t) \\
+[ \sigma ]_{\Ty}\,U           & \jdeq U
 [ \sigma ]_{\Tm}\,t        & = [ \sigma ]\,t & \text{otherwise}  \\
 \end{alignat*}
 \subsection{... and \texorpdfstring{$\Pi$}{Π}-types} \label{subsec:SC+U+Pi}
 
+\subsection{... and other type formers} \label{subsec:SC+U+Pi+more}
+
+\section{Eliminators and their examples}
+\begin{enumerate}
+  \item The elimination rule is somewhat surprising
+  
+\end{enumerate}
+
+\section{Equivalence to type theories as quotient inductive-inductive types}
 \section{Metatheoretic properties}
 
 \section{Future work}
