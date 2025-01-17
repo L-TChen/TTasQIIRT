@@ -165,7 +165,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : tr TmᴹFam Liftβ (unᴹ (mkᴹ tᴹ)) ≡ tᴹ
       Liftᴹη
         : tr TmᴹFam Liftη (mkᴹ (unᴹ tᴹ)) ≡ tᴹ
-{-
+
   record Π-type (C : CwF) : Set (ℓ ⊔ ℓ′) where
     open CwF C
     field 
@@ -179,11 +179,12 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : Tmᴹ Γᴹ (Πᴹ Aᴹ Bᴹ) t
         → Tmᴹ (Γᴹ ,ᶜᴹ Aᴹ) Bᴹ (app t)
       []ᴹΠᴹ
-        : [ σᴹ ]ᴹ (Πᴹ Aᴹ Bᴹ) ≡ Πᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σᴹ ↑ᴹ Aᴹ ]ᴹ Bᴹ)
+        : tr TyᴹFam []Π ([ σᴹ ]ᴹ Πᴹ Aᴹ Bᴹ)
+        ≡ Πᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σᴹ ↑ᴹ Aᴹ ]ᴹ Bᴹ)
       []ƛᴹ
         : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ σ)
-        → tr₂ (Tmᴹ Γᴹ) []ᴹΠᴹ ([]ƛ σ _) ([ σᴹ ]tᴹ (ƛᴹ tᴹ))
-        ≡ ƛᴹ ([ σᴹ ↑ᴹ Aᴹ ]tᴹ tᴹ)
+        → tr TmᴹFam ([]ƛ σ _) (trTmᴹₜ []Π []ᴹΠᴹ ([ σᴹ ]tmᴹ ƛᴹ tᴹ))
+        ≡ ƛᴹ ([ σᴹ ↑ᴹ Aᴹ ]tmᴹ tᴹ)
 
   record Id-type (C : CwF) (U : Univ C) : Set (ℓ ⊔ ℓ′) where
     open CwF C
@@ -193,10 +194,12 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : (aᴹ : Tmᴹ Γᴹ (Uᴹ i) a)(tᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ) t)(uᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ) u)
         → Tyᴹ Γᴹ i (Id a t u)
       []ᴹIdᴹ
-        : [ σᴹ ]ᴹ (Idᴹ aᴹ tᴹ uᴹ)
-        ≡ Idᴹ (tr TmᴹFamₜ []ᴹUᴹ ([ σᴹ ]tᴹ aᴹ))
-            (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ tᴹ))
-            (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ uᴹ))
+        : {σᴹ : Subᴹ Γᴹ Δᴹ σ}
+          {aᴹ : Tmᴹ Δᴹ (Uᴹ i) a}{tᴹ : Tmᴹ Δᴹ (Elᴹ aᴹ) t}{uᴹ : Tmᴹ Δᴹ (Elᴹ aᴹ) u}
+        → tr TyᴹFam []Id ([ σᴹ ]ᴹ (Idᴹ aᴹ tᴹ uᴹ))
+        ≡ Idᴹ (trTmᴹₜ []U []ᴹUᴹ ([ σᴹ ]tmᴹ aᴹ))
+              (trTmᴹₜ ([]El σ a) ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tmᴹ tᴹ))
+              (trTmᴹₜ ([]El σ a) ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tmᴹ uᴹ))
       reflectᴹ
         : (Pp : Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ uᴹ) p)
         → tr TmᴹFam (reflect p) tᴹ ≡ uᴹ
@@ -212,4 +215,3 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
     open Univ univ    public
     open Π-type piTy  public
     open Id-type idTy public
--} 
