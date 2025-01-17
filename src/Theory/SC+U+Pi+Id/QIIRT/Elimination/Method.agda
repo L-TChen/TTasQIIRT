@@ -212,6 +212,10 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ σ)
         → tr₂ (Tmᴹ Γᴹ) []ᴹΠᴹ ([]ƛ σ _) ([ σᴹ ]tᴹ (ƛᴹ tᴹ))
         ≡ ƛᴹ ([ σᴹ ↑ᴹ Aᴹ ]tᴹ tᴹ)
+      Πβᴹ
+        : tr TmᴹFam Πβ (appᴹ (ƛᴹ tᴹ)) ≡ tᴹ
+      Πηᴹ
+        : tr TmᴹFam Πη (ƛᴹ (appᴹ tᴹ)) ≡ tᴹ
 
   record Id-type (C : CwF) (U : Univ C) : Set (ℓ ⊔ ℓ′) where
     open CwF C
