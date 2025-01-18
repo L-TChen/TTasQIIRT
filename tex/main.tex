@@ -48,6 +48,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{todonotes}
+\usepackage{manfnt}
+\newcommand{\danger}{\marginpar[\hfill\dbend]{\dbend\hfill}}
+\newcommand{\LT}[1]{\todo[inline,author={L-T},caption={}]{#1}}
 
 \input{macro.tex}
 
@@ -57,13 +60,14 @@
 \maketitle
 
 \begin{abstract}
-  Type theory can be defined in a type theory as a quotient inductive-inductive type, but terms are painstakingly littered with explicit coercions, i.e.\ \transp's, along equality constructors.
-  This mess has been dubbed the \emph{transport hell} by the community in private but typically suppressed in presentation for clarity, ignoring the elephant in the room.
-  In this paper, we aim for shortening the gap between formal and informal definitions of type theory in type theory using quotient inductive-inductive-recursive types and definitions by overlapping patterns altogether, reducing the use of \transp's.
-  As a case study, we investigate (parallel) substitution calculus and type theory with Coquand universes and $\Pi$-types as quotient inductive-inductive-recursive types with meta-theoretic properties proved and compare our definitions with quotient inductive-inductive definitions.
+  Type theory can be defined in a type theory as a quotient inductive-inductive type, but terms are littered with explicit coercions, i.e.\ \transp's, along equality constructors and proofs needs to take account of coercions painstakingly alongside the interesting part.
+  This mess has been dubbed the `transport hell' but typically suppressed in presentation for clarity, hiding the gap between the intention and the formalisation of type theory in type theory.
+  In this paper, we aim for shortening the gap using quotient inductive-inductive-recursive types and definitions by overlapping patterns altogether, reducing the use of \transp's.
+  As a case study, we investigate (parallel) substitution calculus and type theory with Coquand universes and $\Pi$-types as quotient inductive-inductive-recursive types and compare ours with quotient inductive-inductive definitions.
 \end{abstract}
 
 \section{Introduction} \label{sec:intro}
+\LT{%
 Points to elaborate:
 \begin{enumerate}
   \item QIITs are littered with transports, causing too much pains while formalising a type theory.
@@ -74,6 +78,7 @@ Points to elaborate:
   \item The rules for type substitutions are \emph{structural} shared with other type theories based on parallel substitution (in particular cwf).
   
 \end{enumerate}
+}
 
 
 \paragraph*{Contributions}
@@ -84,7 +89,7 @@ Points to elaborate:
       \item a definition of parallel substitution calculus;
       \item a definition of type theory with Coquand universes and $\Pi$-types,
     \end{itemize}
-   whose type substitution rules are definitional using quotient inductive-inductive-recursive types and definitions by overlapping patterns.
+   using quotient inductive-inductive-recursive types and definitions by overlapping patterns to define type substitution and term substitution partially.
   \item Comparison with other definitions using quotient inductive-inductive types.
 \end{itemize}
 
@@ -101,21 +106,24 @@ Points to elaborate:
 \cite{Kaposi2019}
 
 \section{Metatheory and formalisation}
-\cite{Pujet2022,Pujet2024,Pujet2022a}
+\cite{UFP2013}
+\LT{
 Points to include:
 \begin{enumerate}
-  \item identity type $x =^{A} y$ for $x, y : A$, dependent identity type, $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P y} u$ for $t : P(x)$ and $u : P(y)$, heterogeneous equality in \Agda $x \simeq y$ for $x : A$ and $y : B$
-  \item 
-\end{enumerate}
+  \item identity type $x =^{A} y$ for $x, y : A$, dependent identity type, $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P y} u$ for $t : P(x)$ and $u : P(y)$, heterogeneous equality~\cite{McBride1999} in \Agda $x \simeq y$ for $x : A$ and $y : B$
+  \item We work with intensional type theory with uniqueness of identity proof and function extensionality (only used for NbE and the standard model for the extensional identity type).
+  \item We use Agda to formally implement our definitions with the following options: \texttt{-{}-with-K}, \texttt{-{}-local-confluence-check}, \texttt{-{}-exact-split}, and \texttt{-{}-rewriting} using postulated equations~\cite{Licata2011} to introduce equality constructors for quotient types.
+\end{enumerate}}
 
 \subsection{Inductive-recursive types}
 \cite{Dybjer2003,Dybjer2000,Dybjer1999}
 
-Mention that the recursion part of induction-recursion are already not defined by elimination rule.
+\LT{Mention that the recursion part of induction-recursion are already not defined by elimination rule.}
 
 \subsection{Definitions by overlapping patterns}
 \cite{Cockx2014,Altenkirch2016a}
-\subsection{Quotient inductive-inductive-recursive types}
+\subsection{Quotient inductive(-inductive)-recursive types}
+\LT{Give an example of QIRT: join list?}
 \subsection{Definitions by rewrite rules}
 \cite{Cockx2020,Cockx2021}
 
@@ -126,6 +134,20 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
 
 
 \section{Type theories as quotient inductive-inductive-recursive types} \label{sec:QIIRTs}
+\LT{
+\begin{enumerate}
+  \item Goal: no transports in the definition.
+  \item Motivation: make type substitution definitional so that we do not have to apply transport along structural rules for types explicitly.
+  \item Develop the quotient inductive-inductive-recursive definition of type theory step by step (which needs to be locally confluent and terminating).
+    \begin{enumerate}
+      \item parallel substitution: type substitution
+      \item the type of elements of $A$: term substitution needs to be split into two definitional substitution and explicit term substitution to maintain local confluence.
+      \item $\Pi$-type: because of the substitution lifting $\sigma^+ \defeq (\pi_1\idS, \pi_2\idS)$ is used we need to introduce a definitional lifting to maintain local confluence.
+        We prefer categorical combinator and avoid using $\left< t \right>$ in the definition, which would introduce transports in the definition.
+      \item Other type formers can be introduced as usual (as long as we use categorical combinators).
+    \end{enumerate}
+\end{enumerate}
+}
 \subsection{Parallel substitution calculus} \label{subsec:SC}
 \begin{alignat*}{3}
   \Ctx   & : \Set                   \\
@@ -139,7 +161,10 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
 \end{alignat*}
 \begin{alignat*}{3}
   [\blank]\blank &: \implicit{\Gamma, \Delta} \; \Sub\,\Gamma\,\Delta \to \Ty\,\Delta \to \Ty\,\Gamma \\
-  U & : \implicit{\Gamma}\;\Ty\, \Gamma
+\end{alignat*}
+
+\begin{alignat*}{3}
+  \UU & : \implicit{\Gamma} & \Ty\, \Gamma
 \end{alignat*}
 \begin{alignat*}{3}
   \emptysub & : \implicit{\Gamma}\;\Sub\,\Gamma\,\emptyctx \\
@@ -163,7 +188,7 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
   \mathsf{idl}    & : \implicit{\Gamma, \Delta, \sigma} && {\idS_{\Gamma} ; \sigma} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
   ;\text{-}\mathsf{assoc} & : \implicit{\Gamma, \Delta, \Theta, \Xi, \sigma, \tau, \gamma} && (\sigma ; \tau) ; \gamma && =^{\Sub\,\Gamma\,\Theta} &&  \sigma ; (\tau ; \gamma) \\
   \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t} && \sigma ; (\tau , t)      && =^{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau) , \alert{\transfib{\Tm\,\Gamma}{[;]_{\Ty}^{-1}}{\color{black}[ \sigma ] t}} \\
-  \emptyctx\eta   & : \implicit{\Gamma, \sigma} && \sigma                   && =^{\Sub\,\Gamma\,\emptyctx} & \emptysub \\
+  \emptyctx\eta   & : \implicit{\Gamma, A, \sigma} && \sigma                   && =^{\Sub\,\Gamma\,\emptyctx} & \emptysub \\
   \pi\eta         & : \implicit{\Gamma, \Delta, \sigma} && \sigma                   && =^{\Sub\,\Gamma\,(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma) \\
   \pi_1\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_1(\sigma , t)        && =^{\Sub\,\Gamma,\Delta} &&  \sigma \\
   \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_2(\sigma , t)        && =^{\Tm\,\Gamma\,([\blank]\,A)}_{\alert{\pi_1\beta}} &&  t \\
@@ -193,7 +218,7 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
   as inhabitants of a $\Sigma$-type, so we can reason about term equalities along with type equalities.
   Moreover, in~\eqref{eq:pi2-comp-proof} we have used the rule $\mathsf{concat}$ which introduced another transported term, so we will have to eliminate that $\transp$ to derive the right hand side.
 
-  To better illustrate the annoyance, the complete proof of \eqref{eq:pi2-comp-real-proof} requires to show first three equations and the last equation explicitly by Lemma~2.3.4 and 2.3.2 in \cite{UFP2013} respectively:
+  To better illustrate the annoyance, note that a complete proof of \eqref{eq:pi2-comp-real-proof} requires us to show each of following equations:
   \begin{alignat*}{3}
          & ([\pi_1(\sigma; \tau)]\,A                    &&, \pi_2\,(\sigma ; \tau)) \label{eq:pi2-proof-1} \\
     = {} & ([\pi_1(\sigma; (\pi_1\tau , \pi_2\tau))]\,A &&, \pi_2\,(\sigma; (\pi_1\,\tau, \pi_2\,\tau))) \\
@@ -201,81 +226,218 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
     = {} & ([\pi_1(\sigma;\pi_1\,\tau, t)]\,A &&, \pi_2\,(\sigma;\pi_1\,\tau, t)) \nonumber \\
     = {} & (\sub{\sigma;\pi_1\tau}{A} &&, [\sigma] (\pi_2\,\tau)) \nonumber
   \end{alignat*}
-  where $p \judgeq [;]_{\Ty}^{-1} : \sub{\sigma}{\sub{\pi_1\,\tau}{A}} \to \sub{\sigma; \pi_1 \tau}{A}$ and $t \judgeq\transfib{\Tm\,\Gamma}{p}{[\sigma]\,(\pi_2\,\tau)}$.
+  where $p \judgeq [;]_{\Ty}^{-1} : \sub{\sigma}{\sub{\pi_1\,\tau}{A}} \to \sub{\sigma; \pi_1 \tau}{A}$ and $t \judgeq\transfib{\Tm\,\Gamma}{p}{[\sigma]\,(\pi_2\,\tau)}$,
 \end{example}
+explicitly.
+The first three equations and the last equation follow from Lemma~2.3.4 and 2.3.2 in \cite{UFP2013} respectively, which cannot be proved naively as we did in \eqref{eq:pi2-comp-proof}.
 
 \begin{alignat*}{3}
+  [\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\,\Gamma\,\Delta \to \Ty\,\Delta \to \Ty\,\Gamma \\
 [ \idS ]_{\Ty}\,A             & \jdeq A \\
 [ \sigma ; \tau ]_{\Ty}\,A    & \jdeq [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \\
 [ \pi_1(\sigma, t) ]_{\Ty}\,A & \jdeq [\sigma]_\Ty\,A \\
-[ \pi_1(\sigma; \tau) ]_{\Ty}\,A & \jdeq [\sigma]_\Ty ([\pi\_1\tau]_\Ty \,A) \\
-[ \sigma ]_{\Ty}\,U           & \jdeq U
+[ \pi_1(\sigma; \tau) ]_{\Ty}\,A & \jdeq [\sigma]_\Ty ([\pi_1\tau]_\Ty \,A) \\
+[ \sigma ]_{\Ty}\,\UU           & \jdeq \UU
 \end{alignat*}
 
-\begin{alignat*}{3}
-  \mathsf{idr}    & : {\sigma ; \idS_{\Delta}} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
-  \mathsf{idl}    & : {\idS_{\Gamma} ; \sigma} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
-  ;\text{-}\mathsf{assoc} & : (\sigma ; \tau) ; \gamma && =^{\Sub\,\Gamma\,\Theta} &&  \sigma ; (\tau ; \gamma) \\
-  \mathsf{concat} & : \sigma ; (\tau , t)      && =^{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau) , [ \sigma ] t \\
-  \emptyctx\eta   & : \sigma                   && =^{\Sub\,\Gamma\,\emptyctx} & \emptysub \\
-  \pi\eta         & : \sigma                   && =^{\Sub\,\Gamma\,(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma) \\
-  \pi_1\beta      & : \pi_1(\sigma , t)        && =^{\Sub\,\Gamma,\Delta} &&  \sigma \\
-  \pi_2\beta      & : \pi_2(\sigma , t)        && =^{\Tm\,\Gamma\, A} &&  t \\
-  [\idS]t         & : {[\,\idS\,]\,t}          && =^{\Tm\,\Gamma\,A} && t \\
-  [;]t            & : {[\,\sigma ; \tau\,]\,t} && =^{\Tm\,\Gamma\,[\sigma ; \tau] A} && {[ \sigma ]\,[ \tau ]\,t} \\
+\begin{alignat*}{5}
+  \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t} &&\sigma ; (\tau , t)      && =^{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau) , [ \sigma ] t \\
+  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_2(\sigma , t)        && =^{\Tm\,\Gamma\, A} &&  t \\
+  [\idS]t         & : \implicit{\Gamma, A, t} && {[\,\idS\,]\,t}          && =^{\Tm\,\Gamma\,A} && t \\
+  [;]t            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t} && {[\,\sigma ; \tau\,]\,t} && =^{\Tm\,\Gamma\,[\sigma ; \tau] A} && {[ \sigma ]\,[ \tau ]\,t} \\
 \end{alignat*}
+
+\begin{proposition}[Local confluence]
+  Type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
+  \danger
+\end{proposition}
+\begin{proposition}[Coherence]
+  $[\sigma]_{\Ty}\,A$ is (propositionally) equal to $[\tau]_{\Ty}\,A$ whenever $\sigma = \tau$.
+  \danger
+\end{proposition}
 
 \subsection{... with a Coquand universe} \label{subsec:SC+U}
 \cite{Coquand2013}
 \begin{alignat*}{3}
-[ \idS ]_{\Tm}\,t          & = t \\
-[ \sigma ; \tau ]_{\Tm}\,t & = [ \sigma ]_{\Tm}\;[ \tau ]_{\Tm}\;t \\
-[ \pi_1(\sigma, t) ]_{\Tm}\,t & \jdeq [\sigma]_\Tm\,t \\
-[ \pi_1(\sigma; \tau) ]_{\Tm}\,t & \jdeq [\sigma]_\Tm ([\pi\_1\tau]_\Tm \,t) \\
-[ \sigma ]_{\Ty}\,U           & \jdeq U
-[ \sigma ]_{\Tm}\,t        & = [ \sigma ]\,t & \text{otherwise}  \\
+  \UU  & : \implicit{\Gamma}\;\Ty\, \Gamma \\
+  \El & : \implicit{\Gamma}\;\Tm\,\Gamma\;\UU \to \Ty\,\Gamma \\
+  [ \sigma ]_{\Ty}\,(\El\, u) & \jdeq \El\,([\sigma]_{\Tm}{u}) \\
 \end{alignat*}
+\begin{alignat*}{3}
+  [\blank]_{\Tm}\blank & : (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Delta\,A \to \Tm\,\Gamma\,([\sigma]_{\Ty}\,A) \\
+[ \idS ]_{\Tm}\,t          & \jdeq t \\
+[ \sigma ; \tau ]_{\Tm}\,t & \jdeq [ \sigma ]_{\Tm}\;([ \tau ]_{\Tm}\;t) \\
+[ \pi_1(\sigma, t) ]_{\Tm}\,t & \jdeq [\sigma]_\Tm\,t \\
+[ \pi_1(\sigma; \tau) ]_{\Tm}\,t & \jdeq [\sigma]_\Tm\; ([\pi_1\tau]_\Tm \,t) \\
+[ \sigma ]_{\Tm}\,t        & \jdeq [ \sigma ]\,t, \quad \text{otherwise}  \\
+\end{alignat*}
+
+\begin{proposition}[Local confluence]
+  Type and term substitutions $[\blank]_{\Ty}\blank$ and $[\blank]_{\Tm}\blank$ are locally confluent.
+  \danger
+\end{proposition}
+
+\begin{proposition}[Coherence]
+  The following statements hold:
+  \danger
+  \begin{enumerate}
+    \item $[\sigma]_{\Ty}\,A = [\tau]_{\Ty}\,A$ whenever $\sigma = \tau$.
+    \item $[\sigma]_{\Tm}\,A = [\tau]_{\Tm}\,A$ whenever $\sigma = \tau$.
+  \end{enumerate}
+\end{proposition}
 \subsection{... and \texorpdfstring{$\Pi$}{Π}-types} \label{subsec:SC+U+Pi}
+\begin{alignat*}{3}
+  \Pi     &: \implicit{\Gamma}            && (A : \Ty\,\Gamma) \to \Ty\,(\Gamma, A) \to \Ty\,\Gamma \\
+  \lambda &: \implicit{\Gamma, A, B}      && \Tm\,(\Gamma, A)\,B \to \Tm\,\Gamma\,(\Pi\,A\,B) \\
+  \mathsf{app} &: \implicit{\Gamma, A, B} && \Tm\,\Gamma\,(\Pi\,A\,B) \to \Tm\,(\Gamma, A)\,B \\
+\end{alignat*}
+\begin{alignat*}{3}
+  \blank^+ & : \implicit{\Gamma, \Delta, A}\; (\sigma : \Sub\,\Gamma,\Delta) \to (A : \Ty\,\Delta) \to \Sub\,(\Gamma, [\sigma]_{\Ty}\,A)\, (\Delta, A) \\
+  \sigma^+ & \defeq (\pi_1\idS ; \sigma, \pi_2\idS) \\
+\end{alignat*}
+\begin{alignat*}{3}
+  \blank\uparrow \blank & : (\sigma : \Sub\,\Gamma,\Delta) \to (A : \Ty\,\Delta) \to \Sub\,(\Gamma, [\sigma]_{\Ty}\,A)\, (\Delta, A) \\
+\idS                \uparrow A & \jdeq \idS \\
+\sigma ; \tau       \uparrow A & \jdeq (\sigma \uparrow \sub{\tau}{A} ) ; (\tau \uparrow A) \\
+\pi_1(\sigma, t)    \uparrow A & \jdeq \sigma \uparrow A \\
+\pi_1(\sigma; \tau) \uparrow A & \jdeq \sigma \uparrow (\sub{\pi_1 \tau}{A}) ; (\pi_1 \tau \uparrow A) \\
+\sigma              \uparrow A & \jdeq \sigma^+ , \quad \text{otherwiese} \\
+  [ \sigma ]_{\Ty}\,(\Pi\,A\,B) & \jdeq \Pi\,(\sub{\sigma}{A})\,(\sub{\sigma\uparrow A}{B})
+\end{alignat*}
 
+\begin{alignat*}{3}
+  \mathsf{[]\lambda} & : [\sigma]_{\Tm} (\lambda\,t) && =^{\Tm\,\Gamma\,([\sigma]_{\Ty}(\Pi\,A\,B))} && \lambda\,([\sigma \uparrow A]_{\Tm}\,t) \\
+  \Pi\beta & : \mathsf{app}(\lambda\,t) && =^{\Tm\,\Gamma,A} {} && t \\
+  \Pi\eta & :  t && =^{\Tm\,\Gamma,A} {} && \lambda(\mathsf{app}\,t)
+\end{alignat*}
+
+%% ⟨_⟩ : Tm Γ A → Sub Γ (Γ , A)
+%% ⟨ t ⟩ = idS , t
+%% 
+%% _$$_
+%%   : (t : Tm Γ (Π A B)) (u : Tm Γ A)
+%%   → Tm Γ ([ ⟨ u ⟩ ] B)
+%% t $$ u = [ ⟨ u ⟩ ]t app t
+\begin{alignat*}{3}
+  \left<\blank\right> & : \Tm\,\Gamma\,A \to \Sub\,\Gamma\,(\Gamma, A) \\
+  \left< t \right> & \defeq (\idS , t) \\
+  \blank \$\blank & : \Tm\,\Gamma\,(\Pi\,A\,B) \to (u : \Tm\,\Gamma\,A) \to \Tm\,\Gamma\,([ \left< u \right> ]\,B) \\
+  t \mathop{\$} u & \defeq [ \left< u \right> ]_{\Tm} (\mathsf{app}\,t)
+\end{alignat*}
+
+\begin{proposition}
+  For every substitution $\sigma : \Sub\,\Gamma\,\Delta$, type $A : \Ty\,\Delta$, and term $t : \Tm\,\Delta\,A$, the following statements hold:
+  \danger
+  \[
+    \sigma \uparrow A = (\pi_1 \idS ; \sigma , \pi_2 \idS)
+  \]
+  and
+  \[
+    [ \sigma ]_{\Tm}\,t = [ \sigma ]\,t
+  \]
+\end{proposition}
+
+\begin{proposition}
+  The following statements hold:
+  \danger
+  \begin{enumerate}
+    \item $\sigma \uparrow A = \tau \uparrow A$ whenever $\sigma = \tau$.
+    \item $[\sigma]_{\Ty}\,A = [\tau]_{\Ty}\,A$ whenever $\sigma = \tau$.
+    \item $[\sigma]_{\Tm}\,t = [\tau]_{\Tm}\,t$ whenever $\sigma = \tau$.
+  \end{enumerate}
+\end{proposition}
 \subsection{... and other type formers} \label{subsec:SC+U+Pi+more}
-
-\section{Eliminators and their examples}
+\LT{%
 \begin{enumerate}
-  \item The elimination rule is somewhat surprising
-  
+  \item Discuss the unit type.
+  \item Discuss the Boolean type.
+  \item Discuss the type of natural numbers.
+  \item Discuss the extensional identity type.
 \end{enumerate}
+}
 
-\section{Equivalence to type theories as quotient inductive-inductive types}
-\section{Metatheoretic properties}
+\section{The eliminator and the standard model}
+\LT{%
+\begin{enumerate}
+  \item Introduce motives and methods for the definition in \Cref{subsec:SC+U+Pi}.
+  \item The rule $\mathsf{Elim}_{\Ty}\,([ \sigma ]_{\Ty}\,A) = [ \mathsf{Elim}_{\Sub}\,\sigma ]^{A}_{\Ty}(\mathsf{Elim}_{\Ty}\,A)$ is not defined but provable. 
+  \item $\mathsf{Elim}_{\Tm}\,([ \sigma ]_{\Tm}\,t) = [ \mathsf{Elim}_{\Sub}\,\sigma ]^{A}_{\Tm}(\mathsf{Elim}_{\Tm}\,t)$ is proved.
+\end{enumerate}
+}
+
+\section{Equivalence to the quotient inductive-inductive definition of type theory}
+\LT{%
+\begin{enumerate}
+  \item Show that two definitions are equivalent (ongoing).
+  \item Show that methods are equivalent (ongoing).
+\end{enumerate}
+}
 
 \section{Future work}
 
 \paragraph*{Type theory in (observational) type theory}
 
-\paragraph*{Formalising definitions by overlapping patterns}
 
 \paragraph*{A general schema of quotient inductive-inductive-recursive types}
+\subparagraph*{Formalising definitions by overlapping patterns}
 
 \IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
 
 \appendix
 
-\begin{conjecture}\label{testenv-conjecture}
-\end{conjecture}
+\section{Complete definitions}
+\begin{alignat*}{3}
+  \Ctx      & : && \Set                   \\
+  \Ty       & : && \Ctx \to \Set          \\
+  \Sub      & : && \Ctx \to \Ctx \to \Set \\
+  \Tm       & : && (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Set \\
+  \emptyctx & : && \Ctx \\
+  \blank,\blank & : && (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Ctx \\
+  [\blank]\blank & : \implicit{\Gamma, \Delta} && \Sub\,\Gamma\,\Delta \to \Ty\,\Delta \to \Ty\,\Gamma \\
+  \emptysub & : \implicit{\Gamma} && \Sub\,\Gamma\,\emptyctx \\
+  \blank,\blank & : \implicit{\Gamma, \Delta, A} && (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Gamma\,([ \sigma ]_{\Ty} A) \to \Sub\,\Gamma,(\Delta, A) \\
+  \idS & : \implicit{\Gamma} && \Sub\,\Gamma\,\Gamma \\
+  \blank;\blank & : \implicit{\Gamma, \Delta, \Theta} && \Sub\,\Gamma\,\Delta \to \Sub\,\Delta\,\Theta \to \Sub\,\Gamma\,\Theta \\
+  \pi_1 & : \implicit{\Gamma, \Delta, A} && \Sub\,\Gamma\,(\Delta, A) \to \Sub\,\Gamma\,\Delta \\
+  \pi_2 & : \implicit{\Gamma, \Delta, A} && (\sigma : \Sub\,\Gamma\,(\Delta, A)) \to \Tm\,\Gamma\,([ \pi_1\,\sigma ]\, A) \\
+  [\blank] \blank & : \implicit{\Gamma,\Delta, A} && (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Delta\,A \to \Tm\,\Gamma\,([\sigma]\, A) \\
+  \UU     & : \implicit{\Gamma} && \Ty\, \Gamma \\
+  \El     & : \implicit{\Gamma} && \Tm\,\Gamma\,U \to \Ty\,\Gamma \\
+  \Pi     & : \implicit{\Gamma} && (A : \Ty\,\Gamma) \to \Ty\,(\Gamma, A) \to \Ty\,\Gamma \\
+\end{alignat*}
 
-\begin{claim}\label{testenv-claim}
-\end{claim}
+\begin{alignat*}{5}
+[ \idS ]_{\Ty}\,A             & \jdeq A \\
+[ \sigma ; \tau ]_{\Ty}\,A    & \jdeq [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \\
+[ \pi_1(\sigma, t) ]_{\Ty}\,A & \jdeq [\sigma]_\Ty\,A \\
+[ \pi_1(\sigma; \tau) ]_{\Ty}\,A & \jdeq [\sigma]_\Ty ([\pi_1\tau]_\Ty \,A) \\
+[ \sigma ]_{\Ty}\,\UU           & \jdeq \UU \\
+[ \sigma ]_{\Ty}\,(\El\, u) & \jdeq \El\,([\sigma]_{\Tm}{u}) \\
+[ \sigma ]_{\Ty}\,(\Pi\,A\,B) & \jdeq \Pi\,(\sub{\sigma}{A})\,(\sub{\sigma\uparrow A}{B}) \\
+\idS                \uparrow A & \jdeq \idS \\
+\sigma ; \tau       \uparrow A & \jdeq (\sigma \uparrow \sub{\tau}{A} ) ; (\tau \uparrow A) \\
+\pi_1(\sigma, t)    \uparrow A & \jdeq \sigma \uparrow A \\
+\pi_1(\sigma; \tau) \uparrow A & \jdeq \sigma \uparrow (\sub{\pi_1 \tau}{A}) ; (\pi_1 \tau \uparrow A) \\
+\sigma              \uparrow A & \jdeq (\pi_1 \idS ; \sigma , \pi_2 \idS) & \text{otherwiese} \\
+ [ \idS ]_{\Tm}\,t                & \jdeq t \\
+ [ \sigma ; \tau ]_{\Tm}\,t       & \jdeq [ \sigma ]_{\Tm}\;([ \tau ]_{\Tm}\;t) \\
+ [ \pi_1(\sigma, t) ]_{\Tm}\,t    & \jdeq [\sigma]_\Tm\,t \\
+ [ \pi_1(\sigma; \tau) ]_{\Tm}\,t & \jdeq [\sigma]_\Tm\; ([\pi_1\tau]_\Tm \,t) \\
+ [ \sigma ]_{\Tm}\,t              & \jdeq [ \sigma ]\,t & \text{otherwise}
+\end{alignat*}
 
-\begin{claim*}\label{testenv-claim2}
-\end{claim*}
+\begin{alignat*}{5}
+  \mathsf{idr}    & : \implicit{\Gamma, \Delta, \sigma} && {\sigma ; \idS_{\Delta}} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
+  \mathsf{idl}    & : \implicit{\Gamma, \Delta, \sigma} && {\idS_{\Gamma} ; \sigma} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
+  ;\text{-}\mathsf{assoc} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, \gamma} && (\sigma ; \tau) ; \gamma && =^{\Sub\,\Gamma\,\Theta} &&  \sigma ; (\tau ; \gamma) \\
+  \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t} &&\sigma ; (\tau , t)      && =^{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau) , [ \sigma ] t \\
+  \emptyctx\eta   & : \implicit{\Gamma, \sigma} && \sigma                   && =^{\Sub\,\Gamma\,\emptyctx} & \emptysub \\
+  \pi\eta         & : \implicit{\Gamma, A, \sigma} && \sigma                   && =^{\Sub\,\Gamma\,(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma) \\
+  \pi_1\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_1(\sigma , t)        && =^{\Sub\,\Gamma,\Delta} &&  \sigma \\
+  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_2(\sigma , t)        && =^{\Tm\,\Gamma\, A} &&  t \\
+  [\idS]t         & : \implicit{\Gamma, A, t} && {[\,\idS\,]\,t}          && =^{\Tm\,\Gamma\,A} && t \\
+  [;]t            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t} && {[\,\sigma ; \tau\,]\,t} && =^{\Tm\,\Gamma\,[\sigma ; \tau] A} && {[ \sigma ]\,[ \tau ]\,t} \\
+\end{alignat*}
 
-\begin{claimproof}
-\end{claimproof}
-\begin{lstlisting}[caption={Formal definition in \Agda},label=list:8-6,captionpos=t,float,abovecaptionskip=-\medskipamount]
-for i:=maxint to 0 do 
-begin 
-    j:=square(root(i));
-end;
-\end{lstlisting}
-
+\section{Formal definitions in \Agda}
 \end{document}
