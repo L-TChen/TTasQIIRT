@@ -31,8 +31,23 @@ record Motive (ℓ ℓ′ : Level) : Set (lsuc (ℓ ⊔ ℓ′)) where
   SubᴹFam : {Γᴹ : Ctxᴹ Γ}{Δᴹ : Ctxᴹ Δ} → Sub Γ Δ → Set ℓ′
   SubᴹFam {Γᴹ = Γᴹ} {Δᴹ = Δᴹ} = Subᴹ Γᴹ Δᴹ
 
+  -- trTmᴹₜ : {A A' : Ty Γ i}{Γᴹ : Ctxᴹ Γ}(A≡A' : A ≡ A')
+  --          {Aᴹ : Tyᴹ Γᴹ i A}{A'ᴹ : Tyᴹ Γᴹ i A'}
+  --          (Aᴹ≡A'ᴹ : tr TyᴹFam A≡A' Aᴹ ≡ A'ᴹ){t : Tm Γ A}
+  --        → Tmᴹ Γᴹ Aᴹ t → Tmᴹ Γᴹ A'ᴹ (tr (Tm Γ) A≡A' t)
+  -- trTmᴹₜ refl Aᴹ≡A'ᴹ = tr TmᴹFamₜ Aᴹ≡A'ᴹ
+
   trTmᴹₜ : {A A' : Ty Γ i}{Γᴹ : Ctxᴹ Γ}(A≡A' : A ≡ A')
-           {Aᴹ : Tyᴹ Γᴹ i A}{A'ᴹ : Tyᴹ Γᴹ i A'}
-           (Aᴹ≡A'ᴹ : tr TyᴹFam A≡A' Aᴹ ≡ A'ᴹ){t : Tm Γ A}
-         → Tmᴹ Γᴹ Aᴹ t → Tmᴹ Γᴹ A'ᴹ (tr (Tm Γ) A≡A' t)
-  trTmᴹₜ refl Aᴹ≡A'ᴹ = tr TmᴹFamₜ Aᴹ≡A'ᴹ
+            {Aᴹ : Tyᴹ Γᴹ i A}{A'ᴹ : Tyᴹ Γᴹ i A'}
+            (Aᴹ≡A'ᴹ : tr TyᴹFam A≡A' Aᴹ ≡ A'ᴹ){t : Tm Γ A}
+          → Tmᴹ Γᴹ Aᴹ t
+          → Tmᴹ Γᴹ A'ᴹ (tr (Tm Γ) A≡A' t)
+  trTmᴹₜ {Γ} {i} {A} {A'} {Γᴹ} A≡A' {Aᴹ} {A'ᴹ} Aᴹ≡A'ᴹ {t} =
+    tr (λ (A , (Aᴹ , t)) → Tmᴹ Γᴹ Aᴹ t) eq
+    where
+      I : Set ℓ
+      I = Σ (Ty Γ i) λ A → Tyᴹ Γᴹ i A × Tm Γ A
+
+      eq : _≡_ {A = I} (A , (Aᴹ , t)) (A' , (A'ᴹ , tr (Tm Γ) A≡A' t))
+      eq = (A≡A' ,Σ≡ Aᴹ≡A'ᴹ) ,≡₂ lift (Tm Γ) t A≡A'
+      

@@ -187,7 +187,6 @@ flip-tr {Y = Y} {y = y} {y'} {p} eq = begin
     ∎
   where open ≡-Reasoning
 
-
 {-
 apd₂′ : {A : Set ℓ} {B : A → Set ℓ'} {C : (x : A) (y : B x) → Set ℓ''}
   → (f : (x : A) (y : B x) → C x y)
@@ -196,3 +195,9 @@ apd₂′ : {A : Set ℓ} {B : A → Set ℓ'} {C : (x : A) (y : B x) → Set �
   → tr (C x₂) q (f x₂ (tr B p y₁)) ≡ f x₂ y₂
 apd₂′ {A = A} {B} {C} f {x₁} {x₂} p {y₁} {y₂} q = apd {B = (C x₂)} (f x₂) q
 -}
+
+_,≡₂_ : {X : Set ℓ}{Y₁ : X → Set ℓ'}{Y₂ : X → Set ℓ''}
+        {x x' : X}{y₁ : Y₁ x}{y₁' : Y₁ x'}{y₂ : Y₂ x}{y₂' : Y₂ x'}
+      → (x , y₁) ≡ (x' , y₁') → (x , y₂) ≡ (x' , y₂')
+      → _≡_ {A = ∃ λ x → Y₁ x × Y₂ x} (x , y₁ , y₂) (x' , y₁' , y₂')
+refl ,≡₂ refl = refl
