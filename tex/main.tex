@@ -95,19 +95,6 @@ Points to elaborate:
 
 
 \subsection{Plan of the paper}
-\subsection{Related work}
-\paragraph*{Formalisation of type theory in type theory}
-\cite{Danielsson2006,Altenkirch2016a}
-\cite{Altenkirch2017}
-\cite{Munoz1998}
-\cite{Dybjer1996,Castellan2021}
-\LT{Dybjer \cite{Dybjer1996} already says cwf is inductive-recursive}
-
-Substitution calculus is closely related to \emph{categories with families}~\cite{Dybjer1996}.
-\paragraph*{Single substitution calculus}
-\cite{Kaposi2023,Kaposi2024a}
-\paragraph*{Schemata of inductive types}
-\cite{Kaposi2019}
 
 \section{Metatheory and formalisation}
 \cite{UFP2013}
@@ -179,14 +166,15 @@ Type substitution takes a substitution $\sigma : \Sub\;\Gamma\;\Delta$ and a typ
 \begin{alignat*}{3}
   [\blank]\blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma.
 \end{alignat*}
-If we were defining cwfs, it would be enough to require type substitution for $\Ty$.
-However, we need a ground type $\UU$ in $\Ty$ for any context $\Gamma$ for our inductive definition (i.e.\ the initial cwf), 
-otherwise the type $\Ty$ would be empty as well as other types:
+where $\Gamma$ and $\Delta$ (coloured {\color{gray}grey}) above are quantified implicitly.
+
+If we were defining cwfs, type substitution would be enough for $\Ty$.
+However, we need a base case in $\Ty$ for any context $\Gamma$ for our inductive definition (i.e.\ the initial cwf), 
+otherwise the type $\Ty$ would be empty as well as other types.
+Hence another constructor is introduced:
 \begin{alignat*}{3}
   \UU & : \implicit{\Gamma} & \Ty\, \Gamma.
 \end{alignat*}
-
-Note that $\Gamma$ and $\Delta$ (coloured {\color{gray}grey}) above are quantified implicitly.
 For now, $\UU$ serves as a constant in $\Ty$, but we will reuse $\UU$ for the type of small types later.
 
 Substitutions from $\Gamma$ to $\Delta$ can be understood intuitively as lists of terms of type $A$ under the context $\Gamma$ for each $A$ in $\Delta$, so we have the empty substitution $\emptysub$ and substitutions $\sigma, t$ extended by some term~$t$:
@@ -257,7 +245,7 @@ equivalent to the following (homogeneous) identities
 respectively.
 Constructors introduced so far complete the definition of substitution calculus.
 
-The use of transports in the formal definition fixes type mismatches but hinders equational reasoning about these terms, even for simple facts.
+The use of transports in the formal definition fixes type mismatches but hinders equational reasoning about these terms even for such a simple fact below.
 \begin{example}\label{ex:pi2-comp}
   Given substitutions $\sigma : \Sub\;\Gamma\; \Delta$ and $\tau : \Sub\;\Delta\;(\Theta, A)$ for any $A : \Ty\,\Theta$, we may apply the projection $\pi_2$ to the composite $(\sigma; \tau)$ to access the first term $\pi_2(\sigma; \tau)$ of type $[\sigma;\tau] A$ under the context $\Gamma$, and this term should be equal to the first term $\pi_2\,\tau$ of $\tau$ after applying the substitution $\sigma$. 
   In short, the following equality apparently holds
@@ -284,11 +272,11 @@ The use of transports in the formal definition fixes type mismatches but hinders
   \begin{alignat*}{3}
          & ([\pi_1(\sigma; \tau)]\,A                    &&, \pi_2\,(\sigma ; \tau)) \\
     = {} & ([\pi_1(\sigma; (\pi_1\tau , \pi_2\tau))]\,A &&, \pi_2\,(\sigma; (\pi_1\,\tau, \pi_2\,\tau))) \\
-    = {} & ([\pi_1(\sigma;\pi_1\,\tau, \transfib{\Tm\,\Gamma}{[;]_{\Ty}^{-1}}{\color{black}[ \sigma ] (\pi_2\;\tau)})]\,A &&, \pi_2\,(\sigma;\pi_1\,\tau, \transfib{\Tm\,\Gamma}{[;]_{\Ty}^{-1}}{\color{black}[ \sigma ] (\pi_2\;\tau)})) \\
-    = {} & ([\sigma;\pi_1\,\tau]\,A &&, \transfib{\Tm\,\Gamma}{[;]_{\Ty}^{-1}}{\color{black}[ \sigma ] (\pi_2\;\tau)})) \nonumber \\
+    = {} & ([\pi_1(\sigma;\pi_1\,\tau, \transfib{}{[;]_{\Ty}^{-1}}{\color{black}[ \sigma ] (\pi_2\;\tau)})]\,A &&, \pi_2\,(\sigma;\pi_1\,\tau, \transfib{}{[;]_{\Ty}^{-1}}{\color{black}[ \sigma ] (\pi_2\;\tau)})) \\
+    = {} & ([\sigma;\pi_1\,\tau]\,A &&, \transfib{}{[;]_{\Ty}^{-1}}{\color{black}[ \sigma ] (\pi_2\;\tau)})) \nonumber \\
     = {} & (\sub{\sigma}{\sub{\pi_1\tau}{A}} &&, [\sigma] (\pi_2\,\tau)). \nonumber
   \end{alignat*}
-  The first three equations follow from Lemma~2.3.4in \cite{UFP2013}, while the last equation has nothing to do with substitution calculus but a property of transport (\cite[Lemma~2.3.2]{UFP2013}).
+  The first three equations follow from Lemma~2.3.4 in \cite{UFP2013}, while the last equation has nothing to do with substitution calculus but a property of transport (\cite[Lemma~2.3.2]{UFP2013}).
 \end{example}
 
 To retain the intuitive way of reasoning such as \eqref{eq:pi2-comp-proof} \emph{formally}, we make type substitution \emph{definitional}, since the root cause is the type mismatch after type substitution.
@@ -299,8 +287,8 @@ Now that $[ \idS ]_{\Ty}\;A = A$ and $[ \sigma ; \tau ]_{\Ty}\;A = [ \sigma ]_{\
 [\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
 [ \sigma ]_{\Ty}\;\UU & = \UU
 \end{alignat*}
-However, this definition is \emph{not} inductive-recursive in the style of Dybjer and Setzer~\cite{Dybjer2000,Dybjer2003}: in the schema of Dybjer and Setzer, the codomain of a simultaneous function does not refer to any inductive type being defined.
-While its general schema remains underdeveloped, this definition is accepted in proof assistants such as \Agda and used in other formalisation of type theory~\cite{Danielsson2006,Chapman2009}.
+However, this definition is \emph{not} inductive-recursive in the sense of Dybjer and Setzer~\cite{Dybjer2000,Dybjer2003}: in their schema, the codomain of a simultaneous recursive function does not refer to any inductive type being defined.
+While its general schema remains underdeveloped, this definition is accepted in proof assistants such as \Agda and used in other formalisation of type theory~\cite{Danielsson2006}.
 Still, although $[\idS]_{\Ty}\,A$ and $[\sigma; \tau]_{\Ty}\,A$ can be proved equal to $A$ and $[\sigma]_{\Ty}\,[\tau]_{\Ty}\,A$ respectively, they are not definitional but propositional.
 This definition fails to eliminate any transport in the definition of substitution calculus.
 
@@ -395,7 +383,7 @@ This boils down to that $[\blank]_{\Ty}\blank$ preserves equality constructors f
     & [\sigma;\idS]_{\Ty} \;A = [\sigma]_{\Ty}\;A,
     && [\idS;\sigma]_{\Ty} \;A = [\sigma]_{\Ty}\;A, && [(\sigma;\tau);\gamma]_{\Ty} \;A = [\sigma; (\tau; \gamma)]_{\Ty}A, \\
     & [\pi_1(\sigma, t)]_{\Ty}\;A = [\sigma]_{\Ty}\;A \\
-    & [\sigma; (\tau, t)]_{\Ty} \;A = [(\sigma;\tau), t]_{\Ty}\;A && [\sigma]_{\Ty} \;A = [\emptyctx]_{\Ty}\;A, && [\sigma]_{\Ty} \;A = [\pi_1\sigma, \pi_2\sigma]_{\Ty}\;A
+    & [\sigma; (\tau, t)]_{\Ty} \;A = [(\sigma;\tau), [\sigma]\, t]_{\Ty}\;A && [\sigma]_{\Ty} \;A = [\emptyctx]_{\Ty}\;A, && [\sigma]_{\Ty} \;A = [\pi_1\sigma, \pi_2\sigma]_{\Ty}\;A
   \end{align*}
   hold (propositionally).
   The first two identities of the first row hold definitionally by \eqref{def:definitional-type-subst-1} and \eqref{def:definitional-type-subst-2}, while terms of the both sides of the third compute to $[\sigma]_{\Ty}\;([\tau]_{\Ty}\;([\gamma]_{\Ty}\;A))$ by \eqref{def:definitional-type-subst-2}.
@@ -403,7 +391,7 @@ This boils down to that $[\blank]_{\Ty}\blank$ preserves equality constructors f
   The sole identity of the second row is just one, i.e.\ \eqref{def:definitional-type-subst-3}, of the clauses of the definition.
 
   We show the remaining cases by induction on $A$.
-  However, $\UU$ is the only constructor for $\Ty\;\Gamma$, and each of them computes to $\UU$ definitionally.
+  However, $\UU$ is the only constructor for $\Ty\;\Gamma$ for any $\Gamma$ and each of identities with $A \defeq \UU$ computes to $\UU$ definitionally.
 \end{proof}
 
 
@@ -524,13 +512,26 @@ This boils down to that $[\blank]_{\Ty}\blank$ preserves equality constructors f
 \end{enumerate}
 }
 
-\section{Future work}
+\section{Discussion and future work}
+\subsection{Related work}
+\paragraph*{Formalisation of type theory in type theory}
+\cite{Danielsson2006,Altenkirch2016a,Chapman2009}
+\cite{Altenkirch2017}
+\cite{Munoz1998}
+\cite{Dybjer1996,Castellan2021}
+\LT{Dybjer \cite{Dybjer1996} already says cwf is inductive-recursive}
 
+Substitution calculus is closely related to \emph{categories with families}~\cite{Dybjer1996}.
+\paragraph*{Single substitution calculus}
+\cite{Kaposi2023,Kaposi2024a}
+\paragraph*{Schemata of inductive types}
+\cite{Kaposi2019}
+
+
+\subsection{Future work}
 \paragraph*{Type theory in (observational) type theory}
-
-
+\paragraph*{Formalising definitions by overlapping patterns}
 \paragraph*{A general schema of quotient inductive-inductive-recursive types}
-\subparagraph*{Formalising definitions by overlapping patterns}
 
 \IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
 
@@ -590,5 +591,5 @@ This boils down to that $[\blank]_{\Ty}\blank$ preserves equality constructors f
   [;]t            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t} && {[\,\sigma ; \tau\,]\,t} && =^{\Tm\,\Gamma\,[\sigma ; \tau] A} && {[ \sigma ]\,[ \tau ]\,t} \\
 \end{alignat*}
 
-\section{Formal definitions in \Agda}
+\section{Formal definitions in Agda}
 \end{document}
