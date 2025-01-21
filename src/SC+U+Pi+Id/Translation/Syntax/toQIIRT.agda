@@ -1,7 +1,7 @@
 open import Prelude
-  hiding (_,_)
+  renaming (_,_ to _,'_)
 
-module SC+U+Pi+Id.Translation.toQIIRT where
+module SC+U+Pi+Id.Translation.Syntax.toQIIRT where
 
 open import SC+U+Pi+Id.QIIRT.Base     as QIIRT
 open import SC+U+Pi+Id.QIIRT.Properties as QIIRT
@@ -42,14 +42,23 @@ toQIIRT .met = record
       ; idSᴹ⨟ᴹ_ = λ {_} {_} {_} {_} {Qσ} σ → tr-const (Q.idS⨟ Qσ) {idS ⨟ σ} ∙ (idS⨟ σ)
       ; ⨟ᴹ-assoc = tr-const Q.⨟-assoc ∙ ⨟-assoc
       ; π₁ᴹ,ˢᴹ = tr-const Q.π₁, ∙ π₁,
-      ; ⨟ᴹ,ˢᴹ = λ {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_} {_}
-                  {σ} {τ} {t}
+      ; ⨟ᴹ,ˢᴹ = λ {_} {_} {_} {_} {_} {σ} {τ} {t} {_} {_} {_} {_}
+                  {σᴹ} {τᴹ} {tᴹ}
               → tr-const Q.⨟, ∙ ⨟, ∙
-                cong (σ ⨟ τ ,_) (sym {!   !})
+                cong (σᴹ ⨟ τᴹ ,_) (sym {! ([ σᴹ ]t tᴹ) !})
       ; η∅ˢᴹ = tr-const Q.η∅ ∙ η∅
       ; η,ˢᴹ = tr-const Q.η, ∙ η,
-      ; [idSᴹ]tmᴹ = tr-const Q.[idS]tm ∙ {!   !}
-      ; [⨟ᴹ]tmᴹ = tr-const Q.[⨟]tm ∙ {!   !}
+      ; [idSᴹ]tmᴹ = λ {Γ} {Γᴹ} {i} {A} {Aᴹ} {t} {tᴹ}
+        →   begin
+          tr (TmᴹFam toQIIRT) Q.[idS]tm (trTmᴹₜ toQIIRT Q.[idS] (tr-const Q.[idS]) tᴹ)
+            ≡⟨ tr-const Q.[idS]tm ⟩
+          tr ((λ (A ,' (Aᴹ ,' t)) → Tmᴹ toQIIRT Γᴹ Aᴹ t))
+             ((Q.[idS] ,Σ≡ tr-const Q.[idS]) ,≡₂ lift _ (Q.[ Q.idS ]tm t) Q.[idS])
+               tᴹ
+            ≡⟨ {!   !} ⟩
+          {!   !}
+        -- tr-const Q.[idS]tm ∙ tr-const _
+      ; [⨟ᴹ]tmᴹ = tr-const Q.[⨟]tm ∙ {!   !} --  tr-const _
       ; π₂ᴹ,ˢᴹ = tr-const Q.π₂, ∙ {!   !}
       }
     }

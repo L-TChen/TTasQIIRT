@@ -1,12 +1,12 @@
 open import Prelude
 -- copy and modify from Theory
-module SC+U+Pi+Id.Translation.toQIIT where
+module SC+U+Pi+Id.Translation.Syntax.toQIIT where
 
 open import SC+U+Pi+Id.QIIT.Syntax     as QIIT
 open import SC+U+Pi+Id.QIIT.Properties as QIIT
 
 import SC+U+Pi+Id.QIIRT.Base as R
-  hiding (i)
+  hiding (i) 
 
 open import SC+U+Pi+Id.QIIRT.Model
 open import SC+U+Pi+Id.QIIRT.Elimination
