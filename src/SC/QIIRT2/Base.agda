@@ -2,7 +2,7 @@
 module SC.QIIRT2.Base where
 
 open import Prelude
-  hiding (_,_)
+  hiding (_,_; _∘_)
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
 

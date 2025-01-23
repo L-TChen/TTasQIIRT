@@ -4,7 +4,7 @@
 module SC+El.QIIRT2.Base where
  
 open import Prelude
-  hiding (_,_)
+  hiding (_,_; _∘_)
 
 
 infixl 35 _[_] _[_]t _[_]tm
@@ -189,10 +189,20 @@ coh[assocS] = refl
 coh[,∘] : A [ (σ , t) ∘ τ ] ≡ A [ σ ∘ τ , t [ τ ]t ]
 coh[,∘] {A = U}     = refl
 coh[,∘] {A = El u} {σ = σ} {t = t} {τ = τ} = cong El $ begin
+  u [ (σ , t) ∘ τ ]t
+    ≡⟨ (sym $ []tm≡[]t u ((σ , t) ∘ τ)) ⟩
+  u [ (σ , t) ∘ τ ]tm
+    ≡⟨ cong (u [_]tm) ,∘ ⟩
+  u [ σ ∘ τ , t [ τ ]t ]tm
+    ≡⟨ []tm≡[]t u ((σ ∘ τ) , t [ τ ]t) ⟩
+  u [ σ ∘ τ , t [ τ ]t ]t
+    ∎
+{-
   u [ σ , t ]tm [ τ ]t       ≡⟨ sym ([]tm≡[]t (u [ σ , t ]tm) τ) ⟩
   u [ σ , t ]tm [ τ ]tm      ≡⟨ sym ([∘]tm) ⟩
   u [ (σ , t) ∘ τ ]tm        ≡⟨ cong (u [_]tm) ,∘ ⟩
   u [ (σ ∘ τ) , t [ τ ]t ]tm ∎
+-}
   where open ≡-Reasoning
 
 coh[βπ₁] : A [ π₁ (σ , t) ] ≡ A [ σ ]

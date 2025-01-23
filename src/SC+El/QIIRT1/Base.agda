@@ -1,8 +1,8 @@
-{-# OPTIONS --local-confluence-check #-}
+open import Prelude
+  hiding (_∘_)
 
 module SC+El.QIIRT1.Base where
 
-open import Prelude
 open ≡-Reasoning
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
@@ -235,7 +235,7 @@ coh[η∅] {A = El t} {σ = σ} = cong El (cong (t [_]tm) (η∅ {σ = σ}))
     conv (congTmΓ (cong[] refl refl refl (π₁∘ σ τ))) (π₂ (σ ∘ τ))
   ≡⟨ conv-unique (congTmΓ (cong[] refl refl refl (π₁∘ σ τ))) (trans p1 p2) (π₂ (σ ∘ τ)) ⟩
     conv (trans p1 p2) (π₂ (σ ∘ τ))
-  ≡⟨ eq1 ⟫ p1 , p2 ⟫ eq2 ⟩
+  ≡⟨ {!!} ⟩ -- eq1 ⟫ p1 , p2 ⟫ eq2 ⟩
     π₂ σ [ τ ]tm
   ∎
   where

@@ -4,7 +4,7 @@
 module SC+El+Pi.QIIRT.Base where
  
 open import Prelude
-  hiding (_,_)
+  hiding (_,_; _∘_)
 
 
 infixl 35 _[_] _[_]tm _[_]t 

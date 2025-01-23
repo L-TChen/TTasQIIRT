@@ -1,10 +1,9 @@
 -- inductive-inductive-recursive definition of context, type, term, and type substitution
---{-# OPTIONS --confluence-check #-}
+open import Prelude
+  hiding (_,_; _∘_)
 
 module SC+Pi.QIIRT.Base where
  
-open import Prelude
-  hiding (_,_)
 
 infixl 35 _[_] _[_]tm _[_]t 
 infixl 4 _,_

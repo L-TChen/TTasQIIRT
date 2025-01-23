@@ -1,8 +1,10 @@
 {-# OPTIONS -vtc.cover.splittree:10 #-}
 -- Formalizing Substitution Calculus as QIIRT
+open import Prelude
+  hiding (_∘_)
+
 module SC.QIIRT.Base where
 
-open import Prelude
 open ≡-Reasoning
 
 -- inductive-inductive-recursive definition of context, type, term, and type substitution

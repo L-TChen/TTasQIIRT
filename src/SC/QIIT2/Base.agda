@@ -1,7 +1,9 @@
 -- Formalizing Substitution Calculus as QIIT
+open import Prelude
+  hiding (_∘_)
+
 module SC.QIIT2.Base where
 
-open import Prelude
 open ≡-Reasoning
 
 infixl 20 _[_] -- _[_]tm
