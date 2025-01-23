@@ -53,7 +53,7 @@ toQIIRT .met = record
           tr (TmᴹFam toQIIRT) Q.[idS]tm (trTmᴹₜ toQIIRT Q.[idS] (tr-const Q.[idS]) tᴹ)
             ≡⟨ tr-const Q.[idS]tm ⟩
           tr ((λ (A ,' (Aᴹ ,' t)) → Tmᴹ toQIIRT Γᴹ Aᴹ t))
-             ((Q.[idS] ,Σ≡ tr-const Q.[idS]) ,≡₂ lift _ (Q.[ Q.idS ]tm t) Q.[idS])
+             ((Q.[idS] ,Σ≡ tr-const Q.[idS]) ,≡₂ lift (Q.Tm Γ) (Q.[ Q.idS ]tm t) Q.[idS])
                tᴹ
             ≡⟨ {!   !} ⟩
           {!   !}
