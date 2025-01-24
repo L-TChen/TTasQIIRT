@@ -152,6 +152,8 @@ id↑ Γ A = begin
   [ σ ]t  u          ∎
   where open ≡-Reasoning
 
+{-
+-- WRONG: the congruence rule for telescope substitution is used
 module _ {σ γ : Sub Γ Δ} (σ=γ : σ ≡ γ) where
   open ≅-Reasoning
 
@@ -163,11 +165,12 @@ module _ {σ γ : Sub Γ Δ} (σ=γ : σ ≡ γ) where
     σ ⇈ Ξ ↑ A
       ≅⟨ ≡-to-≅ (↑=⁺ A (σ ⇈ Ξ)) ⟩
     (σ ⇈ Ξ) ⁺
-      ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) σ=γ (λ σ → _⁺ σ {A}) (⇈-cong Ξ) ⟩
+      ≅⟨ icong (λ σ → Sub (Γ ⧺ [ σ ]l Ξ) (Δ ⧺ Ξ)) σ=γ (λ σ → _⁺ σ {A}) (⇈-cong Ξ) ⟩
     (γ ⇈ Ξ) ⁺
       ≡⟨ ↑=⁺ A (_ ⇈ Ξ) ⟨
     γ ⇈ Ξ ↑ A
       ∎
+-}
 
 module _ {Γ : Ctx} where
   open ≅-Reasoning
@@ -184,7 +187,7 @@ module _ {Γ : Ctx} where
     A             ∎
 
   idS⇈ ∅       = refl
-  idS⇈ (Ξ , A) = icong (λ Ξ → Sub (Γ ⧺ Ξ) _) ([idS]l Ξ) (_↑ A) (idS⇈ Ξ)
+  idS⇈ (Ξ , A) = icong (λ Ξ' → Sub (Γ ⧺ Ξ') (Γ ⧺ Ξ)) ([idS]l Ξ) (_↑ A) (idS⇈ Ξ)
 
 module _ {Γ Δ Θ : Ctx} (σ : Sub Γ Δ) (τ : Sub Δ Θ) where
   open ≅-Reasoning

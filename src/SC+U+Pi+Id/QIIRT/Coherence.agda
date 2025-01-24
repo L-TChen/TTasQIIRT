@@ -6,33 +6,6 @@ open import Prelude
 open import SC+U+Pi+Id.QIIRT.Base
 open import SC+U+Pi+Id.QIIRT.Properties
 
-module RewriteRules where
-    {-
-      Agda reports that [idS]l fails the local confluence while declaring [idS]l as a rewrite rule, but it can be fixed by declaring idS⇈ as a rewrite rule.
-      However, idS⇈ cannot be typed before [idS]l is declared a rewrite rule.
-
-      [idS]l, idS⇈, [⨟]l, ⨟⇈ are proved in SC+U+Pi+Id.QIIRT.Properties
-    -}
-  postulate
-    [idS]l'
-      : [ idS ]l Ξ ≡ Ξ
-    {-# REWRITE [idS]l' #-}
-    idS⇈'
-      : idS ⇈ Ξ ≡ idS
-    {-# REWRITE idS⇈' #-}
-    [⨟]l'
-      : [ σ ⨟ τ ]l Ξ ≡ [ σ ]l [ τ ]l Ξ
-    {-# REWRITE [⨟]l' #-}
-    ⨟⇈'
-      : (σ ⨟ τ) ⇈ Ξ ≡ (σ ⇈ ([ τ ]l Ξ)) ⨟ (τ ⇈ Ξ)
-    {-# REWRITE ⨟⇈' #-}
-
-  -- sanity check
-  _ : [ idS ]l (Ξ , A) ≡ Ξ , A
-  _ = refl
-
-  _ : [ σ ⨟ τ ]l (Ξ , A) ≡ [ σ ]l [ τ ]l (Ξ , A)
-  _ = refl
 
 coh↑ : (σ τ : Sub Γ Δ) (A : Ty Δ i)
   → σ ≡ τ
@@ -56,49 +29,90 @@ module _ {Γ Δ : Ctx} {σ γ : Sub Γ Δ} where
     [ γ ]t  t ∎
 
 {-
-  -- WRONG! the coherence of _⇈ Ξ is assumed here  
+-- WRONG! the coherence of _⇈ Ξ is assumed here  
+module _ {Γ Δ : Ctx} {σ γ : Sub Γ Δ} where
+  open ≅-Reasoning
+
   coh[⇈]tm
-    : (Ξ : Tel Δ) {A : Ty (Δ ⧺ Ξ) i} {t : Tm (Δ ⧺ Ξ) A}
+    : (Ξ : Tel Δ) 
+    → {B : Ty (Δ ⧺ Ξ) i} {t : Tm (Δ ⧺ Ξ) B}
     → σ ≡ γ
     → [ σ ⇈ Ξ ]t t ≅ [ γ ⇈ Ξ ]t t
-  coh[⇈]tm Ξ {A} {t} σ=γ = begin
+  coh[⇈]tm Ξ {B} {t} σ=γ = begin
     [ σ ⇈ Ξ ]t  t ≅⟨ ≡-to-≅ $ []tm≡[]t t _ ⟨
     [ σ ⇈ Ξ ]tm t ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) σ=γ ([_]tm t) (⇈-cong σ=γ Ξ) ⟩
     [ γ ⇈ Ξ ]tm t ≡⟨ []tm≡[]t t _ ⟩
     [ γ ⇈ Ξ ]t  t ∎
 -}
-  
-coh-idS⨟⇈
-  : (idS ⨟ σ) ⇈ Ξ ≡ σ ⇈ Ξ
-coh-idS⨟⇈ = idS⨟ _
 
-coh-⨟idS⇈
-  : (σ ⨟ idS) ⇈ Ξ ≡ σ ⇈ Ξ
-coh-⨟idS⇈ = _ ⨟idS
+module RewriteRules where
+{-
+  Agda reports that [idS]l fails the local confluence while declaring [idS]l a rewrite rule:
 
-coh-⨟-assoc
-  : (σ ⨟ (τ ⨟ γ)) ⇈ Ξ ≡ ((σ ⨟ τ) ⨟ γ) ⇈ Ξ
-coh-⨟-assoc = ⨟-assoc
+  > Local confluence check failed: [ idS ]l (Ξ , A) reduces to both
+  > Ξ , A and [ idS ]l Ξ , [ idS ⇈ Ξ ] A which are not equal because
+  > A != [ idS ⇈ Ξ ] A of type Ty (Ξ.Γ ⧺ Ξ) i
+  > when checking confluence of the rewrite rule [idS]l' with
+  > SC+U+Pi+Id.QIIRT.Base.[_]l_-clause2
+
+  It can be fixed by declaring idS⇈ a rewrite rule, but idS⇈ cannot be
+  declared with [idS]l together: idS⇈ is not well typed without [idS]l being a rewrite rule.
+
+  [idS]l, idS⇈, [⨟]l, ⨟⇈ are proved in SC+U+Pi+Id.QIIRT.Properties
+-}
+  postulate
+    [idS]l'
+      : [ idS ]l Ξ ≡ Ξ
+    {-# REWRITE [idS]l' #-}
+    idS⇈'
+      : idS ⇈ Ξ ≡ idS
+    {-# REWRITE idS⇈' #-}
+    [⨟]l'
+      : [ σ ⨟ τ ]l Ξ ≡ [ σ ]l [ τ ]l Ξ
+    {-# REWRITE [⨟]l' #-}
+    ⨟⇈'
+      : (σ ⨟ τ) ⇈ Ξ ≡ (σ ⇈ ([ τ ]l Ξ)) ⨟ (τ ⇈ Ξ)
+    {-# REWRITE ⨟⇈' #-}
+
+  -- sanity check
+  _ : [ idS ]l (Ξ , A) ≡ Ξ , A
+  _ = refl
+
+  _ : [ σ ⨟ τ ]l (Ξ , A) ≡ [ σ ]l [ τ ]l (Ξ , A)
+  _ = refl
+
 
 coh-[idS⨟]l
   : [ idS ⨟ σ ]l Ξ ≡ [ σ ]l Ξ
 coh-[idS⨟]l = refl
 
-coh-[⨟idS]l
-  : [ σ ⨟ idS ]l Ξ ≡ [ σ ]l Ξ
-coh-[⨟idS]l = refl
-
-coh-[⨟-assoc]l
-  : [ (σ ⨟ τ) ⨟ γ ]l Ξ ≡ [ σ ⨟ (τ ⨟ γ) ]l Ξ
-coh-[⨟-assoc]l = refl
+coh-idS⨟⇈
+  : (idS ⨟ σ) ⇈ Ξ ≡ σ ⇈ Ξ
+coh-idS⨟⇈ = idS⨟ _
 
 coh[idS⨟]
   : [ idS ⨟ σ ] A ≡ [ σ ] A
 coh[idS⨟] = refl
 
+coh-[⨟idS]l
+  : [ σ ⨟ idS ]l Ξ ≡ [ σ ]l Ξ
+coh-[⨟idS]l = refl
+
+coh-⨟idS⇈
+  : (σ ⨟ idS) ⇈ Ξ ≡ σ ⇈ Ξ
+coh-⨟idS⇈ = _ ⨟idS
+
 coh[⨟idS]
   : [ σ ⨟ idS ] A ≡ [ σ ] A
 coh[⨟idS] = refl
+
+coh-[⨟-assoc]l
+  : [ (σ ⨟ τ) ⨟ γ ]l Ξ ≡ [ σ ⨟ (τ ⨟ γ) ]l Ξ
+coh-[⨟-assoc]l = refl
+
+coh-⨟-assoc
+  : (σ ⨟ (τ ⨟ γ)) ⇈ Ξ ≡ ((σ ⨟ τ) ⨟ γ) ⇈ Ξ
+coh-⨟-assoc = ⨟-assoc
 
 coh[assocS]
   : [ (σ ⨟ τ) ⨟ γ ] A ≡ [ σ ⨟ (τ ⨟ γ) ] A
@@ -114,14 +128,17 @@ module _ (σ : Sub Γ Δ) {A : Ty Δ i} (t : Tm Γ ([ σ ] A)) where
     → π₁ (_,_ σ {A} t) ⇈ Ξ ≅ σ ⇈ Ξ
   coh[π₁,⇈]
     : (Ξ : Tel Δ)
+    → [ π₁ (_,_ σ {A} t) ]l Ξ ≡ [ σ ]l Ξ
     → (B : Ty (Δ ⧺ Ξ) j)
     → [ π₁ (_,_ σ {A} t) ⇈ Ξ ] B ≅ [ σ ⇈ Ξ ] B
   coh[π₁,]t
-    : (Ξ : Tel Δ) {B : Ty (Δ ⧺ Ξ) j} (u : Tm (Δ ⧺ Ξ) B)
+    : (Ξ : Tel Δ)
+    → [ π₁ (_,_ σ {A} t) ]l Ξ ≡ [ σ ]l Ξ
+    → {B : Ty (Δ ⧺ Ξ) j} (u : Tm (Δ ⧺ Ξ) B)
     → [ π₁ (_,_ σ {A} t) ⇈ Ξ ]t u ≅ [ σ ⇈ Ξ ]t u
 
   coh[π₁,]l ∅       = refl
-  coh[π₁,]l (Ξ , A) = ≅-to-≡ $ hcong₂ _,_ (≡-to-≅ $ coh[π₁,]l Ξ) (coh[π₁,⇈] Ξ A) 
+  coh[π₁,]l (Ξ , A) = ≅-to-≡ $ hcong₂ _,_ (≡-to-≅ $ coh[π₁,]l Ξ) (coh[π₁,⇈] Ξ (coh[π₁,]l Ξ) A) 
 
   coh-π₁,⇈ ∅       = ≡-to-≅ π₁,
   coh-π₁,⇈ (Ξ , A) = begin
@@ -130,25 +147,22 @@ module _ (σ : Sub Γ Δ) {A : Ty Δ i} (t : Tm Γ ([ σ ] A)) where
     (σ ⇈ Ξ) ⁺          ≡⟨ ↑=⁺ A (σ ⇈ Ξ) ⟨
     σ ⇈ Ξ ↑ A          ∎
 
-  coh[π₁,]t Ξ u = begin
+  coh[π₁,⇈] Ξ eq (U i)      = cong-U (hcong (Γ ⧺_) (≡-to-≅ $ eq))
+  coh[π₁,⇈] Ξ eq (El x)     = icong (λ Γ → Tm Γ (U _)) (cong (Γ ⧺_) eq) El (coh[π₁,]t Ξ eq x)
+
+  coh[π₁,⇈] Ξ eq (Lift B)   = icong (λ Γ → Ty Γ _) (cong (Γ ⧺_) eq) Lift
+    (coh[π₁,⇈] Ξ eq B)
+  coh[π₁,⇈] Ξ eq (Π B C)    = icong₂ (λ Γ → Ty Γ _) (cong (Γ ⧺_) eq) Π
+    (coh[π₁,⇈] Ξ eq B)
+    (coh[π₁,⇈] (Ξ , B) (≅-to-≡ $ hcong₂ _,_ (≡-to-≅ eq) (coh[π₁,⇈] Ξ eq B)) C) -- (coh[π₁,⇈] (Ξ , B) {!eq!} C)
+  coh[π₁,⇈] Ξ eq (Id a t u) = icong₃ (λ Γ → Tm Γ _) (cong (Γ ⧺_) eq) Id
+    (coh[π₁,]t Ξ eq a) (coh[π₁,]t Ξ eq t) (coh[π₁,]t Ξ eq u)
+
+  coh[π₁,]t Ξ eq u = begin
     [ π₁ (σ , t) ⇈ Ξ ]t  u ≡⟨ []tm≡[]t u (π₁ (σ , t) ⇈ Ξ) ⟨
-    [ π₁ (σ , t) ⇈ Ξ ]tm u ≅⟨ icong (λ Ξ' → Sub (Γ ⧺ Ξ') (Δ ⧺ _)) (coh[π₁,]l Ξ) ([_]tm u) (coh-π₁,⇈ Ξ) ⟩
+    [ π₁ (σ , t) ⇈ Ξ ]tm u ≅⟨ icong (λ Ξ' → Sub (Γ ⧺ Ξ') (Δ ⧺ _)) eq ([_]tm u) (coh-π₁,⇈ Ξ) ⟩
     [ σ ⇈ Ξ ]tm u          ≡⟨ []tm≡[]t u (σ ⇈ Ξ) ⟩
     [ σ ⇈ Ξ ]t  u          ∎
-
-  coh[π₁,⇈] Ξ (U i)      = cong-U (hcong (Γ ⧺_) (≡-to-≅ $ coh[π₁,]l Ξ))
-  coh[π₁,⇈] Ξ (El x)     = icong (λ Γ → Tm Γ (U _)) (cong (Γ ⧺_) (coh[π₁,]l Ξ)) El (coh[π₁,]t Ξ x)
-
-  coh[π₁,⇈] Ξ (Lift B)   = icong (λ Γ → Ty Γ _) (cong (Γ ⧺_) (coh[π₁,]l Ξ)) Lift (coh[π₁,⇈] Ξ B)
-  coh[π₁,⇈] Ξ (Π B C)    = icong₂ (λ Γ → Ty Γ _) (cong (Γ ⧺_) (coh[π₁,]l Ξ)) Π
-    (coh[π₁,⇈] Ξ B) {!!}
-  coh[π₁,⇈] Ξ (Id a t u) = icong₃ (λ Γ → Tm Γ _) (cong (Γ ⧺_) (coh[π₁,]l Ξ)) Id
-    (coh[π₁,]t Ξ a) (coh[π₁,]t Ξ t) (coh[π₁,]t Ξ u)
-
-{-
-  _⁺ : (σ : Sub Γ Δ) → {A : Ty Δ i} → Sub (Γ , [ σ ] A) (Δ , A)
-  _⁺ σ {A} = π₁ idS ⨟ σ , π₂ idS
--}
 
 -- [TODO]: Fix the following coherence proofs.
 -- module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) {i : ℕ} (A : Ty Θ i) (t : Tm Δ ([ τ ] A)) where
