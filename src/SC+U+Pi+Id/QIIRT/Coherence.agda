@@ -68,18 +68,6 @@ module _ {Γ Δ : Ctx} {σ γ : Sub Γ Δ} where
     [ γ ⇈ Ξ ]t  t ∎
 -}
   
--- coh[idS⨟]l
---   : (σ : Sub Γ Δ) (Ξ : Tel Δ)
---   → [ idS ⨟ σ ]l Ξ ≡ [ σ ]l Ξ
--- coh[idS⨟]l σ Ξ = begin
---   [ idS ⨟ σ ]l Ξ
---     ≡⟨ [⨟]l idS σ Ξ ⟩
---   [ idS ]l [ σ ]l Ξ
---     ≡⟨ [idS]l ([ σ ]l Ξ) ⟩
---   [ σ ]l Ξ
---     ∎
---   where open ≡-Reasoning
-
 coh-idS⨟⇈
   : (idS ⨟ σ) ⇈ Ξ ≡ σ ⇈ Ξ
 coh-idS⨟⇈ = idS⨟ _
@@ -128,6 +116,10 @@ module _ (σ : Sub Γ Δ) {A : Ty Δ i} (t : Tm Γ ([ σ ] A)) where
     : (Ξ : Tel Δ)
     → (B : Ty (Δ ⧺ Ξ) j)
     → [ π₁ (_,_ σ {A} t) ⇈ Ξ ] B ≅ [ σ ⇈ Ξ ] B
+  coh[π₁,]t
+    : (Ξ : Tel Δ) {B : Ty (Δ ⧺ Ξ) j} (u : Tm (Δ ⧺ Ξ) B)
+    → [ π₁ (_,_ σ {A} t) ⇈ Ξ ]t u ≅ [ σ ⇈ Ξ ]t u
+
   coh[π₁,]l ∅       = refl
   coh[π₁,]l (Ξ , A) = ≅-to-≡ $ hcong₂ _,_ (≡-to-≅ $ coh[π₁,]l Ξ) (coh[π₁,⇈] Ξ A) 
 
@@ -138,16 +130,20 @@ module _ (σ : Sub Γ Δ) {A : Ty Δ i} (t : Tm Γ ([ σ ] A)) where
     (σ ⇈ Ξ) ⁺          ≡⟨ ↑=⁺ A (σ ⇈ Ξ) ⟨
     σ ⇈ Ξ ↑ A          ∎
 
-  coh[π₁,⇈] Ξ (U i)      = cong-U (hcong (Γ ⧺_) (≡-to-≅ $ coh[π₁,]l Ξ))
-  coh[π₁,⇈] Ξ (El x)     = icong (λ Γ → Tm Γ (U _)) (cong (Γ ⧺_) (coh[π₁,]l Ξ)) El (begin
-    [ π₁ (σ , t) ⇈ Ξ ]t x  ≡⟨ []tm≡[]t x (π₁ (σ , t) ⇈ Ξ) ⟨
-    [ π₁ (σ , t) ⇈ Ξ ]tm x ≅⟨ icong (λ Ξ' → Sub (Γ ⧺ Ξ') (Δ ⧺ _)) (coh[π₁,]l Ξ) ([_]tm x) (coh-π₁,⇈ Ξ) ⟩
-    [ σ ⇈ Ξ ]tm x          ≡⟨ []tm≡[]t x (σ ⇈ Ξ) ⟩
-    [ σ ⇈ Ξ ]t x           ∎)
-  coh[π₁,⇈] Ξ (Lift B)   = icong (λ Γ → Ty Γ _) (cong (Γ ⧺_) (coh[π₁,]l Ξ)) Lift (coh[π₁,⇈] Ξ B)
-  coh[π₁,⇈] Ξ (Π B C)    = {!!}
-  coh[π₁,⇈] Ξ (Id a t u) = {!!}
+  coh[π₁,]t Ξ u = begin
+    [ π₁ (σ , t) ⇈ Ξ ]t  u ≡⟨ []tm≡[]t u (π₁ (σ , t) ⇈ Ξ) ⟨
+    [ π₁ (σ , t) ⇈ Ξ ]tm u ≅⟨ icong (λ Ξ' → Sub (Γ ⧺ Ξ') (Δ ⧺ _)) (coh[π₁,]l Ξ) ([_]tm u) (coh-π₁,⇈ Ξ) ⟩
+    [ σ ⇈ Ξ ]tm u          ≡⟨ []tm≡[]t u (σ ⇈ Ξ) ⟩
+    [ σ ⇈ Ξ ]t  u          ∎
 
+  coh[π₁,⇈] Ξ (U i)      = cong-U (hcong (Γ ⧺_) (≡-to-≅ $ coh[π₁,]l Ξ))
+  coh[π₁,⇈] Ξ (El x)     = icong (λ Γ → Tm Γ (U _)) (cong (Γ ⧺_) (coh[π₁,]l Ξ)) El (coh[π₁,]t Ξ x)
+
+  coh[π₁,⇈] Ξ (Lift B)   = icong (λ Γ → Ty Γ _) (cong (Γ ⧺_) (coh[π₁,]l Ξ)) Lift (coh[π₁,⇈] Ξ B)
+  coh[π₁,⇈] Ξ (Π B C)    = icong₂ (λ Γ → Ty Γ _) (cong (Γ ⧺_) (coh[π₁,]l Ξ)) Π
+    (coh[π₁,⇈] Ξ B) {!!}
+  coh[π₁,⇈] Ξ (Id a t u) = icong₃ (λ Γ → Tm Γ _) (cong (Γ ⧺_) (coh[π₁,]l Ξ)) Id
+    (coh[π₁,]t Ξ a) (coh[π₁,]t Ξ t) (coh[π₁,]t Ξ u)
 
 {-
   _⁺ : (σ : Sub Γ Δ) → {A : Ty Δ i} → Sub (Γ , [ σ ] A) (Δ , A)

@@ -696,13 +696,13 @@ Observe that its type, generalising the type \eqref{eq:type-of-lifting} of a sin
 \]
 asking for telescope substitution $[\blank]_{\Tel}\blank :  \Sub\;\Gamma\;\Delta \to \Tel\;\Delta \to \Tel\;\Gamma$, but $[\blank]_{\Tel}\blank$ also needs the multiple lifting for the case $[ \sigma ]_{\Tel}\,(\Xi, A)$ (why?).
 Hence, we arrive the conclusion that telescope substitution and the multiple lifting by a telescope need to be defined mutually:
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.49\textwidth}
 \begin{alignat*}{5}
   & [ \sigma ]_{\Tel}\,\emptytel && \reduce \emptytel \\
   & [ \sigma ]_{\Tel}\,(\Xi, A)  && \reduce [ \sigma ]_{\Tel}\,\Xi, [\sigma \upuparrows \Xi]_{\Ty}\,A
 \end{alignat*}
 \end{minipage}
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.49\textwidth}
 \begin{alignat*}{5}
   & \sigma \upuparrows \emptytel && \reduce \sigma \\
   & \sigma \upuparrows (\Xi, A)  && \reduce (\sigma \upuparrows \Xi), A
@@ -731,9 +731,11 @@ Now, we proceed with the coherence property for the multiple lifting, telescope 
   For every equality constructor $p : \sigma = \tau : \Sub\;\Gamma\;\Delta$, the identities
   \danger
   \begin{align*}
-  \sigma \upuparrows \Xi & =^{\lam{\gamma}\Sub\;(\Gamma\dplus [\gamma]\Xi)\;(\Delta\dplus\Xi)}_{\alert{p}} \tau \upuparrows \Xi
-                         & [\sigma]_{\Tel}\,\Xi & = [\tau]_{\Tel}\,\Xi, \\
-  [\sigma \upuparrows \Xi ]_{\Ty}\,A & =^{\lam{\gamma}\Ty\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Ty}\,A
+  [\sigma]_{\Tel}\,\Xi & = [\tau]_{\Tel}\,\Xi 
+                         & [\sigma \upuparrows \Xi ]_{\Ty}\,A & =^{\lam{\gamma}\Ty\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Ty}\,A \\
+\sigma \upuparrows \Xi & =^{\lam{\gamma}\Sub\;(\Gamma\dplus [\gamma]\Xi)\;(\Delta\dplus\Xi)}_{\alert{p}} \tau \upuparrows \Xi
+%    &
+%  [\sigma \upuparrows \Xi ]_{\Tm}\,t & =^{\lam{\gamma}\Tm\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)\;([\gamma \upuparrows \Xi]_{\Ty} A)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Tm}\,t
   \end{align*}
   hold for any telescope $\Xi$ and type $A : \Ty\;(\Delta\dplus \Xi)$.
 \end{proposition}
