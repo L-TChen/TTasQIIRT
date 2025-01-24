@@ -2,6 +2,7 @@
 module SC.QIIT.Model where
 
 open import Prelude
+  hiding (_∘_)
 open import SC.QIIT.Base
 
 record Pdc {i j} : Set (lsuc (i ⊔ j)) where

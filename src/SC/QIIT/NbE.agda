@@ -1,6 +1,7 @@
 module SC.QIIT.NbE where
 
 open import Prelude
+  hiding (_∘_)
 open import Data.Product
 open import SC.QIIT.Base
 open import SC.QIIT.Model

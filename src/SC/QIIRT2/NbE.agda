@@ -3,6 +3,7 @@ module SC.QIIRT2.NbE where
 
 open import Prelude
   renaming (_,_ to _/_)
+  hiding (_∘_)
 open import SC.QIIRT2.Base
 open import SC.QIIRT2.Cong
 open import SC.QIIRT2.Model

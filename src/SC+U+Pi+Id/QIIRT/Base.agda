@@ -3,8 +3,8 @@ module SC+U+Pi+Id.QIIRT.Base where
 open import Prelude
   hiding (_,_)
 
-infixl 20 _↑_ _⁺ _⇈_
-infixr 15 [_]_ [_]t_ [_]tm_ [_]l_
+infixr 20 [_]_ [_]t_ [_]tm_ [_]l_
+infixl 15 _↑_ _⁺ _⇈_
 infixl 10 _⧺_
 infixl 10 _⨟_
 infixl 6 _,_
@@ -213,6 +213,9 @@ data Tel Γ where
   ∅ : Tel Γ
   _,_ : (Ξ : Tel Γ) (A : Ty (Γ ⧺ Ξ) i) → Tel Γ
 
+variable
+  Ξ : Tel Γ
+
 Γ ⧺ ∅       = Γ
 Γ ⧺ (Ξ , A) = (Γ ⧺ Ξ) , A
 
@@ -224,3 +227,4 @@ _⇈_   : (σ : Sub Γ Δ) → (Ξ : Tel Δ) → Sub (Γ ⧺ ([ σ ]l Ξ)) (Δ �
 
 σ ⇈ ∅       = σ
 σ ⇈ (Ξ , A) = (σ ⇈ Ξ) ↑ A
+

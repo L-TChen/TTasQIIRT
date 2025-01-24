@@ -59,7 +59,7 @@ cong-U refl = refl
   [ σ ⁺ ]t (π₂ idS)
     ≅⟨ ≡-to-≅ (π₂⨟ (σ ⁺) idS) ⟨
   π₂ (σ ⁺ ⨟ idS)
-    ≅⟨ hcong π₂ (≡-to-≅ (σ ⁺ ⨟idS)) ⟩
+    ≅⟨ hcong π₂ (≡-to-≅ ((σ ⁺) ⨟idS)) ⟩
   π₂ (σ ⁺)
     ≡⟨ π₂, ⟩
   π₂ idS
@@ -168,3 +168,36 @@ module _ {σ γ : Sub Γ Δ} (σ=γ : σ ≡ γ) where
       ≡⟨ ↑=⁺ A (_ ⇈ Ξ) ⟨
     γ ⇈ Ξ ↑ A
       ∎
+
+module _ {Γ : Ctx} where
+  open ≅-Reasoning
+  [idS]l
+    : (Ξ : Tel Γ)
+    → [ idS ]l Ξ ≡ Ξ
+  idS⇈
+    : (Ξ : Tel Γ)
+    →  idS ⇈ Ξ ≅  idS {Γ ⧺ Ξ} 
+  [idS]l ∅       = refl
+  [idS]l (Ξ , A) = ≅-to-≡ $ hcong₂ {A = Tel Γ} {B = λ Ξ → Ty (Γ ⧺ Ξ) _} {C = λ _ _ → Tel Γ} _,_ (≡-to-≅ $ [idS]l Ξ) $ begin
+    [ idS ⇈ Ξ ] A ≅⟨ icong (λ Ξ → Sub (Γ ⧺ Ξ) _) ([idS]l Ξ) ([_] A) (idS⇈ Ξ) ⟩
+    [ idS ] A     ≡⟨⟩
+    A             ∎
+
+  idS⇈ ∅       = refl
+  idS⇈ (Ξ , A) = icong (λ Ξ → Sub (Γ ⧺ Ξ) _) ([idS]l Ξ) (_↑ A) (idS⇈ Ξ)
+
+module _ {Γ Δ Θ : Ctx} (σ : Sub Γ Δ) (τ : Sub Δ Θ) where
+  open ≅-Reasoning
+  [⨟]l
+    : (Ξ : Tel Θ)
+    → [ σ ⨟ τ ]l Ξ ≡ [ σ ]l [ τ ]l Ξ
+  ⨟⇈
+    : (Ξ : Tel Θ) 
+    → (σ ⨟ τ) ⇈ Ξ ≅ (σ ⇈ ([ τ ]l Ξ)) ⨟ (τ ⇈ Ξ)
+  [⨟]l ∅       = refl
+  [⨟]l (Ξ , A) = ≅-to-≡ $ hcong₂ {B = λ Ξ → Ty (_ ⧺ Ξ) _} {C = λ _ _ → Tel Γ} _,_ (≡-to-≅ $ [⨟]l Ξ) $ begin
+    [ (σ ⨟ τ) ⇈ Ξ ] A               ≅⟨ icong (λ Ξ → Sub (_ ⧺ Ξ) _) ([⨟]l Ξ) ([_] A) (⨟⇈ Ξ) ⟩
+    [ (σ ⇈ [ τ ]l Ξ) ⨟ (τ ⇈ Ξ) ] A  ≡⟨⟩ 
+    [ σ ⇈ [ τ ]l Ξ ] [ τ ⇈ Ξ ] A    ∎ 
+  ⨟⇈ ∅         = refl
+  ⨟⇈ (Ξ , A)   = icong (λ Ξ → Sub (_ ⧺ Ξ) _) ([⨟]l Ξ) (_↑ A) (⨟⇈ Ξ)

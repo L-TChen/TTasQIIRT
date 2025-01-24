@@ -2,7 +2,7 @@
 module SC.QIIRT2.Model where
 
 open import Prelude
-  hiding (_,_)
+  hiding (_,_; _∘_)
 open import SC.QIIRT2.Base
 open import SC.QIIRT2.Cong
 
