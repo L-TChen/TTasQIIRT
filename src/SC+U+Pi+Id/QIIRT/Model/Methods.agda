@@ -125,7 +125,7 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         : tr (Subᴹ Γᴹ Δᴹ) π₁, (π₁ᴹ (σᴹ ,ˢᴹ tᴹ)) ≡ σᴹ
       ⨟ᴹ,ˢᴹ -- the transport equation seems too long
         : tr SubᴹFam ⨟, (σᴹ ⨟ᴹ (τᴹ ,ˢᴹ tᴹ))
-        ≡ (σᴹ ⨟ᴹ τᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) ([ σᴹ ]tᴹ tᴹ)
+        ≡ (σᴹ ⨟ᴹ τᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) ([ σᴹ ]tmᴹ tᴹ)
       η∅ˢᴹ
         : tr SubᴹFam η∅ σᴹ ≡ ∅ˢᴹ
       η,ˢᴹ
@@ -171,16 +171,16 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         : [ σᴹ ]ᴹ (Liftᴹ Aᴹ) ≡ Liftᴹ ([ σᴹ ]ᴹ Aᴹ)
       []tᴹcᴹ
         : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(Aᴹ : Tyᴹ Δᴹ i A)
-        → tr₂ (Tmᴹ Γᴹ) []ᴹUᴹ ([]tc σ A) ([ σᴹ ]tᴹ (cᴹ Aᴹ))
+        → tr₂ (Tmᴹ Γᴹ) []ᴹUᴹ ([]tc σ A) ([ σᴹ ]tmᴹ (cᴹ Aᴹ))
         ≡ cᴹ ([ σᴹ ]ᴹ Aᴹ)
       []mkᴹ
         : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ σ)
-        → tr₂ (Tmᴹ Γᴹ) []ᴹLiftᴹ ([]mk σ _) ([ σᴹ ]tᴹ mkᴹ tᴹ)
+        → tr₂ (Tmᴹ Γᴹ) []ᴹLiftᴹ ([]mk σ _) ([ σᴹ ]tmᴹ mkᴹ tᴹ)
         ≡ mkᴹ ([ σᴹ ]tᴹ tᴹ)
       []unᴹ
         : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ σ)
-        → tr TmᴹFam ([]un σ A t) ([ σᴹ ]tᴹ unᴹ tᴹ)
-        ≡ unᴹ (tr TmᴹFamₜ []ᴹLiftᴹ ([ σᴹ ]tᴹ tᴹ))
+        → tr TmᴹFam ([]un σ A t) ([ σᴹ ]tmᴹ unᴹ tᴹ)
+        ≡ unᴹ (tr TmᴹFamₜ []ᴹLiftᴹ ([ σᴹ ]tmᴹ tᴹ))
       Uᴹβ
         : tr TyᴹFam Uβ (Elᴹ (cᴹ Aᴹ)) ≡ Aᴹ
       Uᴹη
@@ -206,8 +206,8 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         : [ σᴹ ]ᴹ (Πᴹ Aᴹ Bᴹ) ≡ Πᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σᴹ ↑ᴹ Aᴹ ]ᴹ Bᴹ)
       []ƛᴹ
         : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ σ)
-        → tr₂ (Tmᴹ Γᴹ) []ᴹΠᴹ ([]ƛ σ _) ([ σᴹ ]tᴹ (ƛᴹ tᴹ))
-        ≡ ƛᴹ ([ σᴹ ↑ᴹ Aᴹ ]tᴹ tᴹ)
+        → tr₂ (Tmᴹ Γᴹ) []ᴹΠᴹ ([]ƛ σ _) ([ σᴹ ]tmᴹ (ƛᴹ tᴹ))
+        ≡ ƛᴹ ([ σᴹ ↑ᴹ Aᴹ ]tmᴹ tᴹ)
       Πβᴹ
         : tr TmᴹFam Πβ (appᴹ (ƛᴹ tᴹ)) ≡ tᴹ
       Πηᴹ
