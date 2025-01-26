@@ -5,9 +5,8 @@ open import Prelude
 
 infixr 20 [_]_ [_]t_ [_]tm_ [_]l_
 infixl 15 _↑_ _⁺ _⇈_
-infixl 10 _⧺_
-infixl 10 _⨟_
-infixl 6 _,_
+infixl 10 _⨟_ _⧺_
+infixl 4 _,_
 
 variable
   i j k : ℕ

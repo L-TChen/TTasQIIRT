@@ -102,7 +102,7 @@ module RewriteRules where
     {-# REWRITE ⨟⇈' #-}
 
   -- sanity check
-  _ : [ idS ]l (Ξ , A) ≡ Ξ , A
+  _ : [ idS ]l (Ξ , A) ≡ (Ξ , A)
   _ = refl
 
   _ : [ σ ⨟ τ ]l (Ξ , A) ≡ [ σ ]l [ τ ]l (Ξ , A)

@@ -13,12 +13,12 @@ cong-U refl = refl
 
 []tapp : (σ : Sub Γ Δ)
   → (A : Ty Δ i) (B : Ty (Δ , A) i) (t : Tm Δ (Π A B))
-  → app ([ σ ]t t) ≡ [ σ ↑ A ]t (app t)
+  → app ([ σ ]tm t) ≡ [ σ ↑ A ]tm (app t)
 []tapp σ A B t = begin
-  app ([ σ ]t t)               ≡⟨ cong app (cong ([ σ ]t_) Πη) ⟨
-  app ([ σ ]t (ƛ (app t)))     ≡⟨ cong app ([]ƛ σ (app t)) ⟩
-  app (ƛ ([ σ ↑ A ]t (app t))) ≡⟨ Πβ ⟩
-  [ σ ↑ A ]t (app t)             ∎
+  app ([ σ ]tm t)               ≡⟨ cong app (cong ([ σ ]tm_) Πη) ⟨
+  app ([ σ ]tm (ƛ (app t)))     ≡⟨ cong app ([]ƛ σ (app t)) ⟩
+  app (ƛ ([ σ ↑ A ]tm (app t))) ≡⟨ Πβ ⟩
+  [ σ ↑ A ]tm (app t)           ∎
   where open ≡-Reasoning
 
 -- derived computation rules on composition
@@ -26,7 +26,7 @@ cong-U refl = refl
 π₁⨟ σ τ = begin
   π₁ (σ ⨟ τ)                   ≡⟨ cong (λ τ → π₁ (σ ⨟ τ)) η, ⟩
   π₁ (σ ⨟ (π₁ τ , π₂ τ))       ≡⟨ cong π₁ ⨟, ⟩ 
-  π₁ (σ ⨟ π₁ τ , [ σ ]t π₂ τ)  ≡⟨ π₁, ⟩
+  π₁ (σ ⨟ π₁ τ , [ σ ]tm π₂ τ)  ≡⟨ π₁, ⟩
   σ ⨟ π₁ τ                     ∎
   where open ≡-Reasoning
 
@@ -38,12 +38,12 @@ cong-U refl = refl
   where open ≡-Reasoning
 
 π₂⨟ : (σ : Sub Γ Δ) (τ : Sub Δ (Θ , A))
-  → π₂ (σ ⨟ τ) ≡ [ σ ]t (π₂ τ)
+  → π₂ (σ ⨟ τ) ≡ [ σ ]tm (π₂ τ)
 π₂⨟ {Γ} {Δ} {Θ} {A} σ τ = begin
   π₂ (σ ⨟ τ)                       ≡⟨ ≅-to-≡ $ hcong (λ ν → π₂ (σ ⨟ ν)) (≡-to-≅ η,) ⟩
   π₂ (σ ⨟ (π₁ τ , π₂ τ))           ≡⟨ ≅-to-≡ $ hcong π₂ (≡-to-≅ ⨟,) ⟩
-  π₂ ((σ ⨟ π₁ τ) , [ σ ]t (π₂ τ)) ≡⟨ π₂, ⟩
-  [ σ ]t π₂ τ ∎
+  π₂ ((σ ⨟ π₁ τ) , [ σ ]tm (π₂ τ)) ≡⟨ π₂, ⟩
+  [ σ ]tm π₂ τ ∎
   where open ≡-Reasoning
 
 ⁺⨟wk : (σ : Sub Γ Δ) {A : Ty Δ i} → (_⁺ σ {A}) ⨟ wk ≡ wk ⨟ σ
@@ -59,7 +59,7 @@ cong-U refl = refl
   [ σ ⁺ ]t (π₂ idS)
     ≅⟨ ≡-to-≅ (π₂⨟ (σ ⁺) idS) ⟨
   π₂ (σ ⁺ ⨟ idS)
-    ≅⟨ hcong π₂ (≡-to-≅ (σ ⁺ ⨟idS)) ⟩
+    ≅⟨ hcong π₂ (≡-to-≅ ((σ ⁺) ⨟idS)) ⟩
   π₂ (σ ⁺)
     ≡⟨ π₂, ⟩
   π₂ idS
@@ -152,30 +152,8 @@ id↑ Γ A = begin
   [ σ ]t  u          ∎
   where open ≡-Reasoning
 
-
-infixl 20 _⇈_
-infixr 15 [_]l_
-infixl 10 _⧺_
-
-data Tel (Γ : Ctx) : Set
-_⧺_ : (Γ : Ctx) (Ξ : Tel Γ) → Ctx
-
-data Tel Γ where
-  ∅ : Tel Γ
-  _,_ : (Ξ : Tel Γ) (A : Ty (Γ ⧺ Ξ) i) → Tel Γ
-
-Γ ⧺ ∅       = Γ
-Γ ⧺ (Ξ , A) = (Γ ⧺ Ξ) , A
-
-[_]l_ : Sub Γ Δ → Tel Δ → Tel Γ
-_⇈_   : (σ : Sub Γ Δ) → (Ξ : Tel Δ) → Sub (Γ ⧺ ([ σ ]l Ξ)) (Δ ⧺ Ξ)
-
-[ σ ]l ∅       = ∅
-[ σ ]l (Ξ , A) = [ σ ]l Ξ , [ σ ⇈ Ξ ] A
-
-σ ⇈ ∅       = σ
-σ ⇈ (Ξ , A) = (σ ⇈ Ξ) ↑ A
-
+{-
+-- WRONG: the congruence rule for telescope substitution is used
 module _ {σ γ : Sub Γ Δ} (σ=γ : σ ≡ γ) where
   open ≅-Reasoning
 
@@ -187,8 +165,42 @@ module _ {σ γ : Sub Γ Δ} (σ=γ : σ ≡ γ) where
     σ ⇈ Ξ ↑ A
       ≅⟨ ≡-to-≅ (↑=⁺ A (σ ⇈ Ξ)) ⟩
     (σ ⇈ Ξ) ⁺
-      ≅⟨ icong (λ σ → Sub (_ ⧺ [ σ ]l Ξ) (_ ⧺ Ξ)) σ=γ (λ σ → _⁺ σ {A}) (⇈-cong Ξ) ⟩
+      ≅⟨ icong (λ σ → Sub (Γ ⧺ [ σ ]l Ξ) (Δ ⧺ Ξ)) σ=γ (λ σ → _⁺ σ {A}) (⇈-cong Ξ) ⟩
     (γ ⇈ Ξ) ⁺
       ≡⟨ ↑=⁺ A (_ ⇈ Ξ) ⟨
     γ ⇈ Ξ ↑ A
       ∎
+-}
+
+module _ {Γ : Ctx} where
+  open ≅-Reasoning
+  [idS]l
+    : (Ξ : Tel Γ)
+    → [ idS ]l Ξ ≡ Ξ
+  idS⇈
+    : (Ξ : Tel Γ)
+    →  idS ⇈ Ξ ≅  idS {Γ ⧺ Ξ} 
+  [idS]l ∅       = refl
+  [idS]l (Ξ , A) = ≅-to-≡ $ hcong₂ {A = Tel Γ} {B = λ Ξ → Ty (Γ ⧺ Ξ) _} {C = λ _ _ → Tel Γ} _,_ (≡-to-≅ $ [idS]l Ξ) $ begin
+    [ idS ⇈ Ξ ] A ≅⟨ icong (λ Ξ → Sub (Γ ⧺ Ξ) _) ([idS]l Ξ) ([_] A) (idS⇈ Ξ) ⟩
+    [ idS ] A     ≡⟨⟩
+    A             ∎
+
+  idS⇈ ∅       = refl
+  idS⇈ (Ξ , A) = icong (λ Ξ' → Sub (Γ ⧺ Ξ') (Γ ⧺ Ξ)) ([idS]l Ξ) (_↑ A) (idS⇈ Ξ)
+
+-- module _ {Γ Δ Θ : Ctx} (σ : Sub Γ Δ) (τ : Sub Δ Θ) where
+--   open ≅-Reasoning
+--   [⨟]l
+--     : (Ξ : Tel Θ)
+--     → [ σ ⨟ τ ]l Ξ ≡ [ σ ]l [ τ ]l Ξ
+--   ⨟⇈
+--     : (Ξ : Tel Θ) 
+--     → (σ ⨟ τ) ⇈ Ξ ≅ (σ ⇈ ([ τ ]l Ξ)) ⨟ (τ ⇈ Ξ)
+--   [⨟]l ∅       = refl
+--   [⨟]l (Ξ , A) = ≅-to-≡ $ hcong₂ {B = λ Ξ → Ty (_ ⧺ Ξ) _} {C = λ _ _ → Tel Γ} _,_ (≡-to-≅ $ [⨟]l Ξ) $ begin
+--     [ (σ ⨟ τ) ⇈ Ξ ] A               ≅⟨ icong (λ Ξ → Sub (_ ⧺ Ξ) _) ([⨟]l Ξ) ([_] A) (⨟⇈ Ξ) ⟩
+--     [ (σ ⇈ [ τ ]l Ξ) ⨟ (τ ⇈ Ξ) ] A  ≡⟨⟩ 
+--     [ σ ⇈ [ τ ]l Ξ ] [ τ ⇈ Ξ ] A    ∎ 
+--   ⨟⇈ ∅         = refl
+--   ⨟⇈ (Ξ , A)   = icong (λ Ξ → Sub (_ ⧺ Ξ) _) ([⨟]l Ξ) (_↑ A) (⨟⇈ Ξ)

@@ -70,6 +70,11 @@ intp .met = record
     ; appᴹ  = λ tᴹ (γ , x) → tᴹ γ x
     ; []ᴹΠᴹ = refl
     ; []ƛᴹ  = λ σ σᴹ → tr-const ([]ƛ σ _) 
+    ; Πβᴹ   = tr-const Πβ 
+    ; Πηᴹ   = tr-const Πη
     }
-  ; idTy = {!!} -- requires a proper treatment for Coquand universes and function extensionality
+  ; idTy = record
+    { Idᴹ      = λ aᴹ tᴹ uᴹ γ → tᴹ γ ≡ uᴹ γ
+    ; []ᴹIdᴹ   = {!!}
+    ; reflectᴹ = {!!} } -- requires a proper treatment for Coquand universes and function extensionality
   }
