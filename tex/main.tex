@@ -77,21 +77,28 @@ In the spirit of type theory, we would like to represent well scoped and well ty
 %
 Doing this effectively seems to require several sophisticated features of the host type theory, most notably advanced inductive definitions.
 %
-For example, inductive families~\cite{Dybjer1994} can be used to represent the simply typed lambda calculus~\cite{Altenkirch1999}, while some kind of simultaneous definitions such as inductive-recursive~\cite{Dybjer2000} or inductive-inductive~\cite{NordvallForsbergPhD} definitions seem to be required for dependent type theory~\cite{Danielsson2006,Chapman2009}.
+For example, inductive families~\cite{Dybjer1994} can be used to represent the simply typed lambda calculus~\cite{Altenkirch1999}, while some kind of simultaneous definitions such as inductive-recursive~\cite{Dybjer2000} or inductive-inductive~\cite{Nordvall-Forsberg2014} definitions seem to be required for dependent type theory~\cite{Danielsson2006,Chapman2009}.
 %
-This is not just a matter of the pure strength of the host theory, but also expressivity and convenience: while it is known how to reduce inductive-inductive definitions to inductive families in principle~\cite{Kaposi2000}, the resulting development would be considerable harder to work with, and most likely would have exhausted the resources of both the proof assistant and its user.
+This is not just a matter of the pure strength of the host theory, but also expressivity and convenience: while it is known how to reduce inductive-inductive definitions to inductive families in principle~\cite{Kaposi2020a}, the resulting development would be considerable harder to work with, and most likely would have exhausted the resources of both the proof assistant and its user.
 
-Altenkirch and Kaposi~\cite{Altenkirch2016a} showed that by employing \emph{quotient inductive-inductive types}~\cite{NordvallForsberg2018}, the internal representation of well typed terms could be significantly simplified, since equations such as $\beta$- and $\eta$-equality can be represented by the identity type thanks to quotient constructors.
+Altenkirch and Kaposi~\cite{Altenkirch2016a} showed that by employing \emph{quotient inductive-inductive types}~\cite{Altenkirch2018}, the internal representation of well typed terms could be significantly simplified, since equations such as $\beta$- and $\eta$-equality can be represented by the identity type thanks to quotient constructors.
 %
-In this paper, we show that the development can be further streamlined by combining quotient inductive-inductive types and inductive-recursive types.
-%
-The basic idea, following a suggestion by Kaposi~\cite{Kaposi2023}, is to replace the inductively defined action of a substitution on a type with a recursive definition, which computes.
-%
-As a result, more equations will hold strictly, and we can (at least partially) avoid the so-called ``transport hell'' that arises when constructions need to be transported across equality constructors.
-%
-This is a general phenomenon when working with quotient inductive-inductive types: to make use of equalities in later constructors and when using the eliminator for the type, the equalities need to be transported across.
+Yet, there is a general phenomenon, called `transport hell', when working with quotient inductive-inductive types: to make use of equalities in later constructors and when using the eliminator for the type, the equalities need to be transported across.
 %
 Any method that reduces the friction this introduces seem worth exploring.
+%
+
+In this paper, we show that the development can be further streamlined by combining quotient inductive-inductive types and inductive-recursive types.
+%
+The basic idea, following a suggestion by Kaposi~\cite{Kaposi2023} and a precursor by Danielsson~\cite{Danielsson2006}, is to replace the inductively defined action of a substitution on a type with a recursive definition, which computes.
+%
+Our development also makes use of another feature not usually found in standard presentations of type theory: recursive pattern matching definitions with overlapping patterns.
+%
+This is helpful to again avoid transport hell in the form of equations that do not reduce due to the standard translation of pattern matching to case trees.
+%
+As a result, many equations will hold strictly, and we can avoid the use of transport in the definition of type theory itself and, at least, partially in the proofs of its properties.
+\LT{Strict versus definitional?}
+%
 
 %However, we found that using quotient inductive-inductive-recursive types alone were not sufficient for a smooth development.
 %%
@@ -105,25 +112,13 @@ Any method that reduces the friction this introduces seem worth exploring.
 %%
 %To get some help with this task by Agda's confluence checker, it is often necessary to needlessly complicate a definition to convince the checker that the proposed rewrite rules are indeed confluent.
 
-Our development also makes use of another feature not usually found in standard presentations of type theory: recursive pattern matching definitions with overlapping patterns.
 %
-This seems to be needed in order to again avoid transport hell in the form of equations that do not reduce due to the standard translation of pattern matching to case trees.
-%
-We emphasise that, following a fine tradition of previous attempts to represent type theory in type theory~\cite{Danielsson2006,Chapman2009,Altenkirch2016a}, we are making use of type-theoretic features that are so far not well understood or foundationally well motivated. Nevertheless, Agda can be convinced to accept our development, using some experimental flags. Indeed, we also see this paper as motivation to study quotient inductive-inductive-recursive types and overlapping patterns further.
+We emphasise that, following a fine tradition of previous attempts to represent type theory in type theory~\cite{Danielsson2006,Chapman2009,Altenkirch2016a}, we are making use of type-theoretic features that are so far not yet well understood or foundationally well motivated.
+Nevertheless, Agda can be convinced to accept our development, using some experimental flags.
+Indeed, we also see this paper as a case study to motivate further developments for quotient inductive-inductive-recursive types and overlapping patterns.
 
 \Fredrik{I'm not sure if I have included all points here. I tried to stay more positive re overlapping patterns.}
-\LT{%
-Points to elaborate:
-\begin{enumerate}
-  \item QIITs are littered with transports, causing too much pains while formalising a type theory.
-  \item Rewrite rules are popular to make structural rules definitional but requires efforts to justify meta-theoretic properties in general.
-  \item Further, the confluence check adopted by \Agda is based on complete development and requires one-step parallel reductions to have a confluent term, making a definition more complicated than necessary.
-  \item Moreover, the use of rewrite rules is typically \emph{not} presented and discussed in literature. We are ignoring the elephant in the room.
-  \item Instead, definitions by overlapping patterns (in theory) requires strong normalisation and local confluence, making definitions simpler to design.
-  \item The rules for type substitutions are \emph{structural} shared with other type theories based on parallel substitution (in particular cwf).
-  
-\end{enumerate}
-}
+\LT{Thanks!}
 
 
 \paragraph*{Contributions}
@@ -355,10 +350,9 @@ Our second attempt is to define type substitution with additional rules:
 [ \sigma ; \tau ]_{\Ty}\;A    & = [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \label{eq:type-sub-at2-3}
 \end{alignat}
 However, this definition does \emph{not} reduce \eqref{eq:type-sub-at2-2} or \eqref{eq:type-sub-at2-3} definitionally.
-By design, definitions by pattern matching will be elaborated to a form that corresponds to the \emph{eliminator} either using \emph{first-match semantics}~\cite{Cockx2020a} or an explicit construct for pattern matching.
-In the above definition, only the eliminator for $\Ty\;\Delta$ will be considered.
+By design, definitions by pattern matching will be elaborated to a form that corresponds to the \emph{eliminator} either using \emph{first-match semantics}~\cite{Cockx2020a} for function clauses or an explicit construct for pattern matching.
 \LT[noinline]{How about \Coq and \Lean?}
-Using the first-match semantics, the above definition amounts to the following definition:
+In the above definition, only the eliminator for $\Ty\;\Delta$ will be considered using the first-match semantics, which amounts to the following definition:
 \begin{alignat*}{3}
 [\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
 [ \sigma ]_{\Ty}\;\UU  & \reduce \UU
@@ -878,15 +872,19 @@ Substitution calculus is closely related to \emph{categories with families}~\cit
 \LT{How does the general schema in \cite{Kaposi2019} model equality constructors? extensionally? Can their schemata manifest the difference of our QIIR definition and the QII definition in \cite{Altenkirch2016a}?}
 
 \subsection{Future work}
-\paragraph*{Type theory in (observational) type theory}
+\paragraph*{Type theory in type theory}
 \cite{Pujet2022,Pujet2024,Pujet2022a}
-\LT{OTT is a concrete instance of a type theory with UIP and function extensionality.
-It also has a natural setoid model (which should be useful to manifest the difference between recursion and equality constructor) but quotient (inductive-)inductive(-recursive) types for OTT are underdeveloped.}
-\paragraph*{Formalising definitions by overlapping patterns}
+\LT{OTT is a concrete instance of a type theory with UIP and function extensionality.}
+
+\paragraph*{Semantics and design for definitions by overlapping patterns}
 \LT{Overlapping patters are discussed by Cocks \cite{Cockx2014}, but we would like to integrate it with the schema of QIIRT.}
-\paragraph*{A general schema of quotient inductive-inductive-recursive types}
+\LT{\cite{Eremondi2025} has recently hinted a possible direction for overlapping patterns using sheaf theory.}
+
+\paragraph*{A schema of quotient inductive-inductive-recursive types in observation type theory}
 \LT{What a general schema should have?  inductive types should be allowed as the codomain of a recursion.}
   
+\LT{OTT also has a natural setoid model (which should be useful to manifest the difference between recursion and equality constructor) but quotient (inductive-)inductive(-recursive) types in OTT are underdeveloped.}
+
 
 \IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
 
