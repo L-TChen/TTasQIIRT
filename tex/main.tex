@@ -96,8 +96,8 @@ Our development also makes use of another feature not usually found in standard 
 %
 This is helpful to again avoid transport hell in the form of equations that do not reduce due to the standard translation of pattern matching to case trees.
 %
-As a result, many equations will hold strictly, and we can avoid the use of transport in the definition of type theory itself and, at least, partially in the proofs of its properties.
-\LT{Strict versus definitional?}
+As a result, many equations will hold strictly, and we can avoid the use of transport in the definition of type theory itself (which does not seem possible with quotient inductive-inductive types alone).
+\LT{terminology: strict vs.\ definitional vs.\ judgemental?}
 %
 
 %However, we found that using quotient inductive-inductive-recursive types alone were not sufficient for a smooth development.
@@ -114,7 +114,7 @@ As a result, many equations will hold strictly, and we can avoid the use of tran
 
 %
 We emphasise that, following a fine tradition of previous attempts to represent type theory in type theory~\cite{Danielsson2006,Chapman2009,Altenkirch2016a}, we are making use of type-theoretic features that are so far not yet well understood or foundationally well motivated.
-Nevertheless, Agda can be convinced to accept our development, using some experimental flags.
+Nevertheless, Agda can be convinced to accept our formal implementation, using some experimental flags.
 Indeed, we also see this paper as a case study to motivate further developments for quotient inductive-inductive-recursive types and overlapping patterns.
 
 \Fredrik{I'm not sure if I have included all points here. I tried to stay more positive re overlapping patterns.}
@@ -159,6 +159,7 @@ Points to include:
 \LT{We use $f\;\vec{x} \reduce \vec{t}$ to indicate a function clause of a definition by overlapping patters.}
 \subsection{Quotient inductive(-inductive)-recursive types}
 \LT{Give an example of QIRT: join list?}
+\LT{How the congruence rule for the identity type can be used in QII(R)T?}
 \subsection{Definitions by rewrite rules}
 \cite{Cockx2020,Cockx2021}
 
@@ -265,7 +266,7 @@ The laws for substitution composition are stipulated using equality constructors
 \begin{alignat*}{5}
   \mathsf{idr}    & : \implicit{\Gamma, \Delta, \sigma} && {\sigma ; \idS_{\Delta}} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
   \mathsf{idl}    & : \implicit{\Gamma, \Delta, \sigma} && {\idS_{\Gamma} ; \sigma} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
-  ;\text{-}\mathsf{assoc} & : \implicit{\Gamma, \Delta, \Theta, \Xi, \sigma, \tau, \gamma} && (\sigma ; \tau) ; \gamma && =^{\Sub\,\Gamma\,\Theta} &&  \sigma ; (\tau ; \gamma) \\
+  \text{;-}\mathsf{assoc} & : \implicit{\Gamma, \Delta, \Theta, \Xi, \sigma, \tau, \gamma} && (\sigma ; \tau) ; \gamma && =^{\Sub\,\Gamma\,\Theta} &&  \sigma ; (\tau ; \gamma) \\
   \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t} && \sigma ; (\tau , t)      && =^{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau) , \alert{\transfib{\Tm\,\Gamma}{[;]_{\Ty}^{-1}}{\color{black}[ \sigma ] t}}
 \end{alignat*}
 Substitution composition $\blank;\blank$ acts like a list concatenation, so $\sigma; (\tau, t)$ is intuitively equal to $(\sigma; \tau), [\sigma]\,t$ whereas the term $t$ is of type $\Tm\;\Delta\;([\tau]\;A)$. 
@@ -494,6 +495,9 @@ To repair the local confluence, we add a simultaneously defined function $[\blan
 which reduces substitutions that occur in \eqref{eq:def-type-subst-1}--\eqref{eq:def-type-subst-4} recursively so that the reduction can be propagated from type to term substitution.
 The remaining cases reduce to the explicit term substitution $[\sigma]\,t$.
 Note that $[\blank]_{\Tm}\blank$ can be defined with the standard semantics for function definition, since there are no overlapping patterns.
+\begin{remark}
+  The function $[\blank]_{\Tm}\blank$ can be understood as a \emph{smart constructor} for the explicit term substitution $[\blank]\blank$, a well-known idiom in functional programming, since the function $[\blank]_{\Tm}\blank$ (mostly) builds an explicit substitution but computes certain cases away.
+\end{remark}
 
 Then, the equality constructor $[]\El$ is accordingly changed to 
 \begin{align}
@@ -750,12 +754,12 @@ Hence, we arrive the conclusion that telescope substitution and the multiple lif
 \begin{minipage}{.5\linewidth}
 \begin{alignat*}{5}
   & \sigma \upuparrows \emptytel && \reduce \sigma \\
-  & \sigma \upuparrows (\Xi, A)  && \reduce (\sigma \upuparrows \Xi), A
+  & \sigma \upuparrows (\Xi, A)  && \reduce (\sigma \upuparrows \Xi) \uparrow A
 \end{alignat*}
 \end{minipage}
 \vskip\belowdisplayskip
 
-To prove the coherence property for the multiple lifting, we would need the properties $(\idS\;\{\Gamma\}) \upuparrows \Xi = \idS\;\{\Gamma \dplus  \Xi\}$ and $(\sigma; \tau) \upuparrows \Xi = \sigma; \tau^+$, similar to \cref{lem:lifting}, but these identities cannot be typed: the type of $\idS \upuparrows \Xi$ is $\Sub\;(\Gamma \dplus [\idS]_{\Tel}\,\Xi)\;(\Gamma \dplus \Xi)$ while the type of $\idS$ on the RHS is $\Sub\;(\Gamma \dplus \Xi)\;(\Gamma \dplus \Xi)$; similarly for the substitution composition.
+To prove the coherence property for the multiple lifting, we would need the properties $\idS_\Gamma \upuparrows \Xi = \idS_{\Gamma \dplus  \Xi}$ and $(\sigma; \tau) \upuparrows \Xi = (\sigma\upuparrows [\tau]_{\Tel} \Xi); (\tau \upuparrows \Xi)$, similar to \cref{lem:lifting}, but these identities cannot be typed: the type of $\idS_{\Gamma} \upuparrows \Xi$ is $\Sub\;(\Gamma \dplus [\idS]_{\Tel}\,\Xi)\;(\Gamma \dplus \Xi)$ while the type of $\idS$ on the RHS is $\Sub\;(\Gamma \dplus \Xi)\;(\Gamma \dplus \Xi)$; similarly for the substitution composition.
 
 Instead of resorting to \transp, we also turn telescope substitution $[\blank]_{\Tel}\blank$ and the multiple lifting into definitions by overlapping patterns by adding following clauses:
 
@@ -772,40 +776,117 @@ Instead of resorting to \transp, we also turn telescope substitution $[\blank]_{
 \end{alignat*}
 \end{minipage}\vskip\belowdisplayskip\noindent
 whose confluence property is easy to see.
-Now, we proceed with the coherence property for the multiple lifting, telescope substitution, and type substitution altogether.
-\begin{proposition}[Coherence]
-  For every equality constructor $p : \sigma = \tau : \Sub\;\Gamma\;\Delta$, the identities
+
+Now, we proceed with the coherence property for the recursive functions introduced so far.
+The first set of equality constructors are easy to prove, since the lifting and substitution operations compute independently for these cases:
+\begin{proposition}[Coherence, I]
+  \danger
+  For the following equality constructors $p : \sigma = \tau$
+  \[
+    \mathsf{idr} : \sigma;\idS = \sigma, \quad
+    \mathsf{idl} : \idS;\sigma = \sigma, \quad\text{and}\quad
+    \textnormal{;-}\mathsf{assoc} : (\sigma;\tau);\gamma = \sigma; (\tau; \gamma), 
+  \]
+  the identities $[\sigma]_{\Tel}\,\Xi \judgeq [\tau]_{\Tel}\,\Xi$ and $[\sigma ]_{\Ty}\,A \judgeq [\tau ]_{\Ty}\,A$
+  hold definitionally for any telescope $\Xi$ and any type $A$ and
+  \[
+    \sigma \upuparrows \Xi =^{\Sub\;(\Gamma\dplus [\sigma]_{\Tel}\Xi)\;(\Delta\dplus\Xi)}
+    \tau   \upuparrows \Xi
+  \]
+  holds propositionally for any telescope $\Xi$.
+\end{proposition}
+\begin{proof}
+  Thanks to overlapping patterns, the coherence of $[\blank]_{\Tel}\blank$ and $[\blank]_{\Ty}\blank$ for these cases holds definitionally by definition and the coherence of $\blank \upuparrows \blank$ boils down to the equality constructor itself.
+  Take $\mathsf{idr}$ as an example, we can see 
+  \begin{align*}
+    (\sigma; \idS) \upuparrows \Xi & \judgeq (\sigma \upuparrows [\idS]_{\Tel} \Xi) ; (\idS \upuparrows \Xi) \\
+                                   & \judgeq (\sigma \upuparrows \Xi) ; \idS \\
+                                   & = \sigma \upuparrows \Xi
+  \end{align*}
+  where the last identity follows from $\mathsf{idr}:(\sigma \upuparrows \Xi) ; \idS = \sigma \upuparrows \Xi$.
+
+  For other two equality constructors, the arguments follow similarly.
+\end{proof}
+The second set of equality constructors are more involved, as we have to prove the coherence for the lifting and substitution operations altogether mutually:
+\begin{proposition}[Coherence, II]
+  For the following equality constructors $p : \sigma = \tau$
+  \begin{alignat*}{5}
+    \pi_1\beta    & : \pi_1(\sigma, t)  && = \sigma \qquad\qquad & \mathsf{concat} & : \sigma; (\tau, t) && = (\sigma;\tau), [\sigma]\, t \\
+    \emptyctx\eta & : \sigma            && = \emptyctx & \pi\eta & : \sigma && = \pi_1\sigma, \pi_2\sigma
+  \end{alignat*}
+   the identities
   \danger
   \begin{align*}
   [\sigma]_{\Tel}\,\Xi & = [\tau]_{\Tel}\,\Xi 
                          & [\sigma \upuparrows \Xi ]_{\Ty}\,A & =^{\lam{\gamma}\Ty\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Ty}\,A \\
-\sigma \upuparrows \Xi & =^{\lam{\gamma}\Sub\;(\Gamma\dplus [\gamma]\Xi)\;(\Delta\dplus\Xi)}_{\alert{p}} \tau \upuparrows \Xi
+  \sigma \upuparrows \Xi & =^{\lam{\gamma}\Sub\;(\Gamma\dplus [\gamma]_{\Tel}\Xi)\;(\Delta\dplus\Xi)}_{\alert{p}} \tau \upuparrows \Xi
 %    &
 %  [\sigma \upuparrows \Xi ]_{\Tm}\,t & =^{\lam{\gamma}\Tm\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)\;([\gamma \upuparrows \Xi]_{\Ty} A)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Tm}\,t
   \end{align*}
-  hold for any telescope $\Xi$ and type $A : \Ty\;(\Delta\dplus \Xi)$.
+  hold for any telescope $\Xi : \Tel\,\Delta$ and type $A : \Ty\;(\Delta\dplus \Xi)$.
 \end{proposition}
 \begin{proof}
-  \LT{
-    Consider the following cases 
-  \begin{align*}
-    [\sigma;\idS]_{\Ty} \;A          & = [\sigma]_{\Ty}\;A,
-                                     & [\idS;\sigma]_{\Ty} \;A          & = [\sigma]_{\Ty}\;A,
-                                     & [(\sigma;\tau);\gamma]_{\Ty} \;A & = [\sigma; (\tau; \gamma)]_{\Ty}A, \\
-    [\pi_1(\sigma, t)]_{\Ty}\;A      & = [\sigma]_{\Ty}\;A, \\
-    [\sigma; (\tau, t)]_{\Ty} \;A    & = [(\sigma;\tau), [\sigma]\, t]_{\Ty}\;A,
-                                     & [\sigma]_{\Ty} \;A               & = [\emptyctx]_{\Ty}\;A,
-                                     & [\sigma]_{\Ty} \;A               & = [\pi_1\sigma, \pi_2\sigma]_{\Ty}\;A
-  \end{align*}
-  Identities in the firs row are straightforward (not completely trivial, though).
-  We shall demonstrate the proof for $[\pi_1(\sigma, t)]_{\Ty}\;A = [\sigma]_{\Ty}\;A$ only.
+  We demonstrate the proof for $\pi_1\beta: \pi_1(\sigma, t) = t$ and other three cases follow similarly.
 
-  By induction on $A$ first then prove other identities by induction on $\Xi$.
-  }
+  First, we prove the coherence for $[\blank]_{\Ty}\,A$ by induction on $A$, assuming the coherence for the other two identities $[\blank]_{\Tel}\, \Xi$ and $\blank \upuparrows \Xi$, which are then proved by induction on $\Xi$.
+  \begin{enumerate}
+    \item By induction on $A$, consider the following cases for $[\sigma\upuparrows\Xi]_{\Ty}\,A = [\tau \upuparrows \xi]_{\Ty}\,A$.
+      \begin{description}
+        \item[$A$ is $\UU$:] By definition
+          \[
+            [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,\UU_{\Delta\dplus \Xi} \judgeq \UU_{\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi} \quad\text{and}\quad [\sigma\upuparrows \Xi]_{\Ty}\,\UU_{\Delta\dplus \Xi} \judgeq \UU_{\Gamma \dplus [\sigma]_{\Tel}\,\Xi}
+          \]
+          By assumption, $[\pi_1(\sigma, t)]_{\Tel}\,\Xi = [ \sigma]_{\Tel}\,\Xi$ and by the congruence $\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi = \Gamma \dplus [ \sigma]_{\Tel}\,\Xi$ holds.
+          Then, $\UU_{\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi} \simeq \UU_{\Gamma \dplus [\sigma]_{\Tel}\,\Xi}$ holds by congruence for $\UU$.
+          \LT[noinline]{I think the congruence for $\UU$ is true but not sure how precisely.}
+
+        \item[$A$ is $\El\,u$:]
+          Similar to \Cref{prop:coherence-2}, we use \Cref{prop:correctness-3} and the congruence law for $[\blank]\,u$ to derive the desired identity.
+
+        \item[$A$ is $\Pi\,B\,C$:]
+          Note that one of the induction hypothesises is
+          \[
+            [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,C = [\sigma \upuparrows \Xi]_{\Ty}\,C
+          \]
+          for \emph{arbitrary} $\Xi$, so we can apply the induction hypothesis to $B$ and $C$ below:
+          \begin{align*}
+            & [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,(\Pi\,B\,C) \\
+            \judgeq{} & \Pi\,([\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,B)\,([(\pi_1(\sigma, t) \upuparrows \Xi) \uparrow B]\,C) && \text{by the definition of $[\blank]_{\Ty}(\Pi\,B\,C)$} \\
+            \judgeq{} & \Pi\,([\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,B)\,([(\pi_1(\sigma, t) \upuparrows (\Xi, B)]\,C) && \text{by the definition of $\upuparrows$} \\
+            ={}       & \Pi\,([\sigma \upuparrows \Xi]_{\Ty}\,B)\,([\sigma \upuparrows (\Xi, B)]\,C) && \text{by the induction hypothesises} \\
+            \judgeq{} & \Pi\,([\sigma \upuparrows \Xi]_{\Ty}\,B)\,([(\sigma \upuparrows \Xi) \uparrow B]\,C) && \text{by the definition of $\upuparrows$} \\
+            \judgeq{} & [\sigma\upuparrows \Xi]_{\Ty}\,(\Pi\,B\,C) && \text{by the definition of $[\blank]_{\Ty}(\Pi\,B\,C)$.}
+          \end{align*}
+          Note that 
+      \end{description}
+    \item By induction on $\Xi$, consider following cases for $[\pi_1(\sigma, t)]_{\Tel}\,\Xi = [\sigma]_{\Tel}\,\Xi$. 
+      \begin{description}
+        \item[$\Xi$ is the empty telescope $\emptytel$:] By definition, $[\pi_1(\sigma, t)]_{\Tel}\,\emptytel \judgeq \emptytel \judgeq [\sigma]_{\Tel}\,\emptytel$.
+        \item[$\Xi$ is the telescope extension $\Xi, A$:] 
+          \begin{align*}
+            [\pi_1(\sigma, t)]_{\Tel}\,(\Xi, A) & \judgeq [\pi_1(\sigma, t)]_{\Tel}\,\Xi, [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,A && \text{by definition} \\
+                                                & = [\sigma]_{\Tel}\,\Xi, [\sigma \upuparrows \Xi]_{\Ty}\,A \\
+                                                & \judgeq [\sigma]_{\Tel}(\Xi, A) && \text{by definition}
+          \end{align*}
+      \end{description}
+    \item By induction on $\Xi$, consider the following cases for $\pi_1(\sigma, t) \upuparrows \Xi = \sigma \upuparrows\,\Xi$.
+      \begin{description}
+        \item[$\Xi$ is the empty telescope $\emptytel$:] $\pi_1(\sigma, t) \upuparrows \emptytel \judgeq \pi_1(\sigma, t) = \sigma \judgeq \sigma \upuparrows \emptytel$ by definition and the equality constructor.
+        \item[$\Xi$ is the telescope extension $\Xi, A$:] 
+          \begin{align*}
+            \pi_1(\sigma, t) \upuparrows (\Xi, A) & \judgeq (\pi_1(\sigma, t) \upuparrows \Xi) \uparrow A \\
+                                                  & =^{} (\pi_1(\sigma, t) \upuparrows \Xi)^{+} \\
+                                                  & =^{\lam{\gamma}\Sub\,(\Gamma\dplus[\gamma]_{\Tel}\,\Xi, [\gamma \upuparrows \Xi]_{\Ty}\,A)\,(\Delta \dplus \Xi, A)}_{p} (\sigma\upuparrows \Xi)^{+} \\
+                                                  & = (\sigma \upuparrows \Xi) \uparrow A \\
+                                                  & \judgeq \sigma \upuparrows (\Xi , A)
+          \end{align*}
+      \end{description}
+  \end{enumerate}
+  
 \end{proof}
 
 \begin{corollary}[Coherence]
-  the identity $[\sigma]_{\Ty} A = [\tau]_{\Ty}A$ holds for every equality constructor $p : \sigma = \tau : \Sub\;\Gamma\;\Delta$.
+  The identity $[\sigma]_{\Ty}\,A = [\tau]_{\Ty}\,A$ holds for every equality constructor $p : \sigma = \tau$.
   \danger
 \end{corollary}
 
@@ -844,14 +925,32 @@ without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref{eq:def-type-su
   \item $\mathsf{Elim}_{\Tm}\,([ \sigma ]_{\Tm}\,t) = [ \mathsf{Elim}_{\Sub}\,\sigma ]^{A}_{\Tm}(\mathsf{Elim}_{\Tm}\,t)$ is proved.
 \end{enumerate}
 }
-
 \LT{%
 \begin{enumerate}
   \item Show that two definitions are equivalent (ongoing).
   \item Show that methods are equivalent (ongoing).
 \end{enumerate}
 }
+After giving the QIIR definition of a type theory, we have to define how to \emph{eliminate} types $\Ctx$, $\Ty\,\Gamma$, $\Sub\;\Gamma\;\Delta$, and $\Tm\,\Gamma\,A$ altogether to another types (called \emph{motives}) by functions (called \emph{methods}) subject to equations corresponding to point constructors and equality constructors (\cref{subsec:eliminator}).
+Then, we can give this QIIR definition of type theory a \emph{standard model} (\cref{subsec:std-model}) and also show that our definition is actually equivalent to its QII counterpart (\cref{subsec:equivalence}).
 
+
+\subsection{Eliminator} \label{subsec:eliminator}
+As the same as the QII definition~\cite{Altenkirch2016a}, the motives for the QIIR definition are
+\begin{align*}
+  \Ctx^A & : \Ctx \to \Set &
+  \Sub^A & : \implicit{\Gamma, \Delta}\,\Ctx^A\;\Gamma \to \Ctx^A\;\Delta \to \Sub\;\Gamma\;\Delta \to \Set \\
+  \Ty^A  & : \implicit{\Gamma}\,\Ctx^A\;\Gamma \to \Ty\;\Gamma \to \Set & 
+  \Tm^A  & : \implicit{\Gamma, A}\; (\Gamma^A : \Ctx^A\;\Gamma) \to \Ty^A\;\Gamma^A\;A \to \Tm\;\Gamma\;A \to \Set
+\end{align*}
+and each method corresponds to each constructor, e.g., 
+\[
+  \emptyctx^A : \Ctx^A\;\emptyctx 
+  \quad
+  \blank ,^A \blank : \implicit{\Gamma, A}\;(\Gamma^A : \Ctx^A\;\Gamma) \to \Ty^A\;\Gamma^A\; A \to \Ctx^A\;(\Gamma, A)
+\]
+\subsection{The standard model} \label{subsec:std-model}
+\subsection{The equivalence} \label{subsec:equivalence}
 \section{Formal implementation}
 \LT{Mention the NbE for SC here}
 \LT{Compare some formal proofs with pen-and-paper proofs here}
@@ -872,6 +971,7 @@ Substitution calculus is closely related to \emph{categories with families}~\cit
 \LT{How does the general schema in \cite{Kaposi2019} model equality constructors? extensionally? Can their schemata manifest the difference of our QIIR definition and the QII definition in \cite{Altenkirch2016a}?}
 
 \subsection{Future work}
+\LT{Remember that it is for further developments.}
 \paragraph*{Type theory in type theory}
 \cite{Pujet2022,Pujet2024,Pujet2022a}
 \LT{OTT is a concrete instance of a type theory with UIP and function extensionality.}
