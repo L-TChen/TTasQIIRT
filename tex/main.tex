@@ -460,8 +460,6 @@ This boils down to that $[\blank]_{\Ty}\blank$ preserves all equality constructo
 Can we find a complete set of rules?}
 
 \subsection{... with an empty universe} \label{subsec:SC+U}
-\LT[noinline]{Shall we go for Coquand universes? \cite{Coquand2013}}
-
 In this section, we extend substitution calculus with an empty universe $\UU$ of small types~$\El\,u$.
 For a QII definition \cite{Altenkirch2016a}, this extension adds following constructors
 \begin{alignat*}{3}
@@ -826,19 +824,19 @@ The second set of equality constructors are more involved, as we have to prove t
   hold for any telescope $\Xi : \Tel\,\Delta$ and type $A : \Ty\;(\Delta\dplus \Xi)$.
 \end{proposition}
 \begin{proof}
-  We demonstrate the proof for $\pi_1\beta: \pi_1(\sigma, t) = t$ and other three cases follow similarly.
+  We show the statement for $\pi_1\beta: \pi_1(\sigma, t) = t$ and the other three cases follow similarly.
 
-  First, we prove the coherence for $[\blank]_{\Ty}\,A$ by induction on $A$, assuming the coherence for the other two identities $[\blank]_{\Tel}\, \Xi$ and $\blank \upuparrows \Xi$, which are then proved by induction on $\Xi$.
+  First, we prove the coherence for $[\blank]_{\Ty}\,A$ by induction on $A$ and the coherence for the other two identities $[\blank]_{\Tel}\, \Xi$ and $\blank \upuparrows \Xi$ by induction on $\Xi$.
   \begin{enumerate}
-    \item By induction on $A$, consider the following cases for $[\sigma\upuparrows\Xi]_{\Ty}\,A = [\tau \upuparrows \xi]_{\Ty}\,A$.
+    \item Consider the following cases for $[\sigma\upuparrows\Xi]_{\Ty}\,A = [\tau \upuparrows \xi]_{\Ty}\,A$ by induction on $A$.
       \begin{description}
         \item[$A$ is $\UU$:] By definition
           \[
             [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,\UU_{\Delta\dplus \Xi} \judgeq \UU_{\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi} \quad\text{and}\quad [\sigma\upuparrows \Xi]_{\Ty}\,\UU_{\Delta\dplus \Xi} \judgeq \UU_{\Gamma \dplus [\sigma]_{\Tel}\,\Xi}
           \]
-          By assumption, $[\pi_1(\sigma, t)]_{\Tel}\,\Xi = [ \sigma]_{\Tel}\,\Xi$ and by the congruence $\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi = \Gamma \dplus [ \sigma]_{\Tel}\,\Xi$ holds.
+          By assumption, $[\pi_1(\sigma, t)]_{\Tel}\,\Xi = [ \sigma]_{\Tel}\,\Xi$ and by congruence $\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi = \Gamma \dplus [ \sigma]_{\Tel}\,\Xi$ holds.
           Then, $\UU_{\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi} \simeq \UU_{\Gamma \dplus [\sigma]_{\Tel}\,\Xi}$ holds by congruence for $\UU$.
-          \LT[noinline]{I think the congruence for $\UU$ is true but not sure how precisely.}
+          \LT[noinline]{To fix: Clarify this.}
 
         \item[$A$ is $\El\,u$:]
           Similar to \Cref{prop:coherence-2}, we use \Cref{prop:correctness-3} and the congruence law for $[\blank]\,u$ to derive the desired identity.
@@ -853,11 +851,10 @@ The second set of equality constructors are more involved, as we have to prove t
             & [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,(\Pi\,B\,C) \\
             \judgeq{} & \Pi\,([\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,B)\,([(\pi_1(\sigma, t) \upuparrows \Xi) \uparrow B]\,C) && \text{by the definition of $[\blank]_{\Ty}(\Pi\,B\,C)$} \\
             \judgeq{} & \Pi\,([\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,B)\,([(\pi_1(\sigma, t) \upuparrows (\Xi, B)]\,C) && \text{by the definition of $\upuparrows$} \\
-            ={}       & \Pi\,([\sigma \upuparrows \Xi]_{\Ty}\,B)\,([\sigma \upuparrows (\Xi, B)]\,C) && \text{by the induction hypothesises} \\
+            ={}       & \Pi\,([\sigma \upuparrows \Xi]_{\Ty}\,B)\,([\sigma \upuparrows (\Xi, B)]\,C) && \text{by induction hypothesises} \\
             \judgeq{} & \Pi\,([\sigma \upuparrows \Xi]_{\Ty}\,B)\,([(\sigma \upuparrows \Xi) \uparrow B]\,C) && \text{by the definition of $\upuparrows$} \\
             \judgeq{} & [\sigma\upuparrows \Xi]_{\Ty}\,(\Pi\,B\,C) && \text{by the definition of $[\blank]_{\Ty}(\Pi\,B\,C)$.}
           \end{align*}
-          Note that 
       \end{description}
     \item By induction on $\Xi$, consider following cases for $[\pi_1(\sigma, t)]_{\Tel}\,\Xi = [\sigma]_{\Tel}\,\Xi$. 
       \begin{description}
@@ -910,14 +907,15 @@ without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref{eq:def-type-su
 \subsection{... and other type formers} \label{subsec:SC+U+Pi+more}
 \LT{%
 \begin{enumerate}
+  \item Discuss the extensional identity type.
+  \item Discuss Coquand universes.
   \item Discuss the unit type.
   \item Discuss the Boolean type.
   \item Discuss the type of natural numbers.
-  \item Discuss the extensional identity type.
 \end{enumerate}
 }
 
-\section{The eliminator, the standard model, and the equivalence to the QII definition of type theory}
+\section{Elimination and models}
 \LT{%
 \begin{enumerate}
   \item Introduce motives and methods for the definition in \Cref{subsec:SC+U+Pi}.
@@ -931,24 +929,75 @@ without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref{eq:def-type-su
   \item Show that methods are equivalent (ongoing).
 \end{enumerate}
 }
-After giving the QIIR definition of a type theory, we have to define how to \emph{eliminate} types $\Ctx$, $\Ty\,\Gamma$, $\Sub\;\Gamma\;\Delta$, and $\Tm\,\Gamma\,A$ altogether to another types (called \emph{motives}) by functions (called \emph{methods}) subject to equations corresponding to point constructors and equality constructors (\cref{subsec:eliminator}).
+With the QIIR definition of a type theory, we show how to \emph{eliminate} $\Ctx$, $\Ty\,\Gamma$, $\Sub\;\Gamma\;\Delta$, and $\Tm\,\Gamma\,A$ to another types (called \emph{motives}) by functions (called \emph{methods}) subject to equations corresponding to point constructors and equality constructors (\cref{subsec:eliminator}).
 Then, we can give this QIIR definition of type theory a \emph{standard model} (\cref{subsec:std-model}) and also show that our definition is actually equivalent to its QII counterpart (\cref{subsec:equivalence}).
 
 
-\subsection{Eliminator} \label{subsec:eliminator}
-As the same as the QII definition~\cite{Altenkirch2016a}, the motives for the QIIR definition are
+\subsection{The elimination principle} \label{subsec:eliminator}
+To eliminate $\Ctx$, $\Ty\,\Gamma$, $\Sub\;\Gamma\;\Delta$, and $\Tm\,\Gamma\,A$, we have to specify four types
 \begin{align*}
-  \Ctx^A & : \Ctx \to \Set &
-  \Sub^A & : \implicit{\Gamma, \Delta}\,\Ctx^A\;\Gamma \to \Ctx^A\;\Delta \to \Sub\;\Gamma\;\Delta \to \Set \\
-  \Ty^A  & : \implicit{\Gamma}\,\Ctx^A\;\Gamma \to \Ty\;\Gamma \to \Set & 
-  \Tm^A  & : \implicit{\Gamma, A}\; (\Gamma^A : \Ctx^A\;\Gamma) \to \Ty^A\;\Gamma^A\;A \to \Tm\;\Gamma\;A \to \Set
+  \Ctx^M & : \Ctx \to \Set &
+  \Sub^M & : \implicit{\Gamma, \Delta}\,\Ctx^M\;\Gamma \to \Ctx^M\;\Delta \to \Sub\;\Gamma\;\Delta \to \Set \\
+  \Ty^M  & : \implicit{\Gamma}\,\Ctx^M\;\Gamma \to \Ty\;\Gamma \to \Set & 
+  \Tm^M  & : \implicit{\Gamma, A}\; (\Gamma^M : \Ctx^M\;\Gamma) \to \Ty^M\;\Gamma^M\;A \to \Tm\;\Gamma\;A \to \Set
 \end{align*}
-and each method corresponds to each constructor, e.g., 
+called the \emph{motivates} and functions indexed by corresponding constructors such as 
+\begin{alignat*}{3}
+  \emptyctx^M     & :                      && \Ctx^M\;\emptyctx \\
+  \blank,^M\blank & : \implicit{\Gamma, A} && (\Gamma^M : \Ctx^M\;\Gamma) \to \Ty^M\;\Gamma^M\;A \to \Ctx^M\;(\Gamma, A) \\
+  \idS^M          & : \implicit{\Gamma, \Gamma^M}    && \Sub^M\;\Gamma^M\;\Gamma^M\;\idS \\
+  \blank;\blank   & : \implicit{\Gamma, \Gamma^M, \Delta, \Delta^M, \Theta, \Theta^M} && \Sub^M\;\Gamma^M\;\Delta^M\;\sigma \to \Sub^M\;\Delta^M\;\Theta^M\;\tau \to \Sub^M\;\Gamma^M\;\Theta^M\;(\sigma;\tau)\\
+  [\blank]^M\blank & : \implicit{\Gamma, \Gamma^M, \Delta, \Delta^M, \sigma, A, A^M, t} && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Tm^M\;\Delta^M\;A^M\;t \\
+  &&& \to \Tm^M\;\Gamma^M\;([\sigma^M]_{\Ty}^M\,A^M)([\sigma]\,t)
+\end{alignat*}
+as well as recursive functions
+\begin{alignat*}{3}
+  [\blank]_{\Ty}^M\blank & : \implicit{\Gamma, \Gamma^M, \Delta, \Delta^M, \sigma, A} && \Sub^M\;\Gamma^M\;\Delta^M\;\sigma \to \Ty^M\;\Delta^M\;A \to \Ty^M\;\Gamma^M\;([\sigma]_{\Ty}\,A) \\
+  [\blank]_{\Tm}^M\blank & : \implicit{\Gamma, \Gamma^M, \Delta, \Delta^M, \sigma, A, A^M, t} && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Tm^M\;\Delta^M\;A^M\;t \\
+                         &&& \to \Tm^M\;\Gamma^M\;([\sigma^M]_{\Ty}^M\,A^M)([\sigma]_{\Tm}\,t)
+\end{alignat*}
+called \emph{methods} subject to the corresponding equations \emph{and function clauses}, e.g., 
+\begin{alignat*}{5}
+  [\idS]_{\Ty}^M & : \implicit{\dots} && [ \idS^M ]^M_{\Ty} \;A^M && =^{\Ty^M\,\Gamma^M}\;&& A^M \\
+  [;]_{\Ty}^M & : \implicit{\dots} && [ \sigma^M ;^M \tau^M ]^M_{\Ty} \;A^M && =^{\Ty^M\,\Gamma^M}\; && [\sigma^M]^M_{\Ty}\,([\tau^M]^M_{\Ty}\,A^M) \\
+  [\idS]_{\Tm}^M & : \implicit{\dots} && [\idS^M]^M_{\Tm}\;t^M && =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{[\idS^M]}} && t^M
+\end{alignat*}
+To define the elimination principle, we cannot avoid the use of transports in identities that would need transports in its QII definition of syntax, such as $[\idS]_{\Tm}^M$, since identities for substitutions (e.g., $[id]_{\Ty}^M$) are still propositional. 
+On the other hand, in the elimination principle for the QII definition, the above identity $[\idS]_{\Ty}^M$ already requires $\alert{\transfib{\Ty^M\;\Gamma^M}{[\idS]_{\Ty}}{\color{black}[\idS^M]_{\Ty}^M\,A^M}}$ to coerce its type $\Ty^M\;\Gamma^M\;([\idS]\,A)$ to $\Ty^M\;\Gamma^M\;A$ to match the type of $A^M$.
+For brevity, we omit the rest of methods and we refer to the Agda implementation for the complete definition of motives and methods.
+\LT[noinline]{Add a link.}
+
+Given the motives and the methods, the elimination principle is defined as functions
+\begin{alignat*}{5}
+  \elim_{\Ctx} & : (\Gamma : \Ctx) \to \Ctx^M\;\Gamma \\
+  \elim_{\Ty}  & : (A : \Ty\;\Gamma) \to \Ty^M\;(\elim_{\Ctx}\,\Gamma)\;A \\
+  \elim_{\Sub} & : (\sigma : \Sub\;\Gamma\;\Delta) \to \Sub^M\;(\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ctx}\;\Delta)\;\sigma \\
+  \elim_{\Tm}  & : (t : \Tm\;\Gamma\;A) \to \Tm^M\;(\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ty}\,A)\;t
+\end{alignat*}
+by interpreting each constructor using the corresponding method inductively.
+
+In the QII counterpart, $[\blank]\blank$ is a constructor, so $\elim_{\Ty}\;([\sigma]\,A)$ is eliminated to $[\elim_{\Sub}\,\sigma]^M_{\Ty}\,(\elim_{\Ty}\,A)$ definitionally and likewise for the term substitution.
+In our QIIR definition, however, these become propositional identities:
+\begin{proposition}
+  Given the motives and the methods, we have
+\begin{alignat*}{5}
+  \elim_{\Ty}[] & : \implicit{\Gamma, \Delta, \sigma, A} & \elim_{\Ty}\,([\sigma]_{\Ty}\,A) & = && [\elim_{\Sub}\,\sigma]^M_{\Ty}\,(\elim_{\Ty}\,A) \\
+  \elim_{\Tm}[] & : \implicit{\Gamma, \Delta, \sigma, A, t} & \elim_{\Tm}\,([\sigma]_{\Tm}\,t) & =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{\elim_{\Ty}[]}} && [\elim_{\Sub}\,\sigma]^M_{\Tm}\,(\elim_{\Tm}\,t)
+\end{alignat*}
+
+\end{proposition}
+These identities are required to interpret terms involving definitional identities.
+For example, consider the case for eliminating an extension $(\sigma, t)$ for $\sigma : \Sub\;\Gamma\;\Delta$ and $t : \Tm\;\Gamma\;([\sigma]_{\Ty}\,A)$:
 \[
-  \emptyctx^A : \Ctx^A\;\emptyctx 
-  \quad
-  \blank ,^A \blank : \implicit{\Gamma, A}\;(\Gamma^A : \Ctx^A\;\Gamma) \to \Ty^A\;\Gamma^A\; A \to \Ctx^A\;(\Gamma, A)
+  \elim_{\Sub}(\sigma, t) = (\elim_{\Sub}\,\sigma) ,^M \; t^M
 \]
+The eliminated type of $t^M$ is $[\elim_{\Sub}\,\sigma]^M_{\Ty}\,(\elim_{\Ty}\,A)$ instead of the eliminated type $\elim_{\Ty}\;([\sigma]_{\Ty}\,A)$ of $\elim_{\Tm}\;t$, so $t^M$ above have to be the transported term
+\[
+  \alert{\transfib{\Tm^M\;(\elim_{\Ctx}\,\Gamma)}{\elim_{\Ty}[]}{\color{black}(\elim_{\Tm}\,t)}}
+\]
+of $\elim_{\Tm}\,t$ along the identity $\elim_{\Ty}[]$. 
+\LT{Add some remark regarding the proof}
+
 \subsection{The standard model} \label{subsec:std-model}
 \subsection{The equivalence} \label{subsec:equivalence}
 \section{Formal implementation}

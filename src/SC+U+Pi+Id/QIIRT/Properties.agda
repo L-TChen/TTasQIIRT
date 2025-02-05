@@ -5,9 +5,6 @@ module SC+U+Pi+Id.QIIRT.Properties where
 
 open import SC+U+Pi+Id.QIIRT.Base
 
-cong-↑ : (σ τ : Sub Γ Δ) → σ ≡ τ → σ ↑ A ≅ τ ↑ A
-cong-↑ σ τ refl = refl
-
 cong-U : Γ ≅ Δ → U {Γ} i ≅ U {Δ} i
 cong-U refl = refl
 
