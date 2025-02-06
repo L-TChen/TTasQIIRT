@@ -66,10 +66,12 @@
 \begin{abstract}
   \LT[noinline]{Try to interest Thorsten Altenkirch in the abstract}
   Defining type theory in type theory is a long-standing challenge and a benchmark for the expressiveness of a proof assistant.
-  Type theory consisting of well-typed terms only is defined using quotient inductive-inductive type by Altenkirch and Kaposi, but well-typed terms are littered with explicit coercions, i.e.\ \transp's along equality constructors, and proofs need to account for coercions painstakingly alongside the interesting part.
-  This mess has been dubbed the `transport hell' but typically suppressed in presentation for clarity, hiding the gap between the intention and the formalisation of type theory in type theory.
-  In this paper, we aim for shortening the gap using quotient inductive-inductive-recursive types and definitions by overlapping patterns altogether, reducing the use of \transp's.
-  As a case study, we investigate (parallel) substitution calculus and type theory with a universe and $\Pi$-types and compare ours with quotient inductive-inductive definitions.
+  Altenkirch and Kaposi used quotient inductive-inductive types to represent exactly the well-typed terms of type theory, with the price to be paid that terms frequently contain transports along equality constructors.
+  As a result, proofs need to painstakingly account for coercions alongside the interesting part.
+  This %mess
+  has been dubbed `transport hell', but is typically suppressed in informal presentation for clarity, hiding the gap between the intention and the formalisation of type theory in type theory.
+  In this paper, we aim to shorten this gap, using quotient inductive-inductive-recursive types and definitions by overlapping patterns, reducing the use of transports.
+  As a case study, we investigate the (parallel) substitution calculus and type theory with a universe and $\Pi$-types, and compare ours with quotient inductive-inductive definitions.
 \end{abstract}
 
 \section{Introduction} \label{sec:intro}
