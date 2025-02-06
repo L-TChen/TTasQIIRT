@@ -209,8 +209,8 @@ For example, the type of \emph{join lists} $\JList{X}$ can be given by the QIT
 with the following constructors:
 \begin{alignat*}{3}
   \Jnil & : \JList{X} \\
-  \Jsing{-} & : X \to \JList{X} \\
-  \Jconcat{-}{-} & : \JList{X} \to \JList{X} \to \JList{X} \\
+  \Jsing{\blank} & : X \to \JList{X} \\
+  \Jconcat{\blank}{\blank} & : \JList{X} \to \JList{X} \to \JList{X} \\
   \mathsf{idl} & : \implicit{\ell}\; (\Jconcat{\ell}{\Jnil}) =^{\JList{X}} \ell \\
   \mathsf{idr} & : \implicit{\ell}\; (\Jconcat{\Jnil}{\ell}) =^{\JList{X}} \ell \\
   \mathsf{assoc} & : \implicit{\ell_0, \ell_1, \ell_2}\; (\Jconcat{(\Jconcat{\ell_0}{\ell_1})}{\ell_2}) =^{\JList{X}} (\Jconcat{\ell_0}{(\Jconcat{\ell_1}{\ell_2})})
@@ -220,9 +220,13 @@ with the following constructors:
 A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a family of types $B : A \to \Set$, where both $A$ and $B$ are defined inductively --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively; indeed, inductive-inductive definitions only make sense when $D = \Set$.
 The metatheory of QIITs has been extensively studied by Altenkirch, Kaposi and Kov\'acs~\cite{Kovacs2018,Kaposi2019,Kovacs2020}.
 
-\Fredrik{Give an actual example of QIIT (or even QIRT)??}
+We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: The type $\JList{X}$ is defined simultaneously with a recursively defined function $\flatten : \JList{X} \to \List{X}$ which flattens a join list into an ordinary list. We keep the constructors $\Jnil$, $\Jsing{\blank}$ and $\Jconcat{\blank}{\blank}$, but replace $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
+\[
+\mathsf{nf} : (\ell, \ell' : \JList{X}) \to \flatten\,\ell =^{\mathsf{List}\,X} \flatten\,\ell' \to \ell =^{\JList{X}} \ell'
+\]
+which states that join lists are equal as soon as their flattenings are equal. For $\flatten$ to be well defined, it needs to respect the $\mathsf{nf}$ constructor, but this is a tautology: if $\ell =^{\JList{X}} \ell'$ because $\flatten\,\ell =^{\mathsf{List}\,X} \flatten\,\ell'$, then obviously $\flatten\,\ell =^{\mathsf{List}\,X} \flatten\,\ell'$.
 
-Shulman~\cite{Shulman2014} considered combining higher inductive types and inductive-recursive types, but the foundational status of this combination is underdeveloped. We will also make use of such a combination, which gives additional motivation to study its metatheory in future work.
+%Shulman~\cite{Shulman2014} considered combining higher inductive types and inductive-recursive types, but the foundational status of this combination is underdeveloped. We will also make use of such a combination, which gives additional motivation to study its metatheory in future work.
 
 
 
@@ -255,66 +259,69 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
 \end{enumerate}
 }
 
-We begin with the definition of (parallel) substitution calculus~\cite{Martin-Lof1992} as a QIIT, emphasising how the use of transports in its very definition complicates formal reasoning.
-Then we introduce its QIIRT counterpart (\cref{subsec:SC-QIIRT}) which shortens the gap between formal and informal reasoning.
+We begin with the definition of the parallel substitution calculus~\cite{Martin-Lof1992} as a QIIT, emphasising how the use of transports in its very definition complicates formal reasoning.
+We then introduce its QIIRT counterpart (\cref{subsec:SC-QIIRT}) which shortens the gap between formal and informal reasoning.
 Then, we develop a type theory with a universe (\cref{subsec:SC+U}), $\Pi$-types (\cref{subsec:SC+U+Pi}), and other type formers (\cref{subsec:SC+U+Pi+more}).
 
 \subsection{Substitution calculus as a quotient inductive-inductive type} \label{subsec:SC-QIIT}
 
-Substitution calculus has a type $\Ctx$ of contexts, a type $\Ty\,\Gamma$ of types under some context $\Gamma : \Ctx$, a type $\Sub\;\Gamma\;\Delta$ of substitutions from the domain $\Gamma$ and the codomain $\Delta$, and a type $\Tm\;\Gamma\;A$ of terms under a context $\Gamma$ and its type $A$. 
-These types amount to the following types indexed by types being defined (hence inductive-inductive):
+Substitution calculus has a type $\Ctx$ of contexts, a type $\Ty\,\Gamma$ of types in context $\Gamma : \Ctx$, a type $\Sub\;\Gamma\;\Delta$ of substitutions from context $\Gamma$ to context $\Delta$, and a type $\Tm\;\Gamma\;A$ of terms in context $\Gamma$ of type $A$. 
+This amounts to the following type families, all mutually inductively defined (hence inductive-inductive):
 \begin{alignat*}{3}
   \Ctx   & : \Set                   \\
   \Ty    & : \Ctx \to \Set          \\
   \Sub   & : \Ctx \to \Ctx \to \Set \\
   \Tm    & : (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Set
 \end{alignat*}
-The type $\Ctx$ has two constructors $\emptyctx$ for the empty context and $\blank,\blank$ for context extension:
+The type $\Ctx$ has two constructors: $\emptyctx$ for the empty context, and $\blank,\blank$ for context extension, typed as follows.
 \begin{alignat*}{3}
   \emptyctx & : \Ctx \\
   \blank,\blank & : (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Ctx
 \end{alignat*}
-where the context extension $\blank,\blank$ requires that $\Ty$ is indexed by a context $\Gamma$, underscoring the nature of inductive-inductive definition.
+Note that a context extension $\Gamma , A$ is only wellformed if $A : \Ty\;\Gamma$, ensuring overall wellformedness of contexts, but requiring contexts and types to be defined simultaneously.
 
-Type substitution takes a substitution $\sigma : \Sub\;\Gamma\;\Delta$ and an inhabitant $A : \Ty\;\Delta$ to form a type under $\Gamma$, so type substitution as a constructor has the type
+Type substitution takes a substitution $\sigma : \Sub\;\Gamma\;\Delta$ and an inhabitant $A : \Ty\;\Delta$ to form a type under $\Gamma$, i.e., type substitution as a constructor has type
 \begin{alignat*}{3}
   [\blank]\blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma
 \end{alignat*}
-where $\Gamma$ and $\Delta$ (coloured {\color{gray}grey}) above are quantified implicitly.
+where $\Gamma$ and $\Delta$ are kept implicit.
+\Fredrik{Could we change this to $A[\sigma]$ instead?}
 
-If we were defining the notion of cwfs, type substitution would be enough for $\Ty$.
-For our inductive definition (i.e.\ the initial cwf), however, we need a base case in $\Ty\;\Gamma$, otherwise the type $\Ty$ would be empty as well as other types.
-Hence another constructor is introduced:
+Since $\Ty$ is inductively defined, we add a base case to ensure that $\Ty\;\Gamma$ is not empty for every $\Gamma$:
+%
+%If we were defining the notion of cwfs, type substitution would be enough for $\Ty$.
+%For our inductive definition (i.e.\ the initial cwf), however, we need a base case in $\Ty\;\Gamma$, otherwise the type $\Ty$ would be empty as well as other types.
+%Hence another constructor is introduced:
 \begin{alignat*}{3}
   \UU & : \implicit{\Gamma} & \Ty\, \Gamma.
 \end{alignat*}
 For now, $\UU$ serves as a constant, but we will reuse $\UU$ for the type of small types later.
 
-Substitutions from $\Gamma$ to $\Delta$ can be understood intuitively as lists of terms of type $A$ under the context $\Gamma$ for each $A$ in $\Delta$, so we have the empty substitution $\emptysub$ and substitution extensions $\sigma, t$ by some term~$t$:
+Substitutions from $\Gamma$ to $\Delta$ can be understood intuitively as lists of terms of type $A$ under the context $\Gamma$ for each $A$ in $\Delta$: we have the empty substitution $\emptysub$, and substitution extensions $\sigma, t$ which are intended to substitute the most recently bound variable by the term~$t$, and act like $\sigma$ on the other variables:
 \begin{alignat*}{3}
   \emptysub & : \implicit{\Gamma}\;\Sub\;\Gamma\;\emptyctx \\
   \blank,\blank & : \implicit{\Gamma, \Delta, A}\;(\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\;\Gamma\;([ \sigma ]\, A) \to \Sub\;\Gamma\;(\Delta, A),
 \end{alignat*}
-Note that type substitution $[\sigma]\;A$ is needed, because $A$ is well-formed under the context $\Delta$ instead of $\Gamma$.
-Substitutions also have the identity substitution $\idS$ and composition $\blank;\blank$ (because substitution calculus is the initial \emph{category} with families), 
+Note that type substitution $[\sigma]\;A$ is needed, because $A$ is well-formed in context $\Delta$ rather than in $\Gamma$.
+We also ask for identity substitutions $\idS$ and compositions $\sigma;\tau$, because the substitution calculus is supposed to be the initial \emph{category} with families:
+%Substitutions also have the identity substitution $\idS$ and composition $\blank;\blank$ (because substitution calculus is the initial \emph{category} with families),
 \begin{alignat*}{3}
   \idS & : \implicit{\Gamma}\;\Sub\;\Gamma\;\Gamma \\
   \blank;\blank & : \implicit{\Gamma, \Delta, \Theta}\;\Sub\;\Gamma\;\Delta \to \Sub\;\Delta\;\Theta \to \Sub\;\Gamma\;\Theta
 \end{alignat*}
-satisfying certain laws (introduced later as equality constructors).
-Context comprehension is given by projections from \emph{non-empty} substitutions $\sigma : \Sub\;\Gamma\;(\Delta, A)$
-for its \emph{tail} and its \emph{head}:
+These need to satisfy certain laws, which we introduce later as equality constructors.
+Context extension is characterised by its projections, which picks out the rest of the context and the most recent variable
+%Context comprehension is given by projections from \emph{non-empty} substitutions $\sigma : \Sub\;\Gamma\;(\Delta, A)$ for its \emph{tail} and its \emph{head}:
 \begin{alignat*}{3}
   \pi_1 & : \implicit{\Gamma, \Delta, A}\;\Sub\;\Gamma\;(\Delta, A) \to \Sub\;\Gamma\;\Delta \\
   \pi_2 & : \implicit{\Gamma, \Delta, A}\;(\sigma : \Sub\;\Gamma\;(\Delta, A)) \to \Tm\;\Gamma\;([ \pi_1\,\sigma ]\; A)
 \end{alignat*}
 respectively.
-Again, type substitution $[\pi_1\,\sigma]\,A$ is needed for~$\pi_2$, because $A$ is well-formed under the context $\Delta$ instead of $\Gamma$.
-Finally, we have term substitution:
+Again, type substitution $[\pi_1\,\sigma]\,A$ is needed for~$\pi_2$, because $A$ is well-formed in context $\Delta$ instead of $\Gamma$.
+Finally, we have term substitution, which given a substitution $\sigma : \Sub\;\Gamma\;\Delta$ turns terms in context $\Delta$ to terms in context $\Gamma$, appropriately preserving the type, which is also substituted:
 \begin{alignat*}{3}
   [\blank] \blank & : \implicit{\Gamma,\Delta, A}\;(\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Delta\;A \to \Tm\;\Gamma\;([\sigma]\; A).
 \end{alignat*}
-such that $[\sigma]\,t$ is of $\Tm\;\Gamma\;([\sigma]\,A)$.
 Note that $[\blank]\blank$ is overloaded for type and term substitution.
 
 The structural rules for type substitution are stipulated by following equality constructors:
@@ -324,30 +331,35 @@ The structural rules for type substitution are stipulated by following equality 
   []\UU      & : \implicit{\Gamma, \Delta, \sigma}                && [ \sigma ]\;\UU        && =^{\Ty\,\Gamma} \UU
 \end{alignat*}
 
-The codomain $\Delta$ of a substitution $\sigma:\Sub\;\Gamma\;\Delta$ also tells the length of terms in $\sigma$, giving rise two $\eta$-laws in the case that $\Delta$ is empty and non-empty:
+The codomain $\Delta$ of a substitution $\sigma:\Sub\;\Gamma\;\Delta$ also tells the number of terms in $\sigma$, giving rise to two $\eta$-laws --- one for $\Delta$ being empty, and one for $\Delta$ being non-empty:
 \begin{alignat*}{5}
-  \emptyctx\eta   & : \implicit{\Gamma, A, \sigma} && \sigma        && =^{\Sub\,\Gamma\,\emptyctx} & \emptysub \\
-  \pi\eta         & : \implicit{\Gamma, \Delta, \sigma} && \sigma   && =^{\Sub\,\Gamma\,(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma)
+  \emptyctx\eta   & : \implicit{\Gamma, A, \sigma}\; && \sigma        && =^{\Sub\,\Gamma\,\emptyctx} & \emptysub \\
+  \pi\eta         & : \implicit{\Gamma, \Delta, \sigma}\; && \sigma   && =^{\Sub\,\Gamma\,(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma)
 \end{alignat*}
 
-The laws for substitution composition are stipulated using equality constructors.
+The laws for substitution composition are stipulated using equality constructors, where, for the first time, we see the need to adjust the types involved with a $\transp$ in order for both sides to have the same type.
 \begin{alignat*}{5}
   \mathsf{idr}    & : \implicit{\Gamma, \Delta, \sigma} && {\sigma ; \idS_{\Delta}} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
   \mathsf{idl}    & : \implicit{\Gamma, \Delta, \sigma} && {\idS_{\Gamma} ; \sigma} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
   \text{;-}\mathsf{assoc} & : \implicit{\Gamma, \Delta, \Theta, \Xi, \sigma, \tau, \gamma} && (\sigma ; \tau) ; \gamma && =^{\Sub\,\Gamma\,\Theta} &&  \sigma ; (\tau ; \gamma) \\
   \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t} && \sigma ; (\tau , t)      && =^{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau) , \alert{\transfib{\Tm\,\Gamma}{[;]_{\Ty}^{-1}}{\color{black}[ \sigma ] t}}
 \end{alignat*}
-Substitution composition $\blank;\blank$ acts like a list concatenation, so $\sigma; (\tau, t)$ is intuitively equal to $(\sigma; \tau), [\sigma]\,t$ whereas the term $t$ is of type $\Tm\;\Delta\;([\tau]\;A)$. 
-However, by the type of substitution extension, $[\sigma]\,t$ requires to be of type $\Tm\;\Gamma\;([\sigma; \tau]\,A)$ instead, so we have to transport $[\sigma]\,t$ explicitly along $[;]_{\Ty}^{-1}\colon [\sigma]\,[\tau]\;A = [\sigma;\tau]\,A$ to obtain a term of type $\Tm\;\Gamma\;([\sigma;\tau]\;A)$.
+%
+Composition of substitutions $\blank;\blank$ acts like a list concatenation, so
+we would expect $\sigma; (\tau, t)$ to be the same thing as $(\sigma; \tau), [\sigma]\,t$. However $[\sigma]\,t$ is of type $\Tm\;\Gamma\;([\sigma]\,[\tau]\;A)$, but the context extension $(\sigma; \tau), [\sigma]\,t$ requires $[\sigma]\,t$ to have type $\Tm\;\Gamma\;([\sigma; \tau]\,A)$ instead. Of course, we have an equality constructor $[;]_{\Ty}^{-1}\colon [\sigma]\,[\tau]\;A = [\sigma;\tau]\,A$ which we can transport along to fix up the equation.
 
-The tail and the head of a non-empty substitution $(\sigma, t)$ is obviously $\sigma$ and $t$ respectively:
+%$\sigma; (\tau, t)$ is intuitively equal to $(\sigma; \tau), [\sigma]\,t$ whereas the term $t$ is of type $\Tm\;\Delta\;([\tau]\;A)$. 
+%However, by the type of substitution extension, $[\sigma]\,t$ requires to be of type $\Tm\;\Gamma\;([\sigma; \tau]\,A)$ instead, so we have to transport $[\sigma]\,t$ explicitly along $[;]_{\Ty}^{-1}\colon [\sigma]\,[\tau]\;A = [\sigma;\tau]\,A$ to obtain a term of type $\Tm\;\Gamma\;([\sigma;\tau]\;A)$.
+
+The first and second projections of a non-empty substitution $(\sigma, t)$ should  obviously be $\sigma$ and $t$ respectively
 \begin{alignat*}{5}
   \pi_1\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_1(\sigma , t)        && =^{\Sub\,\Gamma,\Delta} &&  \sigma \\
   \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_2(\sigma , t)        && =^{\Tm\,\Gamma\,([\blank]\,A)}_{\alert{\pi_1\beta}} &&  t, 
 \end{alignat*}
-whereas $\pi_2(\sigma, t)$ is an habitant of $\Tm\;\Gamma\;([\pi_1\,(\sigma, t)]\,A)$ instead of $\Tm\;\Gamma\;([\sigma]\,A)$ on the right-hand side. 
-Therefore, we have to transport $\pi_2(\sigma, t)$ along $\pi_1\beta$, so the above equality constructor is, in fact, $\transfib{\Tm\;\Gamma\;([\blank]\,A)}{\pi_1\beta}{\pi_2(\sigma, t)} =^{\Tm\;\Gamma\;([\sigma]\,A)} t$.
-
+but again, note that the type of $\pi_2\beta$ only makes sense because we can transport along $\pi_1\beta$ to make sure both sides of the equation have the same type: $\pi_2(\sigma, t)$ is an habitant of $\Tm\;\Gamma\;([\pi_1\,(\sigma, t)]\,A)$ instead of $\Tm\;\Gamma\;([\sigma]\,A)$.
+%whereas $\pi_2(\sigma, t)$ is an habitant of $\Tm\;\Gamma\;([\pi_1\,(\sigma, t)]\,A)$ instead of $\Tm\;\Gamma\;([\sigma]\,A)$ on the right-hand side. 
+%Therefore, we have to transport $\pi_2(\sigma, t)$ along $\pi_1\beta$, so the above equality constructor is, in fact, $\transfib{\Tm\;\Gamma\;([\blank]\,A)}{\pi_1\beta}{\pi_2(\sigma, t)} =^{\Tm\;\Gamma\;([\sigma]\,A)} t$.
+%
 Similarly, for term substitution, terms are transported along the corresponding rules:
 \begin{alignat*}{5}
   [\idS]_t         & : \implicit{\Gamma, A, t} && {[\idS]\,t}         && =^{\Tm\;\Gamma}_{\alert{[\idS]_\Ty}}  && t \\
@@ -398,35 +410,36 @@ The use of transports in the formal definition fixes type mismatches but hinders
 
 \subsection{Substitution calculus as a quotient inductive-inductive-recursive type} \label{subsec:SC-QIIRT}
 
-To retain the intuitive way of reasoning such as \eqref{eq:pi2-comp-proof} \emph{formally}, we would like to make type substitution rules definitional, since the root cause is that type substitution as a constructor does not compute so that type mismatches occur with substitution.
+To retain the intuitive way of reasoning such as in equation \eqref{eq:pi2-comp-proof} \emph{formally}, we would like to make type substitution rules definitional, since the root cause is that type substitution does not compute since it is a constructor, leading to type mismatches occurring with substitution.
 
-One possibility is to define substitution calculus as a QII`R' type where type substitution, as a simultaneously defined recursion, does compute.
-Now that $[ \idS ]_{\Ty}\;A = A$ and $[ \sigma ; \tau ]_{\Ty}\;A = [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A)$ do not make $[\blank]_{\Ty}\blank$ a (total) function, we may be tempted to define it by
-\begin{alignat*}{3}
-[\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
-[ \sigma ]_{\Ty}\;\UU & = \UU
-\end{alignat*}
-Note that this definition is \emph{not} inductive-recursive in the sense of Dybjer and Setzer~\cite{Dybjer2000,Dybjer2003}: in their schema, the codomain of a simultaneously defined function does not refer to any inductive type being defined.\footnote{%
-  While the general schema for this more liberal notion of induction-recursion remains underdeveloped, this definition is accepted in \Agda and used in other formalisation of type theory~\cite{Danielsson2006}.}
-Nevertheless, $[\idS]_{\Ty}\,A$ and $[\sigma; \tau]_{\Ty}\,A$ do not reduce to~$A$ and~$[\sigma]_{\Ty}\,[\tau]_{\Ty}\,A$ respectively, even though they are provable.
-This definition fails to remove any transport in the definition of substitution calculus.
-
-Our second attempt is to define type substitution with additional rules:
+One possibility is to define the substitution calculus as a quotient inductive-inductive-recursive type, where type substitution is defined by recursion, and hence computes.
+%Now that $[ \idS ]_{\Ty}\;A = A$ and $[ \sigma ; \tau ]_{\Ty}\;A = [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A)$ do not make $[\blank]_{\Ty}\blank$ a (total) function, we may be tempted to define it by
+%\begin{alignat*}{3}
+%[\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
+%[ \sigma ]_{\Ty}\;\UU & = \UU
+%\end{alignat*}
+Note that this does not follow the schema of inductive-recursive definitions given by Dybjer and Setzer~\cite{Dybjer2000,Dybjer2003}, since the codomain of the recursive function is the inductively defined typed itself.\footnote{%
+  While the general schema for this more liberal notion of induction-recursion remains underdeveloped, this definition is accepted in \Agda and used in other formalisations of type theory~\cite{Danielsson2006}.}
+%Nevertheless, $[\idS]_{\Ty}\,A$ and $[\sigma; \tau]_{\Ty}\,A$ do not reduce to~$A$ and~$[\sigma]_{\Ty}\,[\tau]_{\Ty}\,A$ respectively, even though they are provable.
+%This definition fails to remove any transport in the definition of substitution calculus.
+%
+Since we want type substitution to both act structurally on types and commute with identities and composition, we could try to define it recursively as follows:
 \begin{alignat}{3}
 [\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \nonumber \\
-[ \sigma ]_{\Ty}       \;\UU  & = \UU                                   \label{eq:type-sub-at2-1} \\
-[ \idS ]_{\Ty}         \;A    & = A                                     \label{eq:type-sub-at2-2} \\
-[ \sigma ; \tau ]_{\Ty}\;A    & = [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \label{eq:type-sub-at2-3}
+[ \sigma ]_{\Ty}       \;\UU  & \defeq \UU                                   \label{eq:type-sub-at2-1} \\
+[ \idS ]_{\Ty}         \;A    & \defeq A                                     \label{eq:type-sub-at2-2} \\
+[ \sigma ; \tau ]_{\Ty}\;A    & \defeq [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \label{eq:type-sub-at2-3}
 \end{alignat}
 However, this definition does \emph{not} reduce \eqref{eq:type-sub-at2-2} or \eqref{eq:type-sub-at2-3} definitionally.
-By design, definitions by pattern matching will be elaborated to a form that corresponds to the \emph{eliminator} either using \emph{first-match semantics}~\cite{Cockx2020a} for function clauses or an explicit construct for pattern matching.
+By design, definitions by pattern matching will be elaborated to a form that corresponds to the \emph{eliminator} either using \emph{first-match semantics}~\cite{Cockx2020a} for function clauses or an explicit construct for pattern matching, so that \eqref{eq:type-sub-at2-2} or \eqref{eq:type-sub-at2-3} will only fire if we know that $A$ is not $\UU$.
 \LT[noinline]{How about \Coq and \Lean?}
-In the above definition, only the eliminator for $\Ty\;\Delta$ will be considered using the first-match semantics, which amounts to the following definition:
-\begin{alignat*}{3}
-[\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
-[ \sigma ]_{\Ty}\;\UU  & \reduce \UU
-\end{alignat*}
-where $\reduce$ is used to emphasise the reduction (which entails the definitional equality): we have done nothing different from our first attempt! 
+\Fredrik[noinline]{They also translate to eliminators, so I think we do not need to say anything}
+%In the above definition, only the eliminator for $\Ty\;\Delta$ will be considered using the first-match semantics, which amounts to the following definition:
+%\begin{alignat*}{3}
+%[\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
+%[ \sigma ]_{\Ty}\;\UU  & \reduce \UU
+%\end{alignat*}
+%where $\reduce$ is used to emphasise the reduction (which entails the definitional equality): we have done nothing different from our first attempt! 
 %As a result, neither  are definitional.
 We may swap \eqref{eq:type-sub-at2-1} with \eqref{eq:type-sub-at2-2} and \eqref{eq:type-sub-at2-3} to make \eqref{eq:type-sub-at2-2} and \eqref{eq:type-sub-at2-3} definitional, but then \eqref{eq:type-sub-at2-1} will be translated to 
 \[
@@ -434,12 +447,15 @@ We may swap \eqref{eq:type-sub-at2-1} with \eqref{eq:type-sub-at2-2} and \eqref{
 [ \sigma, t ]_{\Ty}\;\UU         \reduce \UU, \qquad\text{and}\qquad 
 [ \pi_1\,\sigma ]_{\Ty}\;\UU     \reduce \UU,
 \]
-making $[\sigma]\;\UU = \UU$ propositional instead.
-Not being able to reduce $[ \sigma ]_{\Ty}\;\UU$ to $\UU$ would make our later extension with a type $\El\,a$ for $a : \Tm\;\Gamma\;\UU$ require another transport in the definition.
-Likewise, for any extension with a type former such as $\Pi$-types, structural rules would still be propositional.
-That is, using the standard semantics of function definition, we are not able to make type substitution definitional for \emph{both} $\Sub\;\Gamma\;\Delta$ and $\Ty\;\Delta$ at the same time.
+where we have written $t \reduce t'$ for $t \equiv t'$ to emphasise the reduction behaviour. Thus in this case we have again lost the definitional equality $[\sigma]\;\UU \equiv \UU$.
+%
+%making $[\sigma]\;\UU = \UU$ propositional instead.
+%Not being able to reduce $[ \sigma ]_{\Ty}\;\UU$ to $\UU$ would make our later extension with a type $\El\,a$ for $a : \Tm\;\Gamma\;\UU$ require another transport in the definition.
+%Likewise, for any extension with a type former such as $\Pi$-types, structural rules would still be propositional.
+%That is, using the standard semantics of function definition, we are not able to make type substitution definitional for \emph{both} $\Sub\;\Gamma\;\Delta$ and $\Ty\;\Delta$ at the same time.
 
-To ensure that type substitution is definitional for all \emph{rules}, we turn to a definition by overlapping patterns (\Cref{sec:meta:overlapping}) instead to make each clause definitional. 
+To ensure that type substitution is definitional for all %\emph
+{rules}, we turn to a definition by overlapping patterns (\Cref{sec:meta:overlapping}) instead to make each clause definitional. 
 In addition, we can include other derived rules such as $[\pi_1(\sigma, t)]_{\Ty}\;A = [ \sigma]_{\Ty}\;A$ as long as they are locally confluent and terminating.
 We end up with the following definition for type substitution:
 \begin{alignat}{3}
@@ -472,36 +488,34 @@ This option is turned on globally in our formal implementation.}
   \danger
 \end{proposition}
 \begin{proof}
-  \LT{clearly terms on the RHS are structurally smaller~\cite{Abel2002}.}
-  
+  Clearly terms on the RHS are structurally smaller~\cite{Abel2002}.
 \end{proof}
 
-
-With this definition of type substitution, other equality constructors can be introduced without any $\transp$, updated constructors are listed below.
+With this definition of type substitution, other equality constructors can be introduced without any $\transp$, and we can give the updated constructors the types below.
 \begin{alignat*}{5}
   \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t} &&\sigma ; (\tau , t) && =^{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau), [ \sigma ]\;t \\
   \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_2(\sigma , t)        && =^{\Tm\,\Gamma\, A} &&  t \\
   [\idS]t         & : \implicit{\Gamma, A, t} && {[\idS]\,t}          && =^{\Tm\,\Gamma\,A} && t \\
-  [;]t            & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t} && {[\sigma ; \tau]\,t} && =^{\Tm\,\Gamma\,[\sigma ; \tau] A} && {[ \sigma ]\;[ \tau ]\;t}
+  [;]t            & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t} && {[\sigma ; \tau]\,t} && =^{\Tm\,\Gamma\,[\sigma ; \tau] A} && {[ \sigma ]\;([ \tau ]\;t})
 \end{alignat*}
 
 We revisit \Cref{ex:pi2-comp} to demonstrate the pragmatic benefit of QIIRTs over QIITs.
 \begin{example}
   The equation $\pi_2\,(\sigma; \tau) = [\sigma](\pi_2\,\tau)$ can be formally stated without any transport.
-  The type of the term on the LHS is $[\pi_1(\sigma;\tau)]_{\Ty}\;A$ and is definitionally equal to $[\sigma]_\Ty\;([\pi_1\tau]_\Ty\;A)$, i.e.\ the type of the term on the RHS.
+  The type of the term on the LHS is $[\pi_1(\sigma;\tau)]_{\Ty}\;A$ which is definitionally equal to $[\sigma]_\Ty\;([\pi_1\tau]_\Ty\;A)$, i.e.\ the type of the term on the RHS.
   Moreover, the first components in each step of the proof of \eqref{eq:pi2-comp-real-proof}, are definitionally equal because of \eqref{eq:def-type-subst-3} and \eqref{eq:def-type-subst-4}.
   Consequently, the back-of-the-envelope calculation~\eqref{eq:pi2-comp-proof} is \emph{formally correct}.
 \end{example}
 
-Yet, as we are defining a function on a quotient inductive type, we have to prove that $[\blank]_{\Ty}\blank$ is coherent.
-This boils down to that $[\blank]_{\Ty}\blank$ preserves all equality constructors.
-\LT[noinline]{Should we mention any general condition for coherence?} 
+As we are defining a function on a quotient inductive type, we have to prove that $[\blank]_{\Ty}\blank$ is coherent, i.e., that it respects all equality constructors.
+\LT[noinline]{Should we mention any general condition for coherence?}
+\Fredrik[noinline]{Is there one?}
 \begin{proposition}[Coherence]\label{prop:coherence-1}
   $[\sigma]_{\Ty}\,A$ is (propositionally) equal to $[\tau]_{\Ty}\,A$ for every equality constructor $p : \sigma = \tau$.
   \danger
 \end{proposition}
 \begin{proof}
-  As equality constructors $[\idS]_T$, $[;]_T$, and $[]\UU$ for types become definitional, it suffices to show that following identities
+  As equality constructors $[\idS]_T$, $[;]_T$, and $[]\UU$ for types become definitional, it suffices to show that the following identities
   \begin{align*}
     [\sigma;\idS]_{\Ty} \;A          & = [\sigma]_{\Ty}\;A,
                                      & [\idS;\sigma]_{\Ty} \;A          & = [\sigma]_{\Ty}\;A,
@@ -511,13 +525,13 @@ This boils down to that $[\blank]_{\Ty}\blank$ preserves all equality constructo
                                      & [\sigma]_{\Ty} \;A               & = [\emptyctx]_{\Ty}\;A,
                                      & [\sigma]_{\Ty} \;A               & = [\pi_1\sigma, \pi_2\sigma]_{\Ty}\;A
   \end{align*}
-  hold (propositionally).
+  hold propositionally.
   The first two identities of the first row hold definitionally by \eqref{eq:def-type-subst-1} and \eqref{eq:def-type-subst-2}, while terms of the both sides of the third reduce to $[\sigma]_{\Ty}\;([\tau]_{\Ty}\;([\gamma]_{\Ty}\;A))$ by \eqref{eq:def-type-subst-2}.
 
-  The sole identity of the second row is just one, i.e.\ \eqref{eq:def-type-subst-3}, of the clauses of the definition.
+  The sole identity of the second row is clause \eqref{eq:def-type-subst-3} of the definition of $[\blank]_{\Ty}\blank$.
 
   We show the remaining cases by induction on $A$.
-  However, $\UU$ is the only constructor for $\Ty\;\Gamma$ for any $\Gamma$ and each of identities with $A \defeq \UU$ reduce to $\UU$.
+  However, $\UU$ is the only constructor for $\Ty\;\Gamma$ for any $\Gamma$ and each of the identities with $A \defeq \UU$ reduce to $\UU$.
 \end{proof}
 \begin{remark}\label{re:coherence-proof}
   Note that in the above proof the first four identities hold definitionally by \eqref{eq:def-type-subst-1}--\eqref{eq:def-type-subst-4}, while the last three identities follow from \eqref{eq:def-type-subst-5} by induction on $A$.
@@ -527,14 +541,14 @@ This boils down to that $[\blank]_{\Ty}\blank$ preserves all equality constructo
 \LT{We may wonder if the last three identities can be made definitional.
 Can we find a complete set of rules?}
 
-\subsection{... with an empty universe} \label{subsec:SC+U}
+\subsection{Adding a universe} \label{subsec:SC+U}
 In this section, we extend substitution calculus with an empty universe $\UU$ of small types~$\El\,u$.
-For a QII definition \cite{Altenkirch2016a}, this extension adds following constructors
+For a QII definition \cite{Altenkirch2016a}, this extension adds the following constructors
 \begin{alignat*}{3}
   \El   & : \implicit{\Gamma} && \Tm\,\Gamma\;\UU \to \Ty\,\Gamma \\
-  []\El & : \implicit{\Gamma, \Delta, \sigma, u} && [ \sigma ]\,(\El\, u) =^{\Tm\;\Gamma\;\UU} \El\,\alert{\transfib{\Tm\;\Gamma}{[]\UU}{\color{black}[\sigma]{u}}}
+  []\El & : \implicit{\Gamma, \Delta, \sigma, u} && [ \sigma ]\,(\El\, u) =^{\Tm\;\Gamma\;\UU} \El\,(\alert{\transfib{\Tm\;\Gamma}{[]\UU}{\color{black}[\sigma]{u}}})
 \end{alignat*}
-as the type $\UU$ of universe and its structural rule $[]\UU$ have been added to avoid a trivial inductive type.
+%as the type $\UU$ of universe and its structural rule $[]\UU$ have been added to avoid a trivial inductive type.
 The type substitution $[\sigma](\El\,u)$ is, informally, the type of the term substitution $[\sigma]\,u$ for $u : \Tm\;\Delta\;\UU$, and the transport is needed to coerce $[\sigma]\,u : \Tm\;\Gamma\;([\sigma]\;\UU)$ into $\Tm\;\Gamma\;\UU$.
 
 In our QIIR definition, $\transfib{\Tm\;\Gamma}{[]\UU}{\blank}$ is no longer needed, since $[]\UU$ becomes definitional. 
@@ -543,7 +557,7 @@ Likewise, the equality constructor $[]\El$ may be replaced by
   [ \sigma ]_{\Ty}\,(\El\, u) & \reduce \El\,([\sigma] {u})
 \end{alignat*}
 Yet, this naive change breaks the local confluence!
-Observe that the local peak
+The problem is that there is now additional interaction between types and terms. Observe that the local peak
 \[
   \El\,u \Leftarrow [\idS]_{\Ty}(\El\,u) \reduce \El([\idS]\,u).
 \]
@@ -592,36 +606,35 @@ to retain the local confluence for type substitution:
   \danger
 \end{proposition}
 \begin{proof}
-  \LT{clearly terms on the RHS are structurally smaller~\cite{Abel2002}.}
+  Again, each recursive call is on a structurally smaller term~\cite{Abel2002}.
 \end{proof}
 
-However, we also have to show that the recursive substitution $[\blank]_{\Tm}\blank$ is propositionally equal to the explicit substitution $[\blank]\blank$, so they can be used together consistently.
+We also have to show that the recursive substitution $[\blank]_{\Tm}\blank$ is propositionally equal to the explicit substitution $[\blank]\blank$, so they can be used together consistently.
 
 \begin{proposition}\label{prop:correctness-1}
   For any $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Tm\;\Delta\;A$, the term $[\sigma]t$ is propositionally equal to $[\sigma]_{\Tm}\,t$.
 \end{proposition}
 \begin{proof}
-  We show this statement by induction on $\sigma$.
+  We show this statement by induction on $\sigma$. Since we are proving a propositional equality, and we are assuming uniqueness of identity proofs, all equality constructors are automatically respected, so we only need to worry about the point constructors.
   \begin{enumerate}
-    \item For the identity substitution $\idS$, we have $[\idS]t : [\idS]t = t$ but $t \judgeq [\idS]_{\Tm} t$ by definition.
-    \item For a substitution composite $\sigma; \tau$, we have
+    \item For the identity substitution $\idS$, we have $[\idS]t = t \judgeq [\idS]_{\Tm} t$ by definition.
+    \item For a composite substitution $\sigma; \tau$, we have
       \begin{align*}
-        [\sigma;\tau]t & = [\sigma]\,[\tau] t               && \text{by $[;]t$} \\
-                       & = [\sigma]\,([\tau]_{\Tm}\,t)       && \text{by the induction hypothesis $[\tau]t = [\tau]_{\Tm}\,t$ for any $t$} \\
-                       & = [\sigma]_{\Tm}\,([\tau]_{\Tm}\,t) && \text{by the induction hypothesis $[\sigma]u = [\sigma]_{\Tm}\,u$ for any $u$} \\
+        [\sigma;\tau]t & = [\sigma]\,([\tau] t)            && \text{by $[;]t$} \\
+%                       & = [\sigma]\,([\tau]_{\Tm}\,t)       && \text{by the induction hypothesis $[\tau]t = [\tau]_{\Tm}\,t$ for any $t$} \\
+                       & = [\sigma]_{\Tm}\,([\tau]_{\Tm}\,t) && \text{by the induction hypothesis (twice)} \\ %$[\sigma]u = [\sigma]_{\Tm}\,u$ for any $u$} \\
                        & \judgeq [\sigma;\tau]_{\Tm}\,t && \text{by definition.}
       \end{align*}
     \item For $\pi_1(\sigma, t)$, we have
       \begin{align*}
         [\pi_1(\sigma, t)]t & = [\sigma] t               && \text{by $\pi_1\beta$} \\
-                            & = [\sigma]_{\Tm} \,t       && \text{by the induction hypothesis $[\tau]t = [\tau]_{\Tm}\,t$ for any $t$} \\
+                            & = [\sigma]_{\Tm} \,t       && \text{by the induction hypothesis} \\ % $[\tau]t = [\tau]_{\Tm}\,t$ for any $t$} \\
                             & \judgeq [\pi_1(\sigma, t)]_{\Tm}\,t && \text{by definition.}
       \end{align*}
-    \item For $\pi_1(\sigma; \tau)$, it is proved similarly as the previous case.
+    %\item For $\pi_1(\sigma; \tau)$, it is proved similarly as the previous case.
     \item For the remaining cases, $[\sigma]_{\Tm} t$ is equal to $[\sigma]\,t$ definitionally.
   \end{enumerate}
   Hence, we conclude that $[\blank]_{\Tm}\blank$ is propositionally equal to $[\blank]\blank$.
-  \LT[noinline]{Shall we say anything about equality constructors?}
 \end{proof}
 
 Finally, we have to show that both $[\blank]_{\Ty}\blank$ and $[\blank]_{\Tm}\blank$ are coherent.
@@ -633,7 +646,7 @@ Finally, we have to show that both $[\blank]_{\Ty}\blank$ and $[\blank]_{\Tm}\bl
     \quad\text{and}\quad
     [\sigma]_{\Tm}\,t = [\tau]_{\Tm}\,t
   \]
-  for any type $A$ and any term $t$.
+  hold for any type $A$ and any term $t$.
 \end{proposition}
 \begin{proof}
   By \Cref{re:coherence-proof}, for type substitution, we only have to consider the following cases 
@@ -663,7 +676,7 @@ We have seen that a naive extension with a universe breaks the local confluence 
 In general, every term occurs on the right-hand side of a clause needs to propagate the reduction to allow a confluent term to exist, and this propagation can be achieved by turning a term involving a substitution $\sigma$ into a recursion.
 \end{remark}
 
-\subsection{... and \texorpdfstring{$\Pi$}{Π}-types} \label{subsec:SC+U+Pi}
+\subsection{Adding \texorpdfstring{$\Pi$}{Π}-types} \label{subsec:SC+U+Pi}
 
 In this section, we extend the type theory in \cref{subsec:SC+U} with $\Pi$-types, i.e.\ dependent function types, whose the context of its codomain is extended with the domain type.
 For the QIIT of type theory in \cite{Altenkirch2016a}, it amounts to adding the following constructors for the type formation rule, the term introduction/elimination rules:
@@ -684,9 +697,10 @@ and the structural rules for substitution
 \end{alignat}
 where $\sigma \uparrow A$ is the \emph{lifting}  of $\sigma$ by a type $A$ defined as $(\pi_1\idS; \sigma, \alert{\transfib{\Tm\;\Gamma}{[;]_T}{\color{black}\pi_2\idS}})$. 
 
-For our QIIR definition, $\sigma\uparrow A$ and $[]\lambda$ do not need a transport since $[;]_T$ and $[]\Pi$ are definitional.
+For our QIIR definition, %$\sigma\uparrow A$ and $[]\lambda$ do not need a transport since $[;]_T$ and $[]\Pi$ are definitional.
+we do not need any transport since $[;]_T$ and $[]\Pi$ are definitional.
 However, once again, adding \eqref{eq:def-type-subst-8} directly to the type substitution $[\blank]_{\Ty}\blank$ breaks the local confluence, because the reduction gets stuck upon the lifting $\sigma \uparrow A$.
-For example, $[\idS]_{\Ty}(\Pi\;A\;B)$ reduces to $\Pi\;A\;([\idS \uparrow A]_{\Ty}B)$ where $\idS \uparrow A$ is propositional but not definitional equal to $\idS$, so the local peak $\Pi\;A\;B \Leftarrow [\idS]_{\Ty}(\Pi\;A\;B) \reduce \Pi\;A\;([\idS \uparrow A]_{\Ty}B)$ cannot be joined. 
+For example, $[\idS]_{\Ty}(\Pi\;A\;B)$ reduces to $\Pi\;A\;([\idS \uparrow A]_{\Ty}B)$ where $\idS \uparrow A$ is propositionally but not definitionally equal to $\idS$, so the local peak $\Pi\;A\;B \Leftarrow [\idS]_{\Ty}(\Pi\;A\;B) \reduce \Pi\;A\;([\idS \uparrow A]_{\Ty}B)$ cannot be joined. 
 
 To retain the local confluence, we turn $\sigma \uparrow A$ into a simultaneously defined function:
 \begin{alignat}{3}
@@ -773,9 +787,12 @@ Finally, we show that these simultaneously defined functions are coherent.
 \end{proposition}
 \begin{proof}
   These two identities follow from \cref{prop:correctness-2,prop:correctness-3} easily with the heterogeneous identity (see \cref{sec:meta}).
+\Fredrik{This heterogeneous equality has not been used so far; it would be good to not have to introduce it all, except perhaps locally in the proof here.}
 \end{proof}
 
 \subsubsection{Multiple lifting and the coherence of type substitution}
+\Fredrik{This section gets rather technical. Keeping the page limit in mind, I wonder if we should only briefly summarise it in the main text?}
+
 For the coherence of~$[\blank]_{\Ty}\blank$, we have to generalise the desired identity to account for the lifting, since a naive induction does not work: for example, unfolding $[\sigma]_{\Ty}\,(\Pi\;A\;B)$ leads to
 \[
   \Pi\;([\sigma]_{\Ty}\,A)\;([\sigma\uparrow A]_{\Ty}\,B)
@@ -983,6 +1000,8 @@ without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref{eq:def-type-su
   \item Discuss the type of natural numbers.
 \end{enumerate}
 }
+\Fredrik{I think we should keep this brief. I started doing the natural numbers in Agda, but there were some problems with the rewrite $[\sigma] \mathsf{Nat} = \mathsf{Nat}$ not firing in the type of the eliminator...}
+
 
 \section{The elimination principle and models} \label{sec:models}
 \LT{Terminology: the eliminator principle vs.\ eliminator vs.\ induction principle?}
