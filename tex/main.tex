@@ -195,8 +195,35 @@ Their general metatheory would be interesting future work.
 \subsection{Definitions by overlapping patterns} \label{sec:meta:overlapping}
 \cite{Cockx2014,Altenkirch2016a}
 \LT{We use $f\;\vec{x} \reduce \vec{t}$ to indicate a function clause of a definition by overlapping patters.}
-\subsection{Quotient inductive(-inductive)-recursive types}
-\LT{Give an example of QIRT: join list?}
+\subsection{Quotient inductive-inductive types}
+% \subsection{Quotient inductive(-inductive)-recursive types}
+
+Quotient inductive types (QITs) are a special case of higher inductive types~\cite{Lumsdaine2020} from homotopy type theory, where constructors can not only introduce new elements, but also new equalities between the introduced elements.
+%
+Since we assume uniqueness of identity proofs globally, all QITs are implicitly truncated to be sets in the sense of homotopy type theory.
+%
+For example, the type of \emph{join lists} $\JList{X}$ can be given by the QIT
+with the following constructors:
+\begin{alignat*}{3}
+  \Jnil & : \JList{X} \\
+  \Jsing{-} & : X \to \JList{X} \\
+  \Jconcat{-}{-} & : \JList{X} \to \JList{X} \to \JList{X} \\
+  \mathsf{idl} & : \implicit{\ell}\; (\Jconcat{\ell}{\Jnil}) =^{\JList{X}} \ell \\
+  \mathsf{idr} & : \implicit{\ell}\; (\Jconcat{\Jnil}{\ell}) =^{\JList{X}} \ell \\
+  \mathsf{assoc} & : \implicit{\ell_0, \ell_1, \ell_2}\; (\Jconcat{(\Jconcat{\ell_0}{\ell_1})}{\ell_2}) =^{\JList{X}} (\Jconcat{\ell_0}{(\Jconcat{\ell_1}{\ell_2})})
+\end{alignat*}
+
+
+A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a family of types $B : A \to \Set$, where both $A$ and $B$ are defined inductively --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively; indeed, inductive-inductive definitions only make sense when $D = \Set$.
+The metatheory of QIITs has been extensively studied by Altenkirch, Kaposi and Kov\'acs~\cite{Kovacs2018,Kaposi2019,Kovacs2020}.
+
+\Fredrik{Give an actual example of QIIT (or even QIRT)??}
+
+Shulman~\cite{Shulman2014} considered combining higher inductive types and inductive-recursive types, but the foundational status of this combination is underdeveloped. We will also make use of such a combination, which gives additional motivation to study its metatheory in future work.
+
+
+
+
 \LT{How the congruence rule for the identity type can be used in QII(R)T?}
 \subsection{Definitions by rewrite rules}
 \cite{Cockx2020,Cockx2021}

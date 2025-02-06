@@ -344,6 +344,13 @@
 \newcommand{\dblp}{\ensuremath{\dbl'}\xspace} % alternative double in induction chapter
 
 
+% Join lists
+
+\newcommand{\JList}[1]{\mathsf{List}\,#1}
+\newcommand{\Jnil}{\mathsf{[]}}
+\newcommand{\Jsing}[1]{\mathsf{[#1]}}
+\newcommand{\Jconcat}[2]{#1 \mathop{+\!\!+} #2}
+
 % Function definition with domain and codomain
 \newcommand{\function}[4]{\left\{\begin{array}{rcl}#1 &
       \longrightarrow & #2 \\ #3 & \longmapsto & #4 \end{array}\right.}
