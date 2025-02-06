@@ -6,7 +6,6 @@ module Theory.SC+U+Pi+Id.QIIRT.Coherence where
 open import Theory.SC+U+Pi+Id.QIIRT.Syntax
 open import Theory.SC+U+Pi+Id.QIIRT.Properties
 
-
 coh↑ : (σ τ : Sub Γ Δ) (A : Ty Δ i)
   → σ ≡ τ
   → σ ↑ A ≅ τ ↑ A
@@ -153,13 +152,6 @@ module _ (σ : Sub Γ Δ) {A : Ty Δ i} (t : Tm Γ ([ σ ] A)) where
     → π₁ (_,_ σ {A} t) ⇈ Ξ ≅ σ ⇈ Ξ
     → (B : Ty (Δ ⧺ Ξ) j)
     → [ π₁ (_,_ σ {A} t) ⇈ Ξ ] B ≅ [ σ ⇈ Ξ ] B
-  coh[π₁,]l
-    : (Ξ : Tel Δ)
-    → [ π₁ (_,_ σ {A} t) ]l Ξ ≡ [ σ ]l Ξ
-  coh⇈π₁,
-    : (Ξ : Tel Δ)
-    → π₁ (_,_ σ {A} t) ⇈ Ξ ≅ σ ⇈ Ξ
-
   coh[π₁,⇈] Ξ eq _   (U i)      = cong-U (hcong (Γ ⧺_) (≡-to-≅ eq))
   coh[π₁,⇈] Ξ eq eq2 (El u)     = icong (λ Γ → Tm Γ (U _)) (cong (Γ ⧺_) eq) El $
     coh-congCtx-[]t u (cong (Γ ⧺_) eq) eq2
@@ -174,6 +166,12 @@ module _ (σ : Sub Γ Δ) {A : Ty Δ i} (t : Tm Γ ([ σ ] A)) where
     (coh-congCtx-[]t t (cong (Γ ⧺_) eq) eq2)
     (coh-congCtx-[]t u (cong (Γ ⧺_) eq) eq2)
 
+  coh[π₁,]l
+    : (Ξ : Tel Δ)
+    → [ π₁ (_,_ σ {A} t) ]l Ξ ≡ [ σ ]l Ξ
+  coh⇈π₁,
+    : (Ξ : Tel Δ)
+    → π₁ (_,_ σ {A} t) ⇈ Ξ ≅ σ ⇈ Ξ
   coh[π₁,]l ∅       = refl
   coh[π₁,]l (Ξ , A) = ≅-to-≡ (hcong₂ _,_ (≡-to-≅ $ coh[π₁,]l Ξ) (coh[π₁,⇈] Ξ (coh[π₁,]l Ξ) (coh⇈π₁, Ξ) A))
 
@@ -192,15 +190,6 @@ module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) {i : ℕ} (A : Ty Θ i) (t : Tm Δ ([
     →  (σ ⨟ (τ , t)) ⇈ Ξ ≅  (σ ⨟ τ , [ σ ]tm t) ⇈ Ξ
     → (B : Ty ((Θ , A) ⧺ Ξ) j)
     → [ (σ ⨟ (τ , t)) ⇈ Ξ ] B ≅ [ ((σ ⨟ τ) , [ σ ]tm t) ⇈ Ξ ] B
-
-  coh[⨟,]l
-    : (Ξ : Tel (Θ , A))
-    → [ σ ⨟ (τ , t) ]l Ξ ≡ [ σ ⨟ τ , [ σ ]tm t ]l Ξ
-
-  coh⇈⨟,
-    : (Ξ : Tel (Θ , A))
-    → (σ ⨟ (τ , t)) ⇈ Ξ ≅ (σ ⨟ τ , [ σ ]tm t) ⇈ Ξ
-
   coh[⨟,]' Ξ eq eq2 (U j)      = cong-U (hcong (Γ ⧺_) (≡-to-≅ eq))
   coh[⨟,]' Ξ eq eq2 (El u)     = icong (λ Γ → Tm Γ (U _)) (cong (Γ ⧺_) eq) El $
     coh-congCtx-[]t u (cong (Γ ⧺_) eq) eq2
@@ -208,16 +197,23 @@ module _ (σ : Sub Γ Δ) (τ : Sub Δ Θ) {i : ℕ} (A : Ty Θ i) (t : Tm Δ ([
     coh[⨟,]' Ξ eq eq2 B
   coh[⨟,]' Ξ eq eq2 (Π B C)    = icong₂ (λ Γ → Ty Γ _) (cong (Γ ⧺_) eq) Π
     (coh[⨟,]' Ξ eq eq2 B)
-    (coh[⨟,]' (Ξ , B) (≅-to-≡ (hcong₂ _,_ (≡-to-≅ eq) (coh[⨟,]' Ξ eq eq2 B)))
-      (coh-congCtx-↑ B (cong (Γ ⧺_) eq) eq2) C)
+    (coh[⨟,]' (Ξ , B)
+      (≅-to-≡ (hcong₂ _,_ (≡-to-≅ eq) (coh[⨟,]' Ξ eq eq2 B)))
+      (coh-congCtx-↑ B (cong (Γ ⧺_) eq) eq2)
+      C)
   coh[⨟,]' Ξ eq eq2 (Id a t u) = icong₃ (λ Γ → Tm Γ _) (cong (Γ ⧺_) eq) Id
     (coh-congCtx-[]t a (cong (Γ ⧺_) eq) eq2)
     (coh-congCtx-[]t t (cong (Γ ⧺_) eq) eq2)
     (coh-congCtx-[]t u (cong (Γ ⧺_) eq) eq2)
 
+  coh[⨟,]l
+    : (Ξ : Tel (Θ , A))
+    → [ σ ⨟ (τ , t) ]l Ξ ≡ [ σ ⨟ τ , [ σ ]tm t ]l Ξ
+  coh⇈⨟,
+    : (Ξ : Tel (Θ , A))
+    → (σ ⨟ (τ , t)) ⇈ Ξ ≅ (σ ⨟ τ , [ σ ]tm t) ⇈ Ξ
   coh[⨟,]l ∅       = refl
   coh[⨟,]l (Ξ , A) = ≅-to-≡ (hcong₂ _,_ (≡-to-≅ $ coh[⨟,]l Ξ) (coh[⨟,]' Ξ (coh[⨟,]l Ξ) (coh⇈⨟, Ξ) A))
-
   coh⇈⨟, ∅       = ≡-to-≅ ⨟,
   coh⇈⨟, (Ξ , A) = begin
     (σ ⨟ (τ , t)) ⇈ Ξ ↑ A             ≡⟨ ↑=⁺ A ((σ ⨟ (τ , t)) ⇈ Ξ) ⟩
@@ -240,14 +236,6 @@ module _ (σ : Sub Γ ∅) where
     → (B : Ty (∅ ⧺ Ξ) j)
     → [ (σ) ⇈ Ξ ] B ≅ [ ∅ {Γ} ⇈ Ξ ] B
 
-  coh[η∅]l
-    : (Ξ : Tel ∅)
-    → [ σ ]l Ξ ≡ [ ∅ ]l Ξ
-
-  coh⇈η∅
-    : (Ξ : Tel ∅)
-    → (σ) ⇈ Ξ ≅ ∅ {Γ} ⇈ Ξ
-
   coh[η∅]' Ξ eq eq2 (U j)      = cong-U (hcong (Γ ⧺_) (≡-to-≅ eq))
   coh[η∅]' Ξ eq eq2 (El u)     = icong (λ Γ → Tm Γ (U _)) (cong (Γ ⧺_) eq) El $
     coh-congCtx-[]t u (cong (Γ ⧺_) eq) eq2
@@ -262,6 +250,13 @@ module _ (σ : Sub Γ ∅) where
     (coh-congCtx-[]t t (cong (Γ ⧺_) eq) eq2)
     (coh-congCtx-[]t u (cong (Γ ⧺_) eq) eq2)
 
+
+  coh[η∅]l
+    : (Ξ : Tel ∅)
+    → [ σ ]l Ξ ≡ [ ∅ ]l Ξ
+  coh⇈η∅
+    : (Ξ : Tel ∅)
+    → (σ) ⇈ Ξ ≅ ∅ {Γ} ⇈ Ξ
   coh[η∅]l ∅       = refl
   coh[η∅]l (Ξ , A) = ≅-to-≡ (hcong₂ _,_ (≡-to-≅ $ coh[η∅]l Ξ) (coh[η∅]' Ξ (coh[η∅]l Ξ) (coh⇈η∅ Ξ) A))
 
@@ -286,15 +281,6 @@ module _ (σ : Sub Γ (Δ , A)) where
     →  σ ⇈ Ξ ≅  (π₁ σ , π₂ σ) ⇈ Ξ
     → (B : Ty ((Δ , A) ⧺ Ξ) j)
     → [ σ ⇈ Ξ ] B ≅ [ (π₁ σ , π₂ σ) ⇈ Ξ ] B
-
-  coh[η,]l
-    : (Ξ : Tel (Δ , A))
-    → [ σ ]l Ξ ≡ [ π₁ σ , π₂ σ ]l Ξ
-
-  coh⇈η,
-    : (Ξ : Tel (Δ , A))
-    → σ ⇈ Ξ ≅ (π₁ σ , π₂ σ) ⇈ Ξ
-
   coh[η,]' Ξ eq eq2 (U j)      = cong-U (hcong (Γ ⧺_) (≡-to-≅ eq))
   coh[η,]' Ξ eq eq2 (El u)     = icong (λ Γ → Tm Γ (U _)) (cong (Γ ⧺_) eq) El $
     coh-congCtx-[]t u (cong (Γ ⧺_) eq) eq2
@@ -309,6 +295,12 @@ module _ (σ : Sub Γ (Δ , A)) where
     (coh-congCtx-[]t t (cong (Γ ⧺_) eq) eq2)
     (coh-congCtx-[]t u (cong (Γ ⧺_) eq) eq2)
 
+  coh[η,]l
+    : (Ξ : Tel (Δ , A))
+    → [ σ ]l Ξ ≡ [ π₁ σ , π₂ σ ]l Ξ
+  coh⇈η,
+    : (Ξ : Tel (Δ , A))
+    → σ ⇈ Ξ ≅ (π₁ σ , π₂ σ) ⇈ Ξ
   coh[η,]l ∅       = refl
   coh[η,]l (Ξ , A) = ≅-to-≡ (hcong₂ _,_ (≡-to-≅ $ coh[η,]l Ξ) (coh[η,]' Ξ (coh[η,]l Ξ) (coh⇈η, Ξ) A))
 
