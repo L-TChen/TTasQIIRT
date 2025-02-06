@@ -121,10 +121,6 @@ Nevertheless, Agda can be convinced to accept our formal implementation, using s
 }
 Indeed, we also see this paper as a case study to motivate further developments for quotient inductive-inductive-recursive types and overlapping patterns.
 
-\Fredrik{I'm not sure if I have included all points here. I tried to stay more positive re overlapping patterns.}
-\LT{Thanks!}
-
-
 \paragraph*{Contributions}
 \begin{itemize}
   \item Exploration of the use of quotient inductive-inductive-recursive types and definitions by overlapping patterns.
@@ -142,21 +138,59 @@ Indeed, we also see this paper as a case study to motivate further developments 
 
 \section{Metatheory and formalisation} \label{sec:meta}
 
-\cite{UFP2013}
-\LT{
-Points to include:
-\begin{enumerate}
-  \item identity type $x =^{A} y$ for $x, y : A$, dependent identity type, $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P y} u$ for $t : P(x)$ and $u : P(y)$, heterogeneous equality~\cite{McBride1999} in \Agda $x \simeq y$ for $x : A$ and $y : B$
-  \item We work with intensional type theory with uniqueness of identity proof and function extensionality (only used for NbE and the standard model for the extensional identity type).
-  \item We use Agda to formally implement our definitions with the following options: \texttt{-{}-with-K}, \texttt{-{}-local-confluence-check}, \texttt{-{}-exact-split}, and \texttt{-{}-rewriting} using postulated equations~\cite{Licata2011} to introduce equality constructors for quotient types.
-\end{enumerate}}
+We work in intensional Martin-L\"of type theory with uniqueness of identity proofs. In \cref{sec:models,sec:formal-implementation}, we also assume function extensionality.
+%
+We mostly follow the notational conventions of the HoTT book~\cite{UFP2013} (even if we do not assume the univalence axiom), except that we write dependent function types using Agda notation $(x : A) \to B(x)$.
+%
+We are further inspired by Agda in writing $\implicit{x}B(x)$ for $(x : A) \to B(x)$ when $x$ is treated as an ``implicit'' argument which is not given explicitly, but instead can be figured out from context.
 
-\LT{The symbol \textdbend indicates a property that is proved informally or checked partially with \Agda (because of postulated quotient inductive types).}
+We write $x \jdeq y$ for definitional equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the ``dependent'' identity type where $P : A \to \Set$, $t : P(x)$, $u : P(y)$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P y} u$, where $\transfibf{P} : (p : x =^A y) \to P(x) \to P(y)$ is our notation for the operation which allows is to transport values between type families applied to elements that are equal up to the identity type.
+%
+Finally, we write $x \simeq y$ for the \emph{heterogeneous} identity type, where we allow $x : A$ and $y : B$ to have potentially different types.
+As shown by McBride~\cite{McBride1999}, the heterogeneous identity type is equivalent to the ordinary identity type equipped with the principle of uniqueness of identity proofs.
+
+We have formally implemented our definitions and proofs in Agda, with the following options: \texttt{-{}-with-K}, \texttt{-{}-exact-split}, \texttt{-{}-rewriting}, and \texttt{-{}-local-confluence-check}. We simulate quotient inductive types using postulated equations to introduce equality constructors~\cite{Licata2011}.
+Some of our theorem statements are meta-theoretical, and thus cannot be checked by Agda. Others can only be checked  partially, because of postulated quotient inductive types. We have marked such ``informal'' proofs with the symbol \resizebox*{!}{\baselineskip}{\textdbend}.
+
+%\LT{
+%Points to include:
+%\begin{enumerate}
+%  \item identity type $x =^{A} y$ for $x, y : A$, dependent identity type, $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P y} u$ for $t : P(x)$ and $u : P(y)$, heterogeneous equality~\cite{McBride1999} in \Agda $x \simeq y$ for $x : A$ and $y : B$
+%  \item We work with intensional type theory with uniqueness of identity proof and function extensionality (only used for NbE and the standard model for the extensional identity type).
+%  \item We use Agda to formally implement our definitions with the following options: \texttt{-{}-with-K}, \texttt{-{}-local-confluence-check}, \texttt{-{}-exact-split}, and \texttt{-{}-rewriting} using postulated equations~\cite{Licata2011} to introduce equality constructors for quotient types.
+%\end{enumerate}}
+%
+%\LT{The symbol \textdbend indicates a property that is proved informally or checked partially with \Agda (because of postulated quotient inductive typeswbe checked ).}
+
 \subsection{Inductive-recursive types}
-\cite{Dybjer2003,Dybjer2000,Dybjer1999}
-\LT{Introduce abbreviations here}
 
-\LT{Mention that the recursion part of induction-recursion are already not defined by elimination rule.}
+An ordinary inductive type $A$, such as for example the type of natural numbers $A = \mathbb{N}$, allows functions out of the type $f : A \to X$ to be defined by recursion, by providing an elimination rule which says that such a function $f$ is defined by its values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of $A$. For example, a function $f: \mathbb{N} \to X$ is given by the values $f(0)$ and $f(\mathsf{suc}\,n)$, where the latter might refer to the already computed value $f(n)$.
+%
+The type is first defined inductively by listing its constructors, and then afterwards recursive functions can be defined out of it.
+
+In contrast, an inductive-recursive type is defined inductively \emph{simultaneously} with a recursively defined function out of it. The prototypical example is Martin-L\"of's universe \`a la Tarski, where a type $U$ of codes for small types is defined simultaneously with a ``decoding'' function $T : U \to \Set$ which maps each code to the type it represents. Crucially, the code for dependent function types
+\[
+  \pi : (a : U) \to (T(a) \to U) \to U
+\]
+with $T(\pi(a, b)) = (x : T(a)) \to T(b(x))$ only makes sense because we already have access to the decoding function $T$.
+%
+Inductive-recursive types (IRT) were introduced by Dybjer~\cite{Dybjer2000}, and then extensively studied by Dybjer and Setzer~\cite{Dybjer1999,Dybjer2003}.
+The general schema allows one to define a type $A$ inductively, together with a recursive function $F : A \to D$, for some fixed (possibly large) type $D$.
+
+An IRT $(A, F)$ comes with an elimination rule that allows to define a dependent function  $f : (x : A) \to P(x)$ by giving values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of $A$, again reflecting that $A$ is inductively defined.
+%
+However, note that the recursive function $F : A \to D$ is not defined using this elimination rule, but part of the definition of the type itself.
+%
+In particular, the elimination rule can be used to define endofunctions on $A$, but the recursive function  $F : A \to D$ must always target a fixed pre-existing type $D$.
+%
+In this work, we will consider an extension \emph{generalised} IRTs, where also $F : A \to A$ is allowed.
+%
+Such IRTs were previously used by Danielsson~\cite{Danielsson2006} to represent type theory in type theory, and are discussed by Kaposi~\cite{Kaposi2023}.
+%
+Their general metatheory would be interesting future work.
+
+%\LT{Mention that the recursion part of induction-recursion are already not defined by elimination rule.}
+
 
 \subsection{Definitions by overlapping patterns} \label{sec:meta:overlapping}
 \cite{Cockx2014,Altenkirch2016a}
@@ -920,7 +954,7 @@ without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref{eq:def-type-su
 \end{enumerate}
 }
 
-\section{The elimination principle and models}
+\section{The elimination principle and models} \label{sec:models}
 \LT{Terminology: the eliminator principle vs.\ eliminator vs.\ induction principle?}
 \LT{%
 \begin{enumerate}
@@ -1028,7 +1062,7 @@ Note again that our inductive-recursive definition is not an instance of the gen
 Our QIIR definition of type theory has a standard model by giving the following motives and methods.
 
 \subsection{The equivalence} \label{subsec:equivalence}
-\section{Formal implementation}
+\section{Formal implementation}\label{sec:formal-implementation}
 \LT{Mention the NbE for SC here}
 \LT{Compare some formal proofs with pen-and-paper proofs here}
 \section{Discussion}
