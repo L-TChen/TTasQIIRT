@@ -197,7 +197,67 @@
   title =         {Towards quotient inductive-inductive-recursive types},
   year =          {2023},
   url =           {https://types2023.webs.upv.es/slides/S13/TYPES2023-
-                  Kaposi.pdf},
+                   Kaposi.pdf},
+}
+
+@incollection{Dybjer1996,
+  author =        {Dybjer, Peter},
+  booktitle =     {Types for Proofs and Programs. TYPES 1995},
+  editor =        {Berardi, Stefano and Coppo, Mario},
+  pages =         {120--134},
+  publisher =     {Springer, Berlin, Heidelberg},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Internal type theory},
+  volume =        {1158},
+  year =          {1996},
+  doi =           {10.1007/3-540-61780-9_66},
+}
+
+@article{Cockx2021,
+  address =       {New York, NY, USA},
+  author =        {Cockx, Jesper and Tabareau, Nicolas and
+                   Winterhalter, Th{\'e}o},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  publisher =     {Association for Computing Machinery},
+  title =         {The taming of the {Rew}: a type theory with
+                   computational assumptions},
+  volume =        {5},
+  year =          {2021},
+  abstract =      {Dependently typed programming languages and proof
+                   assistants such as Agda and Coq rely on computation
+                   to automatically simplify expressions during type
+                   checking. To overcome the lack of certain programming
+                   primitives or logical principles in those systems, it
+                   is common to appeal to axioms to postulate their
+                   existence. However, one can only postulate the bare
+                   existence of an axiom, not its computational
+                   behaviour. Instead, users are forced to postulate
+                   equality proofs and appeal to them explicitly to
+                   simplify expressions, making axioms dramatically more
+                   complicated to work with than built-in primitives. On
+                   the other hand, the equality reflection rule from
+                   extensional type theory solves these problems by
+                   collapsing computation and equality, at the cost of
+                   having no practical type checking algorithm. This
+                   paper introduces Rewriting Type Theory (RTT), a type
+                   theory where it is possible to add computational
+                   assumptions in the form of rewrite rules. Rewrite
+                   rules go beyond the computational capabilities of
+                   intensional type theory, but in contrast to
+                   extensional type theory, they are applied
+                   automatically so type checking does not require input
+                   from the user. To ensure type soundness of RTT---as
+                   well as effective type checking---we provide a
+                   framework where confluence of user-defined rewrite
+                   rules can be checked modularly and automatically, and
+                   where adding new rewrite rules is guaranteed to
+                   preserve subject reduction. The properties of RTT
+                   have been formally verified using the MetaCoq
+                   framework and an implementation of rewrite rules is
+                   already available in the Agda proof assistant.},
+  doi =           {10.1145/3434341},
 }
 
 @book{UFP2013,
@@ -333,53 +393,6 @@
   urn =           {urn:nbn:de:0030-drops-130666},
 }
 
-@article{Cockx2021,
-  address =       {New York, NY, USA},
-  author =        {Cockx, Jesper and Tabareau, Nicolas and
-                   Winterhalter, Th{\'e}o},
-  journal =       {Proceedings of the ACM on Programming Languages},
-  month =         jan,
-  number =        {POPL},
-  publisher =     {Association for Computing Machinery},
-  title =         {The taming of the {Rew}: a type theory with
-                   computational assumptions},
-  volume =        {5},
-  year =          {2021},
-  abstract =      {Dependently typed programming languages and proof
-                   assistants such as Agda and Coq rely on computation
-                   to automatically simplify expressions during type
-                   checking. To overcome the lack of certain programming
-                   primitives or logical principles in those systems, it
-                   is common to appeal to axioms to postulate their
-                   existence. However, one can only postulate the bare
-                   existence of an axiom, not its computational
-                   behaviour. Instead, users are forced to postulate
-                   equality proofs and appeal to them explicitly to
-                   simplify expressions, making axioms dramatically more
-                   complicated to work with than built-in primitives. On
-                   the other hand, the equality reflection rule from
-                   extensional type theory solves these problems by
-                   collapsing computation and equality, at the cost of
-                   having no practical type checking algorithm. This
-                   paper introduces Rewriting Type Theory (RTT), a type
-                   theory where it is possible to add computational
-                   assumptions in the form of rewrite rules. Rewrite
-                   rules go beyond the computational capabilities of
-                   intensional type theory, but in contrast to
-                   extensional type theory, they are applied
-                   automatically so type checking does not require input
-                   from the user. To ensure type soundness of RTT---as
-                   well as effective type checking---we provide a
-                   framework where confluence of user-defined rewrite
-                   rules can be checked modularly and automatically, and
-                   where adding new rewrite rules is guaranteed to
-                   preserve subject reduction. The properties of RTT
-                   have been formally verified using the MetaCoq
-                   framework and an implementation of rewrite rules is
-                   already available in the Agda proof assistant.},
-  doi =           {10.1145/3434341},
-}
-
 @article{Abel2002,
   author =        {Abel, Andreas and Altenkirch, Thorsten},
   journal =       {Journal of Functional Programming},
@@ -410,13 +423,6 @@
   doi =           {10.1017/S0956796819000182},
 }
 
-@misc{Coquand2013,
-  author =        {Coquand, Thierry},
-  title =         {Presheaf model of type theory},
-  year =          {2013},
-  url =           {https://www.cse.chalmers.se/~coquand/presheaf.pdf},
-}
-
 @article{Altenkirch2017,
   author =        {Altenkirch, Thorsten and Kaposi, Ambrus},
   journal =       {Logical Methods in Computer Science},
@@ -441,19 +447,6 @@
   volume =        {1512},
   year =          {1998},
   doi =           {10.1007/BFb0097798},
-}
-
-@incollection{Dybjer1996,
-  author =        {Dybjer, Peter},
-  booktitle =     {Types for Proofs and Programs. TYPES 1995},
-  editor =        {Berardi, Stefano and Coppo, Mario},
-  pages =         {120--134},
-  publisher =     {Springer, Berlin, Heidelberg},
-  series =        {Lecture Notes in Computer Science},
-  title =         {Internal type theory},
-  volume =        {1158},
-  year =          {1996},
-  doi =           {10.1007/3-540-61780-9_66},
 }
 
 @incollection{Castellan2021,
