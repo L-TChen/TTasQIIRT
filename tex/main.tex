@@ -1,5 +1,5 @@
 
-\documentclass[a4paper,UKenglish,numberwithinsect,cleveref,thm-restate]{lipics-v2021}
+\documentclass[a4paper,UKenglish,numberwithinsect,cleveref,thm-restate,final]{lipics-v2021}
 %This is a template for producing LIPIcs articles. 
 %See lipics-v2021-authors-guidelines.pdf for further information.
 %for A4 paper format use option "a4paper", for US-letter use option "letterpaper"
@@ -28,7 +28,7 @@
 \relatedversion{} %optional, e.g. full version hosted on arXiv, HAL, or other respository/website
 %\relatedversiondetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93]{Classification (e.g. Full Version, Extended Version, Previous Version}{URL to related version} %linktext and cite are optional
 
-\supplement{The formal development is hosted at the GitHub repository: \url{https://github.com/genetsai95/DTT-QIIRT}.}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
+\supplement{The formal development is hosted at the \textsc{GitHub} repository: \url{https://github.com/genetsai95/DTT-QIIRT}.\LT[noinline]{Transfer it to my account?}}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
 %\supplementdetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93, subcategory={Description, Subcategory}, swhid={Software Heritage Identifier}]{General Classification (e.g. Software, Dataset, Model, ...)}{URL to related version} %linktext, cite, and subcategory are optional
 \acknowledgements{We'd like to thank Hsiang-Shang Ko and Meven Lennon-Bertrand.}%optional
 
@@ -50,9 +50,8 @@
 
 \usepackage[obeyFinal,textsize=footnotesize]{todonotes}
 \usepackage{manfnt}
-\usepackage{underscore}
 \newcommand{\danger}{\marginpar[\hfill\dbend]{\dbend\hfill}}
-\newcommand{\LT}[2][]{\todo[inline,author={L-T},caption={},#1]{#2}}
+\newcommand{\LT}[2][]{\todo[inline,author={L-T},caption={},color={pink},#1]{#2}}
 \newcommand{\Gene}[2][]{\todo[inline,author={Gene},caption={},#1]{#2}}
 \newcommand{\Fredrik}[2][]{\todo[inline,author={Fred},caption={},#1]{#2}}
 
@@ -64,14 +63,13 @@
 \maketitle
 
 \begin{abstract}
-  \LT[noinline]{Try to interest Thorsten Altenkirch in the abstract}
-  Defining type theory in type theory is a long-standing challenge and a benchmark for the expressiveness of a proof assistant.
+  Defining type theory in type theory is a long-standing challenge and a benchmark for the strength and expressivity of type theory and a proof assistant.
   Altenkirch and Kaposi used quotient inductive-inductive types to represent exactly the well-typed terms of type theory, with the price to be paid that terms frequently contain transports along equality constructors.
   As a result, proofs need to painstakingly account for coercions alongside the interesting part.
   This %mess
   has been dubbed `transport hell', but is typically suppressed in informal presentation for clarity, hiding the gap between the intention and the formalisation of type theory in type theory.
   In this paper, we aim to shorten this gap, using quotient inductive-inductive-recursive types and definitions by overlapping patterns, reducing the use of transports.
-  As a case study, we investigate the (parallel) substitution calculus and type theory with a universe and $\Pi$-types, and compare ours with quotient inductive-inductive definitions.
+  As a case study, we investigate substitution calculus and type theory with a universe and $\Pi$-types, and compare ours with quotient inductive-inductive definitions.
 \end{abstract}
 
 \section{Introduction} \label{sec:intro}
@@ -84,7 +82,7 @@ Doing this effectively seems to require several sophisticated features of the ho
 %
 For example, inductive families~\cite{Dybjer1994} can be used to represent the simply typed lambda calculus~\cite{Altenkirch1999}, while some kind of simultaneous definitions such as inductive-recursive~\cite{Dybjer2000} or inductive-inductive~\cite{Nordvall-Forsberg2014} definitions seem to be required for dependent type theory~\cite{Danielsson2006,Chapman2009}.
 %
-This is not just a matter of the pure strength of the host theory, but also expressivity and convenience: while it is known how to reduce inductive-inductive definitions to inductive families in principle~\cite{Kaposi2020a}, the resulting development would be considerable harder to work with, and most likely would have exhausted the resources of both the proof assistant and its user.
+This is not just a matter of the pure strength of the host theory, but also expressivity and convenience: while it is known how to reduce inductive-inductive definitions to inductive families in principle~\cite{Kaposi2020a}, the resulting development would be considerably harder to work with, most likely exhausting the resources of both the proof assistant and its user.
 
 Altenkirch and Kaposi~\cite{Altenkirch2016a} showed that by employing \emph{quotient inductive-inductive types}~\cite{Altenkirch2018}, the internal representation of well typed terms could be significantly simplified, since equations such as $\beta$- and $\eta$-equality can be represented by the identity type thanks to quotient constructors.
 %
@@ -195,9 +193,6 @@ Their general metatheory would be interesting future work.
 %\LT{Mention that the recursion part of induction-recursion are already not defined by elimination rule.}
 
 
-\subsection{Definitions by overlapping patterns} \label{sec:meta:overlapping}
-\cite{Cockx2014,Altenkirch2016a}
-\LT{We use $f\;\vec{x} \reduce \vec{t}$ to indicate a function clause of a definition by overlapping patters.}
 \subsection{Quotient inductive-inductive types}
 % \subsection{Quotient inductive(-inductive)-recursive types}
 
@@ -218,7 +213,7 @@ with the following constructors:
 
 
 A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a family of types $B : A \to \Set$, where both $A$ and $B$ are defined inductively --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively; indeed, inductive-inductive definitions only make sense when $D = \Set$.
-The metatheory of QIITs has been extensively studied by Altenkirch, Kaposi and Kov\'acs~\cite{Kovacs2018,Kaposi2019,Kovacs2020}.
+The metatheory of QIITs has been extensively studied by Altenkirch, Kaposi and Kov\'acs~\cite{Kaposi2018,Kaposi2019,Kovacs2020}.
 
 We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: The type $\JList{X}$ is defined simultaneously with a recursively defined function $\flatten : \JList{X} \to \List{X}$ which flattens a join list into an ordinary list. We keep the constructors $\Jnil$, $\Jsing{\blank}$ and $\Jconcat{\blank}{\blank}$, but replace $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
 \[
@@ -232,6 +227,10 @@ which states that join lists are equal as soon as their flattenings are equal. F
 
 
 \LT{How the congruence rule for the identity type can be used in QII(R)T?}
+
+\subsection{Definitions by overlapping patterns} \label{sec:meta:overlapping}
+\cite{Cockx2014,Altenkirch2016a}
+\LT{We use $f\;\vec{x} \reduce \vec{t}$ to indicate a function clause of a definition by overlapping patters.}
 \subsection{Definitions by rewrite rules}
 \cite{Cockx2020,Cockx2021}
 
@@ -244,20 +243,6 @@ Unfortunately, neither general schemata of quotient inductive-inductive-recursiv
 \LT{Explain how these two conditions imply global confluence}
 
 \section{Type theories as quotient inductive-inductive-recursive types} \label{sec:QIIRTs}
-\LT{
-\begin{enumerate}
-  \item Goal: remove transports in the definition so that less transports during reasoning.
-  \item Motivation: make type substitution definitional so that we do not have to apply transport along structural rules for types explicitly.
-  \item Develop the quotient inductive-inductive-recursive definition of type theory step by step (which needs to be locally confluent and terminating).
-    \begin{enumerate}
-      \item parallel substitution: type substitution
-      \item the type of elements of $A$: term substitution needs to be split into two definitional substitution and explicit term substitution to maintain local confluence.
-      \item $\Pi$-type: because of the substitution lifting $\sigma^+ \defeq (\pi_1\idS, \pi_2\idS)$ is used we need to introduce a definitional lifting to maintain local confluence.
-        We prefer categorical combinator and avoid using $\left< t \right>$ in the definition, which would introduce transports in the definition.
-      \item Other type formers can be introduced as usual (as long as we use categorical combinators).
-    \end{enumerate}
-\end{enumerate}
-}
 
 We begin with the definition of the parallel substitution calculus~\cite{Martin-Lof1992} as a QIIT, emphasising how the use of transports in its very definition complicates formal reasoning.
 We then introduce its QIIRT counterpart (\cref{subsec:SC-QIIRT}) which shortens the gap between formal and informal reasoning.
@@ -267,13 +252,11 @@ Then, we develop a type theory with a universe (\cref{subsec:SC+U}), $\Pi$-types
 
 Substitution calculus has a type $\Ctx$ of contexts, a type $\Ty\,\Gamma$ of types in context $\Gamma : \Ctx$, a type $\Sub\;\Gamma\;\Delta$ of substitutions from context $\Gamma$ to context $\Delta$, and a type $\Tm\;\Gamma\;A$ of terms in context $\Gamma$ of type $A$. 
 This amounts to the following type families, all mutually inductively defined (hence inductive-inductive):
-\begin{alignat*}{3}
-  \Ctx   & : \Set                   \\
-  \Ty    & : \Ctx \to \Set          \\
-  \Sub   & : \Ctx \to \Ctx \to \Set \\
-  \Tm    & : (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Set
-\end{alignat*}
-The type $\Ctx$ has two constructors: $\emptyctx$ for the empty context, and $\blank,\blank$ for context extension, typed as follows.
+\begin{align*}
+  \Ctx   & : \Set                   & \Sub   & : \Ctx \to \Ctx \to \Set \\
+  \Ty    & : \Ctx \to \Set          & \Tm    & : (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Set
+\end{align*}
+$\Ctx$ has two constructors: $\emptyctx$ for the empty context, and $\blank,\blank$ for context extension, typed as
 \begin{alignat*}{3}
   \emptyctx & : \Ctx \\
   \blank,\blank & : (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Ctx
@@ -286,6 +269,7 @@ Type substitution takes a substitution $\sigma : \Sub\;\Gamma\;\Delta$ and an in
 \end{alignat*}
 where $\Gamma$ and $\Delta$ are kept implicit.
 \Fredrik{Could we change this to $A[\sigma]$ instead?}
+\LT{I am okay with changing it in the paper: This notation is used in the formalisation to avoid using $\comp$ for substitution composition: }
 
 Since $\Ty$ is inductively defined, we add a base case to ensure that $\Ty\;\Gamma$ is not empty for every $\Gamma$:
 %
@@ -432,8 +416,6 @@ Since we want type substitution to both act structurally on types and commute wi
 \end{alignat}
 However, this definition does \emph{not} reduce \eqref{eq:type-sub-at2-2} or \eqref{eq:type-sub-at2-3} definitionally.
 By design, definitions by pattern matching will be elaborated to a form that corresponds to the \emph{eliminator} either using \emph{first-match semantics}~\cite{Cockx2020a} for function clauses or an explicit construct for pattern matching, so that \eqref{eq:type-sub-at2-2} or \eqref{eq:type-sub-at2-3} will only fire if we know that $A$ is not $\UU$.
-\LT[noinline]{How about \Coq and \Lean?}
-\Fredrik[noinline]{They also translate to eliminators, so I think we do not need to say anything}
 %In the above definition, only the eliminator for $\Ty\;\Delta$ will be considered using the first-match semantics, which amounts to the following definition:
 %\begin{alignat*}{3}
 %[\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
@@ -510,6 +492,7 @@ We revisit \Cref{ex:pi2-comp} to demonstrate the pragmatic benefit of QIIRTs ove
 As we are defining a function on a quotient inductive type, we have to prove that $[\blank]_{\Ty}\blank$ is coherent, i.e., that it respects all equality constructors.
 \LT[noinline]{Should we mention any general condition for coherence?}
 \Fredrik[noinline]{Is there one?}
+\LT[noinline]{I think Cubical Agda has sort of conditions? (Cubical Agda does not support rewriting)}
 \begin{proposition}[Coherence]\label{prop:coherence-1}
   $[\sigma]_{\Ty}\,A$ is (propositionally) equal to $[\tau]_{\Ty}\,A$ for every equality constructor $p : \sigma = \tau$.
   \danger
@@ -788,10 +771,12 @@ Finally, we show that these simultaneously defined functions are coherent.
 \begin{proof}
   These two identities follow from \cref{prop:correctness-2,prop:correctness-3} easily with the heterogeneous identity (see \cref{sec:meta}).
 \Fredrik{This heterogeneous equality has not been used so far; it would be good to not have to introduce it all, except perhaps locally in the proof here.}
+\LT{How about deferring introducing heterogeneous equality until \cref{sec:formal-implementation}?}
 \end{proof}
 
 \subsubsection{Multiple lifting and the coherence of type substitution}
 \Fredrik{This section gets rather technical. Keeping the page limit in mind, I wonder if we should only briefly summarise it in the main text?}
+\LT{Move this to the appendix?}
 
 For the coherence of~$[\blank]_{\Ty}\blank$, we have to generalise the desired identity to account for the lifting, since a naive induction does not work: for example, unfolding $[\sigma]_{\Ty}\,(\Pi\;A\;B)$ leads to
 \[
@@ -990,7 +975,7 @@ Similarly, the structural rule for substitution on $\mathsf{app}$ can be derived
 without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref{eq:def-type-subst-8} has become definitional. 
 
 
-\subsection{... and other type formers} \label{subsec:SC+U+Pi+more}
+\subsection{Adding other type formers} \label{subsec:SC+U+Pi+more}
 \LT{%
 \begin{enumerate}
   \item Discuss the extensional identity type.
@@ -1024,36 +1009,33 @@ To eliminate $\Ctx$, $\Ty\,\Gamma$, $\Sub\;\Gamma\;\Delta$, and $\Tm\,\Gamma\,A$
   \Ty^M  & : \implicit{\Gamma}\,\Ctx^M\;\Gamma \to \Ty\;\Gamma \to \Set & 
   \Tm^M  & : \implicit{\Gamma, A}\; (\Gamma^M : \Ctx^M\;\Gamma) \to \Ty^M\;\Gamma^M\;A \to \Tm\;\Gamma\;A \to \Set
 \end{align*}
-called the \emph{motivates} as the target types for the elimination:
+called the \emph{motivates} as the target types for the elimination principle:
 \begin{alignat*}{5}
-  \elim_{\Ctx} & : (\Gamma : \Ctx)   && \to \Ctx^M\;\Gamma \\
-  \elim_{\Ty}  & : (A : \Ty\;\Gamma) && \to \Ty^M\;(\elim_{\Ctx}\,\Gamma)\;A \\
+  \elim_{\Ctx} & : (\Gamma : \Ctx)   && \to \Ctx^M\;\Gamma &
   \elim_{\Sub} & : (\sigma : \Sub\;\Gamma\;\Delta) && \to \Sub^M\;(\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ctx}\;\Delta)\;\sigma \\
-  \elim_{\Tm}  & : (t : \Tm\;\Gamma\;A) && \to \Tm^M\;(\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ty}\,A)\;t.
+  \elim_{\Ty}  & : (A : \Ty\;\Gamma) && \to \Ty^M\;(\elim_{\Ctx}\,\Gamma)\;A \quad
+               & \elim_{\Tm}  & : (t : \Tm\;\Gamma\;A) && \to \Tm^M\;(\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ty}\,A)\;t.
 \end{alignat*}
-Each constructor $c$ is interpreted by a corresponding functions $c^M$ indexed by $c$, i.e.\ 
+Each constructor $c$ is interpreted by a corresponding functions $c^M$ indexed by $c$, e.g.,\ 
 \begin{alignat*}{3}
-  \emptyctx_{\Ctx}^M     & :                      && \Ctx^M\;\emptyctx \\
-  \blank,_{\Ctx}^M\blank & : \implicit{\dots} && (\Gamma^M : \Ctx^M\;\Gamma) \to \Ty^M\;\Gamma^M\;A \to \Ctx^M\;(\Gamma, A) \\
+  \emptyctx_{\Ctx}^M     & :                    && \Ctx^M\;\emptyctx \\
+  \blank,_{\Ctx}^M\blank & : \implicit{\dots}\; && (\Gamma^M : \Ctx^M\;\Gamma) \to \Ty^M\;\Gamma^M\;A \to \Ctx^M\;(\Gamma, A) \\
   \UU^M & : \implicit{\dots} && \Ty^M\;\Gamma^M\;\UU \\
-  \emptysub_{\Sub}^M     & : \implicit{\dots} && \Sub^M\;\Gamma^M\;\emptyctx_{\Ctx}^M\;\cdot \\
-  \blank,_{\Sub}^M\blank & : \implicit{\dots} && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Tm^M\;\Gamma^M\;([\sigma^M]^M_{\Ty}\,A^M)\;t \to \Sub^M\;\Gamma^M\;(\Delta^M ,^M_{\Ctx} A^M)\;(\sigma, t) \\
-  \idS^M          & : \implicit{\dots} && \Sub^M\;\Gamma^M\;\Gamma^M\;\idS \\
-  [\blank]^M\blank & : \implicit{\dots} && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Tm^M\;\Delta^M\;A^M\;t \to \Tm^M\;\Gamma^M\;([\sigma^M]_{\Ty}^M\,A^M)([\sigma]\,t) \\
-                   && \vdots
+  \emptysub_{\Sub}^M     & : \implicit{\dots}   && \Sub^M\;\Gamma^M\;\emptyctx_{\Ctx}^M\;\cdot \\
+  \blank,_{\Sub}^M\blank & : \implicit{\dots}   && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Tm^M\;\Gamma^M\;([\sigma^M]^M_{\Ty}\,A^M)\;t \to \Sub^M\;\Gamma^M\;(\Delta^M ,^M_{\Ctx} A^M)\;(\sigma, t) \\
+%  \idS^M          & : \implicit{\dots} && \Sub^M\;\Gamma^M\;\Gamma^M\;\idS \\
+  [\blank]^M\blank & : \implicit{\dots} && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Tm^M\;\Delta^M\;A^M\;t \to \Tm^M\;\Gamma^M\;([\sigma^M]_{\Ty}^M\,A^M)([\sigma]\,t)
 \end{alignat*}
 and simultaneously defined functions are also given by corresponding functions 
 \begin{alignat*}{3}
-  [\blank]_{\Ty}^M\blank & : \implicit{\dots} && \Sub^M\;\Gamma^M\;\Delta^M\;\sigma \to \Ty^M\;\Delta^M\;A \to \Ty^M\;\Gamma^M\;([\sigma]_{\Ty}\,A) \\
-  [\blank]_{\Tm}^M\blank & : \implicit{\dots} && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Tm^M\;\Delta^M\;A^M\;t \to \Tm^M\;\Gamma^M\;([\sigma^M]_{\Ty}^M\,A^M)([\sigma]_{\Tm}\,t) \\
-                         && \vdots
+  [\blank]_{\Ty}^M\blank & : \implicit{\dots} \; && \Sub^M\;\Gamma^M\;\Delta^M\;\sigma \to \Ty^M\;\Delta^M\;A \to \Ty^M\;\Gamma^M\;([\sigma]_{\Ty}\,A) \\
+  [\blank]_{\Tm}^M\blank & : \implicit{\dots} && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Tm^M\;\Delta^M\;A^M\;t \to \Tm^M\;\Gamma^M\;([\sigma^M]_{\Ty}^M\,A^M)([\sigma]_{\Tm}\,t)
 \end{alignat*}
-subject to the corresponding equations \emph{and function clauses}, e.g., 
+subject to the identities corresponding to equality constructors and function clauses, e.g., 
 \begin{alignat*}{5}
-  [\idS]_{\Ty}^M & : \implicit{\dots} && [ \idS^M ]^M_{\Ty} \;A^M && =^{\Ty^M\,\Gamma^M}\;&& A^M \\
-  [;]_{\Ty}^M & : \implicit{\dots} && [ \sigma^M ;^M \tau^M ]^M_{\Ty} \;A^M && =^{\Ty^M\,\Gamma^M}\; && [\sigma^M]^M_{\Ty}\,([\tau^M]^M_{\Ty}\,A^M) \\
-  [\idS]_{\Tm}^M & : \implicit{\dots} && [\idS^M]^M_{\Tm}\;t^M && =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{[\idS^M]}} && t^M \\
-                 && \vdots
+  [\idS]_{\Ty}^M & : \implicit{\dots}\; && [ \idS^M ]^M_{\Ty} \;A^M && =^{\Ty^M\,\Gamma^M}\;&& A^M \\
+  [;]_{\Ty}^M    & : \implicit{\dots}   && [ \sigma^M ;^M \tau^M ]^M_{\Ty} \;A^M && =^{\Ty^M\,\Gamma^M}\; && [\sigma^M]^M_{\Ty}\,([\tau^M]^M_{\Ty}\,A^M) \\
+  [\idS]_{\Tm}^M & : \implicit{\dots}   && [\idS^M]^M_{\Tm}\;t^M && =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{[\idS^M]}} && t^M
 \end{alignat*}
 called \emph{methods}.
 For brevity, we omit the rest of methods and refer to the Agda implementation for them.
@@ -1074,16 +1056,16 @@ Nevertheless, the difference is insignificant, as both definitions would be deri
 
 Given an eliminator, the following clauses are derived to carry out the actual computation
 \begin{alignat*}{5}
-  \elim_{\Ctx}\,\emptyctx   & \reduce \emptyctx_{\Ctx}                                    && : \Ctx^M\;\emptyctx  \\
-  \elim_{\Ctx}\,(\Gamma, A) & \reduce (\elim_{\Ctx}\,\Gamma),_{\Ctx}^{M} (\elim_{\Ty}\,A) && : \Ctx^M\;(\Gamma, A) \\
-  \elim_{\Ty}\,\UU          & \reduce \UU^M && :\Ty^M\;\Gamma^M\;\UU \\
-  \elim_{\Sub}\,\emptysub   & \reduce \emptysub^M_{\Sub} &&: \Sub^M\;\Gamma^M\;\emptyctx^M_{\Ctx}\;\emptyctx \\
+  \elim_{\Ctx}\;\emptyctx   & \reduce \emptyctx_{\Ctx}                                    && : \Ctx^M\;\emptyctx  \\
+  \elim_{\Ctx}\;(\Gamma, A) & \reduce (\elim_{\Ctx}\,\Gamma),_{\Ctx}^{M} (\elim_{\Ty}\,A) && : \Ctx^M\;(\Gamma, A) \\
+  \elim_{\Ty}\;\UU          & \reduce \UU^M && :\Ty^M\;\Gamma^M\;\UU \\
+  \elim_{\Sub}\;\emptysub   & \reduce \emptysub^M_{\Sub} &&: \Sub^M\;\Gamma^M\;\emptyctx^M_{\Ctx}\;\emptyctx \\
                             & \vdots
 \end{alignat*}
 interpreting each constructor using the corresponding method inductively.
 
-Here, the key difference from its QII counterpart is that type substitution $[\blank]\blank$ was a constructor and $[\sigma]\,A$ was eliminated to $[\elim_{\Sub}\,\sigma]^M_{\Ty}\,(\elim_{\Ty}\,A)$; similarly for term substitution.
-In contrast, substitution operations $[\blank]_{\Ty}\blank$ and $[\blank]_{\Tm}$ are functions rather than constructors, meaning they cannot be eliminated inductively but instead become propositional identities. 
+Interestingly, the key difference from its QII counterpart is that substitution operations $[\blank]_{\Ty}\blank$ and $[\blank]_{\Tm}$ are functions rather than constructors, meaning they cannot be eliminated inductively but instead become propositional identities.
+%type substitution $[\blank]\blank$ was a constructor and $[\sigma]\,A$ was eliminated to $[\elim_{\Sub}\,\sigma]^M_{\Ty}\,(\elim_{\Ty}\,A)$; similarly for term substitution.
 \begin{proposition}\label{prop:provable-function-clauses}
   Given the motives and the methods, we have
 \begin{alignat*}{5}
@@ -1098,45 +1080,57 @@ Consider eliminating an extension $\sigma, t$ for $\sigma : \Sub\;\Gamma\;\Delta
 \[
   \elim_{\Sub}(\sigma, t) = (\elim_{\Sub}\,\sigma) ,^M_{\Sub} \; \alert{t^M}.
 \]
-In the QII definition, $t^M$ is just $\elim_{\Tm}\,t$ of type
+In the QII definition, $\elim_{\Tm}\,t$ is exactly $t^M$ and has the type
 \begin{equation} \label{eq:elim-subext}
   \Tm^M\;\Gamma^M\;(\elim_{\Ty}\;([\sigma]_{\Ty}\,A))\;t\judgeq \Tm^M\;\Gamma^M\;[\elim_{\Sub}\,\sigma]^M_{\Ty}\,(\elim_{\Ty}\,A)\;t
 \end{equation}
-as the RHS of \eqref{eq:elim-subext} is indeed the type for the second argument of $\blank,^M_{\Sub}\blank$.
+as the RHS of \eqref{eq:elim-subext} is indeed the type of the second argument for $\blank,^M_{\Sub}\blank$.
 In the QIIR definition, on the contrary, the type of $\elim_{\Tm}\;t$ is $\elim_{\Ty}\;([\sigma]_{\Ty}\,A)$ is not definitionally equal to the RHS of \eqref{eq:elim-subext}, so $\elim_{\Sub}(\sigma, t)$ has to be
 \[
   (\elim_{\Sub}\,\sigma) ,_{\Sub}^M \alert{\transfib{\Tm^M\;(\elim_{\Ctx}\,\Gamma)}{\elim_{\Ty}[]}{\color{black}(\elim_{\Tm}\,t)}}
 \]
-transporting $\elim_{\Tm}\,t$ along the identity $\elim_{\Ty}[]$ to replace \eqref{eq:elim-subext}.
+transporting $\elim_{\Tm}\,t$ along the identity $\elim_{\Ty}[]$.
 
 \begin{remark}
-Note again that our inductive-recursive definition is not an instance of the general schema of inductive-recursion in the sense of Dybjer and Setzer~\cite{Dybjer2000,Dybjer2003} where simultaneously defined functions do not require corresponding interpretation as they target meta-theoretic types instead of inductive types being defined.
+Note again that our definition is not an instance of Dybjer and Setzer's schema of inductive-recursion where simultaneously defined functions do not require corresponding interpretation as they target meta-theoretic types instead of inductive types being defined.
 \end{remark}
 
 \subsection{The standard model} \label{subsec:std-model}
-
-The soundness of our definition is justified by the standard model, which is further given by the same motives as those for its QII counterpart~\cite[Section~4]{Altenkirch2016a}:
+Our definition has the standard model, justifying its soundness of our definition, given by the same motives as those for its QII counterpart~\cite[Section~4]{Altenkirch2016a}:
 \begin{align*}
-  \Ctx^M & \defeq \lam{\_} \Set &
-  \Sub^M & \defeq \lam{\Gamma^M}{\Delta^M}{\_} \Gamma^M \to \Delta^M \\
-  \Ty^M  & \defeq \lam{\Gamma^M}{\_}\Gamma^M \to \Set & 
-  \Tm^M  & \defeq \lam{\Gamma^M}{A^M}{\_} (\gamma : \Gamma^M) \to A^M \gamma
+  \Ctx^M & \defeq \lam{\nameless} \Set &
+  \Sub^M & \defeq \lam{\Gamma^M}{\Delta^M}{\nameless} \Gamma^M \to \Delta^M \\
+  \Ty^M  & \defeq \lam{\Gamma^M}{\nameless}\Gamma^M \to \Set & 
+  \Tm^M  & \defeq \lam{\Gamma^M}{A^M}{\nameless} (\gamma : \Gamma^M) \to A^M \gamma
 \end{align*}
 with the additional methods to its QII counterpart:
 \begin{align*}
-  \blank\uparrow^M\blank & \judgeq \lam{\sigma^M}{A^M}{(\gamma, x^M)} (\sigma^M\,\gamma , x^M) & \\
+  \blank\uparrow^M\blank & \judgeq \lam{\sigma^M}{A^M}{\gamma} (\sigma^M\,(\pi_1\,\gamma) , \pi_2\,\gamma) & \\
                          & : (\sigma^M : \Gamma^M \to \Delta^M) (A^M : \Delta^M \to \Set) \to \Sigma\;\Gamma^M\;(\lam{\gamma}A^M\,(\sigma^M\,\gamma)) \to \Sigma\,\Delta^M\,A^M \\
   [\blank]_{\Tm}^M\blank & \judgeq \lam{\sigma^M}{t^M} (\sigma^M ; t^M)  \\
                          & : (\Gamma^M \to \Delta^M) \to ((\delta : \Delta^M) \to A^M\,\delta) \to (\gamma : \Gamma^M) \to A^M\,(\sigma^M\,\gamma)
 \end{align*}
 where $[\blank]_{\Tm}^M\blank$ is the same as the method for the explicit term substitution $[\blank]^M\blank$.
-The additional identities for these methods all hold definitionally.
-For example, 
-\LT{give an example}
 
-Indeed, it is not surprising.
-Additional rules we have used to enable further reduction are derivable already, so they can be justified by the same standard model.
-It is nature to ask: what is the theoretical difference between the QIIR and QIIR definitions?
+In the QII counterpart, none of identities hold definitionally, because their indices always involve equality constructors.
+For example, the identity type substitution corresponds to
+\begin{alignat*}{5}
+  [\idS]^M & : [ \idS^M ]^M_{\Ty}\, A^M && =^{\Ty^M\;\Gamma^M}_{\alert{[\idS]}} A^M
+\end{alignat*}
+The transport along $[\idS] : [\idS]\,A = A$ above is needed, because $[ \idS^M ]^M_{\Ty}\, A^M$ is indexed by $[\idS]\,A$ instead of $A$.
+Accordingly, this identity becomes $\lam{\gamma} A^M\,\gamma =_{[\idS]}^{\lam{\nameless}\Gamma^M \to \Set} A^M$ in the standard model and requires a lemma about constant transport~\cite[Lemma~2.3.5]{UFP2013} to show.
+
+In contrast, in our QIIR definition, many identities just hold definitionally.
+Consider
+\begin{alignat*}{5}
+  [\idS]^M                   & : [ \idS^M ]^M_{\Ty}\, A^M && = A^M \\
+  \idS{\mathord{\uparrow}}^M & : \idS^M \uparrow^M A^M    && =^{\lam{B^M}\Sub^M\;(\Gamma^M, A^M)\;\Delta^M\;(\idS \uparrow A)}_{\alert{[\idS]^M}} \idS^M
+\end{alignat*}
+where $[\idS]^M$ is just $(\lam{\gamma} A^M\,\gamma) = A^M$ for $A^M : \Gamma^M \to \Set$ in the model and holds definitionally by the $\eta$-law for $\Pi$-types.
+Hence, $\idS{\mathord{\uparrow}}^M$ becomes $(\idS^M \uparrow^M A^M) = \idS^M$, definitionally equal to $(\lam{\gamma}(\pi_1\gamma, \pi_2\gamma)) = \lam{\gamma}\gamma$, and holds definitionally by the $\eta$-law for $\Sigma$-types.
+
+Additional rules we have used to enable further reduction are derivable already, and they can be justified by the same standard model with simpler proofs.
+Now is nature to ask: what is the theoretical difference between the QIIR and QIIR definitions?
 \subsection{Comparison with type theory as QIIT} \label{subsec:equivalence}
 \section{Formal implementation} \label{sec:formal-implementation}
 \LT{Mention the NbE for SC here}
@@ -1174,6 +1168,7 @@ Substitution calculus is closely related to \emph{categories with families}~\cit
 
 
 \IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
+%\bibliography{ref}
 
 \appendix
 

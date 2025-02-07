@@ -37,8 +37,8 @@ module _ {ℓ ℓ′ : Level} (elim : Eliminator {ℓ} {ℓ′}) where
   elimCtx ∅          = ∅ᶜᴹ
   elimCtx (Γ , A)    = elimCtx Γ ,ᶜᴹ elimTy A
   elimTy (U i)       = Uᴹ i
-  elimTy (El u) = Elᴹ (elimTm u)
-  elimTy (Lift A) = Liftᴹ (elimTy A)
+  elimTy (El u)      = Elᴹ (elimTm u)
+  elimTy (Lift A)    = Liftᴹ (elimTy A)
   elimTy (Π A B)     = Πᴹ (elimTy A) (elimTy B)
   elimTy (Id a t u)      = Idᴹ (elimTm a) (elimTm t) (elimTm u)
   elimSub ∅          = ∅ˢᴹ
