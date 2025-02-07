@@ -62,7 +62,7 @@
 \maketitle
 
 \begin{abstract}
-  Defining type theory in type theory is a long-standing challenge and a benchmark for the strength and expressivity of type theory and a proof assistant.
+  Defining type theory in type theory is a long-standing benchmark for the strength and expressivity of type theory and a proof assistant.
   Altenkirch and Kaposi used quotient inductive-inductive types to elegantly represent exactly the well-typed terms of type theory, with the price to be paid that terms frequently contain transports along equality constructors.
   As a result, proofs need to painstakingly account for coercions alongside the interesting part.
   This %mess
@@ -428,7 +428,7 @@ We may swap \eqref{eq:type-sub-at2-1} with \eqref{eq:type-sub-at2-2} and \eqref{
 [ \sigma, t ]_{\Ty}\;\UU         \reduce \UU, \qquad\text{and}\qquad 
 [ \pi_1\,\sigma ]_{\Ty}\;\UU     \reduce \UU,
 \]
-where we have written $t \reduce t'$ for $t \equiv t'$ to emphasise the reduction behaviour. Thus in this case we have again lost the strict identity $[\sigma]\;\UU \equiv \UU$.
+where we have written $t \reduce u$ for $t \equiv u$ to emphasise the reduction behaviour. Thus in this case we have again lost the strict identity $[\sigma]\;\UU \equiv \UU$.
 %
 %making $[\sigma]\;\UU = \UU$ propositional instead.
 %Not being able to reduce $[ \sigma ]_{\Ty}\;\UU$ to $\UU$ would make our later extension with a type $\El\,a$ for $a : \Tm\;\Gamma\;\UU$ require another transport in the definition.
@@ -520,8 +520,7 @@ As we are defining a function on a quotient inductive type, we have to prove tha
   As we extend substitution calculus with other type formers, the first four identities will always hold but the last three depend on how congruence rules for type substitution is defined.
 \end{remark}
 
-\LT{We may wonder if the last three identities can be made strict.
-Can we find a complete set of rules?}
+\LT{We may wonder if the last three identities can be made strict.}
 
 \subsection{Adding a universe} \label{subsec:SC+U}
 In this section, we extend substitution calculus with an empty universe $\UU$ of small types~$\El\,u$.
@@ -1047,7 +1046,7 @@ We also have omitted the list of implicitly quantified variables: each variable 
 
 \begin{remark}
 To state these methods, we cannot avoid using transports in identities that would need transports in its QII definition of a type theory (e.g.\ $[\idS]_{\Tm}^M$) since identities (e.g.\ $[\idS]_{\Ty}^M$) are propositional just like equality constructors in its QII definition.
-However, in the elimination principle for the QII definition, the situation is even worse: the above identity $[\idS]_{\Ty}^M$ \emph{already} requires $\alert{\transfib{\Ty^M\;\Gamma^M}{[\idS]_{\Ty}}{\color{black}[\idS^M]_{\Ty}^M\,A^M}}$ to coerce its type $\Ty^M\;\Gamma^M\;([\idS]\,A)$ to $\Ty^M\;\Gamma^M\;A$ to match the index $A$ of $A^M$, which are not needed in our QIIR definition.
+However, in the elimination principle for the QII definition, the situation is even worse: the above identity $[\idS]_{\Ty}^M$ already requires $\alert{\transfib{\Ty^M\;\Gamma^M}{[\idS]_{\Ty}}{\color{black}[\idS^M]_{\Ty}^M\,A^M}}$ to coerce its type $\Ty^M\;\Gamma^M\;([\idS]\,A)$ to $\Ty^M\;\Gamma^M\;A$ to match the index $A$ of $A^M$, which are not needed in our QIIR definition.
 That is, the eliminator for the QIIR definition requires fewer transports than its QII counterpart.
 \end{remark}
 
@@ -1092,7 +1091,7 @@ Note again that our definition is not an instance of Dybjer and Setzer's schema 
 \end{remark}
 
 \subsection{The \texorpdfstring{$\Set$}{Set}-theoretic model} \label{subsec:std-model}
-Our definition has the standard $\Set$-theoretic model, justifying the soundness of our definition, given by the same motives as those for its QII counterpart~\cite[Section~4]{Altenkirch2016a}:
+The standard $\Set$-theoretic model for our definition, justifying its soundness, is given by the same motives as those for its QII counterpart~\cite[Section~4]{Altenkirch2016a}:
 \begin{alignat*}{5}
   \Ctx^M & \defeq \lam{\nameless} \; && \Set & \qquad \Sub^M & \defeq \lam{\Gamma^M\,\Delta^M\,\nameless}\; && \Gamma^M \to \Delta^M \\
   \Ty^M  & \defeq \lam{\Gamma^M\, \nameless} && \Gamma^M \to \Set & 
@@ -1102,8 +1101,8 @@ with the additional methods to its QII counterpart:
 \begin{align*}
   \blank\uparrow^M\blank & \defeq \lam{\sigma^M\,A^M\,\gamma} (\sigma^M\,(\pi_1\,\gamma) , \pi_2\,\gamma) & \\
                          & : (\sigma^M : \Gamma^M \to \Delta^M) (A^M : \Delta^M \to \Set) \to \Sigma\;\Gamma^M\;(\lam{\gamma}A^M\,(\sigma^M\,\gamma)) \to \Sigma\,\Delta^M\,A^M \\
-  [\blank]_{\Tm}^M\blank & \defeq \lam{\sigma^M\,t^M} (\sigma^M ; t^M)  \\
-                         & : (\Gamma^M \to \Delta^M) \to ((\delta : \Delta^M) \to A^M\,\delta) \to (\gamma : \Gamma^M) \to A^M\,(\sigma^M\,\gamma)
+  [\blank]_{\Tm}^M\blank & \defeq \lam{\sigma^M\,t^M\,\gamma} (t^M\,(\sigma^M\,\gamma))  \\
+                         & : (\sigma^M : \Gamma^M \to \Delta^M) (t^M : (\delta : \Delta^M) \to A^M\,\delta) \to (\gamma : \Gamma^M) \to A^M\,(\sigma^M\,\gamma)
 \end{align*}
 where $[\blank]_{\Tm}^M\blank$ is the same as the method for the explicit term substitution $[\blank]^M\blank$.
 
@@ -1122,11 +1121,14 @@ Consider
   \idS{\mathord{\uparrow}}^M & : \idS^M \uparrow^M A^M    && =^{\lam{B^M}\Sub^M\;(\Gamma^M, A^M)\;\Delta^M\;(\idS \uparrow A)}_{\alert{[\idS]^M}} \idS^M
 \end{alignat*}
 where $[\idS]^M$ does not need a transport and is just an strict equality $(\lam{\gamma} A^M\,\gamma) \judgeq A^M$ in the model by the $\eta$-law for $\Pi$-types.
-Hence, $\idS{\mathord{\uparrow}}^M$ becomes $(\idS^M \uparrow^M A^M) = \idS^M$, strictly equal to another strict equality $(\lam{\gamma}(\pi_1\gamma, \pi_2\gamma)) \judgeq \lam{\gamma}\gamma$ by the $\eta$-law for $\Sigma$-types.
+Hence, $\idS{\mathord{\uparrow}}^M$ becomes $(\idS^M \uparrow^M A^M) = \idS^M$ and by definition is a strict equality $\lam{\gamma}(\pi_1\gamma, \pi_2\gamma) \judgeq \lam{\gamma}\gamma$ by the $\eta$-law for $\Sigma$-types.
 
-The additional rules we have used to enable further reduction are derivable already, and they can be justified by the same standard model with simpler proofs.
+The additional rules we have used to enable further reduction are derivable in type theory, and they can be justified by the same standard model with simpler proofs.
 Now is nature to ask: what is the theoretical difference between the QIIR and QIIR definitions?
 \subsection{Comparison with type theory as QIIT} \label{subsec:equivalence}
+%\subsubsection{Syntactic equivalence}
+%\subsubsection{Semantics equivalence}
+
 \section{Formal implementation} \label{sec:formal-implementation}
 \LT{Mention the NbE for SC here}
 \LT{Compare some formal proofs with pen-and-paper proofs here}
@@ -1159,7 +1161,8 @@ Substitution calculus is closely related to \emph{categories with families}~\cit
 \paragraph*{A schema of quotient inductive-inductive-recursive types in observation type theory}
 \LT{What a general schema should have?  inductive types should be allowed as the codomain of a recursion.}
   
-\LT{OTT also has a natural setoid model (which should be useful to manifest the difference between recursion and equality constructor) but quotient (inductive-)inductive(-recursive) types in OTT are underdeveloped.}
+\LT{OTT also has a natural setoid model (which should be useful to manifest the difference between recursion and equality constructor) but quotient (inductive-)inductive(-recursive) types in OTT are underdeveloped.
+It will be nice to have OTT equipped with QII(R)T on a par with HIIT (or Cubical Agda).}
 
 
 \IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
