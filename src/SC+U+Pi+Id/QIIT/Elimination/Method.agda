@@ -113,6 +113,55 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       C₂ : CwF₂ C₁
     open CwF₁ C₁ public
     open CwF₂ C₂ public
+    [π₁ᴹ,ˢᴹ]ᴹ
+      : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Bᴹ) t)(Aᴹ : Tyᴹ Δᴹ i A)
+      → tr TyᴹFam (cong ([_] A) π₁,) ([ π₁ᴹ (σᴹ ,ˢᴹ tᴹ) ]ᴹ Aᴹ) ≡ [ σᴹ ]ᴹ Aᴹ
+    [π₁ᴹ,ˢᴹ]ᴹ {σ = σ} {A = A} σᴹ tᴹ Aᴹ = 
+        cong (λ x → tr TyᴹFam (cong ([_] A) π₁,) ([ x ]ᴹ Aᴹ)) (flip π₁ᴹ,ˢᴹ)
+      ∙ cong (tr TyᴹFam (cong ([_] A) π₁,)) (sym $ tr-nat SubᴹFam (λ _ x → [ x ]ᴹ Aᴹ) (sym π₁,))
+      ∙ cong (tr TyᴹFam (cong ([_] A) π₁,)) (tr-cong {P = TyᴹFam} (sym π₁,))
+      ∙ tr² (cong ([_] A) (sym π₁,))
+      ∙ cong (λ p → tr TyᴹFam p ([ σᴹ ]ᴹ Aᴹ))
+             (uip ((cong ([_] A) (sym π₁,) ∙ cong ([_] A) π₁,)) refl)
+    
+    π₁ᴹ⨟ᴹ 
+      : {Aᴹ : Tyᴹ Θᴹ i A}(τᴹ : Subᴹ Γᴹ Δᴹ τ)(σᴹ : Subᴹ Δᴹ (Θᴹ ,ᶜᴹ Aᴹ) σ)
+      → tr SubᴹFam (π₁⨟ _ _) (π₁ᴹ (τᴹ ⨟ᴹ σᴹ)) ≡ τᴹ ⨟ᴹ π₁ᴹ σᴹ
+    π₁ᴹ⨟ᴹ {τ = τ} {σ} τᴹ σᴹ = 
+        cong (tr SubᴹFam (π₁⨟ τ σ)) (cong (λ x → π₁ᴹ (τᴹ ⨟ᴹ x)) (flip η,ˢᴹ))
+      ∙ cong (tr SubᴹFam (π₁⨟ τ σ)) (sym $ tr-nat SubᴹFam (λ _ x → π₁ᴹ (τᴹ ⨟ᴹ x)) (sym η,))
+      ∙ cong (tr SubᴹFam (π₁⨟ τ σ)) (tr-cong {P = SubᴹFam} (sym η,))
+      ∙ tr² (cong (λ x → π₁ (τ ⨟ x)) (sym η,)) {π₁⨟ τ σ}
+      ∙ cong (λ x → tr SubᴹFam (cong (λ x → π₁ (τ ⨟ x)) (sym η,) ∙ π₁⨟ τ σ) (π₁ᴹ x))
+             (flip ⨟ᴹ,ˢᴹ)
+      ∙ cong (tr SubᴹFam (cong (λ x → π₁ (τ ⨟ x)) (sym η,) ∙ π₁⨟ τ σ)) 
+             (sym $ tr-nat SubᴹFam (λ _ → π₁ᴹ) (sym ⨟,))
+      ∙ cong (tr SubᴹFam (cong (λ x → π₁ (τ ⨟ x)) (sym η,) ∙ π₁⨟ τ σ))
+             (tr-cong {P = SubᴹFam} (sym ⨟,))
+      ∙ tr² (cong π₁ (sym ⨟,)) {cong (λ x → π₁ (τ ⨟ x)) (sym η,) ∙ π₁⨟ τ σ}
+      ∙ cong (tr SubᴹFam (cong π₁ (sym ⨟,) ∙ cong (λ x → π₁ (τ ⨟ x)) (sym η,) ∙ π₁⨟ τ σ))
+             (flip π₁ᴹ,ˢᴹ)
+      ∙ tr² (sym π₁,) {cong π₁ (sym ⨟,) ∙ cong (λ x → π₁ (τ ⨟ x)) (sym η,) ∙ π₁⨟ τ σ}
+      ∙ cong (λ p → tr SubᴹFam p (τᴹ ⨟ᴹ π₁ᴹ σᴹ))
+             (uip (sym π₁, ∙ cong π₁ (sym ⨟,) ∙ cong (λ x → π₁ (τ ⨟ x)) (sym η,) ∙ π₁⨟ τ σ) refl)
+    
+    [π₁ᴹ⨟ᴹ]ᴹ
+      : {Bᴹ : Tyᴹ Θᴹ i B}(τᴹ : Subᴹ Γᴹ Δᴹ τ)(σᴹ : Subᴹ Δᴹ (Θᴹ ,ᶜᴹ Bᴹ) σ)(Aᴹ : Tyᴹ Θᴹ j A)
+      → tr TyᴹFam (cong ([_] A) (π₁⨟ τ σ) ∙ [⨟]) ([ π₁ᴹ (τᴹ ⨟ᴹ σᴹ) ]ᴹ Aᴹ)
+      ≡ [ τᴹ ]ᴹ ([ π₁ᴹ σᴹ ]ᴹ Aᴹ)
+    [π₁ᴹ⨟ᴹ]ᴹ {τ = τ} {σ} {A = A} τᴹ σᴹ Aᴹ =
+        cong (λ x → tr TyᴹFam (cong ([_] A) (π₁⨟ τ σ) ∙ [⨟]) ([ x ]ᴹ Aᴹ))
+             (flip (π₁ᴹ⨟ᴹ τᴹ σᴹ))
+      ∙ cong (tr TyᴹFam (cong ([_] A) (π₁⨟ τ σ) ∙ [⨟]))
+             (sym $ tr-nat SubᴹFam (λ _ x → [ x ]ᴹ Aᴹ) (sym $ π₁⨟ τ σ))
+      ∙ cong (tr TyᴹFam (cong ([_] A) (π₁⨟ τ σ) ∙ [⨟]))
+             (tr-cong {P = TyᴹFam} (sym $ π₁⨟ τ σ))
+      ∙ tr² (cong ([_] A) (sym $ π₁⨟ τ σ)) {cong ([_] A) (π₁⨟ τ σ) ∙ [⨟]}
+      ∙ cong (tr TyᴹFam (cong ([_] A) (sym $ π₁⨟ τ σ) ∙ cong ([_] A) (π₁⨟ τ σ) ∙ [⨟]))
+             (flip [⨟ᴹ]ᴹ)
+      ∙ tr² (sym [⨟]) {cong ([_] A) (sym $ π₁⨟ τ σ) ∙ cong ([_] A) (π₁⨟ τ σ) ∙ [⨟]}
+      ∙ cong (λ p → tr TyᴹFam p ([ τᴹ ]ᴹ ([ π₁ᴹ σᴹ ]ᴹ Aᴹ)))
+             (uip (sym [⨟] ∙ cong ([_] A) (sym $ π₁⨟ τ σ) ∙ cong ([_] A) (π₁⨟ τ σ) ∙ [⨟]) refl)
 
   record Univ (C : CwF) : Set (ℓ ⊔ ℓ′) where
     open CwF C

@@ -187,6 +187,10 @@ flip-tr {Y = Y} {y = y} {y'} {p} eq = begin
     ∎
   where open ≡-Reasoning
 
+flip : {X : Set ℓ}{Y : X → Set ℓ'}{x x' : X}{y : Y x}{y' : Y x'}{p : x ≡ x'}
+     → tr Y p y ≡ y' → y ≡ tr Y (sym p) y'
+flip p = sym (flip-tr p)
+
 {-
 apd₂′ : {A : Set ℓ} {B : A → Set ℓ'} {C : (x : A) (y : B x) → Set ℓ''}
   → (f : (x : A) (y : B x) → C x y)
