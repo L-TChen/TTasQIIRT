@@ -63,10 +63,10 @@
 
 \begin{abstract}
   Defining type theory in type theory is a long-standing benchmark for the strength and expressivity of type theory and a proof assistant.
-  Altenkirch and Kaposi used quotient inductive-inductive types to elegantly represent exactly the well-typed terms of type theory, with the price to be paid that terms frequently contain transports along equality constructors.
+  Altenkirch and Kaposi used quotient inductive-inductive types to elegantly represent exactly the well-typed terms of type theory in intensional type theory, with the price to be paid that terms frequently contain transports along equality constructors.
   As a result, proofs need to painstakingly account for coercions alongside the interesting part.
   This %mess
-  has been dubbed `transport hell', but is typically suppressed in informal presentation for clarity, hiding the gap between the intention and the formalisation of type theory in type theory.
+  has been dubbed `transport hell', but is typically suppressed in informal presentation for clarity, hiding the gap between the intention and the formalisation.
   In this paper, we aim to shorten this gap, using quotient inductive-inductive-recursive types and definitions by overlapping patterns, reducing the use of transports.
   As a case study, we investigate type theory with a universe and $\Pi$-types, and compare our definition with quotient inductive-inductive definitions.
 \end{abstract}
@@ -83,11 +83,19 @@ For example, inductive families~\cite{Dybjer1994} can be used to represent the s
 %
 This is not just a matter of the pure strength of the host theory, but also expressivity and convenience: while it is known how to reduce inductive-inductive definitions to inductive families in principle~\cite{Kaposi2020a}, the resulting development would be considerably harder to work with, most likely exhausting the resources of both the proof assistant and its user.
 
-Altenkirch and Kaposi~\cite{Altenkirch2016a} showed that by employing \emph{quotient inductive-inductive types}~\cite{Altenkirch2018}, the internal representation of well typed terms could be significantly simplified, since equations such as $\beta$- and $\eta$-equality can be represented by the identity type thanks to quotient constructors.
+Altenkirch and Kaposi~\cite{Altenkirch2016a} showed that by employing \emph{quotient inductive-inductive types}~\cite{Altenkirch2018}, the internal representation of well typed terms could be significantly simplified, since equations such as $\beta$- and $\eta$-equality can be represented by the identity type thanks to equality constructors.
 %
 Yet, there is a general phenomenon, called `transport hell', when working with quotient inductive-inductive types: to make use of equalities in later constructors and when using the eliminator for the type, the equalities need to be transported across.
 %
-Any method that reduces the friction this introduces seem worth exploring.
+
+A typical workaround in practice (as adopted by Kaposi et al.~\cite{Kaposi2019}) is to add equality constructors as rewrite rules after an inductive definition and further identify equality constructors with the reflxivity proof.
+%
+As the host theory is assumed to have the uniqueness of identity proof and function extensionality, this workaround is anticipatively justified by the fact~\cite{Hofmann1996,Winterhalter2019,Kapulkin2025} that every well-typed term in extensional type theory can be translated to a term without them in intensional type theory.
+%
+However, this workaround is computationally ill-behaved, as confluence does not hold any more.
+\LT[noinline]{Do they actually justify this workaround anywhere?}
+%
+Any method that reduces the friction introduced by the use of equality constructors without breaking computational properties seem worth exploring.
 %
 
 In this paper, we show that the development can be further streamlined by combining quotient inductive-inductive types and inductive-recursive types.
@@ -115,9 +123,7 @@ As a result, many equations will hold strictly, and we can avoid the use of tran
 
 %
 We emphasise that, following a fine tradition of previous attempts to represent type theory in type theory~\cite{Danielsson2006,Chapman2009,Altenkirch2016a}, we are making use of type-theoretic features that are so far not yet well understood or foundationally well motivated.
-Nevertheless, Agda can be convinced to accept our formal implementation, using some experimental flags to introduce additional rewrite rules.\footnote{%
-  As shown in \cite{Cockx2021}, adding non-terminating rewrite rules does not break consistency as long as these rules are consistent, so consistency is not an issue in our development.
-}
+Nevertheless, Agda can be convinced to accept our formal implementation, using some experimental flags to introduce additional rewrite rules.
 Indeed, we also see this paper as a case study to motivate further developments for quotient inductive-inductive-recursive types and overlapping patterns.
 
 \paragraph*{Contributions}
@@ -139,12 +145,12 @@ Indeed, we also see this paper as a case study to motivate further developments 
 
 We work in intensional Martin-L\"of type theory with uniqueness of identity proofs. In \cref{sec:models,sec:formal-implementation}, we also assume function extensionality and $\eta$-rules for $\Pi$-types and $\Sigma$-types.
 %
-We mostly follow the notational conventions of the HoTT book~\cite{UFP2013} (even if we do not assume the univalence axiom), except that we write dependent function types using Agda notation $(x : A) \to B(x)$.
+We mostly follow the notational conventions of the HoTT book~\cite{UFP2013} (even if we do not assume the univalence axiom), except that we write dependent function types using Agda notation $(x : A) \to B\,x$.
 %
-We are further inspired by Agda in writing $\implicit{x}B(x)$ for $(x : A) \to B(x)$ when $x$ is treated as an ``implicit'' argument which is not given explicitly, but instead can be figured out from context.
-\LT{We write $\Set$ for the type of types employing the `typical ambiguity'.}
+We are further inspired by Agda in writing $\implicit{x}\;B\,x$ for $(x : A) \to B\,x$ when $x$ is treated as an ``implicit'' argument which is not given explicitly, but instead can be figured out from context.
+\LT{We write $\Set$ for the type of types employing the `typical ambiguity'}
 
-We write $x \jdeq y$ for strict equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the ``dependent'' identity type where $P : A \to \Set$, $t : P(x)$, $u : P(y)$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P y} u$, where $\transfibf{P} : (p : x =^A y) \to P(x) \to P(y)$ is our notation for the operation which allows is to transport values between type families applied to elements that are equal up to the identity type.
+We write $x \jdeq y$ for strict equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the ``dependent'' identity type where $P : A \to \Set$, $t : P\,x$, $u : P\,y$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P\,y} u$, where $\transfibf{P} : (p : x =^A y) \to P\,x \to P\,y$ is our notation for the operation which allows is to transport values between type families applied to elements that are equal up to the identity type.
 %
 %Finally, we write $x \simeq y$ for the \emph{heterogeneous} identity type, where we allow $x : A$ and $y : B$ to have potentially different types.
 %As shown by McBride~\cite{McBride1999}, the heterogeneous identity type is equivalent to the ordinary identity type equipped with the principle of uniqueness of identity proofs.
