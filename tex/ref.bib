@@ -191,6 +191,103 @@
   doi =           {10.1007/978-3-319-89366-2_16},
 }
 
+@article{Kaposi2019,
+  address =       {New York, NY, USA},
+  author =        {Kaposi, Ambrus and Kov{\'a}cs, Andr{\'a}s and
+                   Altenkirch, Thorsten},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  pages =         {2:1--2:24},
+  publisher =     {Association for Computing Machinery},
+  title =         {Constructing quotient inductive-inductive types},
+  volume =        {3},
+  year =          {2019},
+  abstract =      {Quotient inductive-inductive types (QIITs) generalise
+                   inductive types in two ways: a QIIT can have more
+                   than one sort and the later sorts can be indexed over
+                   the previous ones. In addition, equality constructors
+                   are also allowed. We work in a setting with
+                   uniqueness of identity proofs, hence we use the term
+                   QIIT instead of higher inductive-inductive type. An
+                   example of a QIIT is the well-typed (intrinsic)
+                   syntax of type theory quotiented by conversion. In
+                   this paper first we specify finitary QIITs using a
+                   domain-specific type theory which we call the theory
+                   of signatures. The syntax of the theory of signatures
+                   is given by a QIIT as well. Then, using this syntax
+                   we show that all specified QIITs exist and they have
+                   a dependent elimination principle. We also show that
+                   algebras of a signature form a category with families
+                   (CwF) and use the internal language of this CwF to
+                   show that dependent elimination is equivalent to
+                   initiality.},
+  doi =           {10.1145/3290315},
+}
+
+@inproceedings{Hofmann1996,
+  author =        {Hofmann, Martin},
+  booktitle =     {Types for Proofs and Programs (TYPES 1996)},
+  editor =        {Berardi, Stefano and Coppo, Mario},
+  pages =         {153--164},
+  publisher =     {Springer, Berlin, Heidelberg},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Conservativity of equality reflection over
+                   intensional type theory},
+  volume =        {1158},
+  year =          {1996},
+  doi =           {10.1007/3-540-61780-9_68},
+}
+
+@inproceedings{Winterhalter2019,
+  address =       {New York, NY, USA},
+  author =        {Winterhalter, Th{\'{e}}o and Sozeau, Matthieu and
+                   Tabareau, Nicolas},
+  booktitle =     {Proceedings of the 8th ACM SIGPLAN International
+                   Conference on Certified Programs and Proofs},
+  pages =         {91--103},
+  publisher =     {Association for Computing Machinery},
+  series =        {CPP 2019},
+  title =         {Eliminating reflection from type theory},
+  year =          {2019},
+  abstract =      {Type theories with equality reflection, such as
+                   extensional type theory (ETT), are convenient
+                   theories in which to formalise mathematics, as they
+                   make it possible to consider provably equal terms as
+                   convertible. Although type-checking is undecidable in
+                   this context, variants of ETT have been implemented,
+                   for example in NuPRL and more recently in Andromeda.
+                   The actual objects that can be checked are not
+                   proof-terms, but derivations of proof-terms. This
+                   suggests that any derivation of ETT can be translated
+                   into a typecheckable proof term of intensional type
+                   theory (ITT). However, this result, investigated
+                   categorically by Hofmann in 1995, and 10 years later
+                   more syntactically by Oury, has never given rise to
+                   an effective translation. In this paper, we provide
+                   the first effective syntactical translation from ETT
+                   to ITT with uniqueness of identity proofs and
+                   functional extensionality. This translation has been
+                   defined and proven correct in Coq and yields an
+                   executable plugin that translates a derivation in ETT
+                   into an actual Coq typing judgment. Additionally, we
+                   show how this result is extended in the context of
+                   homotopy type theory to a two-level type theory.},
+  doi =           {10.1145/3293880.3294095},
+  isbn =          {9781450362221},
+}
+
+@article{Kapulkin2025,
+  author =        {Kapulkin, Krzysztof and Li, Yufeng},
+  journal =       {Theoretical Computer Science},
+  pages =         {115051},
+  title =         {Extensional concepts in intensional type theory,
+                   revisited},
+  volume =        {1029},
+  year =          {2025},
+  doi =           {10.1016/j.tcs.2024.115051},
+}
+
 @misc{Kaposi2023,
   author =        {Kaposi, Ambrus},
   howpublished =  {Presented at TYPES'23 meeting},
@@ -213,53 +310,6 @@
   doi =           {10.1007/3-540-61780-9_66},
 }
 
-@article{Cockx2021,
-  address =       {New York, NY, USA},
-  author =        {Cockx, Jesper and Tabareau, Nicolas and
-                   Winterhalter, Th{\'e}o},
-  journal =       {Proceedings of the ACM on Programming Languages},
-  month =         jan,
-  number =        {POPL},
-  publisher =     {Association for Computing Machinery},
-  title =         {The taming of the {Rew}: a type theory with
-                   computational assumptions},
-  volume =        {5},
-  year =          {2021},
-  abstract =      {Dependently typed programming languages and proof
-                   assistants such as Agda and Coq rely on computation
-                   to automatically simplify expressions during type
-                   checking. To overcome the lack of certain programming
-                   primitives or logical principles in those systems, it
-                   is common to appeal to axioms to postulate their
-                   existence. However, one can only postulate the bare
-                   existence of an axiom, not its computational
-                   behaviour. Instead, users are forced to postulate
-                   equality proofs and appeal to them explicitly to
-                   simplify expressions, making axioms dramatically more
-                   complicated to work with than built-in primitives. On
-                   the other hand, the equality reflection rule from
-                   extensional type theory solves these problems by
-                   collapsing computation and equality, at the cost of
-                   having no practical type checking algorithm. This
-                   paper introduces Rewriting Type Theory (RTT), a type
-                   theory where it is possible to add computational
-                   assumptions in the form of rewrite rules. Rewrite
-                   rules go beyond the computational capabilities of
-                   intensional type theory, but in contrast to
-                   extensional type theory, they are applied
-                   automatically so type checking does not require input
-                   from the user. To ensure type soundness of RTT---as
-                   well as effective type checking---we provide a
-                   framework where confluence of user-defined rewrite
-                   rules can be checked modularly and automatically, and
-                   where adding new rewrite rules is guaranteed to
-                   preserve subject reduction. The properties of RTT
-                   have been formally verified using the MetaCoq
-                   framework and an implementation of rewrite rules is
-                   already available in the Agda proof assistant.},
-  doi =           {10.1145/3434341},
-}
-
 @book{UFP2013,
   address =       {Institute for Advanced Study},
   author =        {{Univalent Foundations Program}, The},
@@ -267,15 +317,6 @@
   title =         {Homotopy Type Theory: Univalent Foundations of
                    Mathematics},
   year =          {2013},
-}
-
-@phdthesis{McBride1999,
-  author =        {McBride, Conor},
-  school =        {University of Edinburgh},
-  title =         {Dependently Typed Functional Programs and their
-                   Proofs},
-  year =          {1999},
-  url =           {https://era.ed.ac.uk/bitstream/id/600/ECS-LFCS-00-419.pdf},
 }
 
 @misc{Licata2011,
@@ -357,20 +398,6 @@
   issn =          {0168-0072},
 }
 
-@inproceedings{Cockx2014,
-  author =        {Cockx, Jesper and Piessens, Frank and
-                   Devriese, Dominique},
-  booktitle =     {Programming Languages and Systems (ESOP)},
-  editor =        {Shao, Zhong},
-  pages =         {87--106},
-  publisher =     {Springer, Berlin, Heidelberg},
-  series =        {Lecture Notes in Computer Science},
-  title =         {Overlapping and order-independent patterns},
-  volume =        {8410},
-  year =          {2014},
-  doi =           {10.1007/978-3-642-54833-8_6},
-}
-
 @article{Lumsdaine2020,
   author =        {Lumsdaine, Peter LeFanu and Shulman, Michael},
   journal =       {Mathematical Proceedings of the Cambridge
@@ -404,40 +431,6 @@
   isbn =          {978-3-95977-077-4},
   issn =          {1868-8969},
   urn =           {urn:nbn:de:0030-drops-91906},
-}
-
-@article{Kaposi2019,
-  address =       {New York, NY, USA},
-  author =        {Kaposi, Ambrus and Kov{\'a}cs, Andr{\'a}s and
-                   Altenkirch, Thorsten},
-  journal =       {Proceedings of the ACM on Programming Languages},
-  month =         jan,
-  number =        {POPL},
-  pages =         {2:1--2:24},
-  publisher =     {Association for Computing Machinery},
-  title =         {Constructing quotient inductive-inductive types},
-  volume =        {3},
-  year =          {2019},
-  abstract =      {Quotient inductive-inductive types (QIITs) generalise
-                   inductive types in two ways: a QIIT can have more
-                   than one sort and the later sorts can be indexed over
-                   the previous ones. In addition, equality constructors
-                   are also allowed. We work in a setting with
-                   uniqueness of identity proofs, hence we use the term
-                   QIIT instead of higher inductive-inductive type. An
-                   example of a QIIT is the well-typed (intrinsic)
-                   syntax of type theory quotiented by conversion. In
-                   this paper first we specify finitary QIITs using a
-                   domain-specific type theory which we call the theory
-                   of signatures. The syntax of the theory of signatures
-                   is given by a QIIT as well. Then, using this syntax
-                   we show that all specified QIITs exist and they have
-                   a dependent elimination principle. We also show that
-                   algebras of a signature form a category with families
-                   (CwF) and use the internal language of this CwF to
-                   show that dependent elimination is equivalent to
-                   initiality.},
-  doi =           {10.1145/3290315},
 }
 
 @article{Kovacs2020,
@@ -483,6 +476,43 @@
   doi =           {10.1145/3408983},
 }
 
+@article{Cockx2020a,
+  author =        {Cockx, Jesper and Abel, Andreas},
+  journal =       {Journal of Functional Programming},
+  number =        {e2},
+  title =         {Elaborating dependent (co)pattern matching: No
+                   pattern left behind},
+  volume =        {30},
+  year =          {2020},
+  doi =           {10.1017/S0956796819000182},
+}
+
+@inproceedings{Cockx2014,
+  author =        {Cockx, Jesper and Piessens, Frank and
+                   Devriese, Dominique},
+  booktitle =     {Programming Languages and Systems (ESOP)},
+  editor =        {Shao, Zhong},
+  pages =         {87--106},
+  publisher =     {Springer, Berlin, Heidelberg},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Overlapping and order-independent patterns},
+  volume =        {8410},
+  year =          {2014},
+  doi =           {10.1007/978-3-642-54833-8_6},
+}
+
+@article{Newman1942,
+  author =        {Newman, M. H. A.},
+  journal =       {Annals of Mathematics},
+  number =        {2},
+  pages =         {223--243},
+  title =         {On Theories with a Combinatorial Definition of
+                   ``Equivalence''},
+  volume =        {43},
+  year =          {1942},
+  doi =           {10.2307/1968867},
+}
+
 @inproceedings{Cockx2020,
   address =       {Dagstuhl, Germany},
   author =        {Cockx, Jesper},
@@ -505,15 +535,51 @@
   urn =           {urn:nbn:de:0030-drops-130666},
 }
 
-@article{Abel2002,
-  author =        {Abel, Andreas and Altenkirch, Thorsten},
-  journal =       {Journal of Functional Programming},
-  number =        {1},
-  pages =         {1--41},
-  title =         {A predicative analysis of structural recursion},
-  volume =        {12},
-  year =          {2002},
-  doi =           {10.1017/S0956796801004191},
+@article{Cockx2021,
+  address =       {New York, NY, USA},
+  author =        {Cockx, Jesper and Tabareau, Nicolas and
+                   Winterhalter, Th{\'e}o},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  publisher =     {Association for Computing Machinery},
+  title =         {The taming of the {Rew}: a type theory with
+                   computational assumptions},
+  volume =        {5},
+  year =          {2021},
+  abstract =      {Dependently typed programming languages and proof
+                   assistants such as Agda and Coq rely on computation
+                   to automatically simplify expressions during type
+                   checking. To overcome the lack of certain programming
+                   primitives or logical principles in those systems, it
+                   is common to appeal to axioms to postulate their
+                   existence. However, one can only postulate the bare
+                   existence of an axiom, not its computational
+                   behaviour. Instead, users are forced to postulate
+                   equality proofs and appeal to them explicitly to
+                   simplify expressions, making axioms dramatically more
+                   complicated to work with than built-in primitives. On
+                   the other hand, the equality reflection rule from
+                   extensional type theory solves these problems by
+                   collapsing computation and equality, at the cost of
+                   having no practical type checking algorithm. This
+                   paper introduces Rewriting Type Theory (RTT), a type
+                   theory where it is possible to add computational
+                   assumptions in the form of rewrite rules. Rewrite
+                   rules go beyond the computational capabilities of
+                   intensional type theory, but in contrast to
+                   extensional type theory, they are applied
+                   automatically so type checking does not require input
+                   from the user. To ensure type soundness of RTT---as
+                   well as effective type checking---we provide a
+                   framework where confluence of user-defined rewrite
+                   rules can be checked modularly and automatically, and
+                   where adding new rewrite rules is guaranteed to
+                   preserve subject reduction. The properties of RTT
+                   have been formally verified using the MetaCoq
+                   framework and an implementation of rewrite rules is
+                   already available in the Agda proof assistant.},
+  doi =           {10.1145/3434341},
 }
 
 @unpublished{Martin-Lof1992,
@@ -524,15 +590,15 @@
   year =          {1992},
 }
 
-@article{Cockx2020a,
-  author =        {Cockx, Jesper and Abel, Andreas},
+@article{Abel2002,
+  author =        {Abel, Andreas and Altenkirch, Thorsten},
   journal =       {Journal of Functional Programming},
-  number =        {e2},
-  title =         {Elaborating dependent (co)pattern matching: No
-                   pattern left behind},
-  volume =        {30},
-  year =          {2020},
-  doi =           {10.1017/S0956796819000182},
+  number =        {1},
+  pages =         {1--41},
+  title =         {A predicative analysis of structural recursion},
+  volume =        {12},
+  year =          {2002},
+  doi =           {10.1017/S0956796801004191},
 }
 
 @article{Altenkirch2017,
@@ -578,7 +644,6 @@
 
 @unpublished{Kaposi2024a,
   author =        {Kaposi, Ambrus and Xie, Szumi},
-  note =          {Submitted to CPP 2025},
   title =         {Type theory in type theory with single substitutions},
   year =          {2024},
 }
