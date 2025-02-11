@@ -158,7 +158,7 @@ We write $x \jdeq y$ for strict equality, $x =^{A} y$ for the identity type stat
 We have formally implemented our definitions and proofs in \Agda, using the options \texttt{-{}-with-K}, \texttt{-{}-exact-split}, \texttt{-{}-rewriting}, and \texttt{-{}-local-confluence-check}.
 Quotient inductive types are simulated by postulating equations to introduce equality constructors~\cite{Licata2011}.
 Some of our statements are meta-theoretical and thus not checked by \Agda.
-Others are only partially checked, as \Agda does not generate proof obligations for postulated quotient inductive types directly.
+Others are only partially checked, as \Agda does not generate proof obligations for postulated quotient inductive types.
 We have marked such `informal' proofs with the symbol \resizebox*{!}{\baselineskip}{\textdbend}.
 
 \subsection{Inductive-recursive types}
@@ -256,20 +256,16 @@ A key requirement for definitions with overlapping patterns is that, in addition
 Cockx shows~\cite[Proposition~2]{Cockx2014} that if a definition of $f$ is
 \begin{enumerate}
   \item \emph{structurally recursive}, i.e.\ arguments of recursive calls are structurally smaller, and
-  \item \emph{locally confluent}, i.e.\ for any two function clauses $f\;\overrightarrow{p_1} \reduce t_1$ and $f\;\overrightarrow{p_2} \reduce t_2$ with a most general unifer $\sigma$ for $\overrightarrow{p_1}$ and $\overrightarrow{p_2}$, their right-hand sides $\sigma t_1$ and $\sigma t_2$ are strictly equal, 
+  \item \emph{locally confluent}, i.e.\ for any two function clauses $f\;\overrightarrow{p_1} \reduce t_1$ and $f\;\overrightarrow{p_2} \reduce t_2$ with a most general unifer $\sigma$ for $\overrightarrow{p_1}$ and $\overrightarrow{p_2}$, terms $\sigma t_1$ and $\sigma t_2$ have the same normal form, 
 \end{enumerate}
 then $f$ is confluent---essentially a variant of Newman's Lemma~\cite{Newman1942}.
+We call a diagram $\sigma t_2 \Leftarrow f\;\sigma\overrightarrow{p_1} \Rightarrow \sigma t_1$ a \emph{local peak} informally.
 
-\subsection{Definitions by rewrite rules}
-\cite{Cockx2020,Cockx2021}
-
-Unfortunately, neither general schemata of quotient inductive-inductive-recursive types nor definitions by overlapping patterns have been developed or implemented in existing proof assistants.
-
-\paragraph*{Local confluence}
-\LT{Explain the notion of critical pair; local peak}
-\paragraph*{Strong normalisation}
-\cite{Abel2002}
-\LT{Explain how these two conditions imply global confluence}
+\subsection{Overlapping patterns via adding rewrite rules}
+Unfortunately, definitions by overlapping patterns are only implemented in an outdated experimental fork of \Agda.
+To emulate a function by overlapping patterns in \Agda, we declare each function clause an additional rewrite rules \cite{Cockx2020,Cockx2021} (via the option \texttt{-{}-rewriting}) and use the local confluence checker (via \texttt{-{}-local-confluence-check}).
+This is indeed one of the main use cases of user-defined rewrite rules discussed by Cockx~\cite{Cockx2020}. 
+The caveat, though, is that the termination checker is not imposed, so we have to check the termination informally.
 
 \section{Type theories as quotient inductive-inductive-recursive types} \label{sec:QIIRTs}
 
