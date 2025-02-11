@@ -27,7 +27,7 @@
 \relatedversion{} %optional, e.g. full version hosted on arXiv, HAL, or other respository/website
 %\relatedversiondetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93]{Classification (e.g. Full Version, Extended Version, Previous Version}{URL to related version} %linktext and cite are optional
 
-\supplement{The formal development is hosted at the \textsc{GitHub} repository: \url{https://github.com/genetsai95/DTT-QIIRT}.\LT[noinline]{Transfer it to my account?}}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
+\supplement{The formal development is hosted at the \textsc{GitHub} repository: \url{https://github.com/L-TChen/TTasQIIRT}}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
 %\supplementdetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93, subcategory={Description, Subcategory}, swhid={Software Heritage Identifier}]{General Classification (e.g. Software, Dataset, Model, ...)}{URL to related version} %linktext, cite, and subcategory are optional
 \acknowledgements{We'd like to thank Hsiang-Shang Ko and Meven Lennon-Bertrand.}%optional
 
@@ -147,27 +147,19 @@ We work in intensional Martin-L\"of type theory with uniqueness of identity proo
 %
 We mostly follow the notational conventions of the HoTT book~\cite{UFP2013} (even if we do not assume the univalence axiom), except that we write dependent function types using Agda notation $(x : A) \to B\,x$.
 %
-We are further inspired by Agda in writing $\implicit{x}\;B\,x$ for $(x : A) \to B\,x$ when $x$ is treated as an ``implicit'' argument which is not given explicitly, but instead can be figured out from context.
-\LT{We write $\Set$ for the type of types employing the `typical ambiguity'}
+We are further inspired by Agda in writing $\implicit{x}\;B\,x$ for $(x : A) \to B\,x$ when $x$ is treated as an `implicit' argument which is not given explicitly, but instead can be figured out from context.
+We write $\Set_i$ for the cumulative hierarchy of universes with the level index $i$ suppressed.
 
 We write $x \jdeq y$ for strict equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the `dependent' identity type where $P : A \to \Set$, $t : P\,x$, $u : P\,y$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P\,y} u$, where $\transfibf{P} : (p : x =^A y) \to P\,x \to P\,y$ is our notation for the operation which allows is to transport values between type families applied to elements that are equal up to the identity type.
 %
 %Finally, we write $x \simeq y$ for the \emph{heterogeneous} identity type, where we allow $x : A$ and $y : B$ to have potentially different types.
 %As shown by McBride~\cite{McBride1999}, the heterogeneous identity type is equivalent to the ordinary identity type equipped with the principle of uniqueness of identity proofs.
 
-We have formally implemented our definitions and proofs in Agda, with the following options: \texttt{-{}-with-K}, \texttt{-{}-exact-split}, \texttt{-{}-rewriting}, and \texttt{-{}-local-confluence-check}. We simulate quotient inductive types using postulated equations to introduce equality constructors~\cite{Licata2011}.
-Some of our theorem statements are meta-theoretical, and thus cannot be checked by Agda. Others can only be checked  partially, because of postulated quotient inductive types. We have marked such `informal' proofs with the symbol \resizebox*{!}{\baselineskip}{\textdbend}.
-\LT{Single quote or double quote in British English?}
-
-%\LT{
-%Points to include:
-%\begin{enumerate}
-%  \item identity type $x =^{A} y$ for $x, y : A$, dependent identity type, $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P y} u$ for $t : P(x)$ and $u : P(y)$, heterogeneous equality~\cite{McBride1999} in \Agda $x \simeq y$ for $x : A$ and $y : B$
-%  \item We work with intensional type theory with uniqueness of identity proof and function extensionality (only used for NbE and the standard model for the extensional identity type).
-%  \item We use Agda to formally implement our definitions with the following options: \texttt{-{}-with-K}, \texttt{-{}-local-confluence-check}, \texttt{-{}-exact-split}, and \texttt{-{}-rewriting} using postulated equations~\cite{Licata2011} to introduce equality constructors for quotient types.
-%\end{enumerate}}
-%
-%\LT{The symbol \textdbend indicates a property that is proved informally or checked partially with \Agda (because of postulated quotient inductive typeswbe checked ).}
+We have formally implemented our definitions and proofs in \Agda, using the options \texttt{-{}-with-K}, \texttt{-{}-exact-split}, \texttt{-{}-rewriting}, and \texttt{-{}-local-confluence-check}.
+Quotient inductive types are simulated by postulating equations to introduce equality constructors~\cite{Licata2011}.
+Some of our statements are meta-theoretical and thus not checked by \Agda.
+Others are only partially checked, as \Agda does not generate proof obligations for postulated quotient inductive types directly.
+We have marked such `informal' proofs with the symbol \resizebox*{!}{\baselineskip}{\textdbend}.
 
 \subsection{Inductive-recursive types}
 
@@ -231,8 +223,43 @@ which states that join lists are equal as soon as their flattenings are equal. F
 
 
 \subsection{Definitions by overlapping patterns} \label{sec:meta:overlapping}
-\cite{Cockx2014,Altenkirch2016a}
-\LT{We use $f\;\vec{x} \reduce \vec{t}$ to indicate a function clause of a definition by overlapping patters.}
+Functions are typically defined informally using pattern matching for convenience and readability. Formally, however, they are either defined using an explicit pattern-matching construct or elaborated into case trees, which correspond to the \emph{eliminator}, following \emph{first-match} semantics~\cite{Cockx2020a} and employing termination and completeness checking.
+This elaboration enables conventional notation while making computational behaviour opaque and favouring asymmetric definitions.
+For example, the following two definitions are essentially the same
+
+\begin{minipage}[t]{.5\textwidth}
+  \begin{alignat*}{5}
+    \blank  & + \blank     && : \N \to \N \to \N \\
+    0       &  + m         && = m  \\
+  n         &  + 0         && = m  \\
+  (\suc\;n) &  + m         && = \suc\;(n + m) \\
+  n         &  + (\suc\;m) && = \suc\;(n + m)
+\end{alignat*}
+\end{minipage}
+\begin{minipage}[t]{.5\textwidth}
+\begin{alignat*}{5}
+  \blank         & +'\blank     && : \N \to \N \to \N \\
+  0              & +' m         && \defeq m  \\
+  (\suc\;n)      & +' 0         && \defeq \suc\,n \\
+  (\suc\;n)      & +' (\suc\;m) && \defeq \suc\;(n +' m)
+\end{alignat*}
+\end{minipage}
+\vskip\belowdisplayskip\noindent
+after elaboration in \Agda: each clause of $\blank +' \blank$ is strict (hence the symbol $\defeq$ is used) while clauses of $\blank+\blank$ are not necessarily strict by definition.
+This semantics for function definitions affects how definitions reduce and therefore how identities are proved.
+
+Cockx explores an alternative semantics for pattern matching~\cite{Cockx2014}, where all clauses are strict, even in the presence of \emph{overlapping patterns}.
+Under this semantics, each clause of $\blank + \blank$ is strictly equal to its right-hand side, allowing the symmetry of $\blank + \blank$ to be proved commutative directly by induction on $n$ and $m$.
+Thus, when a function $f$ is defined with overlapping patterns, we use the notation $f\;\overrightarrow{p_i} \reduce t_i$ to emphasize its reduction behaviour.
+
+A key requirement for definitions with overlapping patterns is that, in addition to termination and completeness, any clause must eventually compute to the same term, i.e.\ $f$ is confluent.
+Cockx shows~\cite[Proposition~2]{Cockx2014} that if a definition of $f$ is
+\begin{enumerate}
+  \item \emph{structurally recursive}, i.e.\ arguments of recursive calls are structurally smaller, and
+  \item \emph{locally confluent}, i.e.\ for any two function clauses $f\;\overrightarrow{p_1} \reduce t_1$ and $f\;\overrightarrow{p_2} \reduce t_2$ with a most general unifer $\sigma$ for $\overrightarrow{p_1}$ and $\overrightarrow{p_2}$, their right-hand sides $\sigma t_1$ and $\sigma t_2$ are strictly equal, 
+\end{enumerate}
+then $f$ is confluent---essentially a variant of Newman's Lemma~\cite{Newman1942}.
+
 \subsection{Definitions by rewrite rules}
 \cite{Cockx2020,Cockx2021}
 
@@ -417,12 +444,11 @@ Note that this does not follow the schema of inductive-recursive definitions giv
 Since we want type substitution to both act structurally on types and commute with identities and composition, we could try to define it recursively as follows:
 \begin{alignat}{3}
 [\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \nonumber \\
-[ \sigma ]_{\Ty}       \;\UU  & \defeq \UU                                   \label{eq:type-sub-at2-1} \\
-[ \idS ]_{\Ty}         \;A    & \defeq A                                     \label{eq:type-sub-at2-2} \\
-[ \sigma ; \tau ]_{\Ty}\;A    & \defeq [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \label{eq:type-sub-at2-3}
+[ \sigma ]_{\Ty}       \;\UU  & = \UU                                   \label{eq:type-sub-at2-1} \\
+[ \idS ]_{\Ty}         \;A    & = A                                     \label{eq:type-sub-at2-2} \\
+[ \sigma ; \tau ]_{\Ty}\;A    & = [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \label{eq:type-sub-at2-3}
 \end{alignat}
-However, this definition does \emph{not} reduce \eqref{eq:type-sub-at2-2} or \eqref{eq:type-sub-at2-3} \emph{strictly}.
-By design, definitions by pattern matching will be elaborated to a form that corresponds to the \emph{eliminator} either using \emph{first-match semantics}~\cite{Cockx2020a} for function clauses or an explicit construct for pattern matching, so that \eqref{eq:type-sub-at2-2} or \eqref{eq:type-sub-at2-3} will fire only if we know that $A$ is not $\UU$.
+As explained in \cref{sec:meta:overlapping}, this definition does \emph{not} reduce \eqref{eq:type-sub-at2-2} or \eqref{eq:type-sub-at2-3} \emph{strictly}, and \eqref{eq:type-sub-at2-2} or \eqref{eq:type-sub-at2-3} will fire only if we know that $A$ is not $\UU$.
 %In the above definition, only the eliminator for $\Ty\;\Delta$ will be considered using the first-match semantics, which amounts to the following definition:
 %\begin{alignat*}{3}
 %[\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
@@ -458,6 +484,14 @@ We end up with the following definition for type substitution:
 We first check that this definition of type substitution is confluent.\footnote{%
 \Agda implements a local confluence checker with the experimental option \text{-{}-local-confluence-check}.
 This option is turned on globally in our formal implementation.}
+
+\begin{proposition}[Termination]
+  Type substitution $[\blank]_{\Ty}\blank$ is terminating.
+  \danger
+\end{proposition}
+\begin{proof}
+  Clearly terms on the RHS are structurally smaller~\cite{Abel2002}.
+\end{proof}
 \begin{proposition}[Local confluence] \label{prop:local-confluence-1}
   Type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
   \danger
@@ -471,13 +505,6 @@ This option is turned on globally in our formal implementation.}
 
   For example, $[\sigma;\tau]_{\Ty}\;\UU \reduce [\sigma]_{\Ty}\;([\tau]_{\Ty}\;\UU) \reduce [\sigma]_{\Ty}\;\UU \reduce \UU$ using \eqref{eq:def-type-subst-2} as the first reduction and $[\sigma;\tau]_{\Ty}\;\UU \reduce \UU$ using \eqref{eq:def-type-subst-5} as the first reduction.
   It is easy to see that remaining local peaks reduce to the same term.
-\end{proof}
-\begin{proposition}[Termination]
-  Type substitution $[\blank]_{\Ty}\blank$ is terminating.
-  \danger
-\end{proposition}
-\begin{proof}
-  Clearly terms on the RHS are structurally smaller~\cite{Abel2002}.
 \end{proof}
 
 With this definition of type substitution, other equality constructors can be introduced without any $\transp$, and we can give the updated constructors the types below.
@@ -573,6 +600,13 @@ Then, the equality constructor $[]\El$ is accordingly changed to
   [ \sigma ]_{\Ty}\,(\El\, u) & \reduce \El\,([\sigma]_{\Tm} {u}) \label{eq:def-type-subst-7}
 \end{align}
 to retain the local confluence for type substitution:
+\begin{proposition}[Termination]
+  Type substitution $[\blank]_{\Ty}\blank$ is terminating.
+  \danger
+\end{proposition}
+\begin{proof}
+  Again, each recursive call is on a structurally smaller term~\cite{Abel2002}.
+\end{proof}
 \begin{proposition}[Local confluence] \label{prop:local-confluence-2}
   Type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
   \danger
@@ -589,13 +623,6 @@ to retain the local confluence for type substitution:
   \]
   respectively, no matter which function clause of $[\blank]_{\Ty}\blank$ is used.
   Therefore, type substitution is locally confluent.
-\end{proof}
-\begin{proposition}[Termination]
-  Type substitution $[\blank]_{\Ty}\blank$ is terminating.
-  \danger
-\end{proposition}
-\begin{proof}
-  Again, each recursive call is on a structurally smaller term~\cite{Abel2002}.
 \end{proof}
 
 We also have to show that the recursive substitution $[\blank]_{\Tm}\blank$ is propositionally equal to the explicit substitution $[\blank]\blank$, so they can be used together consistently.
@@ -707,6 +734,10 @@ Then, we add another clause for type substitution and an equality constructor fo
   \mathsf{[]\lambda} & : [\sigma]_{\Tm} (\lambda\,t) && =^{\Tm\,\Gamma\,([\sigma]_{\Ty}(\Pi\,A\,B))} && \lambda\,([\sigma \uparrow A]_{\Tm}\,t) \nonumber
 \end{alignat}
 
+\begin{proposition}[Termination]
+  Type substitution $[\blank]_{\Ty}\blank$ is terminating.
+  \danger
+\end{proposition}
 \begin{proposition}[Local confluence]\label{prop:local-confluence-3}
   Type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
   \danger
@@ -724,10 +755,6 @@ Then, we add another clause for type substitution and an equality constructor fo
   respectively.
   Hence, the type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
 \end{proof}
-\begin{proposition}[Termination]
-  Type substitution $[\blank]_{\Ty}\blank$ is terminating.
-  \danger
-\end{proposition}
 
 Similar to term substitution, we can show that the lifted substitution $\sigma \uparrow A$ is propositionally equal to $\sigma^+$, based on two basic properties\footnote{%
   The reader is invited to prove them using the QII definition with transports.}
