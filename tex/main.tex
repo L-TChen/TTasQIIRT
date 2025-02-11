@@ -150,13 +150,13 @@ We mostly follow the notational conventions of the HoTT book~\cite{UFP2013} (eve
 We are further inspired by Agda in writing $\implicit{x}\;B\,x$ for $(x : A) \to B\,x$ when $x$ is treated as an ``implicit'' argument which is not given explicitly, but instead can be figured out from context.
 \LT{We write $\Set$ for the type of types employing the `typical ambiguity'}
 
-We write $x \jdeq y$ for strict equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the ``dependent'' identity type where $P : A \to \Set$, $t : P\,x$, $u : P\,y$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P\,y} u$, where $\transfibf{P} : (p : x =^A y) \to P\,x \to P\,y$ is our notation for the operation which allows is to transport values between type families applied to elements that are equal up to the identity type.
+We write $x \jdeq y$ for strict equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the `dependent' identity type where $P : A \to \Set$, $t : P\,x$, $u : P\,y$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P\,y} u$, where $\transfibf{P} : (p : x =^A y) \to P\,x \to P\,y$ is our notation for the operation which allows is to transport values between type families applied to elements that are equal up to the identity type.
 %
 %Finally, we write $x \simeq y$ for the \emph{heterogeneous} identity type, where we allow $x : A$ and $y : B$ to have potentially different types.
 %As shown by McBride~\cite{McBride1999}, the heterogeneous identity type is equivalent to the ordinary identity type equipped with the principle of uniqueness of identity proofs.
 
 We have formally implemented our definitions and proofs in Agda, with the following options: \texttt{-{}-with-K}, \texttt{-{}-exact-split}, \texttt{-{}-rewriting}, and \texttt{-{}-local-confluence-check}. We simulate quotient inductive types using postulated equations to introduce equality constructors~\cite{Licata2011}.
-Some of our theorem statements are meta-theoretical, and thus cannot be checked by Agda. Others can only be checked  partially, because of postulated quotient inductive types. We have marked such ``informal'' proofs with the symbol \resizebox*{!}{\baselineskip}{\textdbend}.
+Some of our theorem statements are meta-theoretical, and thus cannot be checked by Agda. Others can only be checked  partially, because of postulated quotient inductive types. We have marked such `informal' proofs with the symbol \resizebox*{!}{\baselineskip}{\textdbend}.
 \LT{Single quote or double quote in British English?}
 
 %\LT{
@@ -175,7 +175,7 @@ An ordinary inductive type $A$, such as for example the type of natural numbers 
 %
 The type is first defined inductively by listing its constructors, and then afterwards recursive functions can be defined out of it.
 
-In contrast, an inductive-recursive type is defined inductively \emph{simultaneously} with a recursively defined function out of it. The prototypical example is Martin-L\"of's universe \`a la Tarski, where a type $U$ of codes for small types is defined simultaneously with a ``decoding'' function $T : U \to \Set$ which maps each code to the type it represents. Crucially, the code for dependent function types
+In contrast, an inductive-recursive type is defined inductively \emph{simultaneously} with a recursively defined function out of it. The prototypical example is Martin-L\"of's universe \`a la Tarski, where a type $U$ of codes for small types is defined simultaneously with a `decoding' function $T : U \to \Set$ which maps each code to the type it represents. Crucially, the code for dependent function types
 \[
   \pi : (a : U) \to (T(a) \to U) \to U
 \]
