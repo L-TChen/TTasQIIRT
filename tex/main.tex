@@ -62,13 +62,13 @@
 \maketitle
 
 \begin{abstract}
-  Defining type theory in type theory is a long-standing benchmark for the strength and expressivity of type theory and a proof assistant.
+  Defining type theory in type theory is a long-standing benchmark for the strength and expressivity of type theory and proof assistants.
   Altenkirch and Kaposi used quotient inductive-inductive types to elegantly represent exactly the well-typed terms of type theory in intensional type theory, with the price to be paid that terms frequently contain transports along equality constructors.
   As a result, proofs need to painstakingly account for coercions alongside the interesting part.
   This %mess
   has been dubbed `transport hell', but is typically suppressed in informal presentation for clarity, hiding the gap between the intention and the formalisation.
   In this paper, we aim to shorten this gap, using quotient inductive-inductive-recursive types and definitions by overlapping patterns, reducing the use of transports.
-  As a case study, we investigate type theory with a universe and $\Pi$-types, and compare our definition with quotient inductive-inductive definitions.
+  As a case study, we investigate type theory with a universe and $\Pi$-types, and compare our development with one using quotient inductive-inductive types.
 \end{abstract}
 
 \section{Introduction} \label{sec:intro}
@@ -191,7 +191,7 @@ Their general metatheory would be interesting future work.
 %\LT{Mention that the recursion part of induction-recursion are already not defined by elimination rule.}
 
 
-\subsection{Quotient inductive-inductive types}
+\subsection{Quotient inductive-inductive and quotient inductive-recursive types}
 % \subsection{Quotient inductive(-inductive)-recursive types}
 
 Quotient inductive types (QITs) are a special case of higher inductive types~\cite{Lumsdaine2020} from homotopy type theory, where constructors can not only introduce new elements, but also new equalities between the introduced elements.
@@ -788,14 +788,14 @@ As we are working with a different type theory from \cref{subsec:SC+U}, we still
 
 Finally, we show that these simultaneously defined functions are coherent.
 \begin{proposition}[Coherence]
-  For every $p : \sigma = \tau : \Sub\;\Gamma\;\Delta$, the following identities
+  For every constructor $p : \sigma = \tau : \Sub\;\Gamma\;\Delta$, we have
   \danger
   \[
     \sigma \uparrow A =^{\lam{\gamma}\Sub\;(\Gamma, [ \gamma ]_{\Ty} A)\;(\Delta, A)}_{\alert{p}} \tau \uparrow A
     \qquad\text{and}\qquad
     [\sigma]_{\Tm}\,t =^{\lam{\gamma}\Tm\;\Gamma\;([\gamma]_{\Ty}A)}_{\alert{p}} [\tau]_{\Tm}\,t,
   \]
-  hold for any type $A$ and any term $t$.
+  for any type $A$ and any term $t$.
 \end{proposition}
 \begin{proof}
   These two identities follow from \cref{prop:correctness-2,prop:correctness-3} easily with the heterogeneous identity (see \cref{sec:meta}).
@@ -804,20 +804,20 @@ Finally, we show that these simultaneously defined functions are coherent.
 \end{proof}
 
 \subsubsection{Multiple lifting and the coherence of type substitution}
-\Fredrik{This section gets rather technical. Keeping the page limit in mind, I wonder if we should only briefly summarise it in the main text?}
-\LT{Move this to the appendix?}
 
-For the coherence of~$[\blank]_{\Ty}\blank$, we have to generalise the desired identity to account for the lifting, since a naive induction does not work: for example, unfolding $[\sigma]_{\Ty}\,(\Pi\;A\;B)$ leads to
-\[
-  \Pi\;([\sigma]_{\Ty}\,A)\;([\sigma\uparrow A]_{\Ty}\,B)
-\]
-where the induction hypothesis $[\sigma]_{\Ty}\,B = [\emptysub]_{\Ty}\,B$ cannot be applied.
+We also need to prove the coherence for type substitution, i.e., that $[\sigma]_{\Ty}\,A = [\tau]_{\Ty}\,A$ for every equality constructor $p : \sigma = \tau$.
+To do this, we need to generalise the desired identity to account for liftings, since a naive induction does not work: for example, on $\Pi$-types, we have
+\begin{align*}
+  [\sigma]_{\Ty}\,(\Pi\;A\;B) & = \Pi\;([\sigma]_{\Ty}\,A)\;([\sigma\uparrow A]_{\Ty}\,B) \\
+  [\tau]_{\Ty}\,(\Pi\;A\;B) & = \Pi\;([\tau]_{\Ty}\,A)\;([\tau\uparrow A]_{\Ty}\,B)
+\end{align*}
+but the induction hypothesis does not give us $[\sigma\uparrow A]_{\Ty}\,B = [\tau\uparrow A]_{\Ty}\,B$.
 Instead, we will define the \emph{multiple lifting} $\sigma \upuparrows \Xi$ by a telescope $\Xi = A_1, \dots, A_n$, which intuitively means multiple applications of lifting: $\sigma \uparrow A_1 \uparrow \dots \uparrow A_n$.
-Then, we show the identity
+Then, for each constructor $p : \sigma = \tau$, we show the identity
 $[\sigma \mathop{\upuparrows} \Xi ]_{\Ty}\,A = [\tau \mathop{\upuparrows} \Xi ]_{\Ty}\,A$
-for arbitrary $\Xi$, subsuming the special case $[\sigma ]_{\Ty}\,A = [\tau ]_{\Ty}\,A$ for $\Xi$ being empty.
+for arbitrary $\Xi$, subsuming the special case $[\sigma ]_{\Ty}\,A = [\tau ]_{\Ty}\,A$ when $\Xi$ is empty.
 
-First, define an inductive-recursive type of \emph{telescopes} under a context $\Gamma$ simultaneously with a concatenation $\blank \dplus \blank$ as follows.
+The type of telescopes over a ``base'' context $\Gamma$ $\Tel : \Ctx \to \Set$ are defined inductive-recursively simultaneously with a concatenation $\blank \dplus \blank$ as follows.
 
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{5}
@@ -834,14 +834,13 @@ First, define an inductive-recursive type of \emph{telescopes} under a context $
 \end{alignat*}
 \end{minipage}
 \vskip\belowdisplayskip\noindent
-Then, we define the multiple lifting $\blank \upuparrows \blank$.
-Observe that its type, generalising the type \eqref{eq:type-of-lifting} of a single lifting $\blank\uparrow\blank$, should be
+Equipped with telescopes, we can now generalise single lifting with type \eqref{eq:type-of-lifting} to multiple lifting with type
 \[
 \blank\upuparrows \blank : (\sigma : \Sub\;\Gamma\;\Delta) \to (\Xi : \Tel\;\Delta)
 \to \Sub\;(\Gamma \dplus ([\sigma]_{\Tel}\,\Xi))\;(\Delta \dplus \Xi)
 \]
-asking for telescope substitution $[\blank]_{\Tel}\blank :  \Sub\;\Gamma\;\Delta \to \Tel\;\Delta \to \Tel\;\Gamma$, but $[\blank]_{\Tel}\blank$ also needs the multiple lifting for the case $[ \sigma ]_{\Tel}\,(\Xi, A)$ (why?).
-Hence, we arrive the conclusion that telescope substitution and the multiple lifting by a telescope need to be defined mutually:
+which requires us to also simultaneously define telescope substitution $[\blank]_{\Tel}\blank :  \Sub\;\Gamma\;\Delta \to \Tel\;\Delta \to \Tel\;\Gamma$.
+
 \begin{minipage}{.5\linewidth}
 \begin{alignat*}{5}
   & [ \sigma ]_{\Tel}\,\emptytel && \reduce \emptytel \\
@@ -857,8 +856,8 @@ Hence, we arrive the conclusion that telescope substitution and the multiple lif
 \vskip\belowdisplayskip
 
 To prove the coherence property for the multiple lifting, we would need the properties $\idS_\Gamma \upuparrows \Xi = \idS_{\Gamma \dplus  \Xi}$ and $(\sigma; \tau) \upuparrows \Xi = (\sigma\upuparrows [\tau]_{\Tel} \Xi); (\tau \upuparrows \Xi)$, similar to \cref{lem:lifting}, but these identities cannot be typed: the type of $\idS_{\Gamma} \upuparrows \Xi$ is $\Sub\;(\Gamma \dplus [\idS]_{\Tel}\,\Xi)\;(\Gamma \dplus \Xi)$ while the type of $\idS$ on the RHS is $\Sub\;(\Gamma \dplus \Xi)\;(\Gamma \dplus \Xi)$; similarly for the substitution composition.
-
-Instead of resorting to \transp, we also turn telescope substitution $[\blank]_{\Tel}\blank$ and the multiple lifting into definitions by overlapping patterns by adding following clauses:
+%
+Instead of resorting to \transp, we also turn telescope substitution $[\blank]_{\Tel}\blank$ and the multiple lifting into definitions by overlapping patterns by adding the following clauses:
 
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{5}
@@ -874,113 +873,15 @@ Instead of resorting to \transp, we also turn telescope substitution $[\blank]_{
 \end{minipage}\vskip\belowdisplayskip\noindent
 whose confluence property is easy to see.
 
-Now, we proceed with the coherence property for the recursive functions introduced so far.
-The first set of equality constructors are easy to prove, since the lifting and substitution operations compute independently for these cases:
-\begin{proposition}[Coherence, I]
+Of course, we also have to prove coherence for the newly introduced recursive functions to verify that they are well defined.
+\begin{proposition}[{Coherence for $[\blank]_{\Tel}$ and $\blank\upuparrows\blank$}]
   \danger
-  For the following equality constructors $p : \sigma = \tau$
-  \[
-    \mathsf{idr} : \sigma;\idS = \sigma, \quad
-    \mathsf{idl} : \idS;\sigma = \sigma, \quad\text{and}\quad
-    \textnormal{;-}\mathsf{assoc} : (\sigma;\tau);\gamma = \sigma; (\tau; \gamma), 
-  \]
-  the identities $[\sigma]_{\Tel}\,\Xi \judgeq [\tau]_{\Tel}\,\Xi$ and $[\sigma ]_{\Ty}\,A \judgeq [\tau ]_{\Ty}\,A$
-  hold strictly for any telescope $\Xi$ and any type $A$ and
-  \[
-    \sigma \upuparrows \Xi =^{\Sub\;(\Gamma\dplus [\sigma]_{\Tel}\Xi)\;(\Delta\dplus\Xi)}
-    \tau   \upuparrows \Xi
-  \]
-  holds propositionally for any telescope $\Xi$.
+  For any equality constructor $p : \sigma = \tau$, we have
+  $[\sigma]_{\Tel}\,\Xi = [\tau]_{\Tel}\,\Xi$ and $\sigma \upuparrows \Xi =^{\Sub\;(\Gamma\dplus [\sigma]_{\Tel}\Xi)\;(\Delta\dplus\Xi)} \tau \upuparrows \Xi$
+  for any telescope $\Xi$.
 \end{proposition}
-\begin{proof}
-  Thanks to overlapping patterns, the coherence of $[\blank]_{\Tel}\blank$ and $[\blank]_{\Ty}\blank$ for these cases holds strictly by definition and the coherence of $\blank \upuparrows \blank$ boils down to the equality constructor itself.
-  Take $\mathsf{idr}$ as an example, we can see 
-  \begin{align*}
-    (\sigma; \idS) \upuparrows \Xi & \judgeq (\sigma \upuparrows [\idS]_{\Tel} \Xi) ; (\idS \upuparrows \Xi) \\
-                                   & \judgeq (\sigma \upuparrows \Xi) ; \idS \\
-                                   & = \sigma \upuparrows \Xi
-  \end{align*}
-  where the last identity follows from $\mathsf{idr}:(\sigma \upuparrows \Xi) ; \idS = \sigma \upuparrows \Xi$.
 
-  For other two equality constructors, the arguments follow similarly.
-\end{proof}
-The second set of equality constructors are more involved, as we have to prove the coherence for the lifting and substitution operations altogether mutually:
-\begin{proposition}[Coherence, II]
-  \LT[noinline]{Josh Ko suggests us to follow the proof structure in our formal implementation.}
-  For the following equality constructors $p : \sigma = \tau$
-  \begin{alignat*}{5}
-    \pi_1\beta    & : \pi_1(\sigma, t)  && = \sigma \qquad\qquad & \mathsf{concat} & : \sigma; (\tau, t) && = (\sigma;\tau), [\sigma]\, t \\
-    \emptyctx\eta & : \sigma            && = \emptyctx & \pi\eta & : \sigma && = \pi_1\sigma, \pi_2\sigma
-  \end{alignat*}
-   the identities
-  \danger
-  \begin{align*}
-  [\sigma]_{\Tel}\,\Xi & = [\tau]_{\Tel}\,\Xi 
-                         & [\sigma \upuparrows \Xi ]_{\Ty}\,A & =^{\lam{\gamma}\Ty\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Ty}\,A \\
-  \sigma \upuparrows \Xi & =^{\lam{\gamma}\Sub\;(\Gamma\dplus [\gamma]_{\Tel}\Xi)\;(\Delta\dplus\Xi)}_{\alert{p}} \tau \upuparrows \Xi
-%    &
-%  [\sigma \upuparrows \Xi ]_{\Tm}\,t & =^{\lam{\gamma}\Tm\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)\;([\gamma \upuparrows \Xi]_{\Ty} A)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Tm}\,t
-  \end{align*}
-  hold for any telescope $\Xi : \Tel\,\Delta$ and type $A : \Ty\;(\Delta\dplus \Xi)$.
-\end{proposition}
-\begin{proof}
-  We show the statement for $\pi_1\beta: \pi_1(\sigma, t) = t$ and the other three cases follow similarly.
-
-  First, we prove the coherence for $[\blank]_{\Ty}\,A$ by induction on $A$ and the coherence for the other two identities $[\blank]_{\Tel}\, \Xi$ and $\blank \upuparrows \Xi$ by induction on $\Xi$.
-  \begin{enumerate}
-    \item Consider the following cases for $[\sigma\upuparrows\Xi]_{\Ty}\,A = [\tau \upuparrows \xi]_{\Ty}\,A$ by induction on $A$.
-      \begin{description}
-        \item[$A$ is $\UU$:] By definition
-          \[
-            [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,\UU_{\Delta\dplus \Xi} \judgeq \UU_{\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi} \quad\text{and}\quad [\sigma\upuparrows \Xi]_{\Ty}\,\UU_{\Delta\dplus \Xi} \judgeq \UU_{\Gamma \dplus [\sigma]_{\Tel}\,\Xi}
-          \]
-          By assumption, $[\pi_1(\sigma, t)]_{\Tel}\,\Xi = [ \sigma]_{\Tel}\,\Xi$ and by congruence $\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi = \Gamma \dplus [ \sigma]_{\Tel}\,\Xi$ holds.
-          Then, $\UU_{\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi} \simeq \UU_{\Gamma \dplus [\sigma]_{\Tel}\,\Xi}$ holds by congruence for $\UU$.
-          \LT{Justify the use of congruence rule for QIIT, e.g. $\transfib{\Ty}{p}{\UU_{\Gamma}} = \UU_{\Delta}$ for $p : \Gamma = \Delta$}
-
-        \item[$A$ is $\El\,u$:]
-          Similar to \cref{prop:coherence-2}, we use \cref{prop:correctness-3} and the congruence law for $[\blank]\,u$ to derive the desired identity.
-
-        \item[$A$ is $\Pi\,B\,C$:]
-          Note that one of the induction hypothesises is
-          \[
-            [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,C = [\sigma \upuparrows \Xi]_{\Ty}\,C
-          \]
-          for \emph{arbitrary} $\Xi$, so we can apply the induction hypothesis to $B$ and $C$ below:
-          \begin{align*}
-            & [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,(\Pi\,B\,C) \\
-            \judgeq{} & \Pi\,([\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,B)\,([(\pi_1(\sigma, t) \upuparrows \Xi) \uparrow B]\,C) && \text{by the definition of $[\blank]_{\Ty}(\Pi\,B\,C)$} \\
-            \judgeq{} & \Pi\,([\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,B)\,([(\pi_1(\sigma, t) \upuparrows (\Xi, B)]\,C) && \text{by the definition of $\upuparrows$} \\
-            ={}       & \Pi\,([\sigma \upuparrows \Xi]_{\Ty}\,B)\,([\sigma \upuparrows (\Xi, B)]\,C) && \text{by induction hypothesises} \\
-            \judgeq{} & \Pi\,([\sigma \upuparrows \Xi]_{\Ty}\,B)\,([(\sigma \upuparrows \Xi) \uparrow B]\,C) && \text{by the definition of $\upuparrows$} \\
-            \judgeq{} & [\sigma\upuparrows \Xi]_{\Ty}\,(\Pi\,B\,C) && \text{by the definition of $[\blank]_{\Ty}(\Pi\,B\,C)$.}
-          \end{align*}
-      \end{description}
-    \item By induction on $\Xi$, consider following cases for $[\pi_1(\sigma, t)]_{\Tel}\,\Xi = [\sigma]_{\Tel}\,\Xi$. 
-      \begin{description}
-        \item[$\Xi$ is the empty telescope $\emptytel$:] By definition, $[\pi_1(\sigma, t)]_{\Tel}\,\emptytel \judgeq \emptytel \judgeq [\sigma]_{\Tel}\,\emptytel$.
-        \item[$\Xi$ is the telescope extension $\Xi, A$:] 
-          \begin{align*}
-            [\pi_1(\sigma, t)]_{\Tel}\,(\Xi, A) & \judgeq [\pi_1(\sigma, t)]_{\Tel}\,\Xi, [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,A && \text{by definition} \\
-                                                & = [\sigma]_{\Tel}\,\Xi, [\sigma \upuparrows \Xi]_{\Ty}\,A \\
-                                                & \judgeq [\sigma]_{\Tel}(\Xi, A) && \text{by definition}
-          \end{align*}
-      \end{description}
-    \item By induction on $\Xi$, consider the following cases for $\pi_1(\sigma, t) \upuparrows \Xi = \sigma \upuparrows\,\Xi$.
-      \begin{description}
-        \item[$\Xi$ is the empty telescope $\emptytel$:] $\pi_1(\sigma, t) \upuparrows \emptytel \judgeq \pi_1(\sigma, t) = \sigma \judgeq \sigma \upuparrows \emptytel$ by definition and the equality constructor.
-        \item[$\Xi$ is the telescope extension $\Xi, A$:] 
-          \begin{align*}
-            \pi_1(\sigma, t) \upuparrows (\Xi, A) & \judgeq (\pi_1(\sigma, t) \upuparrows \Xi) \uparrow A \\
-                                                  & =^{} (\pi_1(\sigma, t) \upuparrows \Xi)^{+} \\
-                                                  & =^{\lam{\gamma}\Sub\,(\Gamma\dplus[\gamma]_{\Tel}\,\Xi, [\gamma \upuparrows \Xi]_{\Ty}\,A)\,(\Delta \dplus \Xi, A)}_{p} (\sigma\upuparrows \Xi)^{+} \\
-                                                  & = (\sigma \upuparrows \Xi) \uparrow A \\
-                                                  & \judgeq \sigma \upuparrows (\Xi , A)
-          \end{align*}
-      \end{description}
-  \end{enumerate}
-  
-\end{proof}
+As promised, by instantiating $\Xi$ to be empty, we also get coherence for $[\blank]_{\Ty}$.
 
 \begin{corollary}[Coherence]
   The identity $[\sigma]_{\Ty}\,A = [\tau]_{\Ty}\,A$ holds for every equality constructor $p : \sigma = \tau$.
@@ -988,20 +889,22 @@ The second set of equality constructors are more involved, as we have to prove t
 \end{corollary}
 
 
-We conclude this extension with $\Pi$-types by noting that single term substitution
-\begin{alignat*}{3}
-  \left<\blank\right> & : \implicit{\Gamma, A} \Tm\;\Gamma\;A \to \Sub\;\Gamma\;(\Gamma, A) \\
-  \left< t \right>    & \defeq (\idS , t),
-\end{alignat*}
-used to define the ordinal application: $t \mathop{\$} u \defeq [ \left< u \right> ]_{\Tm} (\mathsf{app}\,t)$, 
-can be introduced without any transport, which is $(\idS, \alert{\transfib{\Tm\;\Gamma}{[id]_T^{-1}}{\color{black}t}})$ in its QII definition.
-Similarly, the structural rule for substitution on $\mathsf{app}$ can be derived
+We conclude this extension with $\Pi$-types by noting that for $t : \Tm\,\Gamma\,(\Pi\,A\,B)$ and $u : \Tm\,\Gamma\,A$, also ``ordinary'' application
+$t \mathop{\$} u \defeq [ (\idS , t) ]_{\Tm} (\mathsf{app}\,t)$ of type $\Tm\,\Gamma\,([(\idS , t)] B)$ can be defined without any transport. This is in contrast to the pure QII situation, where application is defined as $[ (\idS, \alert{\transfib{\Tm\;\Gamma}{[id]_T^{-1}}{\color{black}t}}) ]_{\Tm} (\mathsf{app}\,t)$.
+%
+%\begin{alignat*}{3}
+%  \left<\blank\right> & : \implicit{\Gamma, A} \Tm\;\Gamma\;A \to \Sub\;\Gamma\;(\Gamma, A) \\
+%  \left< t \right>    & \defeq (\idS , t),
+%\end{alignat*}
+%used to define the ordinal application: $t \mathop{\$} u \defeq [ \left< u \right> ]_{\Tm} (\mathsf{app}\,t)$, 
+%can be introduced without any transport, which is $(\idS, \alert{\transfib{\Tm\;\Gamma}{[id]_T^{-1}}{\color{black}t}})$ in its QII definition.
+Similarly, the structural rule for substitution on $\mathsf{app}$
 \begin{align*}
   [\sigma \uparrow A ]_{\Tm}(\mathsf{app}\;t) & = \mathsf{app}\,\lambda([\sigma \uparrow A ]_{\Tm}(\mathsf{app}\;t)) && \text{by $\Pi\beta^{-1}$} \\
                                               & = \mathsf{app}\,\left([\sigma]\,\lambda\,(\mathsf{app}\,t)\right) && \text{by $[]\lambda^{-1}$} \\
                                               & = \mathsf{app}\,([\sigma]\,t) && \text{by $\Pi\eta^{-1}$.}
 \end{align*}
-without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref{eq:def-type-subst-8} has become strict. 
+can be derived without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref{eq:def-type-subst-8} has become strict. 
 
 
 \subsection{Adding other type formers} \label{subsec:SC+U+Pi+more}
@@ -1252,6 +1155,117 @@ It will be nice to have OTT equipped with QII(R)T on a par with HIIT (or Cubical
   [\idS]t         & : \implicit{\Gamma, A, t} && {[\,\idS\,]\,t}          && =^{\Tm\,\Gamma\,A} && t \\
   [;]t            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t} && {[\,\sigma ; \tau\,]\,t} && =^{\Tm\,\Gamma\,[\sigma ; \tau] A} && {[ \sigma ]\,[ \tau ]\,t} \\
 \end{alignat*}
+
+\section{Omitted proofs}
+
+\Fredrik{Do properly with restate-thm etc}
+The first set of equality constructors are easy to prove, since the lifting and substitution operations compute independently for these cases:
+\begin{proposition}[Coherence, I]
+  \danger
+  For the following equality constructors $p : \sigma = \tau$
+  \[
+    \mathsf{idr} : \sigma;\idS = \sigma, \quad
+    \mathsf{idl} : \idS;\sigma = \sigma, \quad\text{and}\quad
+    \textnormal{;-}\mathsf{assoc} : (\sigma;\tau);\gamma = \sigma; (\tau; \gamma), 
+  \]
+  the identities $[\sigma]_{\Tel}\,\Xi \judgeq [\tau]_{\Tel}\,\Xi$ and $[\sigma ]_{\Ty}\,A \judgeq [\tau ]_{\Ty}\,A$
+  hold strictly for any telescope $\Xi$ and any type $A$ and
+  \[
+    \sigma \upuparrows \Xi =^{\Sub\;(\Gamma\dplus [\sigma]_{\Tel}\Xi)\;(\Delta\dplus\Xi)}
+    \tau   \upuparrows \Xi
+  \]
+  holds propositionally for any telescope $\Xi$.
+\end{proposition}
+\begin{proof}
+  Thanks to overlapping patterns, the coherence of $[\blank]_{\Tel}\blank$ and $[\blank]_{\Ty}\blank$ for these cases holds strictly by definition and the coherence of $\blank \upuparrows \blank$ boils down to the equality constructor itself.
+  Take $\mathsf{idr}$ as an example, we can see 
+  \begin{align*}
+    (\sigma; \idS) \upuparrows \Xi & \judgeq (\sigma \upuparrows [\idS]_{\Tel} \Xi) ; (\idS \upuparrows \Xi) \\
+                                   & \judgeq (\sigma \upuparrows \Xi) ; \idS \\
+                                   & = \sigma \upuparrows \Xi
+  \end{align*}
+  where the last identity follows from $\mathsf{idr}:(\sigma \upuparrows \Xi) ; \idS = \sigma \upuparrows \Xi$.
+
+  For other two equality constructors, the arguments follow similarly.
+\end{proof}
+The second set of equality constructors are more involved, as we have to prove the coherence for the lifting and substitution operations altogether mutually:
+\begin{proposition}[Coherence, II]
+  \LT[noinline]{Josh Ko suggests us to follow the proof structure in our formal implementation.}
+  For the following equality constructors $p : \sigma = \tau$
+  \begin{alignat*}{5}
+    \pi_1\beta    & : \pi_1(\sigma, t)  && = \sigma \qquad\qquad & \mathsf{concat} & : \sigma; (\tau, t) && = (\sigma;\tau), [\sigma]\, t \\
+    \emptyctx\eta & : \sigma            && = \emptyctx & \pi\eta & : \sigma && = \pi_1\sigma, \pi_2\sigma
+  \end{alignat*}
+   the identities
+  \danger
+  \begin{align*}
+  [\sigma]_{\Tel}\,\Xi & = [\tau]_{\Tel}\,\Xi 
+                         & [\sigma \upuparrows \Xi ]_{\Ty}\,A & =^{\lam{\gamma}\Ty\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Ty}\,A \\
+  \sigma \upuparrows \Xi & =^{\lam{\gamma}\Sub\;(\Gamma\dplus [\gamma]_{\Tel}\Xi)\;(\Delta\dplus\Xi)}_{\alert{p}} \tau \upuparrows \Xi
+%    &
+%  [\sigma \upuparrows \Xi ]_{\Tm}\,t & =^{\lam{\gamma}\Tm\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)\;([\gamma \upuparrows \Xi]_{\Ty} A)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Tm}\,t
+  \end{align*}
+  hold for any telescope $\Xi : \Tel\,\Delta$ and type $A : \Ty\;(\Delta\dplus \Xi)$.
+\end{proposition}
+\begin{proof}
+  We show the statement for $\pi_1\beta: \pi_1(\sigma, t) = t$ and the other three cases follow similarly.
+
+  First, we prove the coherence for $[\blank]_{\Ty}\,A$ by induction on $A$ and the coherence for the other two identities $[\blank]_{\Tel}\, \Xi$ and $\blank \upuparrows \Xi$ by induction on $\Xi$.
+  \begin{enumerate}
+    \item Consider the following cases for $[\sigma\upuparrows\Xi]_{\Ty}\,A = [\tau \upuparrows \xi]_{\Ty}\,A$ by induction on $A$.
+      \begin{description}
+        \item[$A$ is $\UU$:] By definition
+          \[
+            [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,\UU_{\Delta\dplus \Xi} \judgeq \UU_{\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi} \quad\text{and}\quad [\sigma\upuparrows \Xi]_{\Ty}\,\UU_{\Delta\dplus \Xi} \judgeq \UU_{\Gamma \dplus [\sigma]_{\Tel}\,\Xi}
+          \]
+          By assumption, $[\pi_1(\sigma, t)]_{\Tel}\,\Xi = [ \sigma]_{\Tel}\,\Xi$ and by congruence $\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi = \Gamma \dplus [ \sigma]_{\Tel}\,\Xi$ holds.
+          Then, $\UU_{\Gamma \dplus [\pi_1(\sigma, t)]_{\Tel}\,\Xi} \simeq \UU_{\Gamma \dplus [\sigma]_{\Tel}\,\Xi}$ holds by congruence for $\UU$.
+          \LT{Justify the use of congruence rule for QIIT, e.g. $\transfib{\Ty}{p}{\UU_{\Gamma}} = \UU_{\Delta}$ for $p : \Gamma = \Delta$}
+
+        \item[$A$ is $\El\,u$:]
+          Similar to \cref{prop:coherence-2}, we use \cref{prop:correctness-3} and the congruence law for $[\blank]\,u$ to derive the desired identity.
+
+        \item[$A$ is $\Pi\,B\,C$:]
+          Note that one of the induction hypothesises is
+          \[
+            [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,C = [\sigma \upuparrows \Xi]_{\Ty}\,C
+          \]
+          for \emph{arbitrary} $\Xi$, so we can apply the induction hypothesis to $B$ and $C$ below:
+          \begin{align*}
+            & [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,(\Pi\,B\,C) \\
+            \judgeq{} & \Pi\,([\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,B)\,([(\pi_1(\sigma, t) \upuparrows \Xi) \uparrow B]\,C) && \text{by the definition of $[\blank]_{\Ty}(\Pi\,B\,C)$} \\
+            \judgeq{} & \Pi\,([\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,B)\,([(\pi_1(\sigma, t) \upuparrows (\Xi, B)]\,C) && \text{by the definition of $\upuparrows$} \\
+            ={}       & \Pi\,([\sigma \upuparrows \Xi]_{\Ty}\,B)\,([\sigma \upuparrows (\Xi, B)]\,C) && \text{by induction hypothesises} \\
+            \judgeq{} & \Pi\,([\sigma \upuparrows \Xi]_{\Ty}\,B)\,([(\sigma \upuparrows \Xi) \uparrow B]\,C) && \text{by the definition of $\upuparrows$} \\
+            \judgeq{} & [\sigma\upuparrows \Xi]_{\Ty}\,(\Pi\,B\,C) && \text{by the definition of $[\blank]_{\Ty}(\Pi\,B\,C)$.}
+          \end{align*}
+      \end{description}
+    \item By induction on $\Xi$, consider following cases for $[\pi_1(\sigma, t)]_{\Tel}\,\Xi = [\sigma]_{\Tel}\,\Xi$. 
+      \begin{description}
+        \item[$\Xi$ is the empty telescope $\emptytel$:] By definition, $[\pi_1(\sigma, t)]_{\Tel}\,\emptytel \judgeq \emptytel \judgeq [\sigma]_{\Tel}\,\emptytel$.
+        \item[$\Xi$ is the telescope extension $\Xi, A$:] 
+          \begin{align*}
+            [\pi_1(\sigma, t)]_{\Tel}\,(\Xi, A) & \judgeq [\pi_1(\sigma, t)]_{\Tel}\,\Xi, [\pi_1(\sigma, t) \upuparrows \Xi]_{\Ty}\,A && \text{by definition} \\
+                                                & = [\sigma]_{\Tel}\,\Xi, [\sigma \upuparrows \Xi]_{\Ty}\,A \\
+                                                & \judgeq [\sigma]_{\Tel}(\Xi, A) && \text{by definition}
+          \end{align*}
+      \end{description}
+    \item By induction on $\Xi$, consider the following cases for $\pi_1(\sigma, t) \upuparrows \Xi = \sigma \upuparrows\,\Xi$.
+      \begin{description}
+        \item[$\Xi$ is the empty telescope $\emptytel$:] $\pi_1(\sigma, t) \upuparrows \emptytel \judgeq \pi_1(\sigma, t) = \sigma \judgeq \sigma \upuparrows \emptytel$ by definition and the equality constructor.
+        \item[$\Xi$ is the telescope extension $\Xi, A$:] 
+          \begin{align*}
+            \pi_1(\sigma, t) \upuparrows (\Xi, A) & \judgeq (\pi_1(\sigma, t) \upuparrows \Xi) \uparrow A \\
+                                                  & =^{} (\pi_1(\sigma, t) \upuparrows \Xi)^{+} \\
+                                                  & =^{\lam{\gamma}\Sub\,(\Gamma\dplus[\gamma]_{\Tel}\,\Xi, [\gamma \upuparrows \Xi]_{\Ty}\,A)\,(\Delta \dplus \Xi, A)}_{p} (\sigma\upuparrows \Xi)^{+} \\
+                                                  & = (\sigma \upuparrows \Xi) \uparrow A \\
+                                                  & \judgeq \sigma \upuparrows (\Xi , A)
+          \end{align*}
+      \end{description}
+  \end{enumerate}
+  
+\end{proof}
+
 
 \section{Formal definitions in Agda}
 \end{document}
