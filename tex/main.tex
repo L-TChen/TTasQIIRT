@@ -1064,38 +1064,70 @@ The additional rules we have used to enable further reduction are derivable in t
 \section{Formal implementation} \label{sec:formal-implementation}
 \LT{Mention the NbE for SC here}
 \LT{Compare some formal proofs with pen-and-paper proofs here}
-\section{Discussion}
-\subsection{Related work}
-\paragraph*{Formalisation of type theory in type theory}
-\cite{Danielsson2006,Altenkirch2016a,Chapman2009}
-\cite{Altenkirch2017}
-\cite{Munoz1998}
-\cite{Dybjer1996,Castellan2021}
-\LT{Dybjer \cite{Dybjer1996} already says cwf is inductive-recursive}
+\section{Conclusions, and related and future work}
 
-Substitution calculus is closely related to \emph{categories with families}~\cite{Dybjer1996}.
-\paragraph*{Quotient inductive-recursive definition of single substitution calculus}
-\cite{Kaposi2023,Kaposi2024a}
-\paragraph*{Schemata of inductive types}
-\cite{Kaposi2019}
-\LT{How does the general schema in \cite{Kaposi2019} model equality constructors? extensionally? Can their schemata manifest the difference of our QIIR definition and the QII definition in \cite{Altenkirch2016a}?}
+We have used quotient inductive-recursive types and overlapping
+patterns to represent type theory in type theory. By defining type
+substitution recursively with overlapping patterns, we can avoid most
+transports that show up in terms in other formalisations of type
+theory in type theory. In other words, we have shown that so-called
+`transport hell' can be minimised when formalising type theory in type
+theory this way, without hiding any details in the formalisation.
 
-\subsection{Future work}
-\LT{Remember that it is for further developments.}
-\paragraph*{Type theory in type theory}
-\cite{Pujet2022,Pujet2024,Pujet2022a}
-\LT{OTT is a concrete instance of a type theory with UIP and function extensionality.}
+%\subsection{Related work}
+%\paragraph*{Formalisation of type theory in type theory}
 
-\paragraph*{Semantics and design for definitions by overlapping patterns}
-\LT{Overlapping patters are discussed by Cocks \cite{Cockx2014}, but we would like to integrate it with the schema of QIIRT.}
-\LT{\cite{Eremondi2025} has recently hinted a possible direction for overlapping patterns using sheaf theory.}
+The idea of representing type theory in type theory in a well typed manner goes back to Dybjer~\cite{Dybjer1996} (see also Clairambault and Dybjer~\cite{Clairambault2014} and Castellan, Clairambault and Dybjer~\cite{Castellan2021} for recent developments). Dybjer's notion of \emph{category with families} can be seen as a semantic structure corresponding closely to the syntax of type theory, and many of the formalisations of type theory in type theory can be understood as capturing the initial category with families via inductive or quotient-inductive types. The equations involved are very similar to the equations described in Martin-L\"of's substitution calculus~\cite{Martin-Lof1992}.
 
-\paragraph*{A schema of quotient inductive-inductive-recursive types in observation type theory}
-\LT{What a general schema should have?  inductive types should be allowed as the codomain of a recursion.}
-  
-\LT{OTT also has a natural setoid model (which should be useful to manifest the difference between recursion and equality constructor) but quotient (inductive-)inductive(-recursive) types in OTT are underdeveloped.
-It will be nice to have OTT equipped with QII(R)T on a par with HIIT (or Cubical Agda).}
+Like us, Danielsson~\cite{Danielsson2006} defines type substitution by a recursive function, while keeping term substitution a constructor. However because he does not use quotients, he also has an explicit term constructor for transporting terms along an inductively defined type of conversion rules, which explicitly contains congruence rules. We are able to remove a lot of the boilerplate by using actual equality constructors instead. Chapman~\cite{Chapman2009} similarly uses explicit term substitutions and explicit transports along conversion rules, but also uses explicit type substitition in favour of more straightforward foundations.
+McBride~\cite{McBride2010} offers another solution which uses an inductive-recursive type to reuse the equality of the metatheory rather than using explicit transports. This works well if the object theory and meta theory are similar, but does not allow to represent equalities that do not hold in the metatheory.
 
+Altenkirch and Kaposi~\cite{Altenkirch2016a} were the first to exploit QIITs to simplify the treatment of computation rules in representations of type theory in type theory. We build heavily on their ideas, but by using Danielsson's~\cite{Danielsson2006} idea of defining type substitution recursively, we are able to remove many explicit transports from the definition, with the result that it is closer to an informal exposition on paper. Such a benefit was also suggested by Kaposi's~\cite{Kaposi2023} work, where the simply typed lambda calculus was used as an example. Altenkirch and Kaposi has built on the QIIT representation with great success to derive non-trivial results such as normalisation by evaluation~\cite{Altenkirch2017}, and investigate the metatheory of QIITs themselves, together with Kov\'acs~\cite{Kaposi2019}.
+
+
+%\cite{Munoz1998}
+
+%\paragraph*{Quotient inductive-recursive definition of single substitution calculus}
+
+\Fredrik{As far as I can tell, ``Type theory in type theory with single substitutions''~\cite{Kaposi2024a} is just a standard QIIT --- so maybe no need to discuss?}
+%\cite{Kaposi2023,Kaposi2024a}
+
+%\paragraph*{Schemata of inductive types}
+%\cite{Kaposi2019}
+%\LT{How does the general schema in \cite{Kaposi2019} model equality constructors? extensionally? Can their schemata manifest the difference of our QIIR definition and the QII definition in \cite{Altenkirch2016a}?}
+
+%\subsection{Future work}
+
+In the future, we hope to settle the foundational status of the
+combination of quotient types, inductive-inductive types, and the kind
+of generalised inductive-recursive types we have considered here,
+including overlapping patterns. In fact, our original motivation for
+embarking on this work was seeking examples that could give evidence
+that such a combination could be useful.
+%
+Various schemas for inductive types have been developed in recent
+years~\cite{NordvallForsberg2017,Kaposi2018,Kovacs2023}, and it seems
+promising to see if they can be extended to also handle quotient
+inductive-inductive-recursive types. Overlapping patterns are
+discussed by Cockx~\cite{Cockx2014}, but we would like to integrate it
+with such a schema. Eremondi and Kammar~\cite{Eremondi2025} has
+recently given a promising possible direction for overlapping patterns
+using sheaf theory.
+
+
+%\paragraph*{Type theory in type theory}
+
+
+
+%\paragraph*{Semantics and design for definitions by overlapping patterns}
+
+%\paragraph*{A schema of quotient inductive-inductive-recursive types in observation type theory}
+%\LT{What a general schema should have?  inductive types should be allowed as the codomain of a recursion.}
+
+%\LT{OTT is a concrete instance of a type theory with UIP and function extensionality.}
+%\LT{OTT also has a natural setoid model (which should be useful to manifest the difference between recursion and equality constructor) but quotient (inductive-)inductive(-recursive) types in OTT are underdeveloped.
+%It will be nice to have OTT equipped with QII(R)T on a par with HIIT (or Cubical Agda).}
+%\cite{Pujet2022,Pujet2024,Pujet2022a}
 
 \IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
 %\bibliography{ref}
