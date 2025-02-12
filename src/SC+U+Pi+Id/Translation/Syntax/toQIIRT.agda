@@ -95,19 +95,16 @@ toQIIRT .met = record
     ; cᴹ       = c
     ; mkᴹ      = mk
     ; unᴹ      = un
-    ; []ᴹUᴹ    = λ {_} {_} {σ} {i} → []U {_} {_} {σ} {i} -- why rewrite doesn't perform here?
-    ; []ᴹElᴹ   = λ σ u → cong El (sym (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t u))
-                                            (uip []U refl)))
-    ; []ᴹLiftᴹ = λ {_} {_} {σ} {i} {A} → []Lift {_} {_} {σ} {i} {A}
-    ; []tᴹcᴹ   = λ σ A → cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t c A)) (uip []U refl) 
-                       ∙ sym ([]tm≡[]t (c A) σ)
-                       ∙ []tc σ A
-    ; []mkᴹ    = λ σ t → cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t mk t)) (uip []Lift refl)
-                       ∙ sym ([]tm≡[]t (mk t) σ)
+    ; []ᴹUᴹ    = λ {_} {_} {σ} {i} → refl
+    ; []ᴹElᴹ   = λ σ u → refl
+    ; []ᴹLiftᴹ = λ {_} {_} {σ} {i} {A} → refl
+    ; []tᴹcᴹ   = λ σ A → sym ([]tm≡[]t (c A) σ) ∙ []tc σ A
+    ; []mkᴹ    = λ σ t → -- cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t mk t)) (uip []Lift refl)
+                       sym ([]tm≡[]t (mk t) σ)
                        ∙ []mk σ t
     ; []unᴹ    = λ σ A t → sym ([]tm≡[]t (un t) σ)
                          ∙ []un σ A t
-                         ∙ cong un ([]tm≡[]t t σ ∙ cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t t)) (uip refl []Lift))
+                         ∙ cong un ([]tm≡[]t t σ) -- ∙ cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t t)) (uip refl []Lift))
     ; Uᴹβ      = Uβ
     ; Uᴹη      = Uη
     ; Liftᴹβ   = Liftβ
@@ -128,9 +125,10 @@ toQIIRT .met = record
     }
   ; idTy = record
     { Idᴹ      = Id
-    ; []ᴹIdᴹ   = λ {_} {_} {i} {σ} {a} {t} {u}
+    ; []ᴹIdᴹ   = refl
+             {- λ {_} {_} {i} {σ} {a} {t} {u}
                → cong₃ Id
-                       (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U))
+                       (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) ? ) -- (uip refl []U))
                        (tr-cong {P = TmᴹFam toQIIRT} (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U))
                        ∙ cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t t))
                               (uip (cong El (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U)))
@@ -139,6 +137,7 @@ toQIIRT .met = record
                        ∙ cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t u))
                               (uip (cong El (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U)))
                                    (cong El (sym ((cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip []U refl)))))))
+                                   -}
     ; reflectᴹ = reflect
     }
   }
