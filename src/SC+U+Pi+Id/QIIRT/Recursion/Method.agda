@@ -29,7 +29,7 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
       ∅ˢᴹ
         : Subᴹ Δᴹ ∅ᶜᴹ
       _,ˢᴹ_
-        : (σᴹ : Subᴹ Γᴹ Δᴹ)(tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ))
+        : (σᴹ : Subᴹ Γᴹ Δᴹ) {Aᴹ : Tyᴹ Δᴹ i} (tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ))
         → Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ)
       idSᴹ
         : Subᴹ Δᴹ Δᴹ
@@ -88,8 +88,8 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         : π₁ᴹ (π₁ᴹ σᴹ) ↑ᴹ Aᴹ ≡ π₁ᴹ (π₁ᴹ σᴹ) ⁺ᴹ
 
       [_]tᴹ_
-        : (σᴹ : Subᴹ Δᴹ Γᴹ)(tᴹ : Tmᴹ Γᴹ Aᴹ)
-        → Tmᴹ Δᴹ ([ σᴹ ]ᴹ Aᴹ)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ){Aᴹ : Tyᴹ Δᴹ i}(tᴹ : Tmᴹ Δᴹ Aᴹ)
+        → Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ)
       [idSᴹ]tᴹ
         :  tr TmᴹFamₜ [idSᴹ] ([ idSᴹ ]tᴹ tᴹ)  ≡ tᴹ
       [⨟ᴹ]tᴹ
@@ -173,11 +173,11 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         → tr (Tmᴹ Γᴹ) []ᴹUᴹ ([ σᴹ ]tmᴹ (cᴹ Aᴹ))
         ≡ cᴹ ([ σᴹ ]ᴹ Aᴹ)
       []mkᴹ
-        : (σᴹ : Subᴹ Γᴹ Δᴹ)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ) {Aᴹ : Tyᴹ Δᴹ i} (tᴹ : Tmᴹ Δᴹ Aᴹ)
         → tr (Tmᴹ Γᴹ) []ᴹLiftᴹ ([ σᴹ ]tmᴹ mkᴹ tᴹ)
         ≡ mkᴹ ([ σᴹ ]tᴹ tᴹ)
       []unᴹ
-        : (σᴹ : Subᴹ Γᴹ Δᴹ)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ) (Aᴹ : Tyᴹ Δᴹ i) (tᴹ : Tmᴹ Δᴹ (Liftᴹ Aᴹ))
         → [ σᴹ ]tmᴹ unᴹ tᴹ
         ≡ unᴹ (tr TmᴹFamₜ []ᴹLiftᴹ ([ σᴹ ]tmᴹ tᴹ))
       Uᴹβ
@@ -204,7 +204,7 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
       []ᴹΠᴹ
         : [ σᴹ ]ᴹ (Πᴹ Aᴹ Bᴹ) ≡ Πᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σᴹ ↑ᴹ Aᴹ ]ᴹ Bᴹ)
       []ƛᴹ
-        : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ) (tᴹ : Tmᴹ (Δᴹ ,ᶜᴹ Aᴹ) Bᴹ)
         → tr (Tmᴹ Γᴹ) []ᴹΠᴹ ([ σᴹ ]tmᴹ (ƛᴹ tᴹ))
         ≡ ƛᴹ ([ σᴹ ↑ᴹ Aᴹ ]tmᴹ tᴹ)
       Πβᴹ
@@ -228,7 +228,8 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         : (tᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ))
         → Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ tᴹ)
       []reflᴹ
-          : tr (Tmᴹ Δᴹ) []ᴹIdᴹ ([ σᴹ ]tmᴹ (reflᴹ tᴹ))
+          : (σᴹ : Subᴹ Γᴹ Δᴹ) {aᴹ : Tmᴹ Δᴹ (Uᴹ i)} (tᴹ : Tmᴹ Δᴹ (Elᴹ aᴹ))
+          → tr (Tmᴹ Γᴹ) []ᴹIdᴹ ([ σᴹ ]tmᴹ (reflᴹ tᴹ))
           ≡ reflᴹ (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ tᴹ))
       reflectᴹ
         : (Pp : Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ uᴹ))

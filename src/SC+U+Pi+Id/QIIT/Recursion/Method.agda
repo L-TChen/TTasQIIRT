@@ -9,9 +9,9 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
   private variable
     i j k : ℕ
     Γᴹ Δᴹ Θᴹ Φᴹ : Ctxᴹ
-    σᴹ τᴹ γᴹ : Subᴹ Γᴹ Δᴹ
-    Aᴹ Bᴹ Cᴹ : Tyᴹ Γᴹ i
-    aᴹ tᴹ uᴹ : Tmᴹ Γᴹ Aᴹ
+    σᴹ τᴹ γᴹ    : Subᴹ Γᴹ Δᴹ
+    Aᴹ Bᴹ Cᴹ    : Tyᴹ Γᴹ i
+    aᴹ tᴹ uᴹ    : Tmᴹ Γᴹ Aᴹ
 
   record CwF₁ : Set (ℓ ⊔ ℓ′) where
     field
@@ -37,11 +37,9 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : (σᴹ : Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ))
         → Subᴹ Γᴹ Δᴹ
       [idSᴹ]
-        : {Aᴹ : Tyᴹ Γᴹ i}
-        → [ idSᴹ ]ᴹ Aᴹ ≡ Aᴹ
+        : [ idSᴹ ]ᴹ Aᴹ ≡ Aᴹ
       [⨟ᴹ]ᴹ
-        : {σᴹ : Subᴹ Γᴹ Δᴹ}{τᴹ : Subᴹ Δᴹ Θᴹ}{Aᴹ : Tyᴹ Θᴹ i}
-        → [ σᴹ ⨟ᴹ τᴹ ]ᴹ Aᴹ ≡ [ σᴹ ]ᴹ ([ τᴹ ]ᴹ Aᴹ)
+        : [ σᴹ ⨟ᴹ τᴹ ]ᴹ Aᴹ ≡ [ σᴹ ]ᴹ ([ τᴹ ]ᴹ Aᴹ)
       π₂ᴹ
         : (σᴹ : Subᴹ Δᴹ (Γᴹ ,ᶜᴹ Aᴹ))
         ---------------------------------

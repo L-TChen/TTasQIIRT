@@ -148,9 +148,9 @@ interleaved mutual
       → tr (Tm Γ) []U ([ σ ]tm (c A))
       ≡ c ([ σ ] A)
     []mk
-      : (σ : Sub Γ Δ) (t : Tm Δ A)
+      : (σ : Sub Γ Δ) {A : Ty Δ i} (t : Tm Δ A)
       → tr (Tm Γ) []Lift ([ σ ]tm (mk t))
-      ≡ mk ([ σ ]tm t) -- mk ([ σ ]tm t)
+      ≡ mk ([ σ ]tm t)
     []un
       : (σ : Sub Γ Δ) (A : Ty Δ i) (t : Tm Δ (Lift A))
       → [ σ ]tm un t ≡ un (tr (Tm Γ) []Lift $ [ σ ]tm t)

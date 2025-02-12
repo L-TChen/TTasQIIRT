@@ -56,3 +56,5 @@ module rec {ℓ ℓ′}(M : Recursor {ℓ} {ℓ′}) where
   recTm (ƛ t)       = (ƛᴹ recTm t)
   recTm (app t)     = appᴹ (recTm t)
   recTm (refl t)    = reflᴹ (recTm t)
+
+open rec public

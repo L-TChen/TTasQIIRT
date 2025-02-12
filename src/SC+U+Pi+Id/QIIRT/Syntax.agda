@@ -184,7 +184,7 @@ interleaved mutual
       : (σ : Sub Γ Δ) (A : Ty Δ i)
       → [ σ ]tm (c A) ≡ c ([ σ ] A)
     []mk
-      : (σ : Sub Γ Δ) (t : Tm Δ A)
+      : (σ : Sub Γ Δ) {A : Ty Δ i} (t : Tm Δ A)
       → [ σ ]tm (mk t) ≡ mk ([ σ ]t t)
     []un
       : (σ : Sub Γ Δ) (A : Ty Δ i) (t : Tm Δ (Lift A))

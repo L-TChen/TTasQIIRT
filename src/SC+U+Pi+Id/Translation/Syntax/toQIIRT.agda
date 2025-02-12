@@ -2,9 +2,9 @@ open import Prelude
 -- copy and modify from Theory
 module SC+U+Pi+Id.Translation.Syntax.toQIIRT where
 
-open import SC+U+Pi+Id.QIIRT.Base
+open import SC+U+Pi+Id.QIIRT.Syntax
 open import SC+U+Pi+Id.QIIRT.Properties
-open import SC+U+Pi+Id.Recursion.Rec
+open import SC+U+Pi+Id.QIIT.Recursion
 
 open Recursor
 
@@ -57,7 +57,7 @@ toQIIRT .met = record
       ; _⨟ᴹ_        = _⨟_
       ; π₁ᴹ         = π₁
       ; [idSᴹ]      = [id]
-      ; [⨟ᴹ]ᴹ       = λ {_} {_} {_} {_} {σ} {τ} {A} → [⨟] {_} {_} {σ} {_} {τ} {_} {A}
+      ; [⨟ᴹ]ᴹ       = λ {Γ} {Δ} {σ} {Θ} {τ} {_} {A} → [⨟] {Γ} {Δ} {σ} {Θ} {τ} {_} {A}
       ; π₂ᴹ         = π₂
       ; [_]tmᴹ_     = [_]t_
       }
@@ -99,12 +99,8 @@ toQIIRT .met = record
     ; []ᴹElᴹ   = λ σ u → refl
     ; []ᴹLiftᴹ = λ {_} {_} {σ} {i} {A} → refl
     ; []tᴹcᴹ   = λ σ A → sym ([]tm≡[]t (c A) σ) ∙ []tc σ A
-    ; []mkᴹ    = λ σ t → -- cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t mk t)) (uip []Lift refl)
-                       sym ([]tm≡[]t (mk t) σ)
-                       ∙ []mk σ t
-    ; []unᴹ    = λ σ A t → sym ([]tm≡[]t (un t) σ)
-                         ∙ []un σ A t
-                         ∙ cong un ([]tm≡[]t t σ) -- ∙ cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t t)) (uip refl []Lift))
+    ; []mkᴹ    = λ σ t → sym ([]tm≡[]t (mk t) σ) ∙ []mk σ t
+    ; []unᴹ    = λ σ A t → sym ([]tm≡[]t (un t) σ) ∙ []un σ A t ∙ cong un ([]tm≡[]t t σ)
     ; Uᴹβ      = Uβ
     ; Uᴹη      = Uη
     ; Liftᴹβ   = Liftβ
@@ -126,18 +122,6 @@ toQIIRT .met = record
   ; idTy = record
     { Idᴹ      = Id
     ; []ᴹIdᴹ   = refl
-             {- λ {_} {_} {i} {σ} {a} {t} {u}
-               → cong₃ Id
-                       (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) ? ) -- (uip refl []U))
-                       (tr-cong {P = TmᴹFam toQIIRT} (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U))
-                       ∙ cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t t))
-                              (uip (cong El (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U)))
-                                   (cong El (sym ((cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip []U refl)))))))
-                       (tr-cong {P = TmᴹFam toQIIRT} (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U))
-                       ∙ cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t u))
-                              (uip (cong El (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U)))
-                                   (cong El (sym ((cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip []U refl)))))))
-                                   -}
     ; reflᴹ    = refl
     ; []reflᴹ  = λ σ {a} t → sym ([]tm≡[]t (refl t) σ) ∙ []refl σ t
     ; reflectᴹ = reflect
