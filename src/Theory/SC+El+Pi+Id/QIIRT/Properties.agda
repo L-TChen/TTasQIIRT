@@ -13,12 +13,12 @@ cong-U refl = refl
 
 []tapp : (σ : Sub Γ Δ)
   → (A : Ty Δ) (B : Ty (Δ , A)) (t : Tm Δ (Π A B))
-  → app ([ σ ]t t) ≡ [ σ ↑ A ]t (app t)
+  → app ([ σ ]tm t) ≡ [ σ ↑ A ]tm (app t)
 []tapp σ A B t = begin
-  app ([ σ ]t t)               ≡⟨ cong app (cong ([ σ ]t_) Πη) ⟨
-  app ([ σ ]t (ƛ (app t)))     ≡⟨ cong app ([]ƛ σ (app t)) ⟩
-  app (ƛ ([ σ ↑ A ]t (app t))) ≡⟨ Πβ ⟩
-  [ σ ↑ A ]t (app t)             ∎
+  app ([ σ ]tm t)               ≡⟨ cong app (cong ([ σ ]tm_) Πη) ⟨
+  app ([ σ ]tm (ƛ (app t)))     ≡⟨ cong app ([]ƛ σ (app t)) ⟩
+  app (ƛ ([ σ ↑ A ]tm (app t))) ≡⟨ Πβ ⟩
+  [ σ ↑ A ]tm (app t)             ∎
   where open ≡-Reasoning
 
 -- derived computation rules on composition
@@ -132,7 +132,7 @@ id↑ Γ A = begin
 []tm≡[]t u wk           = refl
 []tm≡[]t u (π₁ (π₁ σ))  = refl
 []tm≡[]t u (π₁ (σ ⨟ τ)) = begin
-  [ π₁ (σ ⨟ τ) ]tm u    ≡⟨ ≅-to-≡ (hcong ([_]tm u) (≡-to-≅ (π₁⨟ σ τ))) ⟩
+  [ π₁ (σ ⨟ τ) ]tm u    ≡⟨ ≅-to-≡ $ hcong ([_]tm u) (≡-to-≅ (π₁⨟ σ τ)) ⟩
   [ σ ⨟ π₁ τ   ]tm u    ≡⟨ [⨟]tm ⟩
   [ σ ]tm [ π₁ τ ]tm u  ≡⟨ cong ([ σ ]tm_) ([]tm≡[]t u (π₁ τ)) ⟩
   [ σ ]tm [ π₁ τ ]t  u  ≡⟨ []tm≡[]t ([ π₁ τ ]t u) σ ⟩
@@ -147,7 +147,7 @@ id↑ Γ A = begin
   [ σ ]t  [ τ ]t  u ∎
   where open ≡-Reasoning
 []tm≡[]t u (π₁ (σ , t)) = begin
-  [ π₁ (σ , t) ]tm u ≡⟨ ≅-to-≡ (hcong (λ σ → [ σ ]tm u) (≡-to-≅ π₁,)) ⟩
+  [ π₁ (σ , t) ]tm u ≡⟨ ≅-to-≡ $ hcong (λ σ → [ σ ]tm u) (≡-to-≅ π₁,) ⟩
   [ σ ]tm u          ≡⟨ []tm≡[]t u σ ⟩
   [ σ ]t  u          ∎
   where open ≡-Reasoning

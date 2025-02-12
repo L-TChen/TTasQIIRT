@@ -149,13 +149,14 @@ interleaved mutual
       → [ σ ] (Id a t u)
       ≡ Id ([ σ ]t a) ([ σ ]t t) ([ σ ]t u)
     {-# REWRITE []Id #-}
+  -- Structural rules for term formers
+    []ƛ
+      : (σ : Sub Γ Δ) (t : Tm (Δ , A) B)
+      → [ σ ]tm (ƛ t) ≡ ƛ ([ σ ↑ _ ]tm t )
   -- Computational rules
     reflect
       : {a : Tm Γ U} {t u : Tm Γ (El a)} → Tm Γ (Id a t u)
       → t ≡ u
-    []ƛ
-      : (σ : Sub Γ Δ) (t : Tm (Δ , A) B)
-      → [ σ ]t (ƛ t) ≡ ƛ ([ σ ↑ _ ]t t )
     Πβ
       : app (ƛ t) ≡ t
     Πη

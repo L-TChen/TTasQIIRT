@@ -1,4 +1,3 @@
--- {-# OPTIONS --optimise-heavily #-}
 open import Prelude
 -- copy and modify from Theory
 module SC+U+Pi+Id.Translation.Model.toQIIT where

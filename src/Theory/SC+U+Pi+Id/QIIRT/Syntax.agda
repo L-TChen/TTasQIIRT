@@ -180,6 +180,9 @@ interleaved mutual
     []un
       : (σ : Sub Γ Δ) (A : Ty Δ i) (t : Tm Δ (Lift A))
       → [ σ ]tm un t ≡ un ([ σ ]tm t)
+    []ƛ
+      : (σ : Sub Γ Δ) {A : Ty Δ i} {B : Ty (Δ , A) i} (t : Tm (Δ , A) B)
+      → [ σ ]tm (ƛ t) ≡ ƛ ([ σ ↑ A ]tm t )
   -- Computational rules
     Uβ
       : El (c A) ≡ A
@@ -189,16 +192,13 @@ interleaved mutual
       : un (mk u) ≡ u
     Liftη
       : mk (un u) ≡ u
-    reflect
-      : {a : Tm Γ (U i)} {t u : Tm Γ (El a)} → Tm Γ (Id a t u)
-      → t ≡ u
-    []ƛ
-      : (σ : Sub Γ Δ) (t : Tm (Δ , A) B)
-      → [ σ ]tm (ƛ t) ≡ ƛ ([ σ ↑ _ ]tm t )
     Πβ
       : app (ƛ t) ≡ t
     Πη
       : ƛ (app t) ≡ t
+    reflect
+      : {a : Tm Γ (U i)} {t u : Tm Γ (El a)} → Tm Γ (Id a t u)
+      → t ≡ u
 data Tel (Γ : Ctx) : Set
 _⧺_ : (Γ : Ctx) (Ξ : Tel Γ) → Ctx
 
