@@ -695,19 +695,19 @@ In general, every term occurs on the right-hand side of a clause needs to propag
 In this section, we extend the type theory in \cref{subsec:SC+U} with $\Pi$-types, i.e.\ dependent function types, whose the context of its codomain is extended with the domain type.
 For the QIIT of type theory in \cite{Altenkirch2016a}, it amounts to adding the following constructors for the type formation rule, the term introduction/elimination rules:
 \begin{alignat*}{3}
-  \Pi     &: \implicit{\Gamma}            && (A : \Ty\,\Gamma) \to \Ty\,(\Gamma, A) \to \Ty\,\Gamma \\
-  \lambda &: \implicit{\Gamma, A, B}      && \Tm\;(\Gamma, A)\;B \to \Tm\,\Gamma\,(\Pi\;A\;B) \\
-  \mathsf{app} &: \implicit{\Gamma, A, B} && \Tm\;\Gamma\;(\Pi\;A\;B) \to \Tm\;(\Gamma, A)\;B
+  \Pi     &: \implicit{\Gamma}           \; && (A : \Ty\,\Gamma) \to \Ty\,(\Gamma, A) \to \Ty\,\Gamma \\
+  \lambda &: \implicit{\Gamma, A, B}     \; && \Tm\;(\Gamma, A)\;B \to \Tm\,\Gamma\,(\Pi\;A\;B) \\
+  \mathsf{app} &: \implicit{\Gamma, A, B}\; && \Tm\;\Gamma\;(\Pi\;A\;B) \to \Tm\;(\Gamma, A)\;B
 \end{alignat*}
 the computation rules
 \begin{alignat*}{5}
-  \Pi\beta           & : \implicit{\Gamma, A, B, t} && \mathsf{app}\,(\lambda\,t) && =^{\Tm\,\Gamma,A} && t \\
-  \Pi\eta            & : \implicit{\Gamma, A, B, t} && t                        && =^{\Tm\,\Gamma,A} && \lambda(\mathsf{app}\,t)
+  \Pi\beta           & : \implicit{\Gamma, A, B, t}\; && \mathsf{app}\,(\lambda\,t) && =^{\Tm\;\Gamma\;A} && t \\
+  \Pi\eta            & : \implicit{\Gamma, A, B, t}\; && t                          && =^{\Tm\;\Gamma\;A} && \lambda(\mathsf{app}\,t)
 \end{alignat*}
 and the structural rules for substitution
 \begin{alignat}{5}
-  []\Pi              & : \implicit{\Gamma, \Delta, \sigma, A, B}    && [ \sigma ]_{\Ty}\,(\Pi\;A\;B) && =^{\Ty\;\Gamma} && \Pi\,(\sub{\sigma}{A})\,([\sigma\uparrow A]\,B) \label{eq:def-type-subst-8} \\
-  \mathsf{[]\lambda} & : \implicit{\Gamma, \Delta, \sigma, A, B, t} && [\sigma]_{\Tm} (\lambda\,t) && =^{\Tm\,\Gamma}_{\alert{[]\Pi}} && \lambda\,([\sigma \uparrow A]\,t) \nonumber
+  []\Pi              & : \implicit{\Gamma, \Delta, \sigma, A, B}\;    && [ \sigma ]_{\Ty}\,(\Pi\;A\;B) && =^{\Ty\;\Gamma} && \Pi\,(\sub{\sigma}{A})\,([\sigma\uparrow A]\,B) \label{eq:def-type-subst-8} \\
+  \mathsf{[]\lambda} & : \implicit{\Gamma, \Delta, \sigma, A, B, t}\; && [\sigma]_{\Tm} (\lambda\,t) && =^{\Tm\,\Gamma}_{\alert{[]\Pi}} && \lambda\,([\sigma \uparrow A]\,t) \nonumber
 \end{alignat}
 where $\sigma \uparrow A$ is the \emph{lifting}  of $\sigma$ by a type $A$ defined as $(\pi_1\idS; \sigma, \alert{\transfib{\Tm\;\Gamma}{[;]_T}{\color{black}\pi_2\idS}})$. 
 
@@ -1116,54 +1116,80 @@ using sheaf theory.
   \Ctx      & : && \Set                   \\
   \Ty       & : && \Ctx \to \Set          \\
   \Sub      & : && \Ctx \to \Ctx \to \Set \\
-  \Tm       & : && (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Set \\
+  \Tm       & : && (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Set \\
+  [\blank]_{\Ty}\blank & : \implicit{\Gamma, \Delta}\; && \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
+  [\blank]_{\Tm}\blank & : \implicit{\Gamma, \Delta, A}\; && (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Delta\;A \to \Tm\;\Gamma\;([\sigma]_{\Ty}\,A) \\ 
+  \blank\uparrow\blank & : \implicit{\Gamma, \Delta}\; && (\sigma : \Sub\;\Gamma\;\Delta) (A : \Ty\;\Delta) \to \Sub\;(\Gamma, [\sigma]_{\Ty}\;A)\;(\Delta, A) \\
   \emptyctx & : && \Ctx \\
-  \blank,\blank & : && (\Gamma : \Ctx) \to \Ty\,\Gamma \to \Ctx \\
-  [\blank]\blank & : \implicit{\Gamma, \Delta} && \Sub\,\Gamma\,\Delta \to \Ty\,\Delta \to \Ty\,\Gamma \\
-  \emptysub & : \implicit{\Gamma} && \Sub\,\Gamma\,\emptyctx \\
-  \blank,\blank & : \implicit{\Gamma, \Delta, A} && (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Gamma\,([ \sigma ]_{\Ty} A) \to \Sub\,\Gamma,(\Delta, A) \\
-  \idS & : \implicit{\Gamma} && \Sub\,\Gamma\,\Gamma \\
-  \blank;\blank & : \implicit{\Gamma, \Delta, \Theta} && \Sub\,\Gamma\,\Delta \to \Sub\,\Delta\,\Theta \to \Sub\,\Gamma\,\Theta \\
-  \pi_1 & : \implicit{\Gamma, \Delta, A} && \Sub\,\Gamma\,(\Delta, A) \to \Sub\,\Gamma\,\Delta \\
-  \pi_2 & : \implicit{\Gamma, \Delta, A} && (\sigma : \Sub\,\Gamma\,(\Delta, A)) \to \Tm\,\Gamma\,([ \pi_1\,\sigma ]\, A) \\
-  [\blank] \blank & : \implicit{\Gamma,\Delta, A} && (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Delta\,A \to \Tm\,\Gamma\,([\sigma]\, A) \\
-  \UU     & : \implicit{\Gamma} && \Ty\, \Gamma \\
-  \El     & : \implicit{\Gamma} && \Tm\,\Gamma\,U \to \Ty\,\Gamma \\
-  \Pi     & : \implicit{\Gamma} && (A : \Ty\,\Gamma) \to \Ty\,(\Gamma, A) \to \Ty\,\Gamma \\
+  \blank,\blank & : && (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Ctx \\
+  \emptysub & : \implicit{\Gamma} && \Sub\;\Gamma\;\emptyctx \\
+  \blank,\blank & : \implicit{\Gamma, \Delta, A} && (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Gamma\;([ \sigma ]_{\Ty}\,A) \to \Sub\;\Gamma,(\Delta, A) \\
+  \idS & : \implicit{\Gamma} && \Sub\;\Gamma\;\Gamma \\
+  \blank;\blank & : \implicit{\Gamma, \Delta, \Theta} && \Sub\;\Gamma\;\Delta \to \Sub\;\Delta\;\Theta \to \Sub\;\Gamma\;\Theta \\
+  \pi_1 & : \implicit{\Gamma, \Delta, A}\; && \Sub\;\Gamma\;(\Delta, A) \to \Sub\;\Gamma\;\Delta \\
+  \pi_2 & : \implicit{\Gamma, \Delta, A}\; && (\sigma : \Sub\;\Gamma\;(\Delta, A)) \to \Tm\;\Gamma\;([ \pi_1\;\sigma ]_{\Ty}\, A) \\
+  [\blank] \blank & : \implicit{\Gamma,\Delta, A} && (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Delta\;A \to \Tm\;\Gamma\;([\sigma]_{\Ty}\, A) \\
+  \UU     & : \implicit{\Gamma}\; && \Ty\; \Gamma
+\end{alignat*}
+\begin{alignat*}{5}
+  \mathsf{idr}    & : \implicit{\Gamma, \Delta, \sigma}\; && {\sigma ; \idS_{\Delta}} && =^{\Sub\;\Gamma\;\Delta} && {\sigma} \\
+  \mathsf{idl}    & : \implicit{\Gamma, \Delta, \sigma}\; && {\idS_{\Gamma} ; \sigma} && =^{\Sub\;\Gamma\;\Delta} && {\sigma} \\
+  ;\text{-}\mathsf{assoc} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, \gamma}\; && (\sigma ; \tau) ; \gamma && =^{\Sub\;\Gamma\;\Theta} &&  \sigma ; (\tau ; \gamma) \\
+  \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t}\; &&\sigma ; (\tau , t) && =^{\Sub\;\Gamma\;(\Theta, A)} &&  (\sigma ; \tau) , [ \sigma ] t \\
+  \pi_1\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t}\; && \pi_1(\sigma , t)        && =^{\Sub\;\Gamma,\Delta} &&  \sigma \\
+  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t}\; && \pi_2(\sigma , t)        && =^{\Tm\;\Gamma\; A} &&  t \\
+  \emptyctx\eta   & : \implicit{\Gamma, \sigma}\; && \sigma                   && =^{\Sub\;\Gamma\;\emptyctx} & \emptysub \\
+  \pi\eta         & : \implicit{\Gamma, A, \sigma}\; && \sigma                   && =^{\Sub\;\Gamma\;(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma) \\
+  [\idS]t         & : \implicit{\Gamma, A, t}\; && {[\idS]\;t}          && =^{\Tm\;\Gamma\;A} && t \\
+  [;]t            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t}\; && {[\sigma ; \tau]\;t} && =^{\Tm\;\Gamma\;[\sigma ; \tau] A} && {[ \sigma ]\;[ \tau ]\;t} \\
+  \mathsf{reflect} & : \implicit{\Gamma, a, t, u}\;&& \Tm\;\Gamma\;(\idtype[a]{t}{u}) \to t =^{\Tm\;\Gamma\;(\El\,a)} u
 \end{alignat*}
 
 \begin{alignat*}{5}
-[ \idS ]_{\Ty}\,A             & \reduce A \\
-[ \sigma ; \tau ]_{\Ty}\,A    & \reduce [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \\
-[ \pi_1(\sigma, t) ]_{\Ty}\,A & \reduce [\sigma]_\Ty\,A \\
-[ \pi_1(\sigma; \tau) ]_{\Ty}\,A & \reduce [\sigma]_\Ty ([\pi_1\tau]_\Ty \,A) \\
-[ \sigma ]_{\Ty}\,\UU           & \reduce \UU \\
-[ \sigma ]_{\Ty}\,(\El\, u) & \reduce \El\,([\sigma]_{\Tm}{u}) \\
-[ \sigma ]_{\Ty}\,(\Pi\,A\,B) & \reduce \Pi\,(\sub{\sigma}{A})\,(\sub{\sigma\uparrow A}{B}) \\
-\idS                \uparrow A & \reduce \idS \\
-\sigma ; \tau       \uparrow A & \reduce (\sigma \uparrow \sub{\tau}{A} ) ; (\tau \uparrow A) \\
-\pi_1(\sigma, t)    \uparrow A & \reduce \sigma \uparrow A \\
-\pi_1(\sigma; \tau) \uparrow A & \reduce \sigma \uparrow (\sub{\pi_1 \tau}{A}) ; (\pi_1 \tau \uparrow A) \\
-\sigma              \uparrow A & \reduce (\pi_1 \idS ; \sigma , \pi_2 \idS) & \text{otherwiese} \\
+  & [ \idS ]_{\Ty}\,               && A           && \reduce A \\
+  & [ \sigma ; \tau ]_{\Ty}\,      && A           && \reduce [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \\
+  & [ \pi_1(\sigma, t) ]_{\Ty}\,   && A           && \reduce [\sigma]_\Ty\,A \\
+  & [ \pi_1(\sigma; \tau) ]_{\Ty}\,&& A           && \reduce [\sigma]_\Ty ([\pi_1\tau]_\Ty \,A) \\
+  & [ \sigma ]_{\Ty}\,             && \UU         && \reduce \UU \\
+  & [ \sigma ]_{\Ty}\,             && (\El\, u)   && \reduce \El\,([\sigma]_{\Tm}{u}) \\
+  & [ \sigma ]_{\Ty}\,             && \idtype[a]{t}{u} && \reduce \idtype[{[\sigma]_{\Tm}\,a}]{[\sigma]_{\Tm}\,t}{[\sigma]_{\Tm}\,u}
+\end{alignat*}
+\begin{alignat*}{5}
+  \blank^+ & : \implicit{\Gamma, \Delta, A}\; (\sigma : \Sub\;\Gamma\;\Delta) \to \Sub\;(\Gamma, [\sigma]_{\Ty}\;A)\;(\Delta, A) \\
+  \sigma^+ & \defeq (\pi_1\idS; \sigma), \pi_2\sigma
+\end{alignat*}
+\begin{alignat*}{5}
+\idS                \uparrow A  & \reduce \idS \\
+\sigma ; \tau       \uparrow A  & \reduce (\sigma \uparrow \sub{\tau}{A} ) ; (\tau \uparrow A) \\
+\pi_1(\sigma, t)    \uparrow A  & \reduce \sigma \uparrow A \\
+\pi_1(\sigma; \tau) \uparrow A  & \reduce \sigma \uparrow (\sub{\pi_1 \tau}{A}) ; (\pi_1 \tau \uparrow A) \\
+\sigma              \uparrow A  & \reduce \sigma^+,\quad  \text{otherwiese}
+\end{alignat*}
+\begin{alignat*}{5}
  [ \idS ]_{\Tm}\,t                & \reduce t \\
  [ \sigma ; \tau ]_{\Tm}\,t       & \reduce [ \sigma ]_{\Tm}\;([ \tau ]_{\Tm}\;t) \\
  [ \pi_1(\sigma, t) ]_{\Tm}\,t    & \reduce [\sigma]_\Tm\,t \\
  [ \pi_1(\sigma; \tau) ]_{\Tm}\,t & \reduce [\sigma]_\Tm\; ([\pi_1\tau]_\Tm \,t) \\
- [ \sigma ]_{\Tm}\,t              & \reduce [ \sigma ]\,t & \text{otherwise}
+ [ \sigma ]_{\Tm}\,t              & \reduce [ \sigma ]\,t, \quad \text{otherwise}
 \end{alignat*}
 
 \begin{alignat*}{5}
-  \mathsf{idr}    & : \implicit{\Gamma, \Delta, \sigma} && {\sigma ; \idS_{\Delta}} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
-  \mathsf{idl}    & : \implicit{\Gamma, \Delta, \sigma} && {\idS_{\Gamma} ; \sigma} && =^{\Sub\,\Gamma\,\Delta} && {\sigma} \\
-  ;\text{-}\mathsf{assoc} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, \gamma} && (\sigma ; \tau) ; \gamma && =^{\Sub\,\Gamma\,\Theta} &&  \sigma ; (\tau ; \gamma) \\
-  \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t} &&\sigma ; (\tau , t)      && =^{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau) , [ \sigma ] t \\
-  \emptyctx\eta   & : \implicit{\Gamma, \sigma} && \sigma                   && =^{\Sub\,\Gamma\,\emptyctx} & \emptysub \\
-  \pi\eta         & : \implicit{\Gamma, A, \sigma} && \sigma                   && =^{\Sub\,\Gamma\,(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma) \\
-  \pi_1\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_1(\sigma , t)        && =^{\Sub\,\Gamma,\Delta} &&  \sigma \\
-  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_2(\sigma , t)        && =^{\Tm\,\Gamma\, A} &&  t \\
-  [\idS]t         & : \implicit{\Gamma, A, t} && {[\,\idS\,]\,t}          && =^{\Tm\,\Gamma\,A} && t \\
-  [;]t            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t} && {[\,\sigma ; \tau\,]\,t} && =^{\Tm\,\Gamma\,[\sigma ; \tau] A} && {[ \sigma ]\,[ \tau ]\,t} \\
+  \El     & : \implicit{\Gamma}\; && \Tm\;\Gamma\;U \to \Ty\;\Gamma \\
 \end{alignat*}
+\begin{alignat*}{5}
+  \Pi             & : \implicit{\Gamma}\; && (A : \Ty\;\Gamma) \to \Ty\;(\Gamma, A) \to \Ty\;\Gamma \\
+  \lambda         &: \implicit{\Gamma, A, B} \; && \Tm\;(\Gamma, A)\;B \to \Tm\;\Gamma(\Pi\,A\,B) \\
+  \mathsf{app}    &: \implicit{\Gamma, A, B} \; && \Tm\;\Gamma\;(\Pi\;A\;B) \to \Tm\;(\Gamma, A)\;B \\
+  \nameless       &: && [ \sigma ]_{\Ty}\, (\Pi\,A\,B) \reduce \Pi\,(\sub{\sigma}{A})\,(\sub{\sigma\uparrow A}{B}) \\
+  []\lambda       & : \implicit{\Gamma, \Delta, \sigma, A, t}\;&& [ \sigma ]_{\Tm} \,(\lambda\,t) =^{\Tm\;\Gamma\;([\sigma]_{\Ty}(\Pi\,A\,B)} \lambda ([\sigma \uparrow A ]_{\Tm}\,t)\\
+  \Pi\beta        & : \implicit{\Gamma, A, B, t}\; && \mathsf{app}\,(\lambda\,t) =^{\Tm\;\Gamma\;A} t \\
+  \Pi\eta         & : \implicit{\Gamma, A, B, t}\; && t                          =^{\Tm\;\Gamma\;A} \lambda(\mathsf{app}\,t)
+\end{alignat*}
+
+\begin{alignat*}{5}
+  \idtype[\blank]{\blank}{\blank} & : \implicit{\Gamma} && (a : \Tm\;\Gamma\;\UU) (t : \Tm\;\Gamma\;(\El\,a)(u : \Tm\;\Gamma\;(\El\,a)) \to \Ty\;\Gamma
+\end{alignat*}
+
 
 \section{Omitted proofs}
 
