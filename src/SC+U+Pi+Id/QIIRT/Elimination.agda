@@ -3,12 +3,21 @@ module SC+U+Pi+Id.QIIRT.Elimination where
 
 open import Prelude
   renaming (_,_ to _,'_)
-open import SC+U+Pi+Id.QIIRT.Base
-open import SC+U+Pi+Id.QIIRT.Model
+open import SC+U+Pi+Id.QIIRT.Syntax
+open import SC+U+Pi+Id.QIIRT.Elimination.Motive
+open import SC+U+Pi+Id.QIIRT.Elimination.Method
 open import SC+U+Pi+Id.QIIRT.Properties
 
-module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
-  open Model M
+record Eliminator {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
+  field
+    Mot : Motive {ℓ} {ℓ′}
+    Met : Method Mot
+  
+  open Motive Mot public
+  open Method Met public
+
+module elim {ℓ ℓ′}(M : Eliminator {ℓ} {ℓ′}) where
+  open Eliminator M
 
   {-# TERMINATING #-}
   ElimCtx
@@ -29,10 +38,10 @@ module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
   ElimCtx ∅          = ∅ᶜᴹ
   ElimCtx (Γ , A)    = ElimCtx Γ ,ᶜᴹ ElimTy A
   ElimTy (U i)       = Uᴹ i
-  ElimTy (El u) = Elᴹ (ElimTm u)
-  ElimTy (Lift A) = Liftᴹ (ElimTy A)
+  ElimTy (El u)      = Elᴹ (ElimTm u)
+  ElimTy (Lift A)    = Liftᴹ (ElimTy A)
   ElimTy (Π A B)     = Πᴹ (ElimTy A) (ElimTy B)
-  ElimTy (Id a t u)      = Idᴹ (ElimTm a) (ElimTm t) (ElimTm u)
+  ElimTy (Id a t u)  = Idᴹ (ElimTm a) (ElimTm t) (ElimTm u)
   ElimSub ∅          = ∅ˢᴹ
   ElimSub (σ , t)    = ElimSub σ ,ˢᴹ tr TmᴹFamₜ (sym $ ElimTy[] σ _) (ElimTm t)
   ElimSub idS        = idSᴹ
@@ -46,10 +55,11 @@ module elim {ℓ ℓ′}(M : Model {ℓ} {ℓ′}) where
   ElimTm (ƛ t)       = (ƛᴹ ElimTm t)
   ElimTm (app t)     = appᴹ (ElimTm t)
 
-  ElimSub↑-tot : (σ : Sub Δ Γ)(A : Ty Γ i)
-               → _≡_ {A = ∃ λ PB → Subᴹ (ElimCtx Δ ,ᶜᴹ PB) (ElimCtx Γ ,ᶜᴹ ElimTy A) (σ ↑ A)}
-                     ([ ElimSub σ ]ᴹ ElimTy A ,' ElimSub σ ↑ᴹ ElimTy A)
-                     (ElimTy ([ σ ] A) ,' ElimSub (σ ↑ A))
+  ElimSub↑-tot
+    : (σ : Sub Δ Γ)(A : Ty Γ i)
+    → _≡_ {A = ∃ λ PB → Subᴹ (ElimCtx Δ ,ᶜᴹ PB) (ElimCtx Γ ,ᶜᴹ ElimTy A) (σ ↑ A)}
+      ([ ElimSub σ ]ᴹ ElimTy A ,' ElimSub σ ↑ᴹ ElimTy A)
+      (ElimTy ([ σ ] A) ,' ElimSub (σ ↑ A))
 
   ElimTy[] σ (U i) = []ᴹUᴹ
   ElimTy[] σ (El u) = begin

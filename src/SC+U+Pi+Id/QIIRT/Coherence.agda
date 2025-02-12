@@ -3,7 +3,7 @@ module SC+U+Pi+Id.QIIRT.Coherence where
 open import Prelude
   hiding (_,_)
 
-open import SC+U+Pi+Id.QIIRT.Base
+open import SC+U+Pi+Id.QIIRT.Syntax
 open import SC+U+Pi+Id.QIIRT.Properties
 
 
