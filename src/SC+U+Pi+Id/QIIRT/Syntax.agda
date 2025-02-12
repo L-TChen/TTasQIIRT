@@ -94,8 +94,11 @@ interleaved mutual
     ƛ_
       : Tm (Γ , A) B → Tm Γ (Π A B)
     app
-      : Tm Γ (Π A B) 
+      : Tm Γ (Π A B)
       → Tm (Γ , A) B
+    refl
+      : {a : Tm Γ (U i)} (t : Tm Γ (El a))
+      → Tm Γ (Id a t t)
 
   pattern wk   = π₁ idS
   pattern vz   = π₂ idS
@@ -185,7 +188,11 @@ interleaved mutual
       → [ σ ]tm (mk t) ≡ mk ([ σ ]t t)
     []un
       : (σ : Sub Γ Δ) (A : Ty Δ i) (t : Tm Δ (Lift A))
-      → [ σ ]tm un t ≡ un ([ σ ]tm t)
+      → [ σ ]tm (un t) ≡ un ([ σ ]tm t)
+    []refl
+      : (σ : Sub Γ Δ) {a : Tm Δ (U i)} (t : Tm Δ (El a))
+      → [ σ ]tm (refl t) ≡ refl ([ σ ]t t)
+
   -- Computational rules
     Uβ
       : El (c A) ≡ A

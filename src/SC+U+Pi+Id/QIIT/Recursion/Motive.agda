@@ -1,5 +1,5 @@
--- Motive for SC+U+Pi+Id Recursor
-module SC+U+Pi+Id.Recursion.Recursor.Motive where
+-- Motive for SC+U+Pi+Id.QIIT Recursor
+module SC+U+Pi+Id.QIIT.Recursion.Motive where
 
 open import Prelude
 

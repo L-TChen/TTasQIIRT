@@ -253,6 +253,12 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         ≡ Idᴹ (trTmᴹₜ []U []ᴹUᴹ ([ σᴹ ]tmᴹ aᴹ))
               (trTmᴹₜ ([]El σ a) ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tmᴹ tᴹ))
               (trTmᴹₜ ([]El σ a) ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tmᴹ uᴹ))
+      reflᴹ
+        : (tᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ) t)
+        → Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ tᴹ) (refl t)
+      []reflᴹ
+          : tr TmᴹFam ([]refl σ t) (trTmᴹₜ []Id []ᴹIdᴹ ([ σᴹ ]tmᴹ (reflᴹ tᴹ)))
+          ≡ reflᴹ (trTmᴹₜ ([]El σ a) ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tmᴹ tᴹ))
       reflectᴹ
         : (Pp : Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ uᴹ) p)
         → tr TmᴹFam (reflect p) tᴹ ≡ uᴹ

@@ -1,8 +1,8 @@
--- Methods of SC+U+Pi+Id Recursor
-module SC+U+Pi+Id.Recursion.Recursor.Method where
+-- Methods of SC+U+Pi+Id.QIIT Recursor
+module SC+U+Pi+Id.QIIT.Recursion.Method where
 
 open import Prelude
-open import SC+U+Pi+Id.Recursion.Recursor.Motive
+open import SC+U+Pi+Id.QIIT.Recursion.Motive
 
 module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
   open Motive Mot
@@ -118,7 +118,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       unᴹ
         : Tmᴹ Γᴹ (Liftᴹ Aᴹ)
         → Tmᴹ Γᴹ Aᴹ
-      
+
       []ᴹUᴹ
         : [ σᴹ ]ᴹ (Uᴹ i) ≡ Uᴹ i
       []ᴹElᴹ
@@ -181,6 +181,13 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         ≡ Idᴹ (tr TmᴹFam []ᴹUᴹ ([ σᴹ ]tmᴹ aᴹ))
               (tr TmᴹFam ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tmᴹ tᴹ))
               (tr TmᴹFam ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tmᴹ uᴹ))
+      reflᴹ
+        : (tᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ))
+        → Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ tᴹ)
+      []reflᴹ
+          : (σᴹ : Subᴹ Δᴹ Γᴹ){aᴹ : Tmᴹ Γᴹ (Uᴹ i)}(tᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ))
+          → tr (Tmᴹ Δᴹ) []ᴹIdᴹ ([ σᴹ ]tmᴹ (reflᴹ tᴹ))
+          ≡ reflᴹ (tr TmᴹFam ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tmᴹ tᴹ))
       reflectᴹ
         : (Pp : Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ uᴹ))
         → tᴹ ≡ uᴹ
