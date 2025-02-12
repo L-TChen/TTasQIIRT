@@ -26,7 +26,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       ∅ˢᴹ
         : Subᴹ Δᴹ ∅ᶜᴹ
       _,ˢᴹ_
-        : (σᴹ : Subᴹ Γᴹ Δᴹ)(tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ))
+        : (σᴹ : Subᴹ Γᴹ Δᴹ){Aᴹ : Tyᴹ Δᴹ i}(tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ))
         → Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ)
       idSᴹ
         : Subᴹ Γᴹ Γᴹ
@@ -88,7 +88,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : tr TmᴹFam [⨟ᴹ]ᴹ ([ σᴹ ⨟ᴹ τᴹ ]tmᴹ tᴹ) ≡ [ σᴹ ]tmᴹ ([ τᴹ ]tmᴹ tᴹ)
       π₂ᴹ,ˢᴹ
         : {Aᴹ : Tyᴹ Δᴹ i}{σᴹ : Subᴹ Γᴹ Δᴹ}{tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ)}
-        → tr TmᴹFam (cong ([_]ᴹ Aᴹ) π₁ᴹ,ˢᴹ) (π₂ᴹ (σᴹ ,ˢᴹ tᴹ)) ≡ tᴹ
+        → tr (λ τᴹ → TmᴹFam ([ τᴹ ]ᴹ Aᴹ)) π₁ᴹ,ˢᴹ (π₂ᴹ (σᴹ ,ˢᴹ tᴹ)) ≡ tᴹ
   
   record CwF : Set (ℓ ⊔ ℓ′) where
     field
@@ -131,10 +131,10 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : (σᴹ : Subᴹ Γᴹ Δᴹ)(Aᴹ : Tyᴹ Δᴹ i)
         → tr TmᴹFam []ᴹUᴹ ([ σᴹ ]tmᴹ (cᴹ Aᴹ)) ≡ cᴹ ([ σᴹ ]ᴹ Aᴹ)
       []mkᴹ
-        : (σᴹ : Subᴹ Γᴹ Δᴹ)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ)(tᴹ : Tmᴹ Δᴹ Aᴹ)
         → tr TmᴹFam []ᴹLiftᴹ ([ σᴹ ]tmᴹ mkᴹ tᴹ) ≡ mkᴹ ([ σᴹ ]tmᴹ tᴹ)
       []unᴹ
-        : (σᴹ : Subᴹ Γᴹ Δᴹ){Aᴹ : Tyᴹ Δᴹ i}(tᴹ : Tmᴹ Δᴹ (Liftᴹ Aᴹ))
+        : (σᴹ : Subᴹ Γᴹ Δᴹ)(Aᴹ : Tyᴹ Δᴹ i)(tᴹ : Tmᴹ Δᴹ (Liftᴹ Aᴹ))
         → [ σᴹ ]tmᴹ unᴹ tᴹ ≡ unᴹ (tr TmᴹFam []ᴹLiftᴹ ([ σᴹ ]tmᴹ tᴹ))
       Uᴹβ
         : Elᴹ (cᴹ Aᴹ) ≡ Aᴹ
@@ -160,7 +160,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       []ᴹΠᴹ
         : [ σᴹ ]ᴹ Πᴹ Aᴹ Bᴹ ≡ Πᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σᴹ ↑ᴹ Aᴹ ]ᴹ Bᴹ)
       []ƛᴹ
-        : (σᴹ : Subᴹ Γᴹ Δᴹ)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ)(tᴹ : Tmᴹ (Δᴹ ,ᶜᴹ Aᴹ) Bᴹ)
         → tr TmᴹFam []ᴹΠᴹ ([ σᴹ ]tmᴹ ƛᴹ tᴹ)
         ≡ ƛᴹ ([ σᴹ ↑ᴹ Aᴹ ]tmᴹ tᴹ)
       Πβᴹ

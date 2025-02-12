@@ -12,7 +12,7 @@ record Motive (ℓ ℓ′ : Level) : Set (lsuc (ℓ ⊔ ℓ′)) where
     Subᴹ
       : Ctxᴹ → Ctxᴹ → Set ℓ′
     Tmᴹ
-      : (Γᴹ : Ctxᴹ){i : ℕ}(Aᴹ : Tyᴹ Γᴹ i) → Set ℓ′
+      : {i : ℕ}(Γᴹ : Ctxᴹ)(Aᴹ : Tyᴹ Γᴹ i) → Set ℓ′
 
   TmᴹFam : {i : ℕ}{Γᴹ : Ctxᴹ}(Aᴹ : Tyᴹ Γᴹ i) → Set ℓ′
   TmᴹFam {Γᴹ = Γᴹ} = Tmᴹ Γᴹ

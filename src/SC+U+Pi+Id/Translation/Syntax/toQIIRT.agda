@@ -1,105 +1,145 @@
 open import Prelude
-  renaming (_,_ to _,'_)
-
+-- copy and modify from Theory
 module SC+U+Pi+Id.Translation.Syntax.toQIIRT where
 
-open import SC+U+Pi+Id.QIIRT.Base     as QIIRT
-open import SC+U+Pi+Id.QIIRT.Properties as QIIRT
+open import SC+U+Pi+Id.QIIRT.Base
+open import SC+U+Pi+Id.QIIRT.Properties
+open import SC+U+Pi+Id.Recursion.Rec
 
-import SC+U+Pi+Id.QIIT.Syntax as Q
-  hiding (i)
+open Recursor
 
-open import SC+U+Pi+Id.QIIT.Elimination
+private
+  []ƛeq : {A : Ty Δ i}{B : Ty (Δ , A) i}(σ : Sub Γ Δ)(t : Tm (Δ , A) B)
+        → tr (Tm Γ) (cong (λ τ → Π ([ σ ] A) ([ τ ] B))
+                          (↑=⁺ A σ ∙ cong (π₁ idS ⨟ σ ,_)
+                                          (cong (λ p → tr (Tm (Γ , [ σ ] A)) p (π₂ {A = [ σ ] A} idS))
+                                                (uip refl (sym $ [⨟] {A = A})))))
+                    ([ σ ]t (ƛ t))
+        ≡ ƛ ([ π₁ {A = [ σ ] A} idS ⨟ σ , tr (Tm (Γ , [ σ ] A)) (sym $ [⨟] {σ = π₁ idS} {τ = σ} {A = A}) (π₂ idS) ]t t)
+  []ƛeq {Δ} {i} {Γ} {A = A} {B} σ t = sym $ ≅-to-≡ $ begin
+    ƛ ([ π₁ {A = [ σ ] A} idS ⨟ σ ,
+            tr (Tm (Γ , [ σ ] A)) (sym $ [⨟] {σ = π₁ idS} {τ = σ} {A = A}) (π₂ idS) ]t t)
+      ≅⟨ hcong (λ p → ƛ ([ π₁ {A = [ σ ] A} idS ⨟ σ , tr (Tm (Γ , [ σ ] A)) p (π₂ idS) ]t t))
+               (≡-to-≅ $ uip (sym [⨟]) refl) ⟩
+    ƛ ([ π₁ idS ⨟ σ , π₂ idS ]tm t)
+      ≅⟨ hcong (λ σ' → ƛ ([ σ' ]tm t)) (≡-to-≅ (sym $ ↑=⁺ A σ)) ⟩
+    ƛ ([ σ ↑ A ]tm t)
+      ≅⟨ ≡-to-≅ $ sym $ []ƛ σ t ⟩
+    [ σ ]tm (ƛ t)
+      ≅⟨ ≡-to-≅ $ []tm≡[]t (ƛ t) σ ⟩
+    [ σ ]t (ƛ t)
+      ≅⟨ tr≅ (Tm Γ)
+                (cong (λ τ → Π ([ σ ] A) ([ τ ] B))
+                      (↑=⁺ A σ ∙ cong (_,_ (π₁ idS ⨟ σ))
+                                      (cong (λ p → tr (Tm (Γ , [ σ ] A)) p (π₂ idS))
+                                            (uip refl (sym $ [⨟] {σ = π₁ idS} {τ = σ} {A = A})))))
+                ([ σ ]t (ƛ t)) ⟨
+    tr (Tm Γ) _ ([ σ ]t (ƛ t))
+      ∎
+    where open ≅-Reasoning
 
-open Eliminator
-
-open ≡-Reasoning
-toQIIRT : Eliminator
+toQIIRT : Recursor
 toQIIRT .mot = record
-  { Ctxᴹ = λ Γ → Ctx
-  ; Tyᴹ  = λ Γ i A → Ty Γ i
-  ; Subᴹ = λ Γ Δ σ → Sub Γ Δ
-  ; Tmᴹ  = λ Γ A t → Tm Γ A
+  { Ctxᴹ = Ctx
+  ; Tyᴹ  = Ty
+  ; Subᴹ = Sub
+  ; Tmᴹ  = Tm
   }
 toQIIRT .met = record
-  { 𝒞 = record
+  { 𝒞    = record
     { C₁ = record
-      { [_]ᴹ_ = [_]_
-      ; ∅ᶜᴹ = ∅
-      ; _,ᶜᴹ_ = _,_
-      ; ∅ˢᴹ = ∅
-      ; _,ˢᴹ_ = λ σ t → σ , t
-      ; idSᴹ = idS
-      ; _⨟ᴹ_ = _⨟_
-      ; π₁ᴹ = π₁
-      ; [idSᴹ] = tr-const Q.[idS]
-      ; [⨟ᴹ]ᴹ = tr-const Q.[⨟]
-      ; π₂ᴹ = π₂
-      ; [_]tmᴹ_ = [_]t_
+      { [_]ᴹ_       = [_]_
+      ; ∅ᶜᴹ         = ∅
+      ; _,ᶜᴹ_       = _,_
+      ; ∅ˢᴹ         = ∅
+      ; _,ˢᴹ_       = _,_
+      ; idSᴹ        = idS
+      ; _⨟ᴹ_        = _⨟_
+      ; π₁ᴹ         = π₁
+      ; [idSᴹ]      = [id]
+      ; [⨟ᴹ]ᴹ       = λ {_} {_} {_} {_} {σ} {τ} {A} → [⨟] {_} {_} {σ} {_} {τ} {_} {A}
+      ; π₂ᴹ         = π₂
+      ; [_]tmᴹ_     = [_]t_
       }
     ; C₂ = record
-      { _⨟ᴹidSᴹ = λ {_} {_} {_} {_} {Qσ} σ → tr-const (Qσ Q.⨟idS) {σ ⨟ idS} ∙ (σ ⨟idS)
-      ; idSᴹ⨟ᴹ_ = λ {_} {_} {_} {_} {Qσ} σ → tr-const (Q.idS⨟ Qσ) {idS ⨟ σ} ∙ (idS⨟ σ)
-      ; ⨟ᴹ-assoc = tr-const Q.⨟-assoc ∙ ⨟-assoc
-      ; π₁ᴹ,ˢᴹ = tr-const Q.π₁, ∙ π₁,
-      ; ⨟ᴹ,ˢᴹ = λ {_} {_} {_} {_} {_} {σ} {τ} {t} {_} {_} {_} {_}
-                  {σᴹ} {τᴹ} {tᴹ}
-              → tr-const Q.⨟, ∙ ⨟, ∙
-                cong (σᴹ ⨟ τᴹ ,_) (sym {! ([ σᴹ ]t tᴹ) !})
-      ; η∅ˢᴹ = tr-const Q.η∅ ∙ η∅
-      ; η,ˢᴹ = tr-const Q.η, ∙ η,
-      ; [idSᴹ]tmᴹ = λ {Γ} {Γᴹ} {i} {A} {Aᴹ} {t} {tᴹ}
-        →   begin
-          tr (TmᴹFam toQIIRT) Q.[idS]tm (trTmᴹₜ toQIIRT Q.[idS] (tr-const Q.[idS]) tᴹ)
-            ≡⟨ tr-const Q.[idS]tm ⟩
-          tr ((λ (A ,' (Aᴹ ,' t)) → Tmᴹ toQIIRT Γᴹ Aᴹ t))
-             ((Q.[idS] ,Σ≡ tr-const Q.[idS]) ,≡₂ lift (Q.Tm Γ) (Q.[ Q.idS ]tm t) Q.[idS])
-               tᴹ
-            ≡⟨ {!   !} ⟩
-          {!   !}
-        -- tr-const Q.[idS]tm ∙ tr-const _
-      ; [⨟ᴹ]tmᴹ = tr-const Q.[⨟]tm ∙ {!   !} --  tr-const _
-      ; π₂ᴹ,ˢᴹ = tr-const Q.π₂, ∙ {!   !}
+      { _⨟ᴹidSᴹ     = _⨟idS
+      ; idSᴹ⨟ᴹ_     = idS⨟_
+      ; ⨟ᴹ-assoc    = ⨟-assoc
+      ; π₁ᴹ,ˢᴹ      = π₁,
+      ; ⨟ᴹ,ˢᴹ       = λ {_} {Γ} {Δ} {Θ} {A} {σ} {τ} {t}
+                    → ⨟, ∙ cong (σ ⨟ τ ,_)
+                                ([]tm≡[]t t σ 
+                                ∙ sym (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t t)) (uip (sym [⨟]) refl)))
+      ; η∅ˢᴹ        = η∅
+      ; η,ˢᴹ        = η,
+      ; [idSᴹ]tmᴹ   = λ {_} {_} {_} {t} → cong (λ p → tr (TmᴹFam toQIIRT) p t) (uip [id] refl)
+      ; [⨟ᴹ]tmᴹ     = λ {_} {_} {σ} {_} {τ} {_} {_} {t}
+                    → cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t [ τ ]t t)) (uip [⨟] refl)
+      ; π₂ᴹ,ˢᴹ      = λ {_} {_} {_} {A} {σ} {t} 
+                    → begin
+                      tr (λ τ → TmᴹFam toQIIRT ([ τ ] A)) π₁, (π₂ {A = A} (σ , t))
+                        ≡⟨ tr-cong {P = TmᴹFam toQIIRT} {[_] A} π₁, ⟩
+                      tr (TmᴹFam toQIIRT) (cong ([_] A) π₁,) (π₂ {A = A} (σ , t))
+                        ≡⟨ cong (λ p → tr (TmᴹFam toQIIRT) p (π₂ {A = A} (σ , t)))
+                                (uip (cong ([_] A) π₁,) refl) ⟩
+                      π₂ (σ , t)
+                        ≡⟨ π₂, ⟩
+                      t
+                        ∎
       }
     }
   ; univ = record
-    { Uᴹ = U
-    ; Elᴹ = El
-    ; Liftᴹ = Lift
-    ; cᴹ = c
-    ; mkᴹ = mk
-    ; unᴹ = un
-    ; []ᴹUᴹ = λ {_} {_} {_} {_} {_} {σ} {i}
-              → tr-const Q.[]U ∙ []U {_} {_} {σ} {i}
-    ; []ᴹElᴹ = λ {_} {_} {_} {_} {σ} {_} {u} σᴹ uᴹ
-               → tr-const (Q.[]El σ u) ∙ {!   !}
-    ; []ᴹLiftᴹ = λ {_} {_} {_} {_} {_} {σᴹ} {_} {_} {Aᴹ}
-              → tr-const Q.[]Lift ∙ []Lift {_} {_} {σᴹ} {_} {Aᴹ}
-    ; []tᴹcᴹ = λ {_} {_} {_} {_} {σ} {_} {A} σᴹ Aᴹ
-               → tr-const (Q.[]tc σ A) ∙ {!   !}
-    ; []mkᴹ = λ {_} {_} {_} {_} {_} {_} {_} {t} {tᴹ} σ σᴹ
-              → tr-const (Q.[]mk σ t) ∙ {!   !}
-    ; []unᴹ = λ {_} {_} {_} {_} {σ} {_} {A} {t} σᴹ {Aᴹ} tᴹ
-              → tr-const (Q.[]un σ A t) ∙ []un σᴹ Aᴹ tᴹ ∙ cong un {!   !}
-    ; Uᴹβ = tr-const Q.Uβ ∙ Uβ
-    ; Uᴹη = tr-const Q.Uη ∙ Uη
-    ; Liftᴹβ = tr-const Q.Liftβ ∙ Liftβ
-    ; Liftᴹη = tr-const Q.Liftη ∙ Liftη
+    { Uᴹ       = U
+    ; Elᴹ      = El
+    ; Liftᴹ    = Lift
+    ; cᴹ       = c
+    ; mkᴹ      = mk
+    ; unᴹ      = un
+    ; []ᴹUᴹ    = λ {_} {_} {σ} {i} → []U {_} {_} {σ} {i} -- why rewrite doesn't perform here?
+    ; []ᴹElᴹ   = λ σ u → cong El (sym (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t u))
+                                            (uip []U refl)))
+    ; []ᴹLiftᴹ = λ {_} {_} {σ} {i} {A} → []Lift {_} {_} {σ} {i} {A}
+    ; []tᴹcᴹ   = λ σ A → cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t c A)) (uip []U refl) 
+                       ∙ sym ([]tm≡[]t (c A) σ)
+                       ∙ []tc σ A
+    ; []mkᴹ    = λ σ t → cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t mk t)) (uip []Lift refl)
+                       ∙ sym ([]tm≡[]t (mk t) σ)
+                       ∙ []mk σ t
+    ; []unᴹ    = λ σ A t → sym ([]tm≡[]t (un t) σ)
+                         ∙ []un σ A t
+                         ∙ cong un ([]tm≡[]t t σ ∙ cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t t)) (uip refl []Lift))
+    ; Uᴹβ      = Uβ
+    ; Uᴹη      = Uη
+    ; Liftᴹβ   = Liftβ
+    ; Liftᴹη   = Liftη
     }
   ; piTy = record
-    { Πᴹ = Π
-    ; ƛᴹ_ = ƛ_
-    ; appᴹ = app
-    ; []ᴹΠᴹ = λ {_} {_} {_} {_} {_} {σᴹ} {_} {_} {Aᴹ} {_} {Bᴹ}
-              → tr-const Q.[]Π ∙ cong (Π ([ σᴹ ] Aᴹ)) {!   !}
-    ; []ƛᴹ = λ {_} {_} {_} {_} {_} {_} {_} {_} {_} {t} {tᴹ} σ σᴹ 
-             → tr-const (Q.[]ƛ σ t) ∙ {!   !}
-    ; Πβᴹ = tr-const Q.Πβ ∙ Πβ
-    ; Πηᴹ = tr-const Q.Πη ∙ Πη
+    { Πᴹ    = Π
+    ; ƛᴹ_   = ƛ_
+    ; appᴹ  = app
+    ; []ᴹΠᴹ = λ {_} {_} {σ} {i} {A} {B}
+            → cong (λ τ → Π ([ σ ] A) ([ τ ] B))
+                   (↑=⁺ A σ ∙ cong (π₁ idS ⨟ σ ,_) 
+                                   (cong (λ p → tr (TmᴹFam toQIIRT) p (π₂ idS)) (uip refl (sym [⨟]))))
+    ; []ƛᴹ  = λ {_} {_} {_} {A} {B} σ t 
+            → []ƛeq σ t
+    ; Πβᴹ   = Πβ
+    ; Πηᴹ   = Πη
     }
   ; idTy = record
-    { Idᴹ = Id
-    ; []ᴹIdᴹ = tr-const Q.[]Id ∙ {!   !} 
-    ; reflectᴹ = λ pᴹ → tr-const (Q.reflect _) ∙ reflect pᴹ
+    { Idᴹ      = Id
+    ; []ᴹIdᴹ   = λ {_} {_} {i} {σ} {a} {t} {u}
+               → cong₃ Id
+                       (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U))
+                       (tr-cong {P = TmᴹFam toQIIRT} (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U))
+                       ∙ cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t t))
+                              (uip (cong El (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U)))
+                                   (cong El (sym ((cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip []U refl)))))))
+                       (tr-cong {P = TmᴹFam toQIIRT} (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U))
+                       ∙ cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t u))
+                              (uip (cong El (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U)))
+                                   (cong El (sym ((cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip []U refl)))))))
+    ; reflectᴹ = reflect
     }
-  } 
+  }
+  where open ≡-Reasoning
