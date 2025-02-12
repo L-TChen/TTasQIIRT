@@ -88,14 +88,14 @@ Altenkirch and Kaposi~\cite{Altenkirch2016a} showed that by employing \emph{quot
 Yet, there is a general phenomenon, called `transport hell', when working with quotient inductive-inductive types: to make use of equalities in later constructors and when using the eliminator for the type, the equalities need to be transported across.
 %
 
-A typical workaround in practice (as adopted by Kaposi et al.~\cite{Kaposi2019}) is to add equality constructors as rewrite rules after an inductive definition and further identify equality constructors with the reflxivity proof.
+A typical workaround in practice \cite{Kaposi2019,Kaposi2024a} is to add equality constructors as rewrite rules after an inductive definition and further identify equality constructors with the reflxivity proof.
 %
-As the host theory is assumed to have the uniqueness of identity proof and function extensionality, this workaround is anticipatively justified by the fact~\cite{Hofmann1996,Winterhalter2019,Kapulkin2025} that every well-typed term in extensional type theory can be translated to a term without them in intensional type theory.
+As the host theory is assumed to satisfy the uniqueness of identity proof and function extensionality, this workaround can be justified by Hofmann's result~\cite{Hofmann1996,Winterhalter2019,Kapulkin2025} that every well-typed term in extensional type theory can be translated to a term without them in intensional type theory.
 %
-However, this workaround is computationally ill-behaved, as confluence does not hold any more.
-\LT[noinline]{Do they actually justify this workaround anywhere?}
+However, this workaround is computationally ill-behaved, as confluence does not hold in general.
+Also, the presentation often differs from the actual definition of type theory in intensional type theory.
 %
-Any method that reduces the friction introduced by the use of equality constructors without breaking computational properties seem worth exploring.
+Any method that reduces the friction introduced by the use of equality constructors without compromising on computational properties and the gap between formalisation and presentation seem worth exploring.
 %
 
 In this paper, we show that the development can be further streamlined by combining quotient inductive-inductive types and inductive-recursive types.
@@ -134,8 +134,9 @@ Indeed, we also see this paper as a case study to motivate further developments 
       \item a definition of parallel substitution calculus;
       \item a definition of type theory with a universe and $\Pi$-types,
     \end{itemize}
+   with their elimination principles and the standard model, 
    using quotient inductive-inductive-recursive types and definitions by overlapping patterns to define type substitution and term substitution partially.
-  \item Comparison with other definitions using quotient inductive-inductive types.
+  \item Comparison with definitions using quotient inductive-inductive types.
 \end{itemize}
 
 
@@ -223,10 +224,7 @@ which states that join lists are equal as soon as their flattenings are equal. F
 
 
 \subsection{Definitions by overlapping patterns} \label{sec:meta:overlapping}
-Functions are typically defined informally using pattern matching for convenience and readability. Formally, however, they are either defined using an explicit pattern-matching construct or elaborated into case trees, which correspond to the \emph{eliminator}, following \emph{first-match} semantics~\cite{Cockx2020a} and employing termination and completeness checking.
-This elaboration enables conventional notation while making computational behaviour opaque and favouring asymmetric definitions.
-For example, the following two definitions are essentially the same
-
+\begin{figure} 
 \begin{minipage}[t]{.5\textwidth}
   \begin{alignat*}{5}
     \blank  & + \blank     && : \N \to \N \to \N \\
@@ -240,28 +238,34 @@ For example, the following two definitions are essentially the same
 \begin{alignat*}{5}
   \blank         & +'\blank     && : \N \to \N \to \N \\
   0              & +' m         && \defeq m  \\
-  (\suc\;n)      & +' 0         && \defeq \suc\,n \\
+  (\suc\;n)      & +' 0         && \defeq \suc\;n \\
   (\suc\;n)      & +' (\suc\;m) && \defeq \suc\;(n +' m)
 \end{alignat*}
 \end{minipage}
-\vskip\belowdisplayskip\noindent
-after elaboration in \Agda: each clause of $\blank +' \blank$ is strict (hence the symbol $\defeq$ is used) while clauses of $\blank+\blank$ are not necessarily strict by definition.
-This semantics for function definitions affects how definitions reduce and therefore how identities are proved.
+\caption{Two seemingly different definitions of addition}
+\label{fig:additions}
+\end{figure}
+Functions are typically defined informally using pattern matching for convenience and readability. Formally, however, they are either defined using an explicit pattern-matching construct or elaborated into case trees, which correspond to the \emph{eliminator}, following \emph{first-match} semantics~\cite{Cockx2020a} and employing termination and completeness checking.
+This elaboration enables conventional notation while making computational behaviour opaque and favouring asymmetric definitions.
+For example, two definitions of addition in \cref{fig:additions} are the same
+after elaboration in \Agda: eliminating the first argument of $+$ distinguishes $0$ and $\suc\;n$ and refines the second and the third clauses into clauses of $+'$ and makes the fourth clause useless.
+Each clause of $+'$ is strict (hence the symbol $\defeq$ is used) while clauses of $+$ are not necessarily strict by definition.
+This semantics for function definitions decides how definitions reduce and therefore how identities are proved.
 
-Cockx explores an alternative semantics for pattern matching~\cite{Cockx2014}, where all clauses are strict, even in the presence of \emph{overlapping patterns}.
-Under this semantics, each clause of $\blank + \blank$ is strictly equal to its right-hand side, allowing the symmetry of $\blank + \blank$ to be proved commutative directly by induction on $n$ and $m$.
-Thus, when a function $f$ is defined with overlapping patterns, we use the notation $f\;\overrightarrow{p_i} \reduce t_i$ to emphasize its reduction behaviour.
+Cockx~\cite{Cockx2014} explores an alternative semantics for pattern matching, where all clauses are strict, even in the presence of \emph{overlapping patterns}.
+Thus, when a function $f$ is defined with overlapping patterns, the notation $f\;\overrightarrow{p_i} \reduce t_i$ is used to emphasize its reduction behaviour.
+Under this semantics, each clause of $\blank + \blank$ is strictly equal to its right-hand side, allowing the symmetry addition to be proved commutative directly by induction on $n$ and $m$.
 
 A key requirement for definitions with overlapping patterns is that, in addition to termination and completeness, any clause must eventually compute to the same term, i.e.\ $f$ is confluent.
-Cockx shows~\cite[Proposition~2]{Cockx2014} that if a definition of $f$ is
+Cockx shows that if a definition of $f$ is
 \begin{enumerate}
-  \item \emph{structurally recursive}, i.e.\ arguments of recursive calls are structurally smaller, and
+  \item \emph{structurally recursive}~\cite{Abel2002}, i.e.\ arguments of recursive calls are structurally smaller, and
   \item \emph{locally confluent}, i.e.\ for any two function clauses $f\;\overrightarrow{p_1} \reduce t_1$ and $f\;\overrightarrow{p_2} \reduce t_2$ with a most general unifer $\sigma$ for $\overrightarrow{p_1}$ and $\overrightarrow{p_2}$, terms $\sigma t_1$ and $\sigma t_2$ have the same normal form, 
 \end{enumerate}
 then $f$ is confluent---essentially a variant of Newman's Lemma~\cite{Newman1942}.
-We call a diagram $\sigma t_2 \Leftarrow f\;\sigma\overrightarrow{p_1} \Rightarrow \sigma t_1$ a \emph{local peak} informally.
+We call a diagram $\sigma t_2 \Leftarrow f\;\sigma\overrightarrow{p_1} \Rightarrow \sigma t_1$ used in the analysis of local confluence a \emph{local peak}.
 
-\subsection{Overlapping patterns via adding rewrite rules}
+\subparagraph*{Implementing overlapping patterns via rewrite rules}
 Unfortunately, definitions by overlapping patterns are only implemented in an outdated experimental fork of \Agda.
 To emulate a function by overlapping patterns in \Agda, we declare each function clause an additional rewrite rules \cite{Cockx2020,Cockx2021} (via the option \texttt{-{}-rewriting}) and use the local confluence checker (via \texttt{-{}-local-confluence-check}).
 This is indeed one of the main use cases of user-defined rewrite rules discussed by Cockx~\cite{Cockx2020}. 
@@ -485,9 +489,9 @@ This option is turned on globally in our formal implementation.}
   Type substitution $[\blank]_{\Ty}\blank$ is terminating.
   \danger
 \end{proposition}
-\begin{proof}
-  Clearly terms on the RHS are structurally smaller~\cite{Abel2002}.
-\end{proof}
+%\begin{proof}
+%  Clearly terms on the RHS are structurally smaller~\cite{Abel2002}.
+%\end{proof}
 \begin{proposition}[Local confluence] \label{prop:local-confluence-1}
   Type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
   \danger
@@ -520,9 +524,9 @@ We revisit \cref{ex:pi2-comp} to demonstrate the pragmatic benefit of QIIRTs ove
 \end{example}
 
 As we are defining a function on a quotient inductive type, we have to prove that $[\blank]_{\Ty}\blank$ is coherent, i.e., that it respects all equality constructors.
-\LT[noinline]{Should we mention any general condition for coherence?}
-\Fredrik[noinline]{Is there one?}
-\LT[noinline]{I think Cubical Agda has sort of conditions? (Cubical Agda does not support rewriting)}
+%\LT[noinline]{Should we mention any general condition for coherence?}
+%\Fredrik[noinline]{Is there one?}
+%\LT[noinline]{I think Cubical Agda has sort of conditions? (Cubical Agda does not support rewriting)}
 \begin{proposition}[Coherence]\label{prop:coherence-1}
   $[\sigma]_{\Ty}\,A$ is (propositionally) equal to $[\tau]_{\Ty}\,A$ for every equality constructor $p : \sigma = \tau$.
   \danger
@@ -547,11 +551,9 @@ As we are defining a function on a quotient inductive type, we have to prove tha
   However, $\UU$ is the only constructor for $\Ty\;\Gamma$ for any $\Gamma$ and each of the identities with $A \defeq \UU$ reduce to $\UU$.
 \end{proof}
 \begin{remark}\label{re:coherence-proof}
-  Note that in the above proof the first four identities hold strictly by \eqref{eq:def-type-subst-1}--\eqref{eq:def-type-subst-4}, while the last three identities follow from \eqref{eq:def-type-subst-5} by induction on $A$.
-  As we extend substitution calculus with other type formers, the first four identities will always hold but the last three depend on how congruence rules for type substitution is defined.
+  In the above proof the first four identities hold strictly by \eqref{eq:def-type-subst-1}--\eqref{eq:def-type-subst-4}, while the last three follow from \eqref{eq:def-type-subst-5} by induction on $A$.
+  As we extend substitution calculus with other type formers, the first four identities will always hold but the last three depend on how type substitution is defined.
 \end{remark}
-
-\LT{We may wonder if the last three identities can be made strict.}
 
 \subsection{Adding a universe} \label{subsec:SC+U}
 In this section, we extend substitution calculus with an empty universe $\UU$ of small types~$\El\,u$.
@@ -600,9 +602,9 @@ to retain the local confluence for type substitution:
   Type substitution $[\blank]_{\Ty}\blank$ is terminating.
   \danger
 \end{proposition}
-\begin{proof}
-  Again, each recursive call is on a structurally smaller term~\cite{Abel2002}.
-\end{proof}
+%\begin{proof}
+%  Again, each recursive call is on a structurally smaller term~\cite{Abel2002}.
+%\end{proof}
 \begin{proposition}[Local confluence] \label{prop:local-confluence-2}
   Type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
   \danger
@@ -723,7 +725,7 @@ To retain the local confluence, we turn $\sigma \uparrow A$ into a simultaneousl
 \pi_1(\sigma; \tau) \uparrow A & \reduce (\sigma \uparrow \sub{\pi_1 \tau}{A}) ; (\pi_1 \tau \uparrow A)\nonumber \\
 \sigma              \uparrow A & \reduce \sigma^+ , \quad \text{otherwise} \nonumber
 \end{alignat}
-where $\sigma^+ \defeq (\pi_1\idS ; \sigma, \pi_2\idS)$.
+where $\sigma^+ \defeq (\pi_1\idS ; \sigma), \pi_2\idS$.
 Then, we add another clause for type substitution and an equality constructor for term substitution without transport:
 \begin{alignat}{5}
                      & [ \sigma ]_{\Ty}\,(\Pi\,A\,B) && \reduce \Pi\,(\sub{\sigma}{A})\,(\sub{\sigma\uparrow A}{B}) \label{eq:def-type-subst-9} \\
@@ -766,7 +768,7 @@ about the lifting.
 
 \begin{proposition} \label{prop:correctness-2}
   For every $\sigma : \Sub\;\Gamma\;\Delta$, and $A : \Ty\;\Delta$, the lifting
-  $\sigma \uparrow A$ is propositionally equal to $(\pi_1 \idS ; \sigma , \pi_2 \idS)$.
+  $\sigma \uparrow A$ is propositionally equal to $\sigma^+$. 
 \end{proposition}
 \begin{proof}
   We prove the statement by induction on $\sigma$ with \cref{lem:lifting}.
@@ -817,7 +819,7 @@ Then, for each constructor $p : \sigma = \tau$, we show the identity
 $[\sigma \mathop{\upuparrows} \Xi ]_{\Ty}\,A = [\tau \mathop{\upuparrows} \Xi ]_{\Ty}\,A$
 for arbitrary $\Xi$, subsuming the special case $[\sigma ]_{\Ty}\,A = [\tau ]_{\Ty}\,A$ when $\Xi$ is empty.
 
-The type of telescopes over a ``base'' context $\Gamma$ $\Tel : \Ctx \to \Set$ are defined inductive-recursively simultaneously with a concatenation $\blank \dplus \blank$ as follows.
+The type of telescopes over a `base' context $\Gamma$ $\Tel : \Ctx \to \Set$ are defined inductive-recursively simultaneously with a concatenation $\blank \dplus \blank$ as follows.
 
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{5}
@@ -861,14 +863,14 @@ Instead of resorting to \transp, we also turn telescope substitution $[\blank]_{
 
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{5}
-  & [ \idS   ]_{\Tel}       \,\Xi && \reduce \Xi \\
-  & [ \sigma ; \tau ]_{\Tel}\,\Xi && \reduce [ \sigma ]_{\Tel}\,([\tau]_{\Tel}\,\Xi)
+  & [ \idS   ]_{\Tel}       \,&& \Xi && \reduce \Xi \\
+  & [ \sigma ; \tau ]_{\Tel}\,&& \Xi && \reduce [ \sigma ]_{\Tel}\,([\tau]_{\Tel}\,\Xi)
 \end{alignat*}
 \end{minipage}
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{5}
-  & \idS          \upuparrows \Xi && \reduce \idS \\
-  & (\sigma;\tau) \upuparrows \Xi && \reduce (\sigma \upuparrows [ \tau ]_{\Tel} \Xi) ; (\tau \upuparrows \Xi)
+  & \idS          && \upuparrows \Xi && \reduce \idS \\
+  & (\sigma;\tau) && \upuparrows \Xi && \reduce (\sigma \upuparrows [ \tau ]_{\Tel} \Xi) ; (\tau \upuparrows \Xi)
 \end{alignat*}
 \end{minipage}\vskip\belowdisplayskip\noindent
 whose confluence property is easy to see.
@@ -889,7 +891,7 @@ As promised, by instantiating $\Xi$ to be empty, we also get coherence for $[\bl
 \end{corollary}
 
 
-We conclude this extension with $\Pi$-types by noting that for $t : \Tm\,\Gamma\,(\Pi\,A\,B)$ and $u : \Tm\,\Gamma\,A$, also ``ordinary'' application
+We conclude this extension with $\Pi$-types by noting that for $t : \Tm\,\Gamma\,(\Pi\,A\,B)$ and $u : \Tm\,\Gamma\,A$, also `ordinary' application
 $t \mathop{\$} u \defeq [ (\idS , t) ]_{\Tm} (\mathsf{app}\,t)$ of type $\Tm\,\Gamma\,([(\idS , t)] B)$ can be defined without any transport. This is in contrast to the pure QII situation, where application is defined as $[ (\idS, \alert{\transfib{\Tm\;\Gamma}{[id]_T^{-1}}{\color{black}t}}) ]_{\Tm} (\mathsf{app}\,t)$.
 %
 %\begin{alignat*}{3}
@@ -927,8 +929,8 @@ can be derived without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref
   \item Show that methods are equivalent (ongoing).
 \end{enumerate}
 }
-With the QIIR definition of a type theory, we show how to \emph{eliminate} $\Ctx$, $\Ty\,\Gamma$, $\Sub\;\Gamma\;\Delta$, and $\Tm\,\Gamma\,A$ to another types by functions subject to equations corresponding to point constructors, equality constructors, and function clauses (\cref{subsec:eliminator}) .
-Then, we can give this QIIR definition of type theory a standard model (\cref{subsec:std-model}) and compare our QIIR definition with its QII counterpart syntactically and semantically (\cref{subsec:equivalence}).
+With the QIIR definition of a type theory, we show how $\Ctx$, $\Ty\,\Gamma$, $\Sub\;\Gamma\;\Delta$, and $\Tm\,\Gamma\,A$ are eliminated to another types by functions subject to equations corresponding to point constructors, equality constructors, and function clauses (\cref{subsec:eliminator}).
+Then, we can give this QIIR definition of type theory a standard model (\cref{subsec:std-model}) and compare our QIIR definition with its QII counterpart (\cref{subsec:equivalence}).
 
 \subsection{The elimination principle} \label{subsec:eliminator}
 
@@ -959,7 +961,9 @@ Each constructor $c$ is interpreted by a corresponding functions $c^M$ indexed b
 and simultaneously defined functions are also interpreted by corresponding functions 
 \begin{alignat*}{3}
   [\blank]_{\Ty}^M\blank & : \implicit{\dots} \; && \Sub^M\;\Gamma^M\;\Delta^M\;\sigma \to \Ty^M\;\Delta^M\;A \to \Ty^M\;\Gamma^M\;([\sigma]_{\Ty}\,A) \\
-  [\blank]_{\Tm}^M\blank & : \implicit{\dots} && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Tm^M\;\Delta^M\;A^M\;t \to \Tm^M\;\Gamma^M\;([\sigma^M]_{\Ty}^M\,A^M)([\sigma]_{\Tm}\,t)
+  [\blank]_{\Tm}^M\blank & : \implicit{\dots} && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Tm^M\;\Delta^M\;A^M\;t \to \Tm^M\;\Gamma^M\;([\sigma^M]_{\Ty}^M\,A^M)([\sigma]_{\Tm}\,t) \\
+  \blank\uparrow^M\blank & : \implicit{\dots} \; && (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to (A^M : \Ty^M\Delta^M\;A) \to
+    \Sub^M\;(\Gamma^M, [\sigma^M]_{\Ty}^M\,A^M)\;(\Delta^M, A^M)
 \end{alignat*}
 subject to the identities corresponding to equality constructors and function clauses, e.g., 
 \begin{alignat*}{5}
@@ -994,7 +998,7 @@ Given an eliminator, the actual computation for the elimination principle is giv
 \end{alignat*}
 interpreting each constructor using the corresponding method inductively.
 
-Interestingly, the key difference from its QII counterpart is that substitution operations $[\blank]_{\Ty}\blank$ and $[\blank]_{\Tm}$ are functions rather than constructors, meaning they cannot be eliminated inductively but instead become propositional identities.
+Interestingly, the key difference from its QII counterpart is that $[\blank]_{\Ty}\blank$, $[\blank]_{\Tm}$, and $\blank\uparrow\blank$ are functions rather than (formed by) constructors, meaning they cannot be eliminated inductively but instead become propositional identities.
 %type substitution $[\blank]\blank$ was a constructor and $[\sigma]\,A$ was eliminated to $[\elim_{\Sub}\,\sigma]^M_{\Ty}\,(\elim_{\Ty}\,A)$; similarly for term substitution.
 \begin{proposition}\label{prop:provable-function-clauses}
   Given the motives and the methods, we have
@@ -1015,7 +1019,7 @@ In the QII definition, $\elim_{\Tm}\,t$ is exactly $t^M$ and has the type
   \Tm^M\;\Gamma^M\;(\alert{\elim_{\Ty}\;([\sigma]_{\Ty}\,A)})\;t\judgeq
   \Tm^M\;\Gamma^M\;\left(\alert{[\elim_{\Sub}\,\sigma]^M_{\Ty}\,(\elim_{\Ty}\,A)}\right)\;t
 \end{equation}
-as the RHS of \eqref{eq:elim-subext} is indeed the type of the second argument for $\blank,^M_{\Sub}\blank$.
+where the RHS of \eqref{eq:elim-subext} is indeed the type of the second argument for $\blank,^M_{\Sub}\blank$.
 In the QIIR definition, on the contrary, the interpreted type of $\elim_{\Tm}\;t$ is $\elim_{\Ty}\;([\sigma]_{\Ty}\,A)$, which is not strictly equal to the RHS of \eqref{eq:elim-subext}, so $\elim_{\Sub}(\sigma, t)$ has to be
 \[
   (\elim_{\Sub}\,\sigma) ,_{\Sub}^M \alert{\transfib{\Tm^M\;(\elim_{\Ctx}\,\Gamma)}{\elim_{\Ty}[]}{\color{black}(\elim_{\Tm}\,t)}}
@@ -1023,7 +1027,7 @@ In the QIIR definition, on the contrary, the interpreted type of $\elim_{\Tm}\;t
 transporting $\elim_{\Tm}\,t$ along the identity proof $\elim_{\Ty}[]$.
 
 \begin{remark} \label{re:method-recursion-IIR}
-Note again that our definition is not an instance of Dybjer and Setzer's schema of inductive-recursion where simultaneously defined functions do not require corresponding interpretation as they target meta-theoretic types instead of inductive types being defined.
+Note again that our definition is not an instance of Dybjer and Setzer's schema of inductive-recursion where simultaneously defined functions do not require corresponding interpretation, as they target meta-theoretic types instead of inductive types being defined.
 \end{remark}
 
 \subsection{The standard model} \label{subsec:std-model}
@@ -1042,11 +1046,11 @@ with the additional methods to its QII counterpart:
 \end{align*}
 where $[\blank]_{\Tm}^M\blank$ is the same as the method for the explicit term substitution $[\blank]^M\blank$.
 
-In the QII counterpart, none of identities hold strictly, since their indices always involve equality constructors.
+In the QII counterpart, none of identities hold strictly: their indices always involve equality constructors.
 E.g., the constructor $[\idS]_{\Ty}$ gives rise to
 $[\idS]^M_{\Ty} : [ \idS^M ]^M_{\Ty}\, A^M =^{\Ty^M\;\Gamma^M}_{\alert{[\idS]_{\Ty}}} A^M$
 and the transport along $[\idS]_{\Ty}$ is needed, because $[ \idS^M ]^M_{\Ty}\, A^M$ is indexed by $[\idS]\,A$ instead of~$A$.
-Accordingly, this identity becomes $\lam{\gamma} A^M\,\gamma =_{\alert{[\idS]}}^{\lam{\nameless}\Gamma^M \to \Set} A^M$ in the standard model and needs one step~\cite[Lemma~2.3.5]{UFP2013} for reasoning about the constant transport to show.
+Accordingly, this identity becomes $\lam{\gamma} A^M\,\gamma =_{\alert{[\idS]}}^{\lam{\nameless}\Gamma^M \to \Set} A^M$ in the standard model and needs an extra step~\cite[Lemma~2.3.5]{UFP2013} for reasoning about the constant transport.
 
 In contrast, in our QIIR definition, many identities just hold strictly.
 Consider
@@ -1061,8 +1065,10 @@ By definition, it is a strict equality $(\lam{\gamma}(\pi_1\gamma, \pi_2\gamma))
 \subsection{Comparison with type theory as QIIT} \label{subsec:equivalence}
 The additional rules we have used to enable further reduction are derivable in type theory, and they can be justified by the same standard model with simpler proofs.
 
-\section{Formal implementation} \label{sec:formal-implementation}
+In general, we can translate the QIIR definition of type theory to its QII definition 
+
 \LT{Mention the NbE for SC here}
+\section{Formal implementation} \label{sec:formal-implementation}
 \LT{Compare some formal proofs with pen-and-paper proofs here}
 \section{Conclusions, and related and future work}
 
@@ -1070,7 +1076,7 @@ We have used quotient inductive-recursive types and overlapping
 patterns to represent type theory in type theory. By defining type
 substitution recursively with overlapping patterns, we can avoid most
 transports that show up in terms in other formalisations of type
-theory in type theory. In other words, we have shown that so-called
+theory in (intensional) type theory. In other words, we have shown that so-called
 `transport hell' can be minimised when formalising type theory in type
 theory this way, without hiding any details in the formalisation.
 
@@ -1084,20 +1090,6 @@ McBride~\cite{McBride2010} offers another solution which uses an inductive-recur
 
 Altenkirch and Kaposi~\cite{Altenkirch2016a} were the first to exploit QIITs to simplify the treatment of computation rules in representations of type theory in type theory. We build heavily on their ideas, but by using Danielsson's~\cite{Danielsson2006} idea of defining type substitution recursively, we are able to remove many explicit transports from the definition, with the result that it is closer to an informal exposition on paper. Such a benefit was also suggested by Kaposi's~\cite{Kaposi2023} work, where the simply typed lambda calculus was used as an example. Altenkirch and Kaposi has built on the QIIT representation with great success to derive non-trivial results such as normalisation by evaluation~\cite{Altenkirch2017}, and investigate the metatheory of QIITs themselves, together with Kov\'acs~\cite{Kaposi2019}.
 
-
-%\cite{Munoz1998}
-
-%\paragraph*{Quotient inductive-recursive definition of single substitution calculus}
-
-\Fredrik{As far as I can tell, ``Type theory in type theory with single substitutions''~\cite{Kaposi2024a} is just a standard QIIT --- so maybe no need to discuss?}
-%\cite{Kaposi2023,Kaposi2024a}
-
-%\paragraph*{Schemata of inductive types}
-%\cite{Kaposi2019}
-%\LT{How does the general schema in \cite{Kaposi2019} model equality constructors? extensionally? Can their schemata manifest the difference of our QIIR definition and the QII definition in \cite{Altenkirch2016a}?}
-
-%\subsection{Future work}
-
 In the future, we hope to settle the foundational status of the
 combination of quotient types, inductive-inductive types, and the kind
 of generalised inductive-recursive types we have considered here,
@@ -1106,7 +1098,7 @@ embarking on this work was seeking examples that could give evidence
 that such a combination could be useful.
 %
 Various schemas for inductive types have been developed in recent
-years~\cite{NordvallForsberg2017,Kaposi2018,Kovacs2023}, and it seems
+years~\cite{Ghani2017,Kaposi2018,Kovacs2023}, and it seems
 promising to see if they can be extended to also handle quotient
 inductive-inductive-recursive types. Overlapping patterns are
 discussed by Cockx~\cite{Cockx2014}, but we would like to integrate it
@@ -1114,23 +1106,8 @@ with such a schema. Eremondi and Kammar~\cite{Eremondi2025} has
 recently given a promising possible direction for overlapping patterns
 using sheaf theory.
 
-
-%\paragraph*{Type theory in type theory}
-
-
-
-%\paragraph*{Semantics and design for definitions by overlapping patterns}
-
-%\paragraph*{A schema of quotient inductive-inductive-recursive types in observation type theory}
-%\LT{What a general schema should have?  inductive types should be allowed as the codomain of a recursion.}
-
-%\LT{OTT is a concrete instance of a type theory with UIP and function extensionality.}
-%\LT{OTT also has a natural setoid model (which should be useful to manifest the difference between recursion and equality constructor) but quotient (inductive-)inductive(-recursive) types in OTT are underdeveloped.
-%It will be nice to have OTT equipped with QII(R)T on a par with HIIT (or Cubical Agda).}
-%\cite{Pujet2022,Pujet2024,Pujet2022a}
-
-\IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
-%\bibliography{ref}
+%\IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
+\bibliography{ref}
 
 \appendix
 
