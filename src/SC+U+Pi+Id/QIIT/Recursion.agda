@@ -48,3 +48,4 @@ module _ {ℓ ℓ′ : Level} (rec : Recursor {ℓ} {ℓ′}) where
   recTm (un t) = unᴹ (recTm t)
   recTm (ƛ t) = ƛᴹ recTm t
   recTm (app t) = appᴹ (recTm t)
+  recTm (refl t) = reflᴹ (recTm t)

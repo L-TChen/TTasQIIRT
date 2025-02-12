@@ -94,6 +94,10 @@ postulate
     : ∀{Γ} {A : Ty Γ i} {B : Ty (Γ ,ᶜ A) i}
     → Tm Γ (Π A B) 
     → Tm (Γ ,ᶜ A) B
+  refl'
+    : ∀{Γ} {a : Tm Γ (U i)} (t : Tm Γ (El a))
+    → Tm Γ (Id a t t)
+
 
 _↑_ : ∀{Γ Δ} (σ : Sub Γ Δ) (A : Ty Δ i) → Sub (Γ ,ᶜ [ σ ] A) (Δ ,ᶜ A)
 σ ↑ A = π₁ idS ⨟ σ ,ˢ tr (Tm _) (sym [⨟]) (π₂ idS)
@@ -162,6 +166,11 @@ postulate
   []un
     : (σ : Sub Γ Δ) (A : Ty Δ i) (t : Tm Δ (Lift A))
     → [ σ ]tm un t ≡ un (tr (Tm Γ) []Lift $ [ σ ]tm t)
+  []refl
+    : (σ : Sub Γ Δ) {a : Tm Δ (U i)} (t : Tm Δ (El a))
+    → tr (Tm Γ) []Id ([ σ ]tm (refl' t))
+    ≡ refl' (tr (Tm Γ) ([]El σ a) ([ σ ]tm t))
+
 -- Computational rules
   Uβ
     : El (c A) ≡ A

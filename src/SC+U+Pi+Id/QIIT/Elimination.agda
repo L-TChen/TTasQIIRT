@@ -48,4 +48,5 @@ module _ {ℓ ℓ′ : Level} (elim : Eliminator {ℓ} {ℓ′}) where
   elimTm (un t)      = unᴹ (elimTm t)
   elimTm (ƛ t)       = ƛᴹ elimTm t
   elimTm (app t)     = appᴹ (elimTm t)
+  elimTm (refl t)     = reflᴹ (elimTm t)
 

@@ -138,6 +138,8 @@ toQIIRT .met = record
                               (uip (cong El (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip refl []U)))
                                    (cong El (sym ((cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t a)) (uip []U refl)))))))
                                    -}
+    ; reflᴹ    = refl
+    ; []reflᴹ  = λ σ {a} t → sym ([]tm≡[]t (refl t) σ) ∙ []refl σ t
     ; reflectᴹ = reflect
     }
   }

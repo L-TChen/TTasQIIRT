@@ -74,6 +74,8 @@ toQIIT .met = record
   ; idTy = record
     { Idᴹ      = Id
     ; []ᴹIdᴹ   = []Id
+    ; reflᴹ    = refl
+    ; []reflᴹ = []refl
     ; reflectᴹ = reflect
     }
   }

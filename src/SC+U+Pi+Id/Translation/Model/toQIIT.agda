@@ -127,6 +127,8 @@ module _ {ℓ ℓ′}(QM : Eliminator {ℓ} {ℓ′}) where
     -- ; idTy = record
     --   { Idᴹ      = {!   !}
     --   ; []ᴹIdᴹ   = {!   !}
+    --   ; reflᴹ    = {!   !}
+    --   ; []reflᴹ  = {!   !}
     --   ; reflectᴹ = {!   !}
       -- }
     -- }
