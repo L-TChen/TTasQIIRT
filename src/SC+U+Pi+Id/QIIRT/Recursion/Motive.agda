@@ -16,16 +16,6 @@ record Motive {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
       : Ctxᴹ → Ctxᴹ → Set ℓ′
     Tmᴹ
       : (Γᴹ : Ctxᴹ) (Aᴹ : Tyᴹ Γᴹ i) → Set ℓ′
-
-  TyᴹFam : {Γᴹ : Ctxᴹ}{i : ℕ} → Set ℓ
-  TyᴹFam {Γᴹ} {i} = Tyᴹ Γᴹ i
-
-  TmᴹFam : {Γᴹ : Ctxᴹ}{Aᴹ : Tyᴹ Γᴹ i} → Set ℓ′
-  TmᴹFam {Γᴹ = Γᴹ} {Aᴹ} = Tmᴹ Γᴹ Aᴹ
   
-  TmᴹFamₜ : {Γᴹ : Ctxᴹ} → Tyᴹ Γᴹ i → Set ℓ′
-  TmᴹFamₜ {Γᴹ = Γᴹ} Aᴹ = Tmᴹ Γᴹ Aᴹ
-{-
-  SubᴹFam : {Γᴹ : Ctxᴹ}{Δᴹ : Ctxᴹ} → Set ℓ′
-  SubᴹFam {Γᴹ = Γᴹ} {Δᴹ = Δᴹ} = Subᴹ Γᴹ Δᴹ
--}
+  TmᴹFam : {Γᴹ : Ctxᴹ} → Tyᴹ Γᴹ i → Set ℓ′
+  TmᴹFam {Γᴹ = Γᴹ} Aᴹ = Tmᴹ Γᴹ Aᴹ

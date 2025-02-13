@@ -135,7 +135,7 @@ ap,Σ : {A : Set ℓ}{B : Set ℓ'}{C : B → Set ℓ''}
      → _≡_ {_} {Σ B C} (f x , g x) (f y , g y)
 ap,Σ f g refl = refl
 
-lift : (P : A → Set) {x y : A} (t : P x)
+lift : (P : A → Set ℓ) {x y : A} (t : P x)
   → (p : x ≡ y)
   → (x , t) ≡ (y , tr P p t)
 lift P t refl = refl

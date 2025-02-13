@@ -32,9 +32,9 @@ module rec {ℓ ℓ′}(M : Recursor {ℓ} {ℓ′}) where
     recTy[]
       : (σ : Sub Γ Δ) (A : Ty Δ i)
       → [ recSub σ ]ᴹ recTy A ≡ recTy ([ σ ] A)
- --   recTm[]
- --     : (σ : Sub Γ Δ) {A : Ty Δ i}(t : Tm Δ A)
- --     → tr TmᴹFamₜ (recTy[] σ A) ([ recSub σ ]tᴹ recTm t) ≡ recTm ([ σ ]t t)
+    recTm[]
+      : (σ : Sub Γ Δ) {A : Ty Δ i}(t : Tm Δ A)
+      → tr TmᴹFam (recTy[] σ A) ([ recSub σ ]tᴹ recTm t) ≡ recTm ([ σ ]t t)
   
   recCtx ∅          = ∅ᶜᴹ
   recCtx (Γ , A)    = recCtx Γ ,ᶜᴹ recTy A
@@ -48,8 +48,8 @@ module rec {ℓ ℓ′}(M : Recursor {ℓ} {ℓ′}) where
   recSub idS        = idSᴹ
   recSub (τ ⨟ σ)    = recSub τ ⨟ᴹ recSub σ
   recSub (π₁ σ)     = π₁ᴹ (recSub σ)
-  recTm (π₂ {A = A} σ)   = tr TmᴹFamₜ (recTy[] (π₁ σ) A) (π₂ᴹ (recSub σ))
-  recTm ([_]tm_ σ {A} t) = tr TmᴹFamₜ (recTy[] σ A) ([ recSub σ ]tmᴹ recTm t)
+  recTm (π₂ {A = A} σ)   = tr TmᴹFam (recTy[] (π₁ σ) A) (π₂ᴹ (recSub σ))
+  recTm ([_]tm_ σ {A} t) = tr TmᴹFam (recTy[] σ A) ([ recSub σ ]tmᴹ recTm t)
   recTm (c A)       = cᴹ (recTy A)
   recTm (mk t)      = mkᴹ (recTm t)
   recTm (un t)      = unᴹ (recTm t)
