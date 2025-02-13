@@ -46,20 +46,6 @@ interleaved mutual
     π₁
       : Sub Γ (Δ , A)
       → Sub Γ Δ
-
-  postulate
-    [id]    : [ idS        ] A ≡ A
-    [⨟]     : [ σ ⨟ τ      ] A ≡ [ σ ] [ τ ] A
-    [π₁,]   : [ π₁ (σ , t) ] A ≡ [ σ ] A
-    [π₁⨟]   : [ π₁ (σ ⨟ τ) ] A ≡ [ σ ] [ π₁ τ ] A
-    {-# REWRITE [id] [⨟] [π₁,] [π₁⨟] #-}
-
-  -- ⟨_⟩ : Tm Γ A → Sub Γ (Γ , A)
-  -- pattern ⟨_⟩ t = idS , t 
-  -- ⟨_⟩ : Tm Γ A → Sub Γ (Γ , A)
-  -- ⟨ t ⟩ = idS , {!t!}
-
-  data _ where
     U
       : (i : ℕ)
       → Ty Γ (suc i)
@@ -100,9 +86,21 @@ interleaved mutual
       : {a : Tm Γ (U i)} (t : Tm Γ (El a))
       → Tm Γ (Id a t t)
 
+  postulate
+    [id]    : [ idS        ] A ≡ A
+    [⨟]     : [ σ ⨟ τ      ] A ≡ [ σ ] [ τ ] A
+    [π₁,]   : [ π₁ (σ , t) ] A ≡ [ σ ] A
+    [π₁⨟]   : [ π₁ (σ ⨟ τ) ] A ≡ [ σ ] [ π₁ τ ] A
+    {-# REWRITE [id] [⨟] [π₁,] [π₁⨟] #-}
+
   pattern wk   = π₁ idS
   pattern vz   = π₂ idS
   pattern vs x = [ wk ]tm x
+      
+  -- ⟨_⟩ : Tm Γ A → Sub Γ (Γ , A)
+  -- pattern ⟨_⟩ t = idS , t 
+  -- ⟨_⟩ : Tm Γ A → Sub Γ (Γ , A)
+  -- ⟨ t ⟩ = idS , {!t!}
 
   _⁺ : (σ : Sub Γ Δ) → {A : Ty Δ i} → Sub (Γ , [ σ ] A) (Δ , A)
   _⁺ σ {A} = π₁ idS ⨟ σ , π₂ idS
@@ -212,6 +210,27 @@ interleaved mutual
       : app (ƛ t) ≡ t
     Πη
       : ƛ (app t) ≡ t
+  
+    [id]=refl
+      : [id] {A = A} ≡ refl
+    [⨟]=refl
+      : [⨟] {Γ} {Δ} {σ} {Θ} {τ} {_} {A} ≡ refl
+    [π₁,]=refl
+      : [π₁,] {Γ} {Δ} {σ} {_} {A} {t} {_} {B} ≡ refl
+    [π₁⨟]=refl
+      : [π₁⨟] {Γ} {Δ} {σ} {Θ} {_} {A} {τ} {_} {B} ≡ refl
+    {-# REWRITE [id]=refl [⨟]=refl [π₁,]=refl [π₁⨟]=refl #-}
+    []U=refl
+      : []U {Γ} {Δ} {σ} {i} ≡ refl
+    []El=refl
+      : []El σ u ≡ refl
+    []Lift=refl
+      : []Lift {Γ} {Δ} {σ} {_} {A} ≡ refl
+    []Π=refl
+      : []Π {Γ} {Δ} {σ} {_} {A} {B} ≡ refl
+    []Id=refl
+      : []Id {Γ} {Δ} {_} {σ} {a} {t} {u} ≡ refl
+    {-# REWRITE []U=refl []El=refl []Lift=refl []Π=refl []Id=refl #-}
 
 data Tel (Γ : Ctx) : Set
 _⧺_ : (Γ : Ctx) (Ξ : Tel Γ) → Ctx

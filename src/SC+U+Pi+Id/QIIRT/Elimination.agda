@@ -54,6 +54,7 @@ module elim {ℓ ℓ′}(M : Eliminator {ℓ} {ℓ′}) where
   ElimTm (un t)      = unᴹ (ElimTm t)
   ElimTm (ƛ t)       = (ƛᴹ ElimTm t)
   ElimTm (app t)     = appᴹ (ElimTm t)
+  ElimTm (refl t)    = reflᴹ (ElimTm t)
 
   ElimSub↑-tot
     : (σ : Sub Δ Γ)(A : Ty Γ i)
