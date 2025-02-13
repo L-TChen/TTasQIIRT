@@ -911,17 +911,43 @@ can be derived without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref
 
 
 \subsection{Adding other type formers} \label{subsec:SC+U+Pi+more}
-\LT{%
-\begin{enumerate}
-  \item Discuss the extensional identity type.
-  \item Discuss Coquand universes.
-  \item Discuss the unit type.
-  \item Discuss the Boolean type.
-%  \item Discuss the type of natural numbers.
-\end{enumerate}
-}
-\Fredrik{I think we should keep this brief. I started doing the natural numbers in Agda, but there were some problems with the rewrite $[\sigma] \mathsf{Nat} = \mathsf{Nat}$ not firing in the type of the eliminator...}
 
+We can add extensional identity types, a hierarchy of Coquand universes~\cite{Coquand2018}, and a unit type with an eta law, all without any additional difficulty. In particular, all these additions can be done without introducing any transports in the syntax. However, adding an inductive type such as the Booleans does introduce a little bit of friction; let us see why. We introduce the type $\bool$ itself, it's two constructors $\btrue$ and $\bfalse$, and its elimination principle $\belim$:
+%
+\begin{alignat*}{3}
+  \bool     &: \implicit{\Gamma}         \;  && \Ty\;\Gamma \\
+  \btrue, \bfalse &: \implicit{\Gamma}   \;  && \Tm\;\Gamma\;\bool \\
+  \belim &: \implicit{\Gamma} \; && (P : \Ty\;(\Gamma , \bool)) \to \Tm\;\Gamma\;([ \instSub{\bfalse} ]_{\Ty} P) \to \Tm\;\Gamma\;([ \instSub{\btrue} ]_{\Ty} P) \\
+  &&& \qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\quad \to (b : \Tm\;\Gamma\;\bool) \to \Tm\;\Gamma\;([ \instSub{b} ]_{\Ty} P)
+\end{alignat*}
+%
+where we have written $\instSub{t} = (\idS, t) : \Sub\;\Gamma\;(\Gamma, A)$ for the substitution that substitutes $t : A$ for the top variable and leaves all other variables in place. We can add the expected computation rules
+%
+\begin{alignat*}{5}
+  \bool\beta_{\bfalse}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\bfalse && =^{\Tm\;\Gamma\;[\instSub{\bfalse}]_{\Ty} P} && f \\
+  \bool\beta_{\btrue}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\btrue && =^{\Tm\;\Gamma\;[\instSub{\btrue}]_{\Ty} P} && t
+\end{alignat*}
+%
+and the structural rule for type substitution as another straightforward clause
+\[
+  \;[ \sigma ]_{\Ty}\,\bool \reduce \bool \enspace ,
+\]
+but when we try to add the structural rule for term substitution applied to the eliminator, we end up with the following:
+%
+\begin{alignat*}{5}
+  []\belim & : \implicit{\Gamma, \sigma, P, f, t, b}\; \\ & \quad [ \sigma ] (\belim\,P\,f\,t\,b) =^{\Tm\,\Gamma\,([ \sigma; \instSub{b} ]\,P)}_{\alert{p(b)}} \belim\,([ \sigma^+ ] P)\,&&(\alert{\transfib{\Tm\,\Gamma}{p(\bfalse)}{\textcolor{black}{[ \sigma ]\,f}}}) \\&&&(\alert{\transfib{\Tm\,\Gamma}{p(\btrue)}{\textcolor{black}{[ \sigma ]\,t}}})\\&&&([\sigma ]\,b)
+\end{alignat*}
+where the proof $p(x) : [ \instSub{[ \sigma ]_{\Ty}\,x} ; \sigma^+ ]\;P = [ \sigma ; \instSub{x} ]_{\Ty}\;P$ is needed to line up the types. Even though this is an equation between type substitutions, which we could hope make compute, there is no obvious way to direct the equation, and simply adding it as a reduction leads to confluence problems. Hence, we do not know how to get rid of these transports.
+
+%\LT{%
+%\begin{enumerate}
+%  \item Discuss the extensional identity type.
+%  \item Discuss Coquand universes.
+%  \item Discuss the unit type.
+%  \item Discuss the Boolean type.
+%  % \item Discuss the type of natural numbers.
+%\end{enumerate}
+%}
 
 \section{The elimination principle and models} \label{sec:models}
 
