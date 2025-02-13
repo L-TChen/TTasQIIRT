@@ -72,7 +72,7 @@ intp .Met = record
     }
   ; idTy = record
     { Idᴹ      = λ aᴹ tᴹ uᴹ γ → tᴹ γ ≡ uᴹ γ
-    ; []ᴹIdᴹ   = ? -- refl
+    ; []ᴹIdᴹ   = {!!} -- refl
     ; reflᴹ    = λ t γ → refl
     ; []reflᴹ  = {!!}
     ; reflectᴹ = {!!} -- requires function extensionality
