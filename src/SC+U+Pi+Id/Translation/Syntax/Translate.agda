@@ -13,7 +13,7 @@ module QIIRT→QIIT where
   _>s = recSub toQIIT
   _>tm = recTm toQIIT
   []>ty = recTy[] toQIIT
---  []>tm = recTm[] toQIIT
+  []>tm = recTm[] toQIIT
 --  ↑>Sub = recSub↑ toQIIT
 
 module QIIT→QIIRT where
@@ -22,4 +22,4 @@ module QIIT→QIIRT where
   _<c  = recCtx toQIIRT
   _<ty = recTy toQIIRT
   _<s  = recSub toQIIRT
-  _tm  = recTm toQIIRT
+  _<tm  = recTm toQIIRT

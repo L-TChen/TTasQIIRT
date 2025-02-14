@@ -53,7 +53,7 @@ module rec {ℓ ℓ′}(M : Recursor {ℓ} {ℓ′}) where
   recTm (c A)       = cᴹ (recTy A)
   recTm (mk t)      = mkᴹ (recTm t)
   recTm (un t)      = unᴹ (recTm t)
-  recTm (ƛ t)       = (ƛᴹ recTm t)
+  recTm (ƛ t)       = ƛᴹ recTm t
   recTm (app t)     = appᴹ (recTm t)
   recTm (refl t)    = reflᴹ (recTm t)
 

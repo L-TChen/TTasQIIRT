@@ -205,3 +205,10 @@ _,≡₂_ : {X : Set ℓ}{Y₁ : X → Set ℓ'}{Y₂ : X → Set ℓ''}
       → (x , y₁) ≡ (x' , y₁') → (x , y₂) ≡ (x' , y₂')
       → _≡_ {A = ∃ λ x → Y₁ x × Y₂ x} (x , y₁ , y₂) (x' , y₁' , y₂')
 refl ,≡₂ refl = refl
+
+tr-nat₂ : ∀{a b₁ b₂ b₃} {A : Set a}
+          (B₁ : A → Set b₁) (B₂ : (x : A) → B₁ x → Set b₂) {B₃ : A → Set b₃}
+          {x x' : A} {y₁ : B₁ x} {y₂ : B₂ x y₁}
+          (f : {x : A} (y : B₁ x) → B₂ x y → B₃ x) (p : x ≡ x')
+        → tr B₃ p (f y₁ y₂) ≡ f (tr B₁ p y₁) (tr (uncurry B₂) (lift B₁ y₁ p) y₂)
+tr-nat₂ B₁ B₂ f refl = refl
