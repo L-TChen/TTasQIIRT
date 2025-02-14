@@ -31,39 +31,39 @@ module _ (fext : ∀{ℓ ℓ'}{A : Set ℓ}{B : A → Set ℓ'}{f g : (a : A) �
         ; idSᴹ = λ γ → γ
         ; _⨟ᴹ_ = λ σᴹ τᴹ → τᴹ ∘ σᴹ
         ; π₁ᴹ  = λ σᴹ γ → σᴹ γ .proj₁
-        ; [idSᴹ]  = refl
-        ; [⨟ᴹ]ᴹ   = refl
+        ; [idS]ᴹ  = refl
+        ; [⨟]ᴹ   = refl
         ; π₂ᴹ     = λ σᴹ γ → σᴹ γ .proj₂
         ; [_]tmᴹ_ = λ σᴹ tᴹ γ → tᴹ (σᴹ γ)
         }
       ; C₂ = record
-        { _⨟ᴹidSᴹ   = λ σᴹ → refl
-        ; idSᴹ⨟ᴹ_   = λ σᴹ → refl
-        ; ⨟ᴹ-assoc  = refl
-        ; π₁ᴹ,ˢᴹ    = refl
-        ; ⨟ᴹ,ˢᴹ     = refl
-        ; η∅ˢᴹ      = refl
-        ; η,ˢᴹ      = refl
-        ; [idSᴹ]tmᴹ = refl
-        ; [⨟ᴹ]tmᴹ   = refl
-        ; π₂ᴹ,ˢᴹ    = refl
+        { _⨟idSᴹ   = λ σᴹ → refl
+        ; idS⨟ᴹ_   = λ σᴹ → refl
+        ; ⨟-assocᴹ  = refl
+        ; π₁,ᴹ    = refl
+        ; ⨟,ᴹ     = refl
+        ; η∅ᴹ      = refl
+        ; η,ᴹ      = refl
+        ; [idS]tmᴹ = refl
+        ; [⨟]tmᴹ   = refl
+        ; π₂,ᴹ    = refl
         }
       }
-    ; univ = {!!}
+    ; univ = {! !}
     ; piTy = record
       { Πᴹ    = λ Aᴹ Bᴹ γ → (x : Aᴹ γ) → Bᴹ (γ , x)
       ; ƛᴹ_   = λ tᴹ γ x → tᴹ (γ , x)
       ; appᴹ  = λ tᴹ (γ , x) → tᴹ γ x
-      ; []ᴹΠᴹ = refl
+      ; []Πᴹ = refl
       ; []ƛᴹ  = λ σ σᴹ → refl
       ; Πβᴹ   = refl
       ; Πηᴹ   = refl
       }
     ; idTy = record
       { Idᴹ      = λ aᴹ tᴹ uᴹ γ → tᴹ γ ≡ uᴹ γ
-      ; []ᴹIdᴹ   = {!!} -- refl
+      ; []Idᴹ   = {! !} -- refl
       ; reflᴹ    = λ t γ → refl
-      ; []reflᴹ  = λ σᴹ tᴹ → ? -- refl
-      ; reflectᴹ = {!!}-- requires function extensionality
+      ; []reflᴹ  = λ σᴹ tᴹ → {!   !} -- refl
+      ; reflectᴹ = {! !}-- requires function extensionality
       }
     }

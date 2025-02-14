@@ -16,9 +16,9 @@ private
     tr (Tm Γ) _ ([ σ ]t (ƛ t))
       ≅⟨  tr≅ (Tm Γ) (cong (λ τ → Π ([ σ ] A) ([ τ ] B)) (↑=⁺ A σ)) ([ σ ]t (ƛ t))  ⟩
     [ σ ]t (ƛ t)
-      ≡⟨ []tm≡[]t (ƛ t) σ ⟨
+      ≅⟨ ≡-to-≅ $ []tm≡[]t (ƛ t) σ ⟨
     [ σ ]tm (ƛ t)
-      ≡⟨ []ƛ σ t ⟩
+      ≅⟨ ≡-to-≅ $ []ƛ σ t ⟩
     ƛ ([ σ ↑ A ]tm t)
       ≅⟨ hcong (λ τ → ƛ ([ τ ]tm t)) (≡-to-≅ (↑=⁺ A σ)) ⟩
     (ƛ ([ wk ⨟ σ , vz ]tm t))
@@ -44,27 +44,27 @@ toQIIRT .met = record
       ; idSᴹ        = idS
       ; _⨟ᴹ_        = _⨟_
       ; π₁ᴹ         = π₁
-      ; [idSᴹ]      = [id]
-      ; [⨟ᴹ]ᴹ       = λ {Γ} {Δ} {σ} {Θ} {τ} {_} {A} → [⨟] {Γ} {Δ} {σ} {Θ} {τ} {_} {A}
+      ; [idS]ᴹ      = [id]
+      ; [⨟]ᴹ       = λ {Γ} {Δ} {σ} {Θ} {τ} {_} {A} → [⨟] {Γ} {Δ} {σ} {Θ} {τ} {_} {A}
       ; π₂ᴹ         = π₂
       ; [_]tmᴹ_     = [_]t_
       }
     ; C₂ = record
-      { _⨟ᴹidSᴹ     = _⨟idS
-      ; idSᴹ⨟ᴹ_     = idS⨟_
-      ; ⨟ᴹ-assoc    = ⨟-assoc
-      ; π₁ᴹ,ˢᴹ      = π₁,
-      ; ⨟ᴹ,ˢᴹ       = λ {_} {Γ} {Δ} {Θ} {A} {σ} {τ} {t} → ⨟, ∙ cong (σ ⨟ τ ,_) ([]tm≡[]t t σ)
+      { _⨟idSᴹ     = _⨟idS
+      ; idS⨟ᴹ_     = idS⨟_
+      ; ⨟-assocᴹ    = ⨟-assoc
+      ; π₁,ᴹ      = π₁,
+      ; ⨟,ᴹ       = λ {_} {Γ} {Δ} {Θ} {A} {σ} {τ} {t} → ⨟, ∙ cong (σ ⨟ τ ,_) ([]tm≡[]t t σ)
                     {- ⨟, ∙ cong (σ ⨟ τ ,_)
                                 ([]tm≡[]t t σ 
                                 ∙ sym (cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t t)) (uip (sym [⨟]) refl)))
                     -}
-      ; η∅ˢᴹ        = η∅
-      ; η,ˢᴹ        = η,
-      ; [idSᴹ]tmᴹ   = λ {_} {_} {_} {t} → refl -- cong (λ p → tr (TmᴹFam toQIIRT) p t) (uip [id] refl)
-      ; [⨟ᴹ]tmᴹ     = λ {_} {_} {σ} {_} {τ} {_} {_} {t}
+      ; η∅ᴹ        = η∅
+      ; η,ᴹ        = η,
+      ; [idS]tmᴹ   = λ {_} {_} {_} {t} → refl -- cong (λ p → tr (TmᴹFam toQIIRT) p t) (uip [id] refl)
+      ; [⨟]tmᴹ     = λ {_} {_} {σ} {_} {τ} {_} {_} {t}
                     → refl -- cong (λ p → tr (TmᴹFam toQIIRT) p ([ σ ]t [ τ ]t t)) (uip [⨟] refl)
-      ; π₂ᴹ,ˢᴹ      = λ {_} {_} {_} {A} {σ} {t} 
+      ; π₂,ᴹ      = λ {_} {_} {_} {A} {σ} {t} 
                     → begin
                       tr (λ τ → TmᴹFam toQIIRT ([ τ ] A)) π₁, (π₂ {A = A} (σ , t))
                         ≡⟨ tr-cong {P = TmᴹFam toQIIRT} {[_] A} π₁, ⟩
@@ -84,22 +84,22 @@ toQIIRT .met = record
     ; cᴹ       = c
     ; mkᴹ      = mk
     ; unᴹ      = un
-    ; []ᴹUᴹ    = λ {_} {_} {σ} {i} → refl
-    ; []ᴹElᴹ   = λ σ u → refl
-    ; []ᴹLiftᴹ = λ {_} {_} {σ} {i} {A} → refl
-    ; []tᴹcᴹ   = λ σ A → sym ([]tm≡[]t (c A) σ) ∙ []tc σ A
+    ; []Uᴹ    = λ {_} {_} {σ} {i} → refl
+    ; []Elᴹ   = λ σ u → refl
+    ; []Liftᴹ = λ {_} {_} {σ} {i} {A} → refl
+    ; []tcᴹ   = λ σ A → sym ([]tm≡[]t (c A) σ) ∙ []tc σ A
     ; []mkᴹ    = λ σ t → sym ([]tm≡[]t (mk t) σ) ∙ []mk σ t
     ; []unᴹ    = λ σ A t → sym ([]tm≡[]t (un t) σ) ∙ []un σ A t ∙ cong un ([]tm≡[]t t σ)
-    ; Uᴹβ      = Uβ
-    ; Uᴹη      = Uη
-    ; Liftᴹβ   = Liftβ
-    ; Liftᴹη   = Liftη
+    ; Uβᴹ      = Uβ
+    ; Uηᴹ      = Uη
+    ; Liftβᴹ   = Liftβ
+    ; Liftηᴹ   = Liftη
     }
   ; piTy = record
     { Πᴹ    = Π
     ; ƛᴹ_   = ƛ_
     ; appᴹ  = app
-    ; []ᴹΠᴹ = λ {_} {_} {σ} {i} {A} {B} → cong (λ τ → Π ([ σ ] A) ([ τ ] B)) (↑=⁺ A σ)
+    ; []Πᴹ = λ {_} {_} {σ} {i} {A} {B} → cong (λ τ → Π ([ σ ] A) ([ τ ] B)) (↑=⁺ A σ)
             {- cong (λ τ → Π ([ σ ] A) ([ τ ] B))
                    (↑=⁺ A σ ∙ cong (π₁ idS ⨟ σ ,_) 
                                    (cong (λ p → tr (TmᴹFam toQIIRT) p (π₂ idS)) (uip refl (sym [⨟]))))
@@ -111,7 +111,7 @@ toQIIRT .met = record
     }
   ; idTy = record
     { Idᴹ      = Id
-    ; []ᴹIdᴹ   = refl
+    ; []Idᴹ   = refl
     ; reflᴹ    = refl
     ; []reflᴹ  = λ σ {a} t → sym ([]tm≡[]t (refl t) σ) ∙ []refl σ t
     ; reflectᴹ = reflect

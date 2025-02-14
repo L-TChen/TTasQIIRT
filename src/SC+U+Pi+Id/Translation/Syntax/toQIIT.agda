@@ -26,28 +26,26 @@ toQIIT .Met = record
     ; idSᴹ        = idS
     ; _⨟ᴹ_        = _⨟_
     ; π₁ᴹ         = π₁
-    ; [idSᴹ]      = [idS]
-    ; [⨟ᴹ]ᴹ       = [⨟]
-    ; [π₁ᴹ,ˢᴹ]ᴹ   = λ {Γ} {Δ} {σ} {_} {A} {t} {_} {B}
-      → cong ([_] B) π₁,
-    ; [π₁ᴹ⨟ᴹ]ᴹ    = λ {Γ} {Δ} {σ} {Θ} {_} {A} {τ} {_} {B}
-      → cong ([_] B) (π₁⨟ σ τ)  ∙ [⨟] 
+    ; [idS]ᴹ      = [idS]
+    ; [⨟]ᴹ       = [⨟]
+    ; [π₁,]ᴹ   = λ {Γ} {Δ} {σ} {_} {A} {t} {_} {B} → cong ([_] B) π₁,
+    ; [π₁⨟]ᴹ    = λ {Γ} {Δ} {σ} {Θ} {_} {A} {τ} {_} {B} → cong ([_] B) (π₁⨟ σ τ)  ∙ [⨟] 
     ; π₂ᴹ         = π₂
     ; [_]tmᴹ_     = [_]tm_
     ; _↑ᴹ_        = _↑_
-    ; idSᴹ↑ᴹ      = id⁺ _ _
-    ; ⨟ᴹ↑ᴹ        = ⨟⁺ _ _ _
-    ; π₁ᴹ,ˢᴹ↑ᴹ    = π₁,⁺
-    ; π₁ᴹ⨟ᴹ↑ᴹ     = π₁⨟⁺
-    ; ∅ˢᴹ↑ᴹ       = refl
-    ; ,ˢᴹ↑ᴹ       = refl
-    ; π₁ᴹidSᴹ↑ᴹ   = refl
-    ; π₁ᴹπ₁ᴹ↑ᴹ    = refl
+    ; idS↑ᴹ      = id⁺ _ _
+    ; ⨟↑ᴹ        = ⨟⁺ _ _ _
+    ; π₁,↑ᴹ    = π₁,⁺
+    ; π₁⨟↑ᴹ     = π₁⨟⁺
+    ; ∅↑ᴹ       = refl
+    ; ,↑ᴹ       = refl
+    ; π₁idS↑ᴹ   = refl
+    ; π₁π₁↑ᴹ    = refl
     ; [_]tᴹ_      = [_]tm_
-    ; [idSᴹ]tᴹ    = [idS]tm
-    ; [⨟ᴹ]tᴹ      = [⨟]tm
-    ; [π₁ᴹ,ˢᴹ]tᴹ  = (sym $ tr-cong π₁,) ∙ apd ([_]tm _) π₁,
-    ; [π₁ᴹ⨟ᴹ]tᴹ   = λ {Γ} {Δ} {σ} {Θ} {_} {A} {τ} {_} {B} {t} →
+    ; [idS]tᴹ    = [idS]tm
+    ; [⨟]tᴹ      = [⨟]tm
+    ; [π₁,]tᴹ  = (sym $ tr-cong π₁,) ∙ apd ([_]tm _) π₁,
+    ; [π₁⨟]tᴹ   = λ {Γ} {Δ} {σ} {Θ} {_} {A} {τ} {_} {B} {t} →
       begin -- L-T (11-01-2025: All about transports ...)
         tr (Tm Γ) (trans (cong ([_] B) (π₁⨟ σ τ)) [⨟]) ([ π₁ (σ ⨟ τ) ]tm t)
           ≡⟨ tr² (cong ([_] B) (π₁⨟ σ τ)) ⟨
@@ -59,20 +57,20 @@ toQIIT .Met = record
           ≡⟨ [⨟]tm ⟩
         [ σ ]tm [ π₁ τ ]tm t
           ∎
-    ; [∅ˢᴹ]tᴹ     = refl
-    ; [,ˢᴹ]tᴹ     = refl
-    ; [π₁ᴹidSᴹ]tᴹ = refl
-    ; [π₁ᴹπ₁ᴹ]tᴹ  = refl
-    ; _⨟ᴹidSᴹ     = _⨟idS
-    ; idSᴹ⨟ᴹ_     = idS⨟_
-    ; ⨟ᴹ-assoc    = ⨟-assoc
-    ; π₁ᴹ,ˢᴹ      = π₁,
-    ; ⨟ᴹ,ˢᴹ       = ⨟,
-    ; η∅ˢᴹ        = η∅
-    ; η,ˢᴹ        = η,
-    ; [idSᴹ]tmᴹ   = [idS]tm
-    ; [⨟ᴹ]tmᴹ     = [⨟]tm
-    ; π₂ᴹ,ˢᴹ      = λ {Γ} {Δ} {σ} {_} {A} {t} → begin
+    ; [∅]tᴹ     = refl
+    ; [,]tᴹ     = refl
+    ; [π₁idS]tᴹ = refl
+    ; [π₁π₁]tᴹ  = refl
+    ; _⨟idSᴹ     = _⨟idS
+    ; idS⨟ᴹ_     = idS⨟_
+    ; ⨟-assocᴹ    = ⨟-assoc
+    ; π₁,ᴹ      = π₁,
+    ; ⨟,ᴹ       = ⨟,
+    ; η∅ᴹ        = η∅
+    ; η,ᴹ        = η,
+    ; [idS]tmᴹ   = [idS]tm
+    ; [⨟]tmᴹ     = [⨟]tm
+    ; π₂,ᴹ      = λ {Γ} {Δ} {σ} {_} {A} {t} → begin
       tr (Tm Γ) (cong ([_] A) π₁,) (π₂ (σ , t))
         ≡⟨ tr-cong π₁, ⟨
       tr (λ σ → Tm Γ ([ σ ] A)) π₁, (π₂ (σ , t))
@@ -87,29 +85,29 @@ toQIIT .Met = record
     ; cᴹ       = c
     ; mkᴹ      = mk
     ; unᴹ      = un
-    ; []ᴹUᴹ    = []U
-    ; []ᴹElᴹ   = []El
-    ; []ᴹLiftᴹ = []Lift
-    ; []tᴹcᴹ   = []tc
+    ; []Uᴹ    = []U
+    ; []Elᴹ   = []El
+    ; []Liftᴹ = []Lift
+    ; []tcᴹ   = []tc
     ; []mkᴹ    = []mk
     ; []unᴹ    = []un
-    ; Uᴹβ      = Uβ
-    ; Uᴹη      = Uη
-    ; Liftᴹβ   = Liftβ
-    ; Liftᴹη   = Liftη
+    ; Uβᴹ      = Uβ
+    ; Uηᴹ      = Uη
+    ; Liftβᴹ   = Liftβ
+    ; Liftηᴹ   = Liftη
     }
   ; piTy = record
     { Πᴹ    = Π
     ; ƛᴹ_   = ƛ_
     ; appᴹ  = app
-    ; []ᴹΠᴹ = []Π
+    ; []Πᴹ = []Π
     ; []ƛᴹ  = []ƛ
     ; Πβᴹ   = Πβ
     ; Πηᴹ   = Πη
     }
   ; idTy = record
     { Idᴹ      = Id
-    ; []ᴹIdᴹ   = []Id
+    ; []Idᴹ   = []Id
     ; reflᴹ    = refl
     ; []reflᴹ  = []refl
     ; reflectᴹ = reflect
