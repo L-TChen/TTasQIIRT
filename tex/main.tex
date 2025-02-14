@@ -53,6 +53,17 @@
 \newcommand{\LT}[2][]{\todo[inline,author={L-T},caption={},color={pink},#1]{#2}}
 \newcommand{\Gene}[2][]{\todo[inline,author={Gene},caption={},#1]{#2}}
 \newcommand{\Fredrik}[2][]{\todo[inline,author={Fred},caption={},#1]{#2}}
+\lstset{
+    basicstyle=\large\ttfamily,
+    breaklines=true,
+    breakatwhitespace=true,
+    literate=%
+      {≡}{$\equiv$}1
+      {Γ}{$\Gamma$}1
+      {Δ}{$\Delta$}1 
+      {→}{$\to$}1
+      {≅}{$\cong$}1
+}
 
 \input{macro.tex}
 
@@ -90,7 +101,7 @@ Yet, there is a general phenomenon, called `transport hell', when working with q
 
 A typical workaround in practice \cite{Kaposi2019,Kaposi2024a} is to add equality constructors as rewrite rules after an inductive definition and further identify equality constructors with the reflxivity proof.
 %
-As the host theory is assumed to satisfy the uniqueness of identity proof and function extensionality, this workaround can be justified by Hofmann's result~\cite{Hofmann1996,Winterhalter2019,Kapulkin2025} that every well-typed term in extensional type theory can be translated to a term without them in intensional type theory.
+As the host theory is assumed to satisfy the uniqueness of identity proof and function extensionality, this workaround can be justified by conservativity of equality reflection over intensional type theory~\cite{Hofmann1996,Winterhalter2019,Kapulkin2025}.
 %
 However, this workaround is computationally ill-behaved, as confluence does not hold in general.
 Also, the presentation often differs from the actual definition of type theory in intensional type theory.
@@ -98,7 +109,7 @@ Also, the presentation often differs from the actual definition of type theory i
 Any method that reduces the friction introduced by the use of equality constructors without compromising on computational properties and the gap between formalisation and presentation seem worth exploring.
 %
 
-In this paper, we show that the development can be further streamlined by combining quotient inductive-inductive types and inductive-recursive types.
+In this paper, we show that the development can be further streamlined by combining quotient inductive-inductive types and inductive-recursive types, called quotient inductive-inductive-recursive types (\emph{QIIRT}s for short).
 %
 The basic idea, following a suggestion by Kaposi~\cite{Kaposi2023} and a precursor by Dybjer~\cite{Dybjer1996} and Danielsson~\cite{Danielsson2006}, is to replace the inductively defined action of a substitution on a type with a recursive definition, which computes.
 %
@@ -123,44 +134,37 @@ As a result, many equations will hold strictly, and we can avoid the use of tran
 
 %
 We emphasise that, following a fine tradition of previous attempts to represent type theory in type theory~\cite{Danielsson2006,Chapman2009,Altenkirch2016a}, we are making use of type-theoretic features that are so far not yet well understood or foundationally well motivated.
-Nevertheless, Agda can be convinced to accept our formal implementation, using some experimental flags to introduce additional rewrite rules.
+Nevertheless, Agda can be convinced to accept our formal implementation, using user-defined rewrite rules~\cite{Cockx2020,Cockx2021}.
 Indeed, we also see this paper as a case study to motivate further developments for quotient inductive-inductive-recursive types and overlapping patterns.
 
-\paragraph*{Contributions}
+\subparagraph*{Contributions}
+This paper explores the use of QIIRTs and definitions by overlapping patterns to define type theories in intensional type theory.
+In particular, we give
 \begin{itemize}
-  \item Exploration of the use of quotient inductive-inductive-recursive types and definitions by overlapping patterns.
-    In particular, we give in a type theory:
-    \begin{itemize}
-      \item a definition of parallel substitution calculus;
-      \item a definition of type theory with a universe and $\Pi$-types,
-    \end{itemize}
-   with their elimination principles and the standard model, 
-   using quotient inductive-inductive-recursive types and definitions by overlapping patterns to define type substitution and term substitution partially.
-  \item Comparison with definitions using quotient inductive-inductive types.
+  \item definitions of parallel substitution calculus, type theories with a universe and $\Pi$-types,
+  \item with their elimination principles and the standard model;
+  \item a comparison with these definitions using quotient inductive-inductive types.
 \end{itemize}
 
-
-\subsection{Plan of the paper}
-
+\subparagraph*{Plan of the paper}
+In the rest of the paper, we introduce the metatheory in \cref{sec:meta}.
+Then, we will develop type theories formulated as QIIRTs in \cref{sec:QIIRTs}, followed by their elimination principles and usage in \cref{sec:models}.
+We outline the \Agda formal implementation in \cref{sec:formal-implementation}, and we conclude with related and future work in \cref{sec:conclusion}.
 
 \section{Metatheory and formalisation} \label{sec:meta}
 
-We work in intensional Martin-L\"of type theory with uniqueness of identity proofs (\emph{UIP} for short). In \cref{sec:models,sec:formal-implementation}, we also assume function extensionality and $\eta$-rules for $\Pi$-types and $\Sigma$-types.
+We work in intensional Martin-L\"of type theory with uniqueness of identity proofs. In \cref{sec:models,sec:formal-implementation}, we also assume function extensionality and $\eta$-rules for $\Pi$-types and $\Sigma$-types.
 %
 We mostly follow the notational conventions of the HoTT book~\cite{UFP2013} (even if we do not assume the univalence axiom), except that we write dependent function types using Agda notation $(x : A) \to B\,x$.
 %
-We are further inspired by Agda in writing $\implicit{x}\;B\,x$ for $(x : A) \to B\,x$ when $x$ is treated as an `implicit' argument which is not given explicitly, but instead can be figured out from context.
+We are further inspired by Agda in writing $\implicit{x}\;B\,x$ for $(x : A) \to B\,x$ when $x$ is treated as an `implicit' argument which should be clear from the context.
 We write $\Set_i$ for the cumulative hierarchy of universes with the level index $i$ suppressed.
 
-We write $x \jdeq y$ for strict equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the `dependent' identity type where $P : A \to \Set$, $t : P\,x$, $u : P\,y$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P\,y} u$, where $\transfibf{P} : (p : x =^A y) \to P\,x \to P\,y$ is our notation for the operation which allows is to transport values between type families applied to elements that are equal up to the identity type.
+We write $x \jdeq y$ for strict equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the `dependent' identity type where $P : A \to \Set$, $t : P\,x$, $u : P\,y$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P\,y} u$, where $\transfibf{P} : (p : x =^A y) \to P\,x \to P\,y$ is the operation to transport values between the type family $P$ along the identity type.
 %
-%Finally, we write $x \simeq y$ for the \emph{heterogeneous} identity type, where we allow $x : A$ and $y : B$ to have potentially different types.
-%As shown by McBride~\cite{McBride1999}, the heterogeneous identity type is equivalent to the ordinary identity type equipped with the principle of uniqueness of identity proofs.
 
-We have formally implemented our definitions and proofs in \Agda, using the options \texttt{-{}-with-K}, \texttt{-{}-exact-split}, \texttt{-{}-rewriting}, and \texttt{-{}-local-confluence-check}.
-Quotient inductive types are simulated by postulating equations to introduce equality constructors~\cite{Licata2011}.
-Some of our statements are meta-theoretical and thus not checked by \Agda.
-Others are only partially checked, as \Agda does not generate proof obligations for postulated quotient inductive types.
+We have implemented our definitions and proofs in \Agda; see \cref{sec:formal-implementation} for details.
+However, some statements are metatheoretical and not checked in \Agda, while others are only partially checked by \Agda, as proof obligations are given manually. %for postulated equality constructors.
 We have marked such `informal' proofs with the symbol \resizebox*{!}{\baselineskip}{\textdbend}.
 
 \subsection{Inductive-recursive types}
@@ -198,7 +202,7 @@ Their general metatheory would be interesting future work.
 
 Quotient inductive types (QITs) are a special case of higher inductive types~\cite{Lumsdaine2020} from homotopy type theory, where constructors can not only introduce new elements, but also new equalities between the introduced elements.
 %
-Since we assume UIP globally, all QITs are implicitly truncated to be sets in the sense of homotopy type theory.
+Since we assume the uniqueness of identity proofs, all QITs are implicitly truncated to be sets in the sense of homotopy type theory.
 %
 For example, the type of \emph{join lists} $\JList{A}$ can be given by the QIT
 with the following constructors:
@@ -266,11 +270,6 @@ Cockx shows that if a definition of $f$ is
 then $f$ is confluent---essentially a variant of Newman's Lemma~\cite{Newman1942}.
 We call a diagram $\sigma t_2 \Leftarrow f\;\sigma\overrightarrow{p_1} \Rightarrow \sigma t_1$ used in the analysis of local confluence a \emph{local peak}.
 
-\subparagraph*{Implementing overlapping patterns via rewrite rules}
-Unfortunately, definitions by overlapping patterns are only implemented in an outdated experimental fork of \Agda.
-To emulate a function by overlapping patterns in \Agda, we declare each function clause an additional rewrite rules \cite{Cockx2020,Cockx2021} (via the option \texttt{-{}-rewriting}) and use the local confluence checker (via \texttt{-{}-local-confluence-check}).
-This is indeed one of the main use cases of user-defined rewrite rules discussed by Cockx~\cite{Cockx2020}. 
-The caveat, though, is that the termination checker is not imposed, so we have to check the termination informally.
 
 \section{Type theories as quotient inductive-inductive-recursive types} \label{sec:QIIRTs}
 
@@ -298,9 +297,9 @@ Type substitution takes a substitution $\sigma : \Sub\;\Gamma\;\Delta$ and an in
   [\blank]\blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma
 \end{alignat*}
 where $\Gamma$ and $\Delta$ are kept implicit.
-\Fredrik{Could we change this to $A[\sigma]$ instead?}
-\LT{I am okay with changing it in the paper: This notation is used in the formalisation to avoid using $\comp$ for substitution composition}
-\LT{The rule \textsf{concat} doesn't look like concatenation with the $\tau \comp \sigma$ because the $\sigma$ is a snoc-list.}
+\Fredrik[noinline]{Could we change this to $A[\sigma]$ instead?}
+\LT[noinline]{I am okay with changing it in the paper: This notation is used in the formalisation to avoid using $\comp$ for substitution composition}
+\LT[noinline]{The rule \textsf{concat} doesn't look like concatenation with the $\tau \comp \sigma$ because the $\sigma$ is a snoc-list.}
 
 Since $\Ty$ is inductively defined, we add a base case $\UU : \implicit{\Gamma} \Ty\,\Gamma$ to ensure that $\Ty\;\Gamma$ is not empty.
 %for every $\Gamma$:
@@ -431,7 +430,7 @@ The use of transports in the formal definition fixes type mismatches but hinders
 
 To retain the intuitive way of reasoning such as in equation \eqref{eq:pi2-comp-proof} \emph{formally}, we would like to make type substitution rules strict, since the root cause is that type substitution does not compute as a constructor, leading to type mismatches occurring with substitution.
 
-One possibility is to define the substitution calculus as a quotient inductive-inductive-recursive type, where type substitution is defined by recursion, and hence computes.
+One possibility is to define the substitution calculus as a QIIRT, where type substitution is defined by recursion, and hence computes.
 %Now that $[ \idS ]_{\Ty}\;A = A$ and $[ \sigma ; \tau ]_{\Ty}\;A = [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A)$ do not make $[\blank]_{\Ty}\blank$ a (total) function, we may be tempted to define it by
 %\begin{alignat*}{3}
 %[\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
@@ -482,10 +481,7 @@ We end up with the following definition for type substitution:
 [ \pi_1(\sigma; \tau) ]_{\Ty}\;A & \reduce [\sigma]_\Ty\;([\pi_1\tau]_\Ty\;A)    \label{eq:def-type-subst-4} \\
 [ \sigma ]_{\Ty}\;\UU            & \reduce \UU                                   \label{eq:def-type-subst-5}
 \end{alignat}
-We first check that this definition of type substitution is confluent.\footnote{%
-\Agda implements a local confluence checker with the experimental option \text{-{}-local-confluence-check}.
-This option is turned on globally in our formal implementation.}
-
+We first check that this definition of type substitution is confluent.
 \begin{proposition}[Termination]
   Type substitution $[\blank]_{\Ty}\blank$ is terminating.
   \danger
@@ -517,7 +513,7 @@ With this definition of type substitution, other equality constructors can be in
 \end{alignat*}
 
 We revisit \cref{ex:pi2-comp} to demonstrate the pragmatic benefit of QIIRTs over QIITs.
-\begin{example}
+\begin{example} \label{ex:pi-comp-qiirt}
   The equation $\pi_2\,(\sigma; \tau) = [\sigma](\pi_2\,\tau)$ can be formally stated without any transport.
   The type of the term on the LHS is $[\pi_1(\sigma;\tau)]_{\Ty}\;A$ which is strictly equal to the type $[\sigma]_\Ty\;([\pi_1\tau]_\Ty\;A)$ of the term on the RHS.
   Moreover, the first components in each step of the proof of \eqref{eq:pi2-comp-real-proof}, are strictly equal because of \eqref{eq:def-type-subst-3} and \eqref{eq:def-type-subst-4}.
@@ -802,8 +798,6 @@ Finally, we show that these simultaneously defined functions are coherent.
 \end{proposition}
 \begin{proof}
   These two identities follow from \cref{prop:correctness-2,prop:correctness-3} easily with the heterogeneous identity (see \cref{sec:meta}).
-\Fredrik{This heterogeneous equality has not been used so far; it would be good to not have to introduce it all, except perhaps locally in the proof here.}
-\LT{How about deferring introducing heterogeneous equality until \cref{sec:formal-implementation}?}
 \end{proof}
 
 \subsubsection{Multiple lifting and the coherence of type substitution}
@@ -912,7 +906,7 @@ can be derived without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref
 
 \subsection{Adding other type formers} \label{subsec:SC+U+Pi+more}
 
-We can add extensional identity types, a hierarchy of Coquand universes~\cite{Coquand2018}, and a unit type with an eta law, all without any additional difficulty. In particular, all these additions can be done without introducing any transports in the syntax. However, adding an inductive type such as the Booleans does introduce a little bit of friction; let us see why. We introduce the type $\bool$ itself, it's two constructors $\btrue$ and $\bfalse$, and its elimination principle $\belim$:
+We can add extensional identity types, a hierarchy of Coquand universes~\cite{Coquand2018}, and a unit type with an eta law, all without any additional difficulty. In particular, all these additions can be done without introducing any transports in the syntax. However, adding an inductive type such as the Booleans does introduce a little bit of friction; let us see why. We introduce the type $\bool$ itself, its two constructors $\btrue$ and $\bfalse$, and its elimination principle $\belim$:
 %
 \begin{alignat*}{3}
   \bool     &: \implicit{\Gamma}         \;  && \Ty\;\Gamma \\
@@ -924,8 +918,8 @@ We can add extensional identity types, a hierarchy of Coquand universes~\cite{Co
 where we have written $\instSub{t} = (\idS, t) : \Sub\;\Gamma\;(\Gamma, A)$ for the substitution that substitutes $t : A$ for the top variable and leaves all other variables in place. We can add the expected computation rules
 %
 \begin{alignat*}{5}
-  \bool\beta_{\bfalse}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\bfalse && =^{\Tm\;\Gamma\;[\instSub{\bfalse}]_{\Ty} P} && f \\
-  \bool\beta_{\btrue}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\btrue && =^{\Tm\;\Gamma\;[\instSub{\btrue}]_{\Ty} P} && t
+  \bool\beta_{\bfalse}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\bfalse && =^{\Tm\;\Gamma\;[\instSub{\bfalse}]_{\Ty} P} {} && f \\
+  \bool\beta_{\btrue}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\btrue && =^{\Tm\;\Gamma\;[\instSub{\btrue}]_{\Ty} P} {} && t
 \end{alignat*}
 %
 and the structural rule for type substitution as another straightforward clause
@@ -963,11 +957,11 @@ To eliminate $\Ctx$, $\Ty\,\Gamma$, $\Sub\;\Gamma\;\Delta$, and $\Tm\,\Gamma\,A$
   \Tm^M  & : \implicit{\Gamma, A}\; (\Gamma^M : \Ctx^M\;\Gamma) \to \Ty^M\;\Gamma^M\;A \to \Tm\;\Gamma\;A \to \Set
 \end{align*}
 to act as the target types for the elimination principle:
-\begin{alignat*}{5}
+\begin{alignat*}{10}
   \elim_{\Ctx} & : (\Gamma : \Ctx)   && \to \Ctx^M\;\Gamma &
-  \elim_{\Sub} & : (\sigma : \Sub\;\Gamma\;\Delta) && \to \Sub^M\;(\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ctx}\;\Delta)\;\sigma \\
+  \elim_{\Sub} & : (\sigma : \Sub\;\Gamma\;\Delta) && \to \Sub^M\; && (\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ctx}\;\Delta)\;&&\sigma \\
   \elim_{\Ty}  & : (A : \Ty\;\Gamma) && \to \Ty^M\;(\elim_{\Ctx}\,\Gamma)\;A \quad
-               & \elim_{\Tm}  & : (t : \Tm\;\Gamma\;A) && \to \Tm^M\;(\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ty}\,A)\;t.
+               & \elim_{\Tm}  & : (t : \Tm\;\Gamma\;A) && \to \Tm^M\; && (\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ty}\,A)\;&&t.
 \end{alignat*}
 Each constructor $c$ should be interpreted by a corresponding \emph{method} $c^M$ indexed by it, e.g.,
 \begin{alignat*}{3}
@@ -1067,11 +1061,10 @@ Note that a simultaneously defined function does not need a corresponding interp
 
 \subsection{The standard model} \label{subsec:std-model}
 The standard model, justifying the soundness of our definition, is given by the same motives as those for its QIIT counterpart~\cite[Section~4]{Altenkirch2016a}:
-\begin{alignat*}{5}
-  \Ctx^M & \defeq \lam{\nameless} \; && \Set & \qquad \Sub^M & \defeq \lam{\Gamma^M\,\Delta^M\,\nameless}\; && \Gamma^M \to \Delta^M \\
-  \Ty^M  & \defeq \lam{\Gamma^M\, \nameless} && \Gamma^M \to \Set & 
-  \Tm^M  & \defeq \lam{\Gamma^M\,A^M\,\nameless} && (\gamma : \Gamma^M) \to A^M\,\gamma
-\end{alignat*}
+\begin{align*}
+  \Ctx^M\;\nameless          & \defeq \Set              & \Sub^M\;\Gamma^M\;\Delta^M\;\nameless & \defeq \Gamma^M \to \Delta^M \\
+  \Ty^M\;\Gamma^M\;\nameless & \defeq \Gamma^M \to \Set & \Tm^M\;\Gamma^M\;A^M\;\nameless & \defeq (\gamma : \Gamma^M) \to A^M\;\gamma
+\end{align*}
 %with the additional methods to its QII counterpart:
 %\begin{align*}
 %  \blank\uparrow^M\blank & \defeq \lam{\sigma^M\,A^M\,\gamma} (\sigma^M\,(\pi_1\,\gamma) , \pi_2\,\gamma) & \\
@@ -1106,29 +1099,63 @@ We have used additional rules to enable further reduction which are derivable in
 Indeed, the QIIRT definition of type theory is equivalent to its QIIT definition, as we can translate every constructor to its corresponding constructor and vice versa.
 For comparison, we add a subscript to constructors and types in the QIIRT and QIIT definitions by $\blank_\IR$ and $\blank_\I$, respectively, and write $(\blank)^{\succ}$ and $(\blank)^{\prec}$ for the translation from the QIIRT definition to its QIIT counterpart and the converse, respectively.
 
-The recursor for $(\blank)^{\succ}$ is given straightforwardly: each method $c^M_{\IR}$ is given by the corresponding constructor $c_{\I}$ in the QIIT counterpart as well as `smart constructors'.
+The recursor for $(\blank)^{\succ}$ is given straightforwardly: each method $c^M_{\IR}$ is given by the corresponding constructor $c_{\I}$ in the QIIT counterpart.
 Additional equality constructors are all derivable in the QIIT definition. 
 
 On the other hand, the converse $(\blank)^{\prec}$ has some choices.
 Since in the QIIT definition there is only one term substitution $[\blank]_{\I}\blank$ and lifting $(\blank)^+_{\I}$, we may choose to translate $[\sigma]_{\I} \,t$ to the recursive form $[\sigma^{\prec}]_{\Tm}\,t^{\prec}$ to carry out some computation, or to the constructor form $[\sigma^{\prec}]_{\IR}\,t^{\prec}$ to stay verbatim.
 Either choice is possible, but we need to use \cref{prop:correctness-1,prop:correctness-3} to switch from one to the other whenever suitable.
 For example, the equality constructor $\mathsf{concat}_{\IR}$ uses the constructor form, so the method $\mathsf{concat}^M_{\I}$ relies on the identity $[ \sigma ]\,t = [\sigma]_{\Tm}\,t$ if the recursive form $[\sigma^{\prec}]_{\Tm}\,t^{\prec}$ is chosen for the translation.
-UIP is also needed,\footnote{%
-  We can further eliminate the use of propositional UIP by identifying function clauses with the reflexivity identity proof using additional rewrite rules.
-\Fredrik{I would be surprised if this was equivalent to UIP. I would suggest to delete the remark.}}
-since the method $\mathsf{concat}^M_{\I}$ has a transport along $[;]_{\Ty}^M$ but $\mathsf{concat}_{\IR}$ does not.
 
-Going back and forth from one definition to the other gives us the isomorphism:
+Going back and forth from one definition to the other gives us the equivalences
 \begin{theorem}
-  $\Ctx_{\IR}$ is isomorphic to $\Ctx_{\I}$.
-  In particular, $(\blank)^{\prec} : \Ctx_{\I} \to \Ctx_{\IR}$ and $(\blank)^{\succ} : \Ctx_{\IR} \to \Ctx{\I}$ are inverses to each other. 
+  Type theory defined as a QIIRT and a QIIT are equivalent, i.e.\ 
+  \begin{itemize}
+    \item $\eqv{\Ctx_{\IR}}{\Ctx_{\I}}$, 
+    \item $\eqv{\left((\Gamma : \Ctx_{\IR})\to\Ty_{\IR}\;\Gamma\right)}{\left((\Gamma : \Ctx_{\I})\to\Ty_{\I}\;\Gamma\right)}$,
+    \item $\eqv{\left((\Gamma\;\Delta : \Ctx_{\IR}) \to \Sub_{\IR}\;\Gamma\;\Delta\right)}%
+               {\left((\Gamma\;\Delta: \Ctx_{\I}) \to \Sub_{\I}\;\Gamma\;\Delta\right)}$, and 
+    \item $\eqv{\left((\Gamma : \Ctx_{\IR}) \to (A : \Ty_{\IR}\;\Gamma) \to \Tm_{\IR}\;\Gamma\;A\right)}
+               {\left((\Gamma : \Ctx_{\I}) \to (A : \Ty_{\I}\;\Gamma) \to \Tm_{\I}\;\Gamma\;A\right)}$.
+  \end{itemize}
 \end{theorem}
-\Fredrik{Why only on contexts? If that's the limit of the proof at the moment, I think it would be better to state just the translations, and maybe have a running text remark after the theorem.}
+%\Fredrik{Why only on contexts? If that's the limit of the proof at the moment, I think it would be better to state just the translations, and maybe have a running text remark after the theorem.}
 
 \section{Formal implementation} \label{sec:formal-implementation}
+
+We have a formal implementation in \Agda, using the options \texttt{-{}-with-K} for the uniqueness of identity proofs, \texttt{-{}-exact-split} to ensure that all function clauses are definitional, and \texttt{-{}-rewriting} with \texttt{-{}-local-confluence-check} for implementing definitions by overlapping patterns.
+Quotient inductive types are simulated by postulating equations to introduce equality constructors~\cite{Licata2011}, as \textsc{Cubical Agda} does not support user-defined rewrite rules.
+
+\subparagraph*{Implementing overlapping patterns via rewrite rules}
+%The mechanism of defining a function by overlapping patterns is only implemented in an outdated experimental fork of \Agda.
+To emulate a function by overlapping patterns in \Agda, we declare each function clause a rewrite rule \cite{Cockx2020,Cockx2021} and another rewrite to identify the clause with the reflexivity proof and also turn on the option \texttt{-{}-local-confluence-check} to check local confluence.
+For example, type substitution $[\blank]_{\Ty}$ up to the first clause $[\idS]_{\Ty}\,A \reduce A$ is defined as
+\begin{lstlisting}
+postulate
+  [_]_      : Sub Γ Δ → Ty Δ → Ty Γ
+  [id]      : [ idS ] A ≡ A
+  {-# REWRITE [id] #-}
+  [id]≡refl : [id] {A = A} ≡ refl
+  {-# REWRITE [id]=refl #-}
+\end{lstlisting}
+where \lstinline|[id]≡refl| is used to ensure that \lstinline|[id]| need not be referred.
+
+Defining by overlapping patterns is indeed one of the use cases of user-defined rewrite rules discussed by Cockx~\cite{Cockx2020}. 
+The caveat, though, is that the termination checker is not imposed, so we have to check the termination informally.
+
+\subparagraph*{Heterogeneous identity}
+In our implementation, some statements are proved differently from our presentation. 
+We have sometimes used John Major equality~\cite{McBride1999} $x \cong y$  for $A, B : \Set$, and $x : A$ and $y : B$, where dependent congruence rule or dependent identity type are needed.
+
+For instance, in \cref{ex:pi-comp-qiirt}, the identity $\pi_2(\sigma ; \tau) = \pi_2(\sigma; (\pi_1 \tau, \pi_2 \tau)$ could be proved by $\mathit{apd}_f \colon (p : x =^A y) \to f\,x =^{P}_{p} f\,y$ and the equality constructor $\pi\eta : \tau = (\pi_1\tau, \pi_2\tau)$, resulting an additional transport to remove later.
+However, as $[\pi_1(\sigma; \tau)]_{\Ty}\,A$ and $[\pi_1(\sigma; (\pi_1\tau, \pi_2\tau))]_{\Ty}\,A$ are strictly equal, the resulting identity is indeed homogeneous.
+Hence, we use the heterogeneous congruence $\mathit{hap}_f\colon (p : x \simeq y) \to f\,x\simeq f\,y$ (by \lstinline|hcong|) and switch back to the ordinary identity type $f\,x = f\, y$ (by \lstinline|≅-to-≡|) as their types match.
+ 
+%As shown by McBride, the heterogeneous identity type is equivalent to the ordinary identity type equipped with the principle of uniqueness of identity proofs.
+
 \LT{Mention the NbE for SC here}
-\LT{Compare some formal proofs with pen-and-paper proofs here}
-\section{Conclusions, and related and future work}
+
+\section{Conclusions, and related and future work}\label{sec:conclusion}
 
 We have used quotient inductive-recursive types and overlapping
 patterns to represent type theory in type theory. By defining type

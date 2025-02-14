@@ -1,2 +1,3 @@
-# DTT-QIIRT
-Implement dependent type theory with quotient inductive-inductive-recursive type
+# Type theories as quotient inductive-inductive-recursive types
+
+Define type theory using quotient inductive-inductive-recursive types and overlapping patterns.
