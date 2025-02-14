@@ -147,18 +147,18 @@ In particular, we give
 \end{itemize}
 
 \subparagraph*{Plan of the paper}
-In the rest of the paper, we introduce the metatheory in \cref{sec:meta}.
-Then, we will develop type theories formulated as QIIRTs in \cref{sec:QIIRTs}, followed by their elimination principles and usage in \cref{sec:models}.
+In the rest of the paper, we introduce the metalanguage in \cref{sec:meta}.
+Then, we develop type theories formulated as QIIRTs in \cref{sec:QIIRTs}, followed by their elimination principles and usage in \cref{sec:models}.
 We outline the \Agda formal implementation in \cref{sec:formal-implementation}, and we conclude with related and future work in \cref{sec:conclusion}.
 
 \section{Metatheory and formalisation} \label{sec:meta}
 
 We work in intensional Martin-L\"of type theory with uniqueness of identity proofs. In \cref{sec:models,sec:formal-implementation}, we also assume function extensionality and $\eta$-rules for $\Pi$-types and $\Sigma$-types.
 %
-We mostly follow the notational conventions of the HoTT book~\cite{UFP2013} (even if we do not assume the univalence axiom), except that we write dependent function types using Agda notation $(x : A) \to B\,x$.
+We mostly follow the notational conventions of the HoTT book~\cite{UFP2013} (even if we do not assume the univalence axiom), except that we write dependent function types using \Agda notation $(x : A) \to B\,x$.
 %
-We are further inspired by Agda in writing $\implicit{x}\;B\,x$ for $(x : A) \to B\,x$ when $x$ is treated as an `implicit' argument which should be clear from the context.
-We write $\Set_i$ for the cumulative hierarchy of universes with the level index $i$ suppressed.
+We are further inspired by \Agda in writing $\implicit{x}\;B\,x$ for $(x : A) \to B\,x$ when $x$ is treated as an `implicit' argument which should be clear from the context.
+We write $\Set_i$ for the hierarchy of universes with the level index $i$ suppressed.
 
 We write $x \jdeq y$ for strict equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the `dependent' identity type where $P : A \to \Set$, $t : P\,x$, $u : P\,y$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P\,y} u$, where $\transfibf{P} : (p : x =^A y) \to P\,x \to P\,y$ is the operation to transport values between the type family $P$ along the identity type.
 %
@@ -169,7 +169,7 @@ We have marked such `informal' proofs with the symbol \resizebox*{!}{\baselinesk
 
 \subsection{Inductive-recursive types}
 
-An ordinary inductive type $A$, such as for example the type of natural numbers $A = \mathbb{N}$, allows functions out of the type $f : A \to X$ to be defined by recursion, by providing an elimination rule which says that such a function $f$ is defined by its values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of $A$. For example, a function $f: \mathbb{N} \to X$ is given by the values $f(0)$ and $f(\mathsf{suc}\,n)$, where the latter might refer to the already computed value $f(n)$.
+An ordinary inductive type $A$, such as the type of natural numbers $A = \mathbb{N}$, allows functions out of the type $f : A \to X$ to be defined by recursion, using an elimination rule which says that such a function $f$ is defined by its values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of~$A$. For example, a function $f: \mathbb{N} \to X$ is given by the values $f(0)$ and $f(\suc\,n)$, where the latter might refer to the already computed value $f(n)$.
 %
 The type is first defined inductively by listing its constructors, and then afterwards recursive functions can be defined out of it.
 
@@ -177,14 +177,14 @@ In contrast, an inductive-recursive type is defined inductively \emph{simultaneo
 \[
   \pi : (a : U) \to (T(a) \to U) \to U
 \]
-with $T(\pi(a, b)) = (x : T(a)) \to T(b(x))$ only makes sense because we already have access to the decoding function $T$.
+with $T(\pi(a, b)) = (x : T\,a) \to T(b\, x)$ only makes sense because we already have access to the decoding function $T$.
 %
 Inductive-recursive types (IRT) were introduced by Dybjer~\cite{Dybjer2000}, and then extensively studied by Dybjer and Setzer~\cite{Dybjer1999,Dybjer2003}.
 The general schema allows one to define a type $A$ inductively, together with a recursive function $F : A \to D$, for some fixed (possibly large) type $D$.
 
 An IRT $(A, F)$ comes with an elimination rule that allows to define a dependent function  $f : (x : A) \to P(x)$ by giving values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of $A$, again reflecting that $A$ is inductively defined.
 %
-However, note that the recursive function $F : A \to D$ is not defined using this elimination rule, but part of the definition of the type itself.
+However, note that the recursive function $F : A \to D$ is \emph{not} defined using this elimination rule, but part of the definition of the type itself.
 %
 In particular, the elimination rule can be used to define endofunctions on $A$, but the recursive function  $F : A \to D$ must always target a fixed pre-existing type $D$.
 %
@@ -200,7 +200,7 @@ Their general metatheory would be interesting future work.
 \subsection{Quotient inductive-inductive and quotient inductive-recursive types}
 % \subsection{Quotient inductive(-inductive)-recursive types}
 
-Quotient inductive types (QITs) are a special case of higher inductive types~\cite{Lumsdaine2020} from homotopy type theory, where constructors can not only introduce new elements, but also new equalities between the introduced elements.
+Quotient inductive types (QITs) are a special case of higher inductive types~\cite{Lumsdaine2020}, where constructors can introduce not only new elements but also new equalities between the introduced elements.
 %
 Since we assume the uniqueness of identity proofs, all QITs are implicitly truncated to be sets in the sense of homotopy type theory.
 %
@@ -216,10 +216,11 @@ with the following constructors:
 \end{alignat*}
 
 
-A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a family of types $B : A \to \Set$, where both $A$ and $B$ are defined inductively --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively; indeed, inductive-inductive definitions only make sense when $D = \Set$.
+A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a type family $B : A \to \Set$, where both $A$ and $B$ are defined inductively --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively.
+%; indeed, inductive-inductive definitions only make sense when $D = \Set$.
 The metatheory of QIITs has been extensively studied by Altenkirch, Kaposi and Kov\'acs~\cite{Kaposi2018,Kaposi2019,Kovacs2020}.
 
-We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: The type $\JList{A}$ is defined simultaneously with a recursion $\flatten : \implicit{A}\;\JList{A} \to \List{A}$ which flattens a join list into an ordinary list. We keep the constructors $\Jnil$, $\Jsing{\blank}$ and $\Jconcat{\blank}{\blank}$, but replace $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
+We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: the type $\JList{A}$ is defined simultaneously with a recursion $\flatten : \implicit{A}\;\JList{A} \to \List{A}$ which flattens a join list into an ordinary list. We keep the constructors $\Jnil$, $\Jsing{\blank}$ and $\Jconcat{\blank}{\blank}$, but replace $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
 \[
   \mathsf{nf} : \implicit{A}\;(\ell, \ell' : \JList{A}) \to \flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell' \to \ell =^{\JList{A}} \ell'
 \]
@@ -229,7 +230,7 @@ which states that join lists are equal as soon as their flattenings are equal. F
 
 
 \subsection{Definitions by overlapping patterns} \label{sec:meta:overlapping}
-\begin{figure} 
+\begin{figure}[b]
 \begin{minipage}[t]{.48\textwidth}
   \begin{alignat*}{5}
     \blank  & + \blank     && : \N \to \N \to \N \\
@@ -259,7 +260,7 @@ Each clause of $+'$ is strict (hence the symbol $\defeq$ is used) while clauses 
 
 Cockx~\cite{Cockx2014} explores an alternative semantics for pattern matching, where all clauses are strict, even in the presence of \emph{overlapping patterns}.
 Thus, when a function $f$ is defined with overlapping patterns, the notation $f\;\overrightarrow{p_i} \reduce t_i$ is used to emphasize its reduction behaviour.
-Under this semantics, each clause of $+$ is strictly equal to its right-hand side, allowing the symmetry addition to be proved commutative directly by induction on $n$ and $m$.
+Under this semantics, each clause of $+$ is strictly equal to its right-hand side, also allowing the symmetry addition to be proved commutative directly by induction on $n$ and $m$.
 
 A key requirement for definitions with overlapping patterns is that, in addition to termination and completeness, any clause must eventually compute to the same term, i.e.\ $f$ is confluent.
 Cockx shows that if a definition of $f$ is
@@ -273,7 +274,7 @@ We call a diagram $\sigma t_2 \Leftarrow f\;\sigma\overrightarrow{p_1} \Rightarr
 
 \section{Type theories as quotient inductive-inductive-recursive types} \label{sec:QIIRTs}
 
-We begin with the definition of the parallel substitution calculus~\cite{Martin-Lof1992} as a QIIT, emphasising how the use of transports in its very definition complicates formal reasoning.
+We begin with a recall of the definition of substitution calculus~\cite{Martin-Lof1992} as a QIIT, emphasising how the use of transports in its very definition complicates formal reasoning.
 We then introduce its QIIRT counterpart (\cref{subsec:SC-QIIRT}) which shortens the gap between formal and informal reasoning, and develop a type theory with a universe (\cref{subsec:SC+U}) of small types, $\Pi$-types (\cref{subsec:SC+U+Pi}), and other type formers (\cref{subsec:SC+U+Pi+more}).
 
 \subsection{Substitution calculus as a quotient inductive-inductive type} \label{subsec:SC-QIIT}
@@ -689,7 +690,7 @@ In general, every term occurs on the right-hand side of a clause needs to propag
 
 \subsection{Adding \texorpdfstring{$\Pi$}{Π}-types} \label{subsec:SC+U+Pi}
 
-We extend the type theory in \cref{subsec:SC+U} with $\Pi$-types, i.e.\ dependent function types, whose the context of its codomain is extended with the domain type.
+We extend the type theory in \cref{subsec:SC+U} with $\Pi$-types, i.e.\ dependent function types, where the context of its codomain is extended with the domain type.
 For the QIIT of type theory in \cite{Altenkirch2016a}, it amounts to adding the following constructors for the type formation rule, the term introduction/elimination rules:
 \begin{alignat*}{3}
   \Pi     &: \implicit{\Gamma}           \; && (A : \Ty\,\Gamma) \to \Ty\,(\Gamma, A) \to \Ty\,\Gamma \\
@@ -963,7 +964,7 @@ to act as the target types for the elimination principle:
   \elim_{\Ty}  & : (A : \Ty\;\Gamma) && \to \Ty^M\;(\elim_{\Ctx}\,\Gamma)\;A \quad
                & \elim_{\Tm}  & : (t : \Tm\;\Gamma\;A) && \to \Tm^M\; && (\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ty}\,A)\;&&t.
 \end{alignat*}
-Each constructor $c$ should be interpreted by a corresponding \emph{method} $c^M$ indexed by it, e.g.,
+Each constructor $\mathsf{c}$ should be interpreted by a corresponding \emph{method} $\mathsf{c}^M$ indexed by it, e.g.,
 \begin{alignat*}{3}
 %  \emptyctx_{\Ctx}^M     & :                    && \Ctx^M\;\emptyctx \\
   \blank,_{\Ctx}^M\blank & : \implicit{\Gamma, A}\; && (\Gamma^M : \Ctx^M\;\Gamma) \to \Ty^M\;\Gamma^M\;A \to \Ctx^M\;(\Gamma, A) %\\
@@ -987,8 +988,10 @@ subject to the identities corresponding to equality constructors and function cl
   %[\idS]_{\Tm}^M & : \implicit{\Gamma^M, t, t^M}   && [\idS^M]^M_{\Tm}\;t^M && =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{[\idS]^M_{\Ty}}} && \; t^M
 \end{alignat*}
 %
-The elimination principle says that the functions $\elim_{\Ctx}$, $\elim_{\Sub}$, $\elim_{\Ty}$ and $\elim_{\Tm}$ as soon as motives and methods are given. When the motive families are constant, we call the principle a \emph{recursion principle} instead.
-We refer to \cref{appendix:full-def} and our Agda development for the full definition of the elimination principle.
+The elimination principle says that the functions $\elim_{\Ctx}$, $\elim_{\Sub}$, $\elim_{\Ty}$ and $\elim_{\Tm}$ as soon as motives and methods are given.
+\LT[noinline]{says what?}
+When the motive families are constant, we call the principle a \emph{recursion principle} instead.
+We refer to \cref{appendix:full-def} and our \Agda development for the full definition of the elimination principle.
 %We also have omitted the list of implicitly quantified variables: each variable $A$ implicitly quantified in a constructor $c$ has accordingly an $A$-indexed variable $A^M$ in $c^M$. 
 %%
 %
@@ -1147,7 +1150,7 @@ The caveat, though, is that the termination checker is not imposed, so we have t
 In our implementation, some statements are proved differently from our presentation. 
 We have sometimes used John Major equality~\cite{McBride1999} $x \cong y$  for $A, B : \Set$, and $x : A$ and $y : B$, where dependent congruence rule or dependent identity type are needed.
 
-For instance, in \cref{ex:pi-comp-qiirt}, the identity $\pi_2(\sigma ; \tau) = \pi_2(\sigma; (\pi_1 \tau, \pi_2 \tau)$ could be proved by $\mathit{apd}_f \colon (p : x =^A y) \to f\,x =^{P}_{p} f\,y$ and the equality constructor $\pi\eta : \tau = (\pi_1\tau, \pi_2\tau)$, resulting an additional transport to remove later.
+For instance, in \cref{ex:pi-comp-qiirt}, the identity $\pi_2(\sigma ; \tau) = \pi_2(\sigma; (\pi_1 \tau, \pi_2 \tau)$ could be proved by $\apdfunc f \colon (p : x =^A y) \to f\,x =^{P}_{p} f\,y$ and the equality constructor $\pi\eta : \tau = (\pi_1\tau, \pi_2\tau)$, resulting an additional transport to remove later.
 However, as $[\pi_1(\sigma; \tau)]_{\Ty}\,A$ and $[\pi_1(\sigma; (\pi_1\tau, \pi_2\tau))]_{\Ty}\,A$ are strictly equal, the resulting identity is indeed homogeneous.
 Hence, we use the heterogeneous congruence $\mathit{hap}_f\colon (p : x \simeq y) \to f\,x\simeq f\,y$ (by \lstinline|hcong|) and switch back to the ordinary identity type $f\,x = f\, y$ (by \lstinline|≅-to-≡|) as their types match.
  
@@ -1190,7 +1193,7 @@ discussed by Cockx~\cite{Cockx2014}, but we would like to integrate it
 with such a schema. Eremondi and Kammar~\cite{Eremondi2025} has
 recently given a promising possible direction for overlapping patterns
 using sheaf theory.
-\LT{Perhaps also mention that the notion of models might be interesting, but it is out of the scope of this paper.}
+%\LT{Perhaps also mention that the notion of models might be interesting, but it is out of the scope of this paper.}
 
 %\IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
 \bibliography{ref}
