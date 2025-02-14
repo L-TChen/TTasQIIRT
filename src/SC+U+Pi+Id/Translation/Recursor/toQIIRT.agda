@@ -23,13 +23,13 @@ module _  {ℓ ℓ′}(rec : Recursor {ℓ} {ℓ′}) where
     
 
   toQIIRT : IR.Recursor {ℓ} {ℓ′}
-  toQIIRT .IR.Recursor.Mot = record
+  toQIIRT .IR.Recursor.mot = record
     { Ctxᴹ = Ctxᴹ
     ; Tyᴹ  = Tyᴹ
     ; Subᴹ = Subᴹ
     ; Tmᴹ  = Tmᴹ
     }
-  toQIIRT .IR.Recursor.Met = record
+  toQIIRT .IR.Recursor.met = record
     { 𝒞 = record
       { [_]ᴹ_     = [_]ᴹ_
       ; ∅ᶜᴹ       = ∅ᶜᴹ

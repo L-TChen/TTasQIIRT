@@ -6,10 +6,10 @@ open import SC+U+Pi+Id.QIIT.Syntax     as QIIT
 open import SC+U+Pi+Id.QIIT.Properties as QIIT
 open import SC+U+Pi+Id.QIIT.Elimination as QE
 
-import SC+U+Pi+Id.QIIRT.Base as R
+import SC+U+Pi+Id.QIIRT.Syntax as R
   hiding (i) 
 
-import SC+U+Pi+Id.QIIRT.Model as RM
+import SC+U+Pi+Id.QIIRT.Elimination as RM
 
 open ≡-Reasoning
 module _ {ℓ ℓ′}(QM : Eliminator {ℓ} {ℓ′}) where
@@ -17,14 +17,14 @@ module _ {ℓ ℓ′}(QM : Eliminator {ℓ} {ℓ′}) where
   open import SC+U+Pi+Id.Translation.Syntax.Translate
   open QIIRT→QIIT
   
-  toQIIT : RM.Model {ℓ} {ℓ′}
-  toQIIT .RM.Model.Mot = record
+  toQIIT : RM.Eliminator {ℓ} {ℓ′}
+  toQIIT .RM.Eliminator.mot = record
     { Ctxᴹ = λ Γ → Ctxᴹ (Γ >c)
     ; Tyᴹ  = λ Γᴹ i A → Tyᴹ Γᴹ i (A >ty)
     ; Subᴹ = λ Γᴹ Δᴹ σ → Subᴹ Γᴹ Δᴹ (σ >s)
     ; Tmᴹ  = λ Γᴹ Aᴹ t → Tmᴹ Γᴹ Aᴹ (t >tm)
     }
-  toQIIT .RM.Model.Met = record
+  toQIIT .RM.Eliminator.met = record
     { 𝒞    = record
       { [_]ᴹ_       = λ {Γ} {Γᴹ} {Δ} {Δᴹ} {σ} {i} {A} σᴹ Aᴹ → tr TyᴹFam ([]>ty σ A) ([ σᴹ ]ᴹ Aᴹ)
       ; ∅ᶜᴹ         = ∅ᶜᴹ

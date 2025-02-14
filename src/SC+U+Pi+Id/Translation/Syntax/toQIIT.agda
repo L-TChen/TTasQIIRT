@@ -10,13 +10,13 @@ open ≡-Reasoning
 open Recursor
 
 toQIIT : Recursor
-toQIIT .Mot = record
+toQIIT .mot = record
   { Ctxᴹ = Ctx
   ; Tyᴹ  = Ty
   ; Subᴹ = Sub
   ; Tmᴹ  = Tm
   }
-toQIIT .Met = record
+toQIIT .met = record
   { 𝒞    = record
     { [_]ᴹ_       = [_]_
     ; ∅ᶜᴹ         = ∅

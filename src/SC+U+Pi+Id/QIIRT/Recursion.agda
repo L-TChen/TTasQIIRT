@@ -10,11 +10,11 @@ open import SC+U+Pi+Id.QIIRT.Properties
 
 record Recursor {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
-    Mot : Motive {ℓ} {ℓ′}
-    Met : Method Mot
+    mot : Motive {ℓ} {ℓ′}
+    met : Method mot
   
-  open Motive Mot public
-  open Method Met public
+  open Motive mot public
+  open Method met public
 
 module rec {ℓ ℓ′}(M : Recursor {ℓ} {ℓ′}) where
   open Recursor M

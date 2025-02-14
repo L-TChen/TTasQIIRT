@@ -10,435 +10,435 @@ open import SC+U+Pi+Id.QIIRT.Properties
 
 record Eliminator {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
-    Mot : Motive {ℓ} {ℓ′}
-    Met : Method Mot
+    mot : Motive {ℓ} {ℓ′}
+    met : Method mot
   
-  open Motive Mot public
-  open Method Met public
+  open Motive mot public
+  open Method met public
 
 module elim {ℓ ℓ′}(M : Eliminator {ℓ} {ℓ′}) where
   open Eliminator M
 
   {-# TERMINATING #-}
-  ElimCtx
+  elimCtx
     : (Γ : Ctx) → Ctxᴹ Γ
-  ElimTy
-    : (A : Ty Γ i) → Tyᴹ (ElimCtx Γ) i A
-  ElimSub
-    : (σ : Sub Δ Γ) → Subᴹ (ElimCtx Δ) (ElimCtx Γ) σ
-  ElimTm
-    : (t : Tm Γ A) → Tmᴹ (ElimCtx Γ) (ElimTy A) t
-  ElimTy[]
+  elimTy
+    : (A : Ty Γ i) → Tyᴹ (elimCtx Γ) i A
+  elimSub
+    : (σ : Sub Δ Γ) → Subᴹ (elimCtx Δ) (elimCtx Γ) σ
+  elimTm
+    : (t : Tm Γ A) → Tmᴹ (elimCtx Γ) (elimTy A) t
+  elimTy[]
     : (σ : Sub Δ Γ)(A : Ty Γ i)
-    → [ ElimSub σ ]ᴹ ElimTy A ≡ ElimTy ([ σ ] A)
-  ElimTm[]
+    → [ elimSub σ ]ᴹ elimTy A ≡ elimTy ([ σ ] A)
+  elimTm[]
     : (σ : Sub Δ Γ){A : Ty Γ i}(t : Tm Γ A)
-    → tr TmᴹFamₜ (ElimTy[] σ A) ([ ElimSub σ ]tᴹ ElimTm t) ≡ ElimTm ([ σ ]t t)
+    → tr TmᴹFamₜ (elimTy[] σ A) ([ elimSub σ ]tᴹ elimTm t) ≡ elimTm ([ σ ]t t)
   
-  ElimCtx ∅          = ∅ᶜᴹ
-  ElimCtx (Γ , A)    = ElimCtx Γ ,ᶜᴹ ElimTy A
-  ElimTy (U i)       = Uᴹ i
-  ElimTy (El u)      = Elᴹ (ElimTm u)
-  ElimTy (Lift A)    = Liftᴹ (ElimTy A)
-  ElimTy (Π A B)     = Πᴹ (ElimTy A) (ElimTy B)
-  ElimTy (Id a t u)  = Idᴹ (ElimTm a) (ElimTm t) (ElimTm u)
-  ElimSub ∅          = ∅ˢᴹ
-  ElimSub (σ , t)    = ElimSub σ ,ˢᴹ tr TmᴹFamₜ (sym $ ElimTy[] σ _) (ElimTm t)
-  ElimSub idS        = idSᴹ
-  ElimSub (τ ⨟ σ)    = ElimSub τ ⨟ᴹ ElimSub σ
-  ElimSub (π₁ σ)     = π₁ᴹ (ElimSub σ)
-  ElimTm (π₂ σ)      = tr TmᴹFamₜ (ElimTy[] (π₁ σ) _) (π₂ᴹ (ElimSub σ))
-  ElimTm ([ σ ]tm t) = tr TmᴹFamₜ (ElimTy[] σ _) ([ ElimSub σ ]tmᴹ ElimTm t)
-  ElimTm (c A)       = cᴹ (ElimTy A)
-  ElimTm (mk t)      = mkᴹ (ElimTm t)
-  ElimTm (un t)      = unᴹ (ElimTm t)
-  ElimTm (ƛ t)       = (ƛᴹ ElimTm t)
-  ElimTm (app t)     = appᴹ (ElimTm t)
-  ElimTm (refl t)    = reflᴹ (ElimTm t)
+  elimCtx ∅          = ∅ᶜᴹ
+  elimCtx (Γ , A)    = elimCtx Γ ,ᶜᴹ elimTy A
+  elimTy (U i)       = Uᴹ i
+  elimTy (El u)      = Elᴹ (elimTm u)
+  elimTy (Lift A)    = Liftᴹ (elimTy A)
+  elimTy (Π A B)     = Πᴹ (elimTy A) (elimTy B)
+  elimTy (Id a t u)  = Idᴹ (elimTm a) (elimTm t) (elimTm u)
+  elimSub ∅          = ∅ˢᴹ
+  elimSub (σ , t)    = elimSub σ ,ˢᴹ tr TmᴹFamₜ (sym $ elimTy[] σ _) (elimTm t)
+  elimSub idS        = idSᴹ
+  elimSub (τ ⨟ σ)    = elimSub τ ⨟ᴹ elimSub σ
+  elimSub (π₁ σ)     = π₁ᴹ (elimSub σ)
+  elimTm (π₂ σ)      = tr TmᴹFamₜ (elimTy[] (π₁ σ) _) (π₂ᴹ (elimSub σ))
+  elimTm ([ σ ]tm t) = tr TmᴹFamₜ (elimTy[] σ _) ([ elimSub σ ]tmᴹ elimTm t)
+  elimTm (c A)       = cᴹ (elimTy A)
+  elimTm (mk t)      = mkᴹ (elimTm t)
+  elimTm (un t)      = unᴹ (elimTm t)
+  elimTm (ƛ t)       = (ƛᴹ elimTm t)
+  elimTm (app t)     = appᴹ (elimTm t)
+  elimTm (refl t)    = reflᴹ (elimTm t)
 
-  ElimSub↑-tot
+  elimSub↑-tot
     : (σ : Sub Δ Γ)(A : Ty Γ i)
-    → _≡_ {A = ∃ λ PB → Subᴹ (ElimCtx Δ ,ᶜᴹ PB) (ElimCtx Γ ,ᶜᴹ ElimTy A) (σ ↑ A)}
-      ([ ElimSub σ ]ᴹ ElimTy A ,' ElimSub σ ↑ᴹ ElimTy A)
-      (ElimTy ([ σ ] A) ,' ElimSub (σ ↑ A))
+    → _≡_ {A = ∃ λ PB → Subᴹ (elimCtx Δ ,ᶜᴹ PB) (elimCtx Γ ,ᶜᴹ elimTy A) (σ ↑ A)}
+      ([ elimSub σ ]ᴹ elimTy A ,' elimSub σ ↑ᴹ elimTy A)
+      (elimTy ([ σ ] A) ,' elimSub (σ ↑ A))
 
-  ElimTy[] σ (U i) = []ᴹUᴹ
-  ElimTy[] σ (El u) = begin
-    [ ElimSub σ ]ᴹ ElimTy (El u)
-      ≡⟨ []ᴹElᴹ (ElimSub σ) (ElimTm u) ⟩
-    Elᴹ (tr TmᴹFamₜ []ᴹUᴹ ([ ElimSub σ ]tᴹ ElimTm u))
-      ≡⟨ cong Elᴹ (ElimTm[] σ u) ⟩
-    Elᴹ (ElimTm ([ σ ]t u))
+  elimTy[] σ (U i) = []ᴹUᴹ
+  elimTy[] σ (El u) = begin
+    [ elimSub σ ]ᴹ elimTy (El u)
+      ≡⟨ []ᴹElᴹ (elimSub σ) (elimTm u) ⟩
+    Elᴹ (tr TmᴹFamₜ []ᴹUᴹ ([ elimSub σ ]tᴹ elimTm u))
+      ≡⟨ cong Elᴹ (elimTm[] σ u) ⟩
+    Elᴹ (elimTm ([ σ ]t u))
       ∎
     where open ≡-Reasoning
-  ElimTy[] σ (Lift A) = begin
-    [ ElimSub σ ]ᴹ Liftᴹ (ElimTy A)
+  elimTy[] σ (Lift A) = begin
+    [ elimSub σ ]ᴹ Liftᴹ (elimTy A)
       ≡⟨ []ᴹLiftᴹ ⟩
-    Liftᴹ ([ ElimSub σ ]ᴹ ElimTy A)
-      ≡⟨ cong Liftᴹ (ElimTy[] σ A) ⟩
-    Liftᴹ (ElimTy ([ σ ] A))
+    Liftᴹ ([ elimSub σ ]ᴹ elimTy A)
+      ≡⟨ cong Liftᴹ (elimTy[] σ A) ⟩
+    Liftᴹ (elimTy ([ σ ] A))
       ∎
     where open ≡-Reasoning
-  ElimTy[] {Δ} {Γ} {i} σ (Π A B) =
+  elimTy[] {Δ} {Γ} {i} σ (Π A B) =
       begin
-    [ ElimSub σ ]ᴹ Πᴹ (ElimTy A) (ElimTy B)
+    [ elimSub σ ]ᴹ Πᴹ (elimTy A) (elimTy B)
       ≡⟨ []ᴹΠᴹ ⟩
-    Πᴹ ([ ElimSub σ ]ᴹ ElimTy A) ([ ElimSub σ ↑ᴹ ElimTy A ]ᴹ ElimTy B)
+    Πᴹ ([ elimSub σ ]ᴹ elimTy A) ([ elimSub σ ↑ᴹ elimTy A ]ᴹ elimTy B)
       ≡⟨ cong (uncurry Πᴹ) eq ⟩
-    Πᴹ (ElimTy ([ σ ] A)) (ElimTy ([ σ ↑ A ] B))
+    Πᴹ (elimTy ([ σ ] A)) (elimTy ([ σ ↑ A ] B))
       ∎
     where
       open ≡-Reasoning
-      eq : _≡_ {A = ∃ λ PB → Tyᴹ (ElimCtx Δ ,ᶜᴹ PB) i ([ σ ↑ A ] B)}
-                ([ ElimSub σ ]ᴹ ElimTy A ,' [ ElimSub σ ↑ᴹ ElimTy A ]ᴹ ElimTy B)
-                (ElimTy ([ σ ] A) ,' ElimTy ([ σ ↑ A ] B))
+      eq : _≡_ {A = ∃ λ PB → Tyᴹ (elimCtx Δ ,ᶜᴹ PB) i ([ σ ↑ A ] B)}
+                ([ elimSub σ ]ᴹ elimTy A ,' [ elimSub σ ↑ᴹ elimTy A ]ᴹ elimTy B)
+                (elimTy ([ σ ] A) ,' elimTy ([ σ ↑ A ] B))
       eq = begin
-        [ ElimSub σ ]ᴹ ElimTy A ,' [ ElimSub σ ↑ᴹ ElimTy A ]ᴹ ElimTy B
-          ≡⟨ ap₂Σ ([_]ᴹ ElimTy B) (ElimSub↑-tot σ A) ⟩
-        ElimTy ([ σ ] A) ,' ([ ElimSub (σ ↑ A) ]ᴹ ElimTy B)
-          ≡⟨ cong (ElimTy ([ σ ] A) ,'_) (ElimTy[] (σ ↑ A) B) ⟩
-        ElimTy ([ σ ] A) ,' ElimTy ([ σ ↑ A ] B)
+        [ elimSub σ ]ᴹ elimTy A ,' [ elimSub σ ↑ᴹ elimTy A ]ᴹ elimTy B
+          ≡⟨ ap₂Σ ([_]ᴹ elimTy B) (elimSub↑-tot σ A) ⟩
+        elimTy ([ σ ] A) ,' ([ elimSub (σ ↑ A) ]ᴹ elimTy B)
+          ≡⟨ cong (elimTy ([ σ ] A) ,'_) (elimTy[] (σ ↑ A) B) ⟩
+        elimTy ([ σ ] A) ,' elimTy ([ σ ↑ A ] B)
           ∎
       {-
-      eq : tr (λ PB → Tyᴹ (ElimCtx Δ ,ᶜᴹ PB) i ([ σ ↑ A ] B))
-              (ElimTy[] σ A)
-              ([ ElimSub σ ↑ᴹ ElimTy A ]ᴹ ElimTy B)
-          ≡ ElimTy ([ σ ↑ A ] B)
+      eq : tr (λ PB → Tyᴹ (elimCtx Δ ,ᶜᴹ PB) i ([ σ ↑ A ] B))
+              (elimTy[] σ A)
+              ([ elimSub σ ↑ᴹ elimTy A ]ᴹ elimTy B)
+          ≡ elimTy ([ σ ↑ A ] B)
       eq = begin
-        tr (λ PB → Tyᴹ (ElimCtx Δ ,ᶜᴹ PB) i ([ σ ↑ A ] B))
-           (ElimTy[] σ A)
-           ([ ElimSub σ ↑ᴹ ElimTy A ]ᴹ ElimTy B)
-          ≡⟨ tr-nat (λ PB → Subᴹ (ElimCtx Δ ,ᶜᴹ PB) (ElimCtx Γ ,ᶜᴹ ElimTy A) (σ ↑ A))
-                    (λ _ Pσ → [ Pσ ]ᴹ ElimTy B)
-                    (ElimTy[] σ A) ⟩
-        [ tr (λ PB → Subᴹ (ElimCtx Δ ,ᶜᴹ PB) (ElimCtx Γ ,ᶜᴹ ElimTy A) (σ ↑ A))
-             (ElimTy[] σ A)
-             (ElimSub σ ↑ᴹ ElimTy A) ]ᴹ ElimTy B
-          ≡⟨ cong ([_]ᴹ ElimTy B) (ElimSub↑ σ A) ⟩
-        [ ElimSub (σ ↑ A) ]ᴹ ElimTy B
-          ≡⟨ ElimTy[] (σ ↑ A) B ⟩
-        ElimTy ([ σ ↑ A ] B)
+        tr (λ PB → Tyᴹ (elimCtx Δ ,ᶜᴹ PB) i ([ σ ↑ A ] B))
+           (elimTy[] σ A)
+           ([ elimSub σ ↑ᴹ elimTy A ]ᴹ elimTy B)
+          ≡⟨ tr-nat (λ PB → Subᴹ (elimCtx Δ ,ᶜᴹ PB) (elimCtx Γ ,ᶜᴹ elimTy A) (σ ↑ A))
+                    (λ _ Pσ → [ Pσ ]ᴹ elimTy B)
+                    (elimTy[] σ A) ⟩
+        [ tr (λ PB → Subᴹ (elimCtx Δ ,ᶜᴹ PB) (elimCtx Γ ,ᶜᴹ elimTy A) (σ ↑ A))
+             (elimTy[] σ A)
+             (elimSub σ ↑ᴹ elimTy A) ]ᴹ elimTy B
+          ≡⟨ cong ([_]ᴹ elimTy B) (elimSub↑ σ A) ⟩
+        [ elimSub (σ ↑ A) ]ᴹ elimTy B
+          ≡⟨ elimTy[] (σ ↑ A) B ⟩
+        elimTy ([ σ ↑ A ] B)
           ∎
       -}
-  ElimTy[] {Δ} {Γ} {i} σ (Id a t u) = begin
-    [ ElimSub σ ]ᴹ Idᴹ (ElimTm a) (ElimTm t) (ElimTm u)
+  elimTy[] {Δ} {Γ} {i} σ (Id a t u) = begin
+    [ elimSub σ ]ᴹ Idᴹ (elimTm a) (elimTm t) (elimTm u)
       ≡⟨ []ᴹIdᴹ ⟩
     Idᴹ tr[Eσ]Ea tr[Eσ]Et tr[Eσ]Eu
       ≡⟨ cong₃ Idᴹ eqa eqt equ ⟩
-    Idᴹ (ElimTm ([ σ ]t a)) (ElimTm ([ σ ]t t)) (ElimTm ([ σ ]t u))
+    Idᴹ (elimTm ([ σ ]t a)) (elimTm ([ σ ]t t)) (elimTm ([ σ ]t u))
       ∎
       where
         open ≡-Reasoning
-        tr[Eσ]Ea = tr TmᴹFamₜ []ᴹUᴹ ([ ElimSub σ ]tᴹ ElimTm a)
-        tr[Eσ]Et = tr TmᴹFamₜ ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) ([ ElimSub σ ]tᴹ ElimTm t)
-        tr[Eσ]Eu = tr TmᴹFamₜ ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) ([ ElimSub σ ]tᴹ ElimTm u)
+        tr[Eσ]Ea = tr TmᴹFamₜ []ᴹUᴹ ([ elimSub σ ]tᴹ elimTm a)
+        tr[Eσ]Et = tr TmᴹFamₜ ([]ᴹElᴹ (elimSub σ) (elimTm a)) ([ elimSub σ ]tᴹ elimTm t)
+        tr[Eσ]Eu = tr TmᴹFamₜ ([]ᴹElᴹ (elimSub σ) (elimTm a)) ([ elimSub σ ]tᴹ elimTm u)
 
-        eqa : tr[Eσ]Ea ≡ ElimTm ([ σ ]t a)
-        eqa = ElimTm[] σ a
+        eqa : tr[Eσ]Ea ≡ elimTm ([ σ ]t a)
+        eqa = elimTm[] σ a
 
-        eqt : tr (λ Pa → TmᴹFamₜ (Elᴹ Pa)) eqa tr[Eσ]Et ≡ ElimTm ([ σ ]t t)
+        eqt : tr (λ Pa → TmᴹFamₜ (Elᴹ Pa)) eqa tr[Eσ]Et ≡ elimTm ([ σ ]t t)
         eqt = begin
           tr (λ Pa → TmᴹFamₜ (Elᴹ Pa)) eqa tr[Eσ]Et
             ≡⟨ tr-cong eqa ⟩
           tr TmᴹFamₜ (cong Elᴹ eqa) tr[Eσ]Et
-            ≡⟨ tr² ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) {cong Elᴹ eqa} ⟩
-          tr TmᴹFamₜ (trans ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) (cong Elᴹ eqa)) ([ ElimSub σ ]tᴹ ElimTm t)
-            ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ ElimSub σ ]tᴹ ElimTm t)) 
-                    (uip (trans ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) (cong Elᴹ eqa))
-                         (ElimTy[] σ (El a))) ⟩
-          tr TmᴹFamₜ (ElimTy[] σ (El a)) ([ ElimSub σ ]tᴹ ElimTm t)
-            ≡⟨ ElimTm[] σ t ⟩
-          ElimTm ([ σ ]t t)
+            ≡⟨ tr² ([]ᴹElᴹ (elimSub σ) (elimTm a)) {cong Elᴹ eqa} ⟩
+          tr TmᴹFamₜ (trans ([]ᴹElᴹ (elimSub σ) (elimTm a)) (cong Elᴹ eqa)) ([ elimSub σ ]tᴹ elimTm t)
+            ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ elimSub σ ]tᴹ elimTm t)) 
+                    (uip (trans ([]ᴹElᴹ (elimSub σ) (elimTm a)) (cong Elᴹ eqa))
+                         (elimTy[] σ (El a))) ⟩
+          tr TmᴹFamₜ (elimTy[] σ (El a)) ([ elimSub σ ]tᴹ elimTm t)
+            ≡⟨ elimTm[] σ t ⟩
+          elimTm ([ σ ]t t)
             ∎
 
-        equ : tr (λ Pa → TmᴹFamₜ (Elᴹ Pa)) eqa tr[Eσ]Eu ≡ ElimTm ([ σ ]t u)
+        equ : tr (λ Pa → TmᴹFamₜ (Elᴹ Pa)) eqa tr[Eσ]Eu ≡ elimTm ([ σ ]t u)
         equ = begin
           tr (λ Pa → TmᴹFamₜ (Elᴹ Pa)) eqa tr[Eσ]Eu
             ≡⟨ tr-cong eqa ⟩
           tr TmᴹFamₜ (cong Elᴹ eqa) tr[Eσ]Eu
-            ≡⟨ tr² ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) {cong Elᴹ eqa} ⟩
-          tr TmᴹFamₜ (trans ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) (cong Elᴹ eqa)) ([ ElimSub σ ]tᴹ ElimTm u)
-            ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ ElimSub σ ]tᴹ ElimTm u)) 
-                    (uip (trans ([]ᴹElᴹ (ElimSub σ) (ElimTm a)) (cong Elᴹ eqa))
-                         (ElimTy[] σ (El a))) ⟩
-          tr TmᴹFamₜ (ElimTy[] σ (El a)) ([ ElimSub σ ]tᴹ ElimTm u)
-            ≡⟨ ElimTm[] σ u ⟩
-          ElimTm ([ σ ]t u)
+            ≡⟨ tr² ([]ᴹElᴹ (elimSub σ) (elimTm a)) {cong Elᴹ eqa} ⟩
+          tr TmᴹFamₜ (trans ([]ᴹElᴹ (elimSub σ) (elimTm a)) (cong Elᴹ eqa)) ([ elimSub σ ]tᴹ elimTm u)
+            ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ elimSub σ ]tᴹ elimTm u)) 
+                    (uip (trans ([]ᴹElᴹ (elimSub σ) (elimTm a)) (cong Elᴹ eqa))
+                         (elimTy[] σ (El a))) ⟩
+          tr TmᴹFamₜ (elimTy[] σ (El a)) ([ elimSub σ ]tᴹ elimTm u)
+            ≡⟨ elimTm[] σ u ⟩
+          elimTm ([ σ ]t u)
             ∎
 
-  ElimTm[] idS {A} t = begin
-    tr TmᴹFamₜ (ElimTy[] idS A) ([ ElimSub idS ]tᴹ ElimTm t)
-      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ ElimSub idS ]tᴹ ElimTm t)) (uip _ [idSᴹ]) ⟩
-    tr TmᴹFamₜ [idSᴹ] ([ ElimSub idS ]tᴹ ElimTm t)
+  elimTm[] idS {A} t = begin
+    tr TmᴹFamₜ (elimTy[] idS A) ([ elimSub idS ]tᴹ elimTm t)
+      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ elimSub idS ]tᴹ elimTm t)) (uip _ [idSᴹ]) ⟩
+    tr TmᴹFamₜ [idSᴹ] ([ elimSub idS ]tᴹ elimTm t)
       ≡⟨ [idSᴹ]tᴹ ⟩
-    ElimTm t
+    elimTm t
       ∎
     where open ≡-Reasoning
-  ElimTm[] (τ ⨟ σ) {A} t = begin
-    tr TmᴹFamₜ (ElimTy[] (τ ⨟ σ) A) ([ ElimSub τ ⨟ᴹ ElimSub σ ]tᴹ ElimTm t)
-      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ ElimSub τ ⨟ᴹ ElimSub σ ]tᴹ ElimTm t)) (uip _ (trans [⨟ᴹ]ᴹ eq)) ⟩
-    tr TmᴹFamₜ (trans [⨟ᴹ]ᴹ eq) ([ ElimSub τ ⨟ᴹ ElimSub σ ]tᴹ ElimTm t)
+  elimTm[] (τ ⨟ σ) {A} t = begin
+    tr TmᴹFamₜ (elimTy[] (τ ⨟ σ) A) ([ elimSub τ ⨟ᴹ elimSub σ ]tᴹ elimTm t)
+      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ elimSub τ ⨟ᴹ elimSub σ ]tᴹ elimTm t)) (uip _ (trans [⨟ᴹ]ᴹ eq)) ⟩
+    tr TmᴹFamₜ (trans [⨟ᴹ]ᴹ eq) ([ elimSub τ ⨟ᴹ elimSub σ ]tᴹ elimTm t)
       ≡⟨ tr² [⨟ᴹ]ᴹ ⟨
-    tr TmᴹFamₜ eq (tr TmᴹFamₜ [⨟ᴹ]ᴹ ([ ElimSub τ ⨟ᴹ ElimSub σ ]tᴹ ElimTm t))
+    tr TmᴹFamₜ eq (tr TmᴹFamₜ [⨟ᴹ]ᴹ ([ elimSub τ ⨟ᴹ elimSub σ ]tᴹ elimTm t))
       ≡⟨ cong (tr TmᴹFamₜ eq) [⨟ᴹ]tᴹ ⟩
-    tr TmᴹFamₜ eq ([ ElimSub τ ]tᴹ ([ ElimSub σ ]tᴹ ElimTm t))
-      ≡⟨ tr² (cong ([ ElimSub τ ]ᴹ_) (ElimTy[] σ A)) ⟨
-    tr TmᴹFamₜ (ElimTy[] τ _)
-      (tr TmᴹFamₜ (cong ([ ElimSub τ ]ᴹ_) (ElimTy[] σ A))
-         ([ ElimSub τ ]tᴹ ([ ElimSub σ ]tᴹ ElimTm t)))
-      ≡⟨ cong (tr TmᴹFamₜ (ElimTy[] τ ([ σ ] A)))
-              (tr-cong {P = TmᴹFamₜ} (ElimTy[] σ A)) ⟨
-    tr TmᴹFamₜ (ElimTy[] τ _) (tr (λ Aᴹ → TmᴹFamₜ ([ ElimSub τ ]ᴹ Aᴹ)) (ElimTy[] σ A)
-                                  ([ ElimSub τ ]tᴹ ([ ElimSub σ ]tᴹ ElimTm t)))
-      ≡⟨ cong (tr TmᴹFamₜ (ElimTy[] τ ([ σ ] A)))
-              (tr-nat TmᴹFamₜ (λ _ tᴹ → [ ElimSub τ ]tᴹ tᴹ) (ElimTy[] σ A)) ⟩
-    tr TmᴹFamₜ (ElimTy[] τ _) ([ ElimSub τ ]tᴹ tr TmᴹFamₜ (ElimTy[] σ A) ([ ElimSub σ ]tᴹ ElimTm t))
-      ≡⟨ cong (λ tᴹ → tr TmᴹFamₜ (ElimTy[] τ _) ([ ElimSub τ ]tᴹ tᴹ))
-              (ElimTm[] σ t) ⟩
-    tr TmᴹFamₜ (ElimTy[] τ _) ([ ElimSub τ ]tᴹ ElimTm ([ σ ]t t))
-      ≡⟨ ElimTm[] τ ([ σ ]t t) ⟩
-    ElimTm ([ τ ]t [ σ ]t t)
+    tr TmᴹFamₜ eq ([ elimSub τ ]tᴹ ([ elimSub σ ]tᴹ elimTm t))
+      ≡⟨ tr² (cong ([ elimSub τ ]ᴹ_) (elimTy[] σ A)) ⟨
+    tr TmᴹFamₜ (elimTy[] τ _)
+      (tr TmᴹFamₜ (cong ([ elimSub τ ]ᴹ_) (elimTy[] σ A))
+         ([ elimSub τ ]tᴹ ([ elimSub σ ]tᴹ elimTm t)))
+      ≡⟨ cong (tr TmᴹFamₜ (elimTy[] τ ([ σ ] A)))
+              (tr-cong {P = TmᴹFamₜ} (elimTy[] σ A)) ⟨
+    tr TmᴹFamₜ (elimTy[] τ _) (tr (λ Aᴹ → TmᴹFamₜ ([ elimSub τ ]ᴹ Aᴹ)) (elimTy[] σ A)
+                                  ([ elimSub τ ]tᴹ ([ elimSub σ ]tᴹ elimTm t)))
+      ≡⟨ cong (tr TmᴹFamₜ (elimTy[] τ ([ σ ] A)))
+              (tr-nat TmᴹFamₜ (λ _ tᴹ → [ elimSub τ ]tᴹ tᴹ) (elimTy[] σ A)) ⟩
+    tr TmᴹFamₜ (elimTy[] τ _) ([ elimSub τ ]tᴹ tr TmᴹFamₜ (elimTy[] σ A) ([ elimSub σ ]tᴹ elimTm t))
+      ≡⟨ cong (λ tᴹ → tr TmᴹFamₜ (elimTy[] τ _) ([ elimSub τ ]tᴹ tᴹ))
+              (elimTm[] σ t) ⟩
+    tr TmᴹFamₜ (elimTy[] τ _) ([ elimSub τ ]tᴹ elimTm ([ σ ]t t))
+      ≡⟨ elimTm[] τ ([ σ ]t t) ⟩
+    elimTm ([ τ ]t [ σ ]t t)
       ∎
     where
       open ≡-Reasoning
-      eq : [ ElimSub τ ]ᴹ ([ ElimSub σ ]ᴹ ElimTy A) ≡ ElimTy ([ τ ] [ σ ] A)
-      eq = trans (cong ([ ElimSub τ ]ᴹ_) (ElimTy[] σ A)) (ElimTy[] τ _)
+      eq : [ elimSub τ ]ᴹ ([ elimSub σ ]ᴹ elimTy A) ≡ elimTy ([ τ ] [ σ ] A)
+      eq = trans (cong ([ elimSub τ ]ᴹ_) (elimTy[] σ A)) (elimTy[] τ _)
 
-  ElimTm[] (π₁ (σ , u))  {A} t = begin
-    tr TmᴹFamₜ (ElimTy[] (π₁ (σ , u)) A) ([ π₁ᴹ (ElimSub σ ,ˢᴹ _) ]tᴹ ElimTm t)
-      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ π₁ᴹ (ElimSub σ ,ˢᴹ _) ]tᴹ ElimTm t))
-              (uip _ (trans [π₁ᴹ,ˢᴹ]ᴹ (ElimTy[] σ A))) ⟩
-    tr TmᴹFamₜ (trans [π₁ᴹ,ˢᴹ]ᴹ (ElimTy[] σ A)) ([ π₁ᴹ (ElimSub σ ,ˢᴹ _) ]tᴹ ElimTm t)
+  elimTm[] (π₁ (σ , u))  {A} t = begin
+    tr TmᴹFamₜ (elimTy[] (π₁ (σ , u)) A) ([ π₁ᴹ (elimSub σ ,ˢᴹ _) ]tᴹ elimTm t)
+      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ π₁ᴹ (elimSub σ ,ˢᴹ _) ]tᴹ elimTm t))
+              (uip _ (trans [π₁ᴹ,ˢᴹ]ᴹ (elimTy[] σ A))) ⟩
+    tr TmᴹFamₜ (trans [π₁ᴹ,ˢᴹ]ᴹ (elimTy[] σ A)) ([ π₁ᴹ (elimSub σ ,ˢᴹ _) ]tᴹ elimTm t)
       ≡⟨ tr² {P = TmᴹFamₜ} [π₁ᴹ,ˢᴹ]ᴹ ⟨
-    tr TmᴹFamₜ (ElimTy[] σ A)
-       (tr TmᴹFamₜ [π₁ᴹ,ˢᴹ]ᴹ ([ π₁ᴹ (ElimSub σ ,ˢᴹ _) ]tᴹ ElimTm t))
-      ≡⟨ cong (tr TmᴹFamₜ (ElimTy[] σ A)) [π₁ᴹ,ˢᴹ]tᴹ ⟩
-    tr TmᴹFamₜ (ElimTy[] σ A) ([ ElimSub σ ]tᴹ ElimTm t)
-      ≡⟨ ElimTm[] σ t ⟩
-    ElimTm ([ σ ]t t)
+    tr TmᴹFamₜ (elimTy[] σ A)
+       (tr TmᴹFamₜ [π₁ᴹ,ˢᴹ]ᴹ ([ π₁ᴹ (elimSub σ ,ˢᴹ _) ]tᴹ elimTm t))
+      ≡⟨ cong (tr TmᴹFamₜ (elimTy[] σ A)) [π₁ᴹ,ˢᴹ]tᴹ ⟩
+    tr TmᴹFamₜ (elimTy[] σ A) ([ elimSub σ ]tᴹ elimTm t)
+      ≡⟨ elimTm[] σ t ⟩
+    elimTm ([ σ ]t t)
       ∎
     where open ≡-Reasoning
-  ElimTm[] (π₁ (σ ⨟ τ))  {A} t = begin
-    tr TmᴹFamₜ (ElimTy[] (π₁ (σ ⨟ τ)) A)
-          ([ π₁ᴹ (ElimSub σ ⨟ᴹ ElimSub τ) ]tᴹ ElimTm t)
-      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ π₁ᴹ (ElimSub σ ⨟ᴹ ElimSub τ) ]tᴹ ElimTm t))
+  elimTm[] (π₁ (σ ⨟ τ))  {A} t = begin
+    tr TmᴹFamₜ (elimTy[] (π₁ (σ ⨟ τ)) A)
+          ([ π₁ᴹ (elimSub σ ⨟ᴹ elimSub τ) ]tᴹ elimTm t)
+      ≡⟨ cong (λ p → tr TmᴹFamₜ p ([ π₁ᴹ (elimSub σ ⨟ᴹ elimSub τ) ]tᴹ elimTm t))
               (uip _ (trans [π₁ᴹ⨟ᴹ]ᴹ eq)) ⟩
-    tr TmᴹFamₜ (trans [π₁ᴹ⨟ᴹ]ᴹ eq) ([ π₁ᴹ (ElimSub σ ⨟ᴹ ElimSub τ) ]tᴹ ElimTm t)
+    tr TmᴹFamₜ (trans [π₁ᴹ⨟ᴹ]ᴹ eq) ([ π₁ᴹ (elimSub σ ⨟ᴹ elimSub τ) ]tᴹ elimTm t)
       ≡⟨ tr² {P = TmᴹFamₜ} [π₁ᴹ⨟ᴹ]ᴹ ⟨
-    tr TmᴹFamₜ eq (tr TmᴹFamₜ [π₁ᴹ⨟ᴹ]ᴹ ([ π₁ᴹ (ElimSub σ ⨟ᴹ ElimSub τ) ]tᴹ ElimTm t))
+    tr TmᴹFamₜ eq (tr TmᴹFamₜ [π₁ᴹ⨟ᴹ]ᴹ ([ π₁ᴹ (elimSub σ ⨟ᴹ elimSub τ) ]tᴹ elimTm t))
       ≡⟨ cong (tr TmᴹFamₜ eq) [π₁ᴹ⨟ᴹ]tᴹ ⟩
-    tr TmᴹFamₜ eq ([ ElimSub σ ]tᴹ ([ π₁ᴹ (ElimSub τ) ]tᴹ ElimTm t))
-      ≡⟨ tr² {P = TmᴹFamₜ} (cong ([ ElimSub σ ]ᴹ_) (ElimTy[] (π₁ τ) A)) ⟨
-    tr TmᴹFamₜ (ElimTy[] σ ([ π₁ τ ] A))
-       (tr TmᴹFamₜ (cong ([ ElimSub σ ]ᴹ_) (ElimTy[] (π₁ τ) A)) _)
-      ≡⟨ cong (tr TmᴹFamₜ (ElimTy[] σ ([ π₁ τ ] A)))
-              (tr-cong {P = TmᴹFamₜ} (ElimTy[] (π₁ τ) A)) ⟨
-    tr TmᴹFamₜ (ElimTy[] σ ([ π₁ τ ] A))
-       (tr (λ Aᴹ → TmᴹFamₜ ([ ElimSub σ ]ᴹ Aᴹ)) (ElimTy[] (π₁ τ) A) _)
-      ≡⟨ cong (tr TmᴹFamₜ (ElimTy[] σ ([ π₁ τ ] A)))
-              (tr-nat TmᴹFamₜ (λ _ tᴹ → [ ElimSub σ ]tᴹ tᴹ) (ElimTy[] (π₁ τ) A)) ⟩
-    tr TmᴹFamₜ (ElimTy[] σ ([ π₁ τ ] A))
-       ([ ElimSub σ ]tᴹ tr TmᴹFamₜ (ElimTy[] (π₁ τ) A) ([ ElimSub (π₁ τ) ]tᴹ ElimTm t))
-      ≡⟨ cong (λ tᴹ → tr TmᴹFamₜ (ElimTy[] σ ([ π₁ τ ] A)) ([ ElimSub σ ]tᴹ tᴹ))
-              (ElimTm[] (π₁ τ)t) ⟩
-    tr TmᴹFamₜ (ElimTy[] σ ([ π₁ τ ] A)) ([ ElimSub σ ]tᴹ ElimTm ([ π₁ τ ]t t))
-      ≡⟨ ElimTm[] σ ([ π₁ τ ]t t) ⟩
-    ElimTm ([ σ ]t [ π₁ τ ]t t)
+    tr TmᴹFamₜ eq ([ elimSub σ ]tᴹ ([ π₁ᴹ (elimSub τ) ]tᴹ elimTm t))
+      ≡⟨ tr² {P = TmᴹFamₜ} (cong ([ elimSub σ ]ᴹ_) (elimTy[] (π₁ τ) A)) ⟨
+    tr TmᴹFamₜ (elimTy[] σ ([ π₁ τ ] A))
+       (tr TmᴹFamₜ (cong ([ elimSub σ ]ᴹ_) (elimTy[] (π₁ τ) A)) _)
+      ≡⟨ cong (tr TmᴹFamₜ (elimTy[] σ ([ π₁ τ ] A)))
+              (tr-cong {P = TmᴹFamₜ} (elimTy[] (π₁ τ) A)) ⟨
+    tr TmᴹFamₜ (elimTy[] σ ([ π₁ τ ] A))
+       (tr (λ Aᴹ → TmᴹFamₜ ([ elimSub σ ]ᴹ Aᴹ)) (elimTy[] (π₁ τ) A) _)
+      ≡⟨ cong (tr TmᴹFamₜ (elimTy[] σ ([ π₁ τ ] A)))
+              (tr-nat TmᴹFamₜ (λ _ tᴹ → [ elimSub σ ]tᴹ tᴹ) (elimTy[] (π₁ τ) A)) ⟩
+    tr TmᴹFamₜ (elimTy[] σ ([ π₁ τ ] A))
+       ([ elimSub σ ]tᴹ tr TmᴹFamₜ (elimTy[] (π₁ τ) A) ([ elimSub (π₁ τ) ]tᴹ elimTm t))
+      ≡⟨ cong (λ tᴹ → tr TmᴹFamₜ (elimTy[] σ ([ π₁ τ ] A)) ([ elimSub σ ]tᴹ tᴹ))
+              (elimTm[] (π₁ τ)t) ⟩
+    tr TmᴹFamₜ (elimTy[] σ ([ π₁ τ ] A)) ([ elimSub σ ]tᴹ elimTm ([ π₁ τ ]t t))
+      ≡⟨ elimTm[] σ ([ π₁ τ ]t t) ⟩
+    elimTm ([ σ ]t [ π₁ τ ]t t)
       ∎
     where
       open ≡-Reasoning
-      eq : [ ElimSub σ ]ᴹ ([ π₁ᴹ (ElimSub τ) ]ᴹ ElimTy A) ≡ ElimTy ([ σ ] [ π₁ τ ] A)
-      eq = trans (cong ([ ElimSub σ ]ᴹ_) (ElimTy[] (π₁ τ) A)) (ElimTy[] σ ([ π₁ τ ] A))
+      eq : [ elimSub σ ]ᴹ ([ π₁ᴹ (elimSub τ) ]ᴹ elimTy A) ≡ elimTy ([ σ ] [ π₁ τ ] A)
+      eq = trans (cong ([ elimSub σ ]ᴹ_) (elimTy[] (π₁ τ) A)) (elimTy[] σ ([ π₁ τ ] A))
   
-  ElimTm[]  ∅            {A} t = cong (tr TmᴹFamₜ (ElimTy[] ∅ A)) [∅ˢᴹ]tᴹ
-  ElimTm[] (σ , u)       {A} t = cong (tr TmᴹFamₜ (ElimTy[] (σ , u) A)) [,ˢᴹ]tᴹ
-  ElimTm[] (π₁ idS)      {A} t = cong (tr TmᴹFamₜ (ElimTy[] (π₁ idS) A)) [π₁ᴹidSᴹ]tᴹ
-  ElimTm[] (π₁ (π₁ σ))   {A} t = cong (tr TmᴹFamₜ (ElimTy[] (π₁ (π₁ σ)) A)) [π₁ᴹπ₁ᴹ]tᴹ
+  elimTm[]  ∅            {A} t = cong (tr TmᴹFamₜ (elimTy[] ∅ A)) [∅ˢᴹ]tᴹ
+  elimTm[] (σ , u)       {A} t = cong (tr TmᴹFamₜ (elimTy[] (σ , u) A)) [,ˢᴹ]tᴹ
+  elimTm[] (π₁ idS)      {A} t = cong (tr TmᴹFamₜ (elimTy[] (π₁ idS) A)) [π₁ᴹidSᴹ]tᴹ
+  elimTm[] (π₁ (π₁ σ))   {A} t = cong (tr TmᴹFamₜ (elimTy[] (π₁ (π₁ σ)) A)) [π₁ᴹπ₁ᴹ]tᴹ
 
-  ElimSub↑-tot idS A = begin
-    ([ idSᴹ ]ᴹ ElimTy A) ,' (idSᴹ ↑ᴹ ElimTy A)
+  elimSub↑-tot idS A = begin
+    ([ idSᴹ ]ᴹ elimTy A) ,' (idSᴹ ↑ᴹ elimTy A)
       ≡⟨ _ ,Σ≡ idSᴹ↑ᴹ ⟩
-    ElimTy ([ idS ] A) ,' ElimSub (idS ↑ A)
+    elimTy ([ idS ] A) ,' elimSub (idS ↑ A)
       ∎
     where open ≡-Reasoning
-  ElimSub↑-tot {Δ} {Γ} {i} (_⨟_ {Δ = Θ} σ τ) A = begin
-    [ ElimSub σ ⨟ᴹ ElimSub τ ]ᴹ ElimTy A ,' (ElimSub σ ⨟ᴹ ElimSub τ) ↑ᴹ ElimTy A
+  elimSub↑-tot {Δ} {Γ} {i} (_⨟_ {Δ = Θ} σ τ) A = begin
+    [ elimSub σ ⨟ᴹ elimSub τ ]ᴹ elimTy A ,' (elimSub σ ⨟ᴹ elimSub τ) ↑ᴹ elimTy A
       ≡⟨ _ ,Σ≡ ⨟ᴹ↑ᴹ ⟩
-    [ ElimSub σ ]ᴹ ([ ElimSub τ ]ᴹ ElimTy A) ,'
-    (ElimSub σ ↑ᴹ ([ ElimSub τ ]ᴹ ElimTy A)) ⨟ᴹ (ElimSub τ ↑ᴹ ElimTy A)
-      ≡⟨ apΣ Subᴹ,ᶜᴹFam ([ ElimSub σ ]ᴹ_) (ap₂Σ (λ {Aᴹ} τᴹ → (ElimSub σ ↑ᴹ Aᴹ) ⨟ᴹ τᴹ) (ElimSub↑-tot τ A)) ⟩
-    [ ElimSub σ ]ᴹ ElimTy ([ τ ] A) ,'
-    (ElimSub σ ↑ᴹ ElimTy ([ τ ] A)) ⨟ᴹ ElimSub (τ ↑ A)
-      ≡⟨ ap₂Σ (_⨟ᴹ ElimSub (τ ↑ A)) (ElimSub↑-tot σ ([ τ ] A)) ⟩
-    ElimTy ([ σ ] [ τ ] A) ,' ElimSub (σ ↑ ([ τ ] A)) ⨟ᴹ ElimSub (τ ↑ A)
+    [ elimSub σ ]ᴹ ([ elimSub τ ]ᴹ elimTy A) ,'
+    (elimSub σ ↑ᴹ ([ elimSub τ ]ᴹ elimTy A)) ⨟ᴹ (elimSub τ ↑ᴹ elimTy A)
+      ≡⟨ apΣ Subᴹ,ᶜᴹFam ([ elimSub σ ]ᴹ_) (ap₂Σ (λ {Aᴹ} τᴹ → (elimSub σ ↑ᴹ Aᴹ) ⨟ᴹ τᴹ) (elimSub↑-tot τ A)) ⟩
+    [ elimSub σ ]ᴹ elimTy ([ τ ] A) ,'
+    (elimSub σ ↑ᴹ elimTy ([ τ ] A)) ⨟ᴹ elimSub (τ ↑ A)
+      ≡⟨ ap₂Σ (_⨟ᴹ elimSub (τ ↑ A)) (elimSub↑-tot σ ([ τ ] A)) ⟩
+    elimTy ([ σ ] [ τ ] A) ,' elimSub (σ ↑ ([ τ ] A)) ⨟ᴹ elimSub (τ ↑ A)
       ∎
     where open ≡-Reasoning
   
-  ElimSub↑-tot {Δ} {Γ} {i} (π₁ (σ , t)) A = begin
-    [ π₁ᴹ (ElimSub σ ,ˢᴹ _) ]ᴹ ElimTy A ,' (π₁ᴹ (ElimSub σ ,ˢᴹ _) ↑ᴹ ElimTy A)
+  elimSub↑-tot {Δ} {Γ} {i} (π₁ (σ , t)) A = begin
+    [ π₁ᴹ (elimSub σ ,ˢᴹ _) ]ᴹ elimTy A ,' (π₁ᴹ (elimSub σ ,ˢᴹ _) ↑ᴹ elimTy A)
       ≡⟨ _ ,Σ≡ π₁ᴹ,ˢᴹ↑ᴹ ⟩
-    [ ElimSub σ ]ᴹ ElimTy A ,' ElimSub σ ↑ᴹ ElimTy A
-      ≡⟨ ElimSub↑-tot σ A ⟩
-    ElimTy ([ σ ] A) ,' ElimSub (σ ↑ A)
+    [ elimSub σ ]ᴹ elimTy A ,' elimSub σ ↑ᴹ elimTy A
+      ≡⟨ elimSub↑-tot σ A ⟩
+    elimTy ([ σ ] A) ,' elimSub (σ ↑ A)
       ∎
     where open ≡-Reasoning
-  ElimSub↑-tot (π₁ (σ ⨟ τ)) A = begin
-    [ π₁ᴹ (ElimSub σ ⨟ᴹ ElimSub τ) ]ᴹ ElimTy A ,' π₁ᴹ (ElimSub σ ⨟ᴹ ElimSub τ) ↑ᴹ ElimTy A
+  elimSub↑-tot (π₁ (σ ⨟ τ)) A = begin
+    [ π₁ᴹ (elimSub σ ⨟ᴹ elimSub τ) ]ᴹ elimTy A ,' π₁ᴹ (elimSub σ ⨟ᴹ elimSub τ) ↑ᴹ elimTy A
       ≡⟨ _ ,Σ≡ π₁ᴹ⨟ᴹ↑ᴹ ⟩
-    [ ElimSub σ ]ᴹ ([ π₁ᴹ (ElimSub τ) ]ᴹ ElimTy A) ,'
-    (ElimSub σ ↑ᴹ ([ π₁ᴹ (ElimSub τ) ]ᴹ ElimTy A)) ⨟ᴹ (π₁ᴹ (ElimSub τ) ↑ᴹ ElimTy A)
-      ≡⟨ apΣ Subᴹ,ᶜᴹFam ([ ElimSub σ ]ᴹ_) (ap₂Σ (λ {Aᴹ} τᴹ → (ElimSub σ ↑ᴹ Aᴹ) ⨟ᴹ τᴹ) (ElimSub↑-tot (π₁ τ) A)) ⟩
-    [ ElimSub σ ]ᴹ ElimTy ([ π₁ τ ] A) ,'
-    (ElimSub σ ↑ᴹ ElimTy ([ π₁ τ ] A)) ⨟ᴹ ElimSub (π₁ τ ↑ A)
-      ≡⟨ ap₂Σ (_⨟ᴹ ElimSub (π₁ τ ↑ A)) (ElimSub↑-tot σ ([ π₁ τ ] A)) ⟩
-    ElimTy ([ σ ] [ π₁ τ ] A) ,' ElimSub (σ ↑ ([ π₁ τ ] A)) ⨟ᴹ ElimSub (π₁ τ ↑ A)
+    [ elimSub σ ]ᴹ ([ π₁ᴹ (elimSub τ) ]ᴹ elimTy A) ,'
+    (elimSub σ ↑ᴹ ([ π₁ᴹ (elimSub τ) ]ᴹ elimTy A)) ⨟ᴹ (π₁ᴹ (elimSub τ) ↑ᴹ elimTy A)
+      ≡⟨ apΣ Subᴹ,ᶜᴹFam ([ elimSub σ ]ᴹ_) (ap₂Σ (λ {Aᴹ} τᴹ → (elimSub σ ↑ᴹ Aᴹ) ⨟ᴹ τᴹ) (elimSub↑-tot (π₁ τ) A)) ⟩
+    [ elimSub σ ]ᴹ elimTy ([ π₁ τ ] A) ,'
+    (elimSub σ ↑ᴹ elimTy ([ π₁ τ ] A)) ⨟ᴹ elimSub (π₁ τ ↑ A)
+      ≡⟨ ap₂Σ (_⨟ᴹ elimSub (π₁ τ ↑ A)) (elimSub↑-tot σ ([ π₁ τ ] A)) ⟩
+    elimTy ([ σ ] [ π₁ τ ] A) ,' elimSub (σ ↑ ([ π₁ τ ] A)) ⨟ᴹ elimSub (π₁ τ ↑ A)
       ∎
     where open ≡-Reasoning
-  ElimSub↑-tot ∅ A = ≅-to-≡ $ begin
-    [ ∅ˢᴹ ]ᴹ ElimTy A ,' ∅ˢᴹ ↑ᴹ ElimTy A
+  elimSub↑-tot ∅ A = ≅-to-≡ $ begin
+    [ ∅ˢᴹ ]ᴹ elimTy A ,' ∅ˢᴹ ↑ᴹ elimTy A
       ≡⟨ _ ,Σ≡ ∅ˢᴹ↑ᴹ ⟩
-    [ ∅ˢᴹ ]ᴹ ElimTy A ,' (π₁ᴹ idSᴹ ⨟ᴹ ∅ˢᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
-      ≡⟨ ap₂Σ ((π₁ᴹ idSᴹ ⨟ᴹ ∅ˢᴹ) ,ˢᴹ_) (ElimTy[] ∅ A ,Σ≡ ≅-to-≡ heq) ⟩
-    ElimTy ([ ∅ ] A) ,' _
+    [ ∅ˢᴹ ]ᴹ elimTy A ,' (π₁ᴹ idSᴹ ⨟ᴹ ∅ˢᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
+      ≡⟨ ap₂Σ ((π₁ᴹ idSᴹ ⨟ᴹ ∅ˢᴹ) ,ˢᴹ_) (elimTy[] ∅ A ,Σ≡ ≅-to-≡ heq) ⟩
+    elimTy ([ ∅ ] A) ,' _
       ∎
       where
         open ≅-Reasoning
-        heq : tr (λ Aᴹ → Tmᴹ (ElimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ ∅ˢᴹ ]ᴹ ElimTy A) vz)
-                (ElimTy[] ∅ A)
+        heq : tr (λ Aᴹ → Tmᴹ (elimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ ∅ˢᴹ ]ᴹ elimTy A) vz)
+                (elimTy[] ∅ A)
                 (tr TmᴹFamₜ (sym [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ))
-           ≅ tr TmᴹFamₜ (sym $ ElimTy[] (wk ⨟ ∅) A)
-                (tr TmᴹFamₜ (ElimTy[] wk ([ ∅ ] A)) (π₂ᴹ idSᴹ))
+           ≅ tr TmᴹFamₜ (sym $ elimTy[] (wk ⨟ ∅) A)
+                (tr TmᴹFamₜ (elimTy[] wk ([ ∅ ] A)) (π₂ᴹ idSᴹ))
         heq {Δ} = begin
-          tr (λ Aᴹ → Tmᴹ (ElimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ ∅ˢᴹ ]ᴹ ElimTy A) vz)
-             (ElimTy[] ∅ A)
+          tr (λ Aᴹ → Tmᴹ (elimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ ∅ˢᴹ ]ᴹ elimTy A) vz)
+             (elimTy[] ∅ A)
              (tr TmᴹFamₜ (sym [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ))
-            ≅⟨ tr≅ (λ Aᴹ → Tmᴹ (ElimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ ∅ˢᴹ ]ᴹ ElimTy A) vz)
-                   (ElimTy[] ∅ A) _ ⟩
+            ≅⟨ tr≅ (λ Aᴹ → Tmᴹ (elimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ ∅ˢᴹ ]ᴹ elimTy A) vz)
+                   (elimTy[] ∅ A) _ ⟩
           tr TmᴹFamₜ (sym [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
             ≅⟨ tr≅ TmᴹFamₜ (sym [⨟ᴹ]ᴹ) _ ⟩
-          π₂ᴹ {Aᴹ = [ ElimSub ∅ ]ᴹ ElimTy A} idSᴹ
+          π₂ᴹ {Aᴹ = [ elimSub ∅ ]ᴹ elimTy A} idSᴹ
             ≅⟨ vzᴹ≅ ⟩
-          π₂ᴹ {Aᴹ = ElimTy ([ ∅ ] A)} idSᴹ
-            ≅⟨ tr≅ TmᴹFamₜ (trans (ElimTy[] wk ([ ∅ ] A)) (sym $ ElimTy[] (wk ⨟ ∅) A)) _ ⟨
-          tr TmᴹFamₜ (trans (ElimTy[] wk ([ ∅ ] A)) (sym $ ElimTy[] (wk ⨟ ∅) A)) (π₂ᴹ idSᴹ)
-            ≡⟨ tr² {P = TmᴹFamₜ} (ElimTy[] wk ([ ∅ ] A)) ⟨
-          tr TmᴹFamₜ (sym $ ElimTy[] (wk ⨟ ∅) A)
-            (tr TmᴹFamₜ (ElimTy[] wk ([ ∅ ] A)) (π₂ᴹ idSᴹ))
+          π₂ᴹ {Aᴹ = elimTy ([ ∅ ] A)} idSᴹ
+            ≅⟨ tr≅ TmᴹFamₜ (trans (elimTy[] wk ([ ∅ ] A)) (sym $ elimTy[] (wk ⨟ ∅) A)) _ ⟨
+          tr TmᴹFamₜ (trans (elimTy[] wk ([ ∅ ] A)) (sym $ elimTy[] (wk ⨟ ∅) A)) (π₂ᴹ idSᴹ)
+            ≡⟨ tr² {P = TmᴹFamₜ} (elimTy[] wk ([ ∅ ] A)) ⟨
+          tr TmᴹFamₜ (sym $ elimTy[] (wk ⨟ ∅) A)
+            (tr TmᴹFamₜ (elimTy[] wk ([ ∅ ] A)) (π₂ᴹ idSᴹ))
             ∎
             where
-              vzᴹ≅ : π₂ᴹ {Δᴹ = ElimCtx Δ ,ᶜᴹ ([ ElimSub ∅ ]ᴹ ElimTy A)} {Aᴹ = [ ElimSub ∅ ]ᴹ ElimTy A} idSᴹ
-                    ≅ π₂ᴹ {Δᴹ = ElimCtx Δ ,ᶜᴹ ElimTy ([ ∅ ] A)} {Aᴹ = ElimTy ([ ∅ ] A)} idSᴹ
-              vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Δᴹ = ElimCtx Δ ,ᶜᴹ Aᴹ} {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ ElimTy[] ∅ A)
+              vzᴹ≅ : π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ ([ elimSub ∅ ]ᴹ elimTy A)} {Aᴹ = [ elimSub ∅ ]ᴹ elimTy A} idSᴹ
+                    ≅ π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ elimTy ([ ∅ ] A)} {Aᴹ = elimTy ([ ∅ ] A)} idSᴹ
+              vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ Aᴹ} {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ elimTy[] ∅ A)
   
-  ElimSub↑-tot {Δ} (_,_ σ {A'} t) A = ≅-to-≡ $ begin
-    [ ElimSub σ ,ˢᴹ tᴹ ]ᴹ ElimTy A
-      ,' (ElimSub σ ,ˢᴹ tᴹ) ↑ᴹ ElimTy A
-      ≡⟨ _ ,Σ≡ ,ˢᴹ↑ᴹ {σᴹ = ElimSub σ} {tᴹ = tᴹ} ⟩
-    [ ElimSub σ ,ˢᴹ tᴹ ]ᴹ ElimTy A
-      ,' (π₁ᴹ idSᴹ ⨟ᴹ (ElimSub σ ,ˢᴹ tᴹ)) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
-      ≡⟨ ap₂Σ ((π₁ᴹ idSᴹ ⨟ᴹ (ElimSub σ ,ˢᴹ tᴹ)) ,ˢᴹ_) (ElimTy[] (σ , t) A ,Σ≡ ≅-to-≡ heq) ⟩
-    ElimTy ([ σ , t ] A) ,' _
+  elimSub↑-tot {Δ} (_,_ σ {A'} t) A = ≅-to-≡ $ begin
+    [ elimSub σ ,ˢᴹ tᴹ ]ᴹ elimTy A
+      ,' (elimSub σ ,ˢᴹ tᴹ) ↑ᴹ elimTy A
+      ≡⟨ _ ,Σ≡ ,ˢᴹ↑ᴹ {σᴹ = elimSub σ} {tᴹ = tᴹ} ⟩
+    [ elimSub σ ,ˢᴹ tᴹ ]ᴹ elimTy A
+      ,' (π₁ᴹ idSᴹ ⨟ᴹ (elimSub σ ,ˢᴹ tᴹ)) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
+      ≡⟨ ap₂Σ ((π₁ᴹ idSᴹ ⨟ᴹ (elimSub σ ,ˢᴹ tᴹ)) ,ˢᴹ_) (elimTy[] (σ , t) A ,Σ≡ ≅-to-≡ heq) ⟩
+    elimTy ([ σ , t ] A) ,' _
       ∎
     where
       open ≅-Reasoning
-      tᴹ = tr TmᴹFamₜ (sym $ ElimTy[] σ A') (ElimTm t)
-      heq : tr (λ Aᴹ → Tmᴹ (ElimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (ElimSub σ ,ˢᴹ tᴹ) ]ᴹ ElimTy A) vz)
-               (ElimTy[] (σ , t) A)
+      tᴹ = tr TmᴹFamₜ (sym $ elimTy[] σ A') (elimTm t)
+      heq : tr (λ Aᴹ → Tmᴹ (elimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (elimSub σ ,ˢᴹ tᴹ) ]ᴹ elimTy A) vz)
+               (elimTy[] (σ , t) A)
                (tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ))
-          ≅ tr TmᴹFamₜ (sym $ ElimTy[] (wk ⨟ (σ , t)) A)
-              (tr TmᴹFamₜ (ElimTy[] wk ([ σ , t ] A)) (π₂ᴹ idSᴹ))
+          ≅ tr TmᴹFamₜ (sym $ elimTy[] (wk ⨟ (σ , t)) A)
+              (tr TmᴹFamₜ (elimTy[] wk ([ σ , t ] A)) (π₂ᴹ idSᴹ))
       heq = begin
-        tr (λ Aᴹ → Tmᴹ (ElimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (ElimSub σ ,ˢᴹ tᴹ) ]ᴹ ElimTy A) vz)
-           (ElimTy[] (σ , t) A)
+        tr (λ Aᴹ → Tmᴹ (elimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (elimSub σ ,ˢᴹ tᴹ) ]ᴹ elimTy A) vz)
+           (elimTy[] (σ , t) A)
            (tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ))
-          ≅⟨ tr≅ (λ Aᴹ → Tmᴹ (ElimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (ElimSub σ ,ˢᴹ tᴹ) ]ᴹ ElimTy A) vz)
-                 (ElimTy[] (σ , t) A) _ ⟩
+          ≅⟨ tr≅ (λ Aᴹ → Tmᴹ (elimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (elimSub σ ,ˢᴹ tᴹ) ]ᴹ elimTy A) vz)
+                 (elimTy[] (σ , t) A) _ ⟩
         tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
           ≅⟨ tr≅ TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) _ ⟩
-        π₂ᴹ {Aᴹ = [ ElimSub (σ , t) ]ᴹ ElimTy A} idSᴹ
+        π₂ᴹ {Aᴹ = [ elimSub (σ , t) ]ᴹ elimTy A} idSᴹ
           ≅⟨ vzᴹ≅ ⟩
-        π₂ᴹ {Aᴹ = ElimTy ([ σ , t ] A)} idSᴹ
-          ≅⟨ tr≅ TmᴹFamₜ (trans (ElimTy[] wk ([ σ , t ] A)) (sym $ ElimTy[] (wk ⨟ (σ , t)) A)) _ ⟨
-        tr TmᴹFamₜ (trans (ElimTy[] wk ([ σ , t ] A)) (sym $ ElimTy[] (wk ⨟ (σ , t)) A))
+        π₂ᴹ {Aᴹ = elimTy ([ σ , t ] A)} idSᴹ
+          ≅⟨ tr≅ TmᴹFamₜ (trans (elimTy[] wk ([ σ , t ] A)) (sym $ elimTy[] (wk ⨟ (σ , t)) A)) _ ⟨
+        tr TmᴹFamₜ (trans (elimTy[] wk ([ σ , t ] A)) (sym $ elimTy[] (wk ⨟ (σ , t)) A))
           (π₂ᴹ idSᴹ)
-          ≡⟨ tr² {P = TmᴹFamₜ} (ElimTy[] wk ([ σ , t ] A)) ⟨
-        tr TmᴹFamₜ (sym $ ElimTy[] (wk ⨟ (σ , t)) A)
-          (tr TmᴹFamₜ (ElimTy[] wk ([ σ , t ] A)) (π₂ᴹ idSᴹ))
+          ≡⟨ tr² {P = TmᴹFamₜ} (elimTy[] wk ([ σ , t ] A)) ⟨
+        tr TmᴹFamₜ (sym $ elimTy[] (wk ⨟ (σ , t)) A)
+          (tr TmᴹFamₜ (elimTy[] wk ([ σ , t ] A)) (π₂ᴹ idSᴹ))
           ∎
           where
-            vzᴹ≅ : π₂ᴹ {Δᴹ = ElimCtx Δ ,ᶜᴹ ([ ElimSub (σ , t) ]ᴹ ElimTy A)} {Aᴹ = [ ElimSub (σ , t) ]ᴹ ElimTy A} idSᴹ
-                  ≅ π₂ᴹ {Δᴹ = ElimCtx Δ ,ᶜᴹ ElimTy ([ σ , t ] A)} {Aᴹ = ElimTy ([ σ , t ] A)} idSᴹ
-            vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Δᴹ = ElimCtx Δ ,ᶜᴹ Aᴹ} {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ ElimTy[] (σ , t) A)
+            vzᴹ≅ : π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ ([ elimSub (σ , t) ]ᴹ elimTy A)} {Aᴹ = [ elimSub (σ , t) ]ᴹ elimTy A} idSᴹ
+                  ≅ π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ elimTy ([ σ , t ] A)} {Aᴹ = elimTy ([ σ , t ] A)} idSᴹ
+            vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ Aᴹ} {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ elimTy[] (σ , t) A)
       
-  ElimSub↑-tot {Δ} {Γ} {i} (π₁ {A = A'} idS) A = ≅-to-≡ $ begin
-    [ π₁ᴹ idSᴹ ]ᴹ ElimTy A ,' (π₁ᴹ idSᴹ ↑ᴹ ElimTy A)
+  elimSub↑-tot {Δ} {Γ} {i} (π₁ {A = A'} idS) A = ≅-to-≡ $ begin
+    [ π₁ᴹ idSᴹ ]ᴹ elimTy A ,' (π₁ᴹ idSᴹ ↑ᴹ elimTy A)
       ≡⟨ _ ,Σ≡ π₁ᴹidSᴹ↑ᴹ ⟩
-    [ π₁ᴹ idSᴹ ]ᴹ ElimTy A ,' (π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ idSᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
-      ≡⟨ ap₂Σ ((π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ idSᴹ) ,ˢᴹ_) (ElimTy[] (π₁ idS) A ,Σ≡ ≅-to-≡ heq) ⟩
-    ElimTy ([ wk ] A) ,' _
+    [ π₁ᴹ idSᴹ ]ᴹ elimTy A ,' (π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ idSᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
+      ≡⟨ ap₂Σ ((π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ idSᴹ) ,ˢᴹ_) (elimTy[] (π₁ idS) A ,Σ≡ ≅-to-≡ heq) ⟩
+    elimTy ([ wk ] A) ,' _
       ∎
     where
       open ≅-Reasoning
-      heq : tr (λ Aᴹ → Tmᴹ ((ElimCtx Γ ,ᶜᴹ ElimTy A') ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ idSᴹ ]ᴹ ElimTy A) vz)
-              (ElimTy[] wk A)
+      heq : tr (λ Aᴹ → Tmᴹ ((elimCtx Γ ,ᶜᴹ elimTy A') ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ idSᴹ ]ᴹ elimTy A) vz)
+              (elimTy[] wk A)
               (tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ))
-         ≅ tr TmᴹFamₜ (sym $ ElimTy[] (wk ⨟ π₁ {Γ , A'} idS) A)
-              (tr TmᴹFamₜ (ElimTy[] wk ([ wk ] A)) (π₂ᴹ idSᴹ))
+         ≅ tr TmᴹFamₜ (sym $ elimTy[] (wk ⨟ π₁ {Γ , A'} idS) A)
+              (tr TmᴹFamₜ (elimTy[] wk ([ wk ] A)) (π₂ᴹ idSᴹ))
       heq = begin
-        tr (λ Aᴹ → Tmᴹ ((ElimCtx Γ ,ᶜᴹ ElimTy A') ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ idSᴹ ]ᴹ ElimTy A) vz)
-           (ElimTy[] wk A)
+        tr (λ Aᴹ → Tmᴹ ((elimCtx Γ ,ᶜᴹ elimTy A') ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ idSᴹ ]ᴹ elimTy A) vz)
+           (elimTy[] wk A)
            (tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ))
-          ≅⟨ tr≅ (λ Aᴹ → Tmᴹ ((ElimCtx Γ ,ᶜᴹ ElimTy A') ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ idSᴹ ]ᴹ ElimTy A) vz)
-                 (ElimTy[] wk A) _ ⟩
+          ≅⟨ tr≅ (λ Aᴹ → Tmᴹ ((elimCtx Γ ,ᶜᴹ elimTy A') ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ idSᴹ ]ᴹ elimTy A) vz)
+                 (elimTy[] wk A) _ ⟩
         tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
           ≅⟨ tr≅ TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) _ ⟩
-        π₂ᴹ {Aᴹ = [ ElimSub wk ]ᴹ ElimTy A} idSᴹ
+        π₂ᴹ {Aᴹ = [ elimSub wk ]ᴹ elimTy A} idSᴹ
           ≅⟨ vzᴹ≅ ⟩
-        π₂ᴹ {Aᴹ = ElimTy ([ wk ] A)} idSᴹ
-          ≅⟨ tr≅ TmᴹFamₜ (trans (ElimTy[] wk ([ wk ] A)) (sym $ ElimTy[] (wk ⨟ π₁ {Γ , A'} idS) A)) _ ⟨
-        tr TmᴹFamₜ (trans (ElimTy[] wk ([ wk ] A)) (sym $ ElimTy[] (wk ⨟ π₁ idS) A))
+        π₂ᴹ {Aᴹ = elimTy ([ wk ] A)} idSᴹ
+          ≅⟨ tr≅ TmᴹFamₜ (trans (elimTy[] wk ([ wk ] A)) (sym $ elimTy[] (wk ⨟ π₁ {Γ , A'} idS) A)) _ ⟨
+        tr TmᴹFamₜ (trans (elimTy[] wk ([ wk ] A)) (sym $ elimTy[] (wk ⨟ π₁ idS) A))
            (π₂ᴹ idSᴹ)
-          ≡⟨ tr² (ElimTy[] wk ([ wk ] A)) ⟨
-        tr TmᴹFamₜ (sym $ ElimTy[] (wk ⨟ π₁ idS) A)
-           (tr TmᴹFamₜ (ElimTy[] wk ([ wk ] A)) (π₂ᴹ idSᴹ))
+          ≡⟨ tr² (elimTy[] wk ([ wk ] A)) ⟨
+        tr TmᴹFamₜ (sym $ elimTy[] (wk ⨟ π₁ idS) A)
+           (tr TmᴹFamₜ (elimTy[] wk ([ wk ] A)) (π₂ᴹ idSᴹ))
           ∎
         where
-          vzᴹ≅ : π₂ᴹ {Δᴹ = (_ ,ᶜᴹ ElimTy A') ,ᶜᴹ _} {Aᴹ = [ ElimSub wk ]ᴹ ElimTy A} idSᴹ
-               ≅ π₂ᴹ {Δᴹ = (_ ,ᶜᴹ ElimTy A') ,ᶜᴹ _} {Aᴹ = ElimTy ([ wk ] A)} idSᴹ
-          vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ ElimTy[] wk A)
+          vzᴹ≅ : π₂ᴹ {Δᴹ = (_ ,ᶜᴹ elimTy A') ,ᶜᴹ _} {Aᴹ = [ elimSub wk ]ᴹ elimTy A} idSᴹ
+               ≅ π₂ᴹ {Δᴹ = (_ ,ᶜᴹ elimTy A') ,ᶜᴹ _} {Aᴹ = elimTy ([ wk ] A)} idSᴹ
+          vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ elimTy[] wk A)
           
-  ElimSub↑-tot {Δ} (π₁ (π₁ σ)) A = ≅-to-≡ $ begin
-    [ π₁ᴹ (π₁ᴹ (ElimSub σ)) ]ᴹ ElimTy A ,' (π₁ᴹ (π₁ᴹ (ElimSub σ)) ↑ᴹ ElimTy A)
-      ≡⟨ _ ,Σ≡ π₁ᴹπ₁ᴹ↑ᴹ {σᴹ = ElimSub σ} ⟩
-    [ π₁ᴹ (π₁ᴹ (ElimSub σ)) ]ᴹ ElimTy A ,'
-      ((π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ (π₁ᴹ (ElimSub σ))) ,ˢᴹ tr TmᴹFamₜ (sym [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ))
-      ≡⟨ ap₂Σ ((π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ (π₁ᴹ (ElimSub σ))) ,ˢᴹ_) (ElimTy[] (π₁ (π₁ σ)) A ,Σ≡ ≅-to-≡ heq) ⟩
-    ElimTy ([ π₁ (π₁ σ) ] A) ,' _
+  elimSub↑-tot {Δ} (π₁ (π₁ σ)) A = ≅-to-≡ $ begin
+    [ π₁ᴹ (π₁ᴹ (elimSub σ)) ]ᴹ elimTy A ,' (π₁ᴹ (π₁ᴹ (elimSub σ)) ↑ᴹ elimTy A)
+      ≡⟨ _ ,Σ≡ π₁ᴹπ₁ᴹ↑ᴹ {σᴹ = elimSub σ} ⟩
+    [ π₁ᴹ (π₁ᴹ (elimSub σ)) ]ᴹ elimTy A ,'
+      ((π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ (π₁ᴹ (elimSub σ))) ,ˢᴹ tr TmᴹFamₜ (sym [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ))
+      ≡⟨ ap₂Σ ((π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ (π₁ᴹ (elimSub σ))) ,ˢᴹ_) (elimTy[] (π₁ (π₁ σ)) A ,Σ≡ ≅-to-≡ heq) ⟩
+    elimTy ([ π₁ (π₁ σ) ] A) ,' _
       ∎
     where
       open ≅-Reasoning
-      heq : tr (λ Aᴹ → Tmᴹ (ElimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ (π₁ᴹ (ElimSub σ)) ]ᴹ ElimTy A) vz)
-               (ElimTy[] (π₁ (π₁ σ)) A)
+      heq : tr (λ Aᴹ → Tmᴹ (elimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ (π₁ᴹ (elimSub σ)) ]ᴹ elimTy A) vz)
+               (elimTy[] (π₁ (π₁ σ)) A)
                (tr TmᴹFamₜ (sym [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ))
-          ≅ tr TmᴹFamₜ (sym $ ElimTy[] (wk ⨟ π₁ (π₁ σ)) A)
-               (tr TmᴹFamₜ (ElimTy[] wk ([ π₁ (π₁ σ) ] A)) (π₂ᴹ idSᴹ))
+          ≅ tr TmᴹFamₜ (sym $ elimTy[] (wk ⨟ π₁ (π₁ σ)) A)
+               (tr TmᴹFamₜ (elimTy[] wk ([ π₁ (π₁ σ) ] A)) (π₂ᴹ idSᴹ))
       heq = begin
-        tr (λ Aᴹ → Tmᴹ (ElimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ (π₁ᴹ (ElimSub σ)) ]ᴹ ElimTy A) vz)
-           (ElimTy[] (π₁ (π₁ σ)) A)
+        tr (λ Aᴹ → Tmᴹ (elimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ (π₁ᴹ (elimSub σ)) ]ᴹ elimTy A) vz)
+           (elimTy[] (π₁ (π₁ σ)) A)
            (tr TmᴹFamₜ (sym [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ))
-          ≅⟨ tr≅ (λ Aᴹ → Tmᴹ (ElimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ (π₁ᴹ (ElimSub σ)) ]ᴹ ElimTy A) vz)
-                 (ElimTy[] (π₁ (π₁ σ)) A) _ ⟩
+          ≅⟨ tr≅ (λ Aᴹ → Tmᴹ (elimCtx Δ ,ᶜᴹ Aᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ π₁ᴹ (π₁ᴹ (elimSub σ)) ]ᴹ elimTy A) vz)
+                 (elimTy[] (π₁ (π₁ σ)) A) _ ⟩
         tr TmᴹFamₜ (sym [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
           ≅⟨ tr≅ TmᴹFamₜ (sym [⨟ᴹ]ᴹ) _ ⟩
-        π₂ᴹ {Aᴹ = [ ElimSub (π₁ (π₁ σ)) ]ᴹ ElimTy A} idSᴹ
+        π₂ᴹ {Aᴹ = [ elimSub (π₁ (π₁ σ)) ]ᴹ elimTy A} idSᴹ
           ≅⟨ vzᴹ≅ ⟩
-        π₂ᴹ {Aᴹ = ElimTy ([ π₁ (π₁ σ) ] A)} idSᴹ
-          ≅⟨ tr≅ TmᴹFamₜ (trans (ElimTy[] wk ([ π₁ (π₁ σ) ] A)) (sym $ ElimTy[] (wk ⨟ π₁ (π₁ σ)) A)) _ ⟨
+        π₂ᴹ {Aᴹ = elimTy ([ π₁ (π₁ σ) ] A)} idSᴹ
+          ≅⟨ tr≅ TmᴹFamₜ (trans (elimTy[] wk ([ π₁ (π₁ σ) ] A)) (sym $ elimTy[] (wk ⨟ π₁ (π₁ σ)) A)) _ ⟨
         tr TmᴹFamₜ _ (π₂ᴹ idSᴹ)
-          ≡⟨ tr² (ElimTy[] wk ([ π₁ (π₁ σ) ] A)) ⟨
-        tr TmᴹFamₜ (sym $ ElimTy[] (wk ⨟ π₁ (π₁ σ)) A) _
+          ≡⟨ tr² (elimTy[] wk ([ π₁ (π₁ σ) ] A)) ⟨
+        tr TmᴹFamₜ (sym $ elimTy[] (wk ⨟ π₁ (π₁ σ)) A) _
           ∎
         where
-          vzᴹ≅ : π₂ᴹ {Aᴹ = [ ElimSub (π₁ (π₁ σ)) ]ᴹ ElimTy A} idSᴹ
-               ≅ π₂ᴹ {Aᴹ = ElimTy ([ π₁ (π₁ σ) ] A)} idSᴹ
-          vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ ElimTy[] (π₁ (π₁ σ)) A)
+          vzᴹ≅ : π₂ᴹ {Aᴹ = [ elimSub (π₁ (π₁ σ)) ]ᴹ elimTy A} idSᴹ
+               ≅ π₂ᴹ {Aᴹ = elimTy ([ π₁ (π₁ σ) ] A)} idSᴹ
+          vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ elimTy[] (π₁ (π₁ σ)) A)
