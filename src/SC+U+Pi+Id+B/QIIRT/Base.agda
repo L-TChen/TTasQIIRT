@@ -54,7 +54,7 @@ interleaved mutual
     {-# REWRITE [id] [⨟] [π₁,] [π₁⨟] #-}
 
   -- ⟨_⟩ : Tm Γ A → Sub Γ (Γ , A)
-  -- pattern ⟨_⟩ t = idS , t 
+  pattern ⟨_⟩ t = idS , t 
   -- ⟨_⟩ : Tm Γ A → Sub Γ (Γ , A)
   -- ⟨ t ⟩ = idS , {!t!}
 
@@ -98,6 +98,12 @@ interleaved mutual
       : Tm Γ (Π A B) 
       → Tm (Γ , A) B
     `t `f : Tm Γ 𝔹
+    elim-𝔹
+      : (C : Ty (Γ , 𝔹) i)
+      → (Ct : Tm Γ ([ ⟨ `t ⟩ ] C))
+      → (Cf : Tm Γ ([ ⟨ `f ⟩ ] C))
+      → (b : Tm Γ 𝔹)
+      → Tm Γ ([ ⟨ b ⟩ ] C)
 
   pattern wk   = π₁ idS
   pattern vz   = π₂ idS
@@ -156,14 +162,7 @@ interleaved mutual
       : [ σ ⨟ τ ]tm t ≡ [ σ ]tm [ τ ]tm t
     π₂,
       : {σ : Sub Γ Δ}{A : Ty Δ i}{t : Tm Γ ([ σ ] A)}
-      →  π₂ (σ , t) ≡ t 
-
-  data _ where
-    elim-𝔹
-      : (C : Ty (Γ , 𝔹) i)
-      → (Ct : Tm Γ ([ idS , `t ] C))
-      → (Cf : Tm Γ ([ idS , `f ] C))
-      → Tm (Γ , 𝔹) C
+      →  π₂ (σ , t) ≡ t
 
   postulate
   -- Structural rules for type formers
@@ -188,7 +187,7 @@ interleaved mutual
     []𝔹
       : [ σ ] 𝔹 ≡ 𝔹
     {-# REWRITE []𝔹 #-}
-    
+
   -- Structural rules for term formers
     []tc
       : (σ : Sub Γ Δ) (A : Ty Δ i)
@@ -199,6 +198,12 @@ interleaved mutual
     []un
       : (σ : Sub Γ Δ) (A : Ty Δ i) (t : Tm Δ (Lift A))
       → [ σ ]tm un t ≡ un ([ σ ]tm t)
+    []`t
+      : (σ : Sub Γ Δ)
+      → [ σ ]tm `t ≡ `t
+    []`f
+      : (σ : Sub Γ Δ)
+      → [ σ ]tm `f ≡ `f
 
     []elim-𝔹
     -- I didn't find any way to remove these transports...
@@ -207,10 +212,14 @@ interleaved mutual
       → (C : Ty (Δ , 𝔹) i)
       → (ct : Tm Δ ([ idS , `t ] C))
       → (cf : Tm Δ ([ idS , `f ] C))
-      → [ σ ⁺ ]tm elim-𝔹 C ct cf
-      ≡ elim-𝔹 ([ σ ⁺ ] C)
-        (tr (Tm Γ) {!!} ([ σ ]tm ct))
-        (tr (Tm Γ) {!!} ([ σ ]tm cf))
+      → (b : Tm Δ 𝔹)
+      → [ σ ]tm elim-𝔹 C ct cf b
+      ≡ tr (Tm Γ) {!!}
+                  (elim-𝔹 ([ σ ⁺ ] C)
+                          (tr (Tm Γ) {!!} ([ σ ]t ct))
+                          (tr (Tm Γ) {!!} ([ σ ]t cf))
+                          ([ σ ]t b))
+
   -- Computational rules
     Uβ
       : El (c A) ≡ A
@@ -230,18 +239,17 @@ interleaved mutual
       : app (ƛ t) ≡ t
     Πη
       : ƛ (app t) ≡ t
-      {-
     𝔹βt
       : (C : Ty (Γ , 𝔹) i)
-      → (ct : Tm Γ ([ idS , `t ] C))
-      → (cf : Tm Γ ([ idS , `f ] C))
-      → [ idS , `t ]tm (elim-𝔹 C ct cf) ≡ ct
+      → (ct : Tm Γ ([ ⟨ `t ⟩ ] C))
+      → (cf : Tm Γ ([ ⟨ `f ⟩ ] C))
+      → elim-𝔹 C ct cf `t ≡ ct
     𝔹βf
       : (C : Ty (Γ , 𝔹) i)
-      → (ct : Tm Γ ([ idS , `t ] C))
-      → (cf : Tm Γ ([ idS , `f ] C))
-      → [ idS , `f ]tm (elim-𝔹 C ct cf) ≡ cf
-      -}
+      → (ct : Tm Γ ([ ⟨ `t ⟩ ] C))
+      → (cf : Tm Γ ([ ⟨ `f ⟩ ] C))
+      → elim-𝔹 C ct cf `f ≡ cf
+
 
 data Tel (Γ : Ctx) : Set
 _⧺_ : (Γ : Ctx) (Ξ : Tel Γ) → Ctx

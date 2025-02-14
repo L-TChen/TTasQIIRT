@@ -25,6 +25,8 @@
 \newcommand{\elim}{\ensuremath{\mathsf{elim}}\xspace}
 \newcommand{\implicit}[1]{{\color{gray}\{#1\}}}
 
+\newcommand{\IR}{\ensuremath{\mathsf{QIIR}}\xspace}
+\newcommand{\I}{\ensuremath{\mathsf{QII}}\xspace}
 \newcommand{\emptytel}{\ensuremath{\cdot}}
 
 \newcommand{\reduce}{\mathbin{\Rightarrow}}
@@ -323,6 +325,7 @@
 \newcommand{\bool}{\ensuremath{\mathbf{2}}\xspace}
 \newcommand{\btrue}{{1_{\bool}}}
 \newcommand{\bfalse}{{0_{\bool}}}
+\newcommand{\belim}{{\elim_{\bool}}}
 
 %%% Injections into binary sums and pushouts
 \newcommand{\inlsym}{{\mathsf{inl}}}
@@ -369,3 +372,5 @@
 \newcommand{\emptysub}{\ensuremath{\cdot}}
 \newcommand{\ctx}{\ensuremath{\mathsf{ctx}}}
 \newcommand{\idS}{\ensuremath{\mathsf{id}}} 
+%\newcommand{\instSub}[1]{\ensuremath{(\idS, #1)}}
+\newcommand{\instSub}[1]{\ensuremath{\langle\,#1\,\rangle}}
