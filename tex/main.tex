@@ -486,18 +486,13 @@ We end up with the following definition for type substitution:
 [ \sigma ]_{\Ty}\;\UU            & \reduce \UU                                   \label{eq:def-type-subst-5}
 \end{alignat}
 We first check that this definition of type substitution is confluent.
-\begin{proposition}[Termination]
-  Type substitution $[\blank]_{\Ty}\blank$ is terminating.
-  \danger
-\end{proposition}
-%\begin{proof}
-%  Clearly terms on the RHS are structurally smaller~\cite{Abel2002}.
-%\end{proof}
-\begin{proposition}[Local confluence] \label{prop:local-confluence-1}
-  Type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
+%
+\begin{proposition}\label{prop:local-confluence-1}
+  Type substitution $[\blank]_{\Ty}\blank$ is terminating and locally confluent.
   \danger
 \end{proposition}
 \begin{proof}
+  Termination is clear, since all recursive calls are on structurally smaller arguments~\cite{Abel2002}.
   To show the local confluence, we consider all local peaks, i.e.\ each combination of \eqref{eq:def-type-subst-5} with \eqref{eq:def-type-subst-1}--\eqref{eq:def-type-subst-4},
   \[
     [\idS]_{\Ty}\;\UU, \qquad [\sigma;\tau]_{\Ty}\;\UU, \qquad [\pi_1(\sigma, t)]_{\Ty}\;\UU, \qquad\text{and}\qquad [\pi_1(\sigma; \tau)]_{\Ty}\;\UU
@@ -528,8 +523,8 @@ As we are defining a function on a quotient inductive type, we have to prove tha
 %\LT[noinline]{Should we mention any general condition for coherence?}
 %\Fredrik[noinline]{Is there one?}
 %\LT[noinline]{I think Cubical Agda has sort of conditions? (Cubical Agda does not support rewriting)}
-\begin{proposition}[Coherence]\label{prop:coherence-1}
-  $[\sigma]_{\Ty}\,A$ is (propositionally) equal to $[\tau]_{\Ty}\,A$ for every equality constructor $p : \sigma = \tau$.
+\begin{proposition}\label{prop:coherence-1}
+  For every equality constructor $p : \sigma = \tau$, we have $[\sigma]_{\Ty}\,A = [\tau]_{\Ty}\,A$.
   \danger
 \end{proposition}
 \begin{proof}
@@ -598,93 +593,38 @@ Then, the equality constructor $[]\El$ is accordingly changed to
 \begin{align}
   [ \sigma ]_{\Ty}\,(\El\, u) & \reduce \El\,([\sigma]_{\Tm} {u}) \label{eq:def-type-subst-7}
 \end{align}
-to retain the local confluence for type substitution:
-\begin{proposition}[Termination]
-  Type substitution $[\blank]_{\Ty}\blank$ is terminating.
-  \danger
-\end{proposition}
+to retain the local confluence for type substitution. The proof is similar to the proof of \cref{prop:local-confluence-1}, and can be found in \cref{appendix:proofs}.
+%\begin{proposition}[Termination]
+%  Type substitution $[\blank]_{\Ty}\blank$ is terminating.
+%  \danger
+%\end{proposition}
 %\begin{proof}
 %  Again, each recursive call is on a structurally smaller term~\cite{Abel2002}.
 %\end{proof}
-\begin{proposition}[Local confluence] \label{prop:local-confluence-2}
-  Type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
+\begin{restatable}{proposition}{propConfluenceTwo}\label{prop:local-confluence-2}
+  Type substitution $[\blank]_{\Ty}\blank$ is terminating and locally confluent.
+  \qed
   \danger
-\end{proposition}
-\begin{proof}
-  In addition to previous cases in the proof of \cref{prop:local-confluence-1}, consider terms 
-  \[
-    [\idS]_{\Ty}\;(\El\,u), \qquad [\sigma;\tau]_{\Ty}\;(\El\,u), \qquad [\pi_1(\sigma, t)]_{\Ty}\;(\El\,u), \qquad\text{and}\qquad [\pi_1(\sigma; \tau)]_{\Ty}\;(\El\,u)
-  \]
-  which reduce to the following terms
-  \[
-    \El\,u, \qquad \El([\sigma]_{\Tm}\,[\tau]_{\Tm}\,u), \qquad \El([\sigma]_{\Tm}\,u), \qquad\text{and}\qquad
-    \El([\sigma]_{\Tm}\,[\pi_1\tau]_{\Tm}\,u)
-  \]
-  respectively, no matter which function clause of $[\blank]_{\Ty}\blank$ is used.
-  Therefore, type substitution is locally confluent.
-\end{proof}
+\end{restatable}
 
 We also have to show that the recursive substitution $[\blank]_{\Tm}\blank$ is propositionally equal to the explicit substitution $[\blank]\blank$, so they can be used together consistently.
 
-\begin{proposition}\label{prop:correctness-1}
-  For any $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Tm\;\Delta\;A$, the term $[\sigma]t$ is propositionally equal to $[\sigma]_{\Tm}\,t$.
-\end{proposition}
-\begin{proof}
-  We show this statement by induction on $\sigma$. Since we are proving a propositional equality, and we are assuming UIP, all equality constructors are automatically respected, so we only need to worry about the point constructors.
-  \begin{enumerate}
-    \item For the identity substitution $\idS$, we have $[\idS]t = t \judgeq [\idS]_{\Tm} t$ by definition.
-    \item For a composite substitution $\sigma; \tau$, we have
-      \begin{align*}
-        [\sigma;\tau]t & = [\sigma]\,([\tau] t)            && \text{by $[;]t$} \\
-%                       & = [\sigma]\,([\tau]_{\Tm}\,t)       && \text{by the induction hypothesis $[\tau]t = [\tau]_{\Tm}\,t$ for any $t$} \\
-                       & = [\sigma]_{\Tm}\,([\tau]_{\Tm}\,t) && \text{by the induction hypothesis (twice)} \\ %$[\sigma]u = [\sigma]_{\Tm}\,u$ for any $u$} \\
-                       & \judgeq [\sigma;\tau]_{\Tm}\,t && \text{by definition.}
-      \end{align*}
-    \item For $\pi_1(\sigma, t)$, we have
-      \begin{align*}
-        [\pi_1(\sigma, t)]t & = [\sigma] t               && \text{by $\pi_1\beta$} \\
-                            & = [\sigma]_{\Tm} \,t       && \text{by the induction hypothesis} \\ % $[\tau]t = [\tau]_{\Tm}\,t$ for any $t$} \\
-                            & \judgeq [\pi_1(\sigma, t)]_{\Tm}\,t && \text{by definition.}
-      \end{align*}
-    %\item For $\pi_1(\sigma; \tau)$, it is proved similarly as the previous case.
-    \item For the remaining cases, $[\sigma]_{\Tm} t$ is equal to $[\sigma]\,t$ strictly.
-  \end{enumerate}
-  Hence, we conclude that $[\blank]_{\Tm}\blank$ is propositionally equal to $[\blank]\blank$.
-\end{proof}
+
+\begin{restatable}{proposition}{propCorrectness}\label{prop:correctness-1}
+  For any $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Tm\;\Delta\;A$, the term $[\sigma]t$ is propositionally equal to $[\sigma]_{\Tm}\,t$. \qed
+\end{restatable}
 
 Finally, we have to show that both $[\blank]_{\Ty}\blank$ and $[\blank]_{\Tm}\blank$ are coherent.
-\begin{proposition}[Coherence] \label{prop:coherence-2}
-  For every equality constructor $p : \sigma = \tau : \Sub\;\Gamma\;\Delta$, the following identities
+\begin{restatable}{proposition}{propCoherence}\label{prop:coherence-2}
+  For every equality constructor $p : \sigma = \tau : \Sub\;\Gamma\;\Delta$, the identities
   \danger
   \[
     [\sigma]_{\Ty}\,A = [\tau]_{\Ty}\,A
     \quad\text{and}\quad
     [\sigma]_{\Tm}\,t = [\tau]_{\Tm}\,t
   \]
-  hold for any type $A$ and any term $t$.
-\end{proposition}
-\begin{proof}
-  By \cref{re:coherence-proof}, for type substitution, we only have to consider the following cases 
-  \begin{align*}
-    [\sigma; (\tau, t)]_{\Ty} \;A    & = [(\sigma;\tau), [\sigma]\, t]_{\Ty}\;A,
-                                     & [\sigma]_{\Ty} \;A               & = [\emptyctx]_{\Ty}\;A,
-                                     & [\sigma]_{\Ty} \;A               & = [\pi_1\sigma, \pi_2\sigma]_{\Ty}\;A
-  \end{align*}
-  while other cases hold strictly.
-  Again, for each case, we prove them by induction on $A$ and consider the case $A \defeq \El\,u$ only which is added to the definition of $[\blank]_{\Ty}\blank$ in this section. 
-  However, all cases follow easily from \cref{prop:correctness-1}.
-  For example, consider the first case:
-  \begin{align*}
-    [\sigma; (\tau, t)]_{\Ty}(\El\,u) & \judgeq \El([\sigma; (\tau, t)]_{\Tm}\,u) && \text{by \eqref{eq:def-type-subst-7}} \\
-                                      & = \El( [\sigma; (\tau, t)]\,u)            && \text{by \cref{prop:correctness-1}} \\
-                                      & = \El( [\sigma; \tau, [\sigma]t)]\,u)     && \text{by $\mathsf{concat}$} \\
-                                      & = \El( [\sigma; \tau, [\sigma]t)]_{\Tm}\,u) && \text{by \cref{prop:correctness-1}} \\
-                                      & \judgeq [\sigma; \tau, [\sigma]t)]_{\Ty}\left(\El\,u\right) && \text{by \eqref{eq:def-type-subst-7} }
-  \end{align*}
-  The remaining two cases are omitted.
-
-  As for term substitution $[\blank]_{\Tm}\blank$, each case follows from \cref{prop:correctness-1} in conjunction with the congruence rule for the identity type.
-\end{proof}
+  hold for any type $A$ and any term $t$. \qed
+\end{restatable}
 
 \begin{remark}
 We have seen that a naive extension with a universe breaks the local confluence of type substitution defined in \cref{subsec:SC-QIIRT}, because the newly added function clause interacts with other existing clauses.
@@ -733,27 +673,12 @@ Then, we add another clause for type substitution and an equality constructor fo
   \mathsf{[]\lambda} :{} & [\sigma]\, (\lambda\,t) && =^{\Tm\,\Gamma\,([\sigma]_{\Ty}(\Pi\,A\,B))} && \lambda\,([\sigma \uparrow A]\,\,t) \nonumber
 \end{alignat}
 
-\begin{proposition}[Termination]
-  Type substitution $[\blank]_{\Ty}\blank$ is terminating.
-  \danger
-\end{proposition}
-\begin{proposition}[Local confluence]\label{prop:local-confluence-3}
-  Type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
-  \danger
-\end{proposition}
-\begin{proof}
-  In addition to previous cases in \cref{prop:local-confluence-1,prop:local-confluence-2}, consider
-  \begin{align*}
-    [\idS]_{\Ty}\;(\Pi\;A\;B) && [\sigma;\tau]_{\Ty}\;(\Pi\;A\;B) && [\pi_1(\sigma, t)]_{\Ty}\;(\Pi\;A\;B) && [\pi_1(\sigma; \tau)]_{\Ty}\;(\Pi\;A\;B).
-  \end{align*}
-  Each of them reduces to the following terms after applying clauses of $\blank\uparrow\blank$ and $[\blank]_{\Ty}\blank$:
-  \begin{align*}
-    & \Pi\;A\;B                && \Pi\;([\sigma]_{\Ty}\,[\tau]_{\Ty}\,A)\;([\sigma \uparrow [\tau]\,A ]_{\Ty}\,[\tau \uparrow A ]_{\Ty}\,B) \\
-    & \Pi\;([\sigma]_{\Ty}\;A)([\sigma \uparrow A]_{\Ty}\;B) && \Pi\;([\sigma]_{\Ty}\,[\pi_1\tau]_{\Ty}\,A)\;([\sigma \uparrow [\pi_1\tau]_{\Ty}\,[\pi_1\tau \uparrow A]_{\Ty}\,B)
-  \end{align*}
-  respectively.
-  Hence, the type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
-\end{proof}
+
+\begin{restatable}{proposition}{propConfluenceThree}\label{prop:local-confluence-3}
+  Type substitution $[\blank]_{\Ty}\blank$ is terminating and locally confluent.
+  \qed
+    \danger
+\end{restatable}
 
 Similar to term substitution, we can show that the lifted substitution $\sigma \uparrow A$ is propositionally equal to $\sigma^+$, based on two basic properties\footnote{%
   The reader is invited to prove them using the QII definition with transports.}
@@ -767,21 +692,11 @@ about the lifting.
   \]
 \end{lemma}
 
-\begin{proposition} \label{prop:correctness-2}
-  For every $\sigma : \Sub\;\Gamma\;\Delta$, and $A : \Ty\;\Delta$, the lifting
-  $\sigma \uparrow A$ is propositionally equal to $\sigma^+$. 
-\end{proposition}
-\begin{proof}
-  We prove the statement by induction on $\sigma$ with \cref{lem:lifting}.
-  Every case follows from equational reasoning straightforwardly.
-  For example, if $\sigma$ is a composite $\sigma;\tau$, we have
-  \begin{align*}
-    (\sigma;\tau) \uparrow A & \judgeq (\sigma \uparrow [\tau]\,A);(\tau \uparrow A) && \text{by definition} \\
-                             & = \sigma^+;\tau^+                                     && \text{by induction hypothesis} \\ 
-                             & = (\sigma;\tau)^+                                     && \text{by \cref{lem:lifting}.} 
-  \end{align*}
-  Other cases follow similarly.
-\end{proof}
+\begin{restatable}{proposition}{propCorrectnessTwo}\label{prop:correctness-2}
+    For every $\sigma : \Sub\;\Gamma\;\Delta$, and $A : \Ty\;\Delta$, the lifting
+    $\sigma \uparrow A$ is propositionally equal to $\sigma^+$.
+    \qed
+\end{restatable}
 
 As we are working with a different type theory from \cref{subsec:SC+U}, we still have to prove the identity $[\sigma]\,t = [\sigma]_{\Tm}\,t$ but the same argument still applies:
 \begin{proposition} \label{prop:correctness-3}
@@ -790,19 +705,17 @@ As we are working with a different type theory from \cref{subsec:SC+U}, we still
 \end{proposition}
 
 Finally, we show that these simultaneously defined functions are coherent.
-\begin{proposition}[Coherence]
-  For every constructor $p : \sigma = \tau : \Sub\;\Gamma\;\Delta$, we have
-  \danger
-  \[
-    \sigma \uparrow A =^{\lam{\gamma}\Sub\;(\Gamma, [ \gamma ]_{\Ty} A)\;(\Delta, A)}_{\alert{p}} \tau \uparrow A
-    \qquad\text{and}\qquad
-    [\sigma]_{\Tm}\,t =^{\lam{\gamma}\Tm\;\Gamma\;([\gamma]_{\Ty}A)}_{\alert{p}} [\tau]_{\Tm}\,t,
-  \]
-  for any type $A$ and any term $t$.
-\end{proposition}
-\begin{proof}
-  These two identities follow from \cref{prop:correctness-2,prop:correctness-3} easily with the heterogeneous identity (see \cref{sec:meta}).
-\end{proof}
+\begin{restatable}{proposition}{propCoherenceUparrow} %[Coherence]
+    For every equality constructor $p : \sigma = \tau : \Sub\;\Gamma\;\Delta$, we have
+    \danger
+    \[
+      \sigma \uparrow A =^{\lam{\gamma}\Sub\;(\Gamma, [ \gamma ]_{\Ty} A)\;(\Delta, A)}_{\alert{p}} \tau \uparrow A
+      \qquad\text{and}\qquad
+      [\sigma]_{\Tm}\,t =^{\lam{\gamma}\Tm\;\Gamma\;([\gamma]_{\Ty}A)}_{\alert{p}} [\tau]_{\Tm}\,t,
+    \]
+    for any type $A$ and any term $t$.
+    \qed
+\end{restatable}
 
 \subsubsection{Multiple lifting and the coherence of type substitution}
 
@@ -875,17 +788,19 @@ Instead of resorting to \transp, we also turn telescope substitution $[\blank]_{
 whose confluence property is easy to see.
 
 Of course, we also have to prove coherence for the newly introduced recursive functions to verify that they are well defined.
-\begin{proposition}[{Coherence for $[\blank]_{\Tel}$ and $\blank\upuparrows\blank$}]
+
+\begin{restatable}%[{Coherence for $[\blank]_{\Tel}$ and $\blank\upuparrows\blank$}]
+{proposition}{coherenceTel}
+  For every equality constructor $p : \sigma = \tau$ and telescope $\Xi$, we have
+  $[\sigma]_{\Tel}\,\Xi = [\tau]_{\Tel}\,\Xi$ and $\sigma \upuparrows \Xi =^{\Sub\;(\Gamma\dplus [\sigma]_{\Tel}\Xi)\;(\Delta\dplus\Xi)} \tau \upuparrows \Xi$. \qed
   \danger
-  For any equality constructor $p : \sigma = \tau$, we have
-  $[\sigma]_{\Tel}\,\Xi = [\tau]_{\Tel}\,\Xi$ and $\sigma \upuparrows \Xi =^{\Sub\;(\Gamma\dplus [\sigma]_{\Tel}\Xi)\;(\Delta\dplus\Xi)} \tau \upuparrows \Xi$
-  for any telescope $\Xi$.
-\end{proposition}
+\end{restatable}
 
 As promised, by instantiating $\Xi$ to be empty, we also get coherence for $[\blank]_{\Ty}$.
 
-\begin{corollary}[Coherence]
-  The identity $[\sigma]_{\Ty}\,A = [\tau]_{\Ty}\,A$ holds for every equality constructor $p : \sigma = \tau$.
+\begin{corollary}
+  We have $[\sigma]_{\Ty}\,A = [\tau]_{\Ty}\,A$ for every equality constructor $p : \sigma = \tau$.
+  \qed
   \danger
 \end{corollary}
 
@@ -1027,14 +942,14 @@ The elimination principle computes by interpreting each constructor using the co
 %
 Interestingly, a key difference compared to its QIIT counterpart is that $[\blank]_{\Ty}\blank$, $[\blank]_{\Tm}$, and $\blank\uparrow\blank$ are functions rather than (formed by) constructors, meaning they cannot be eliminated inductively but instead become propositional identities.
 %type substitution $[\blank]\blank$ was a constructor and $[\sigma]\,A$ was eliminated to $[\elim_{\Sub}\,\sigma]^M_{\Ty}\,(\elim_{\Ty}\,A)$; similarly for term substitution.
-\begin{proposition}\label{prop:provable-function-clauses}
+\begin{restatable}{proposition}{propProvableFunc}\label{prop:provable-function-clauses}
   Given the motives and the methods, we can prove
 \begin{alignat*}{5}
   \elim_{\Ty}[] & : \elim_{\Ty}\,([\sigma]_{\Ty}\,A) && = && [\elim_{\Sub}\,\sigma]^M_{\Ty}\,(\elim_{\Ty}\,A) \\
   \elim_{\Tm}[] & : \elim_{\Tm}\,([\sigma]_{\Tm}\,t) && =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{\elim_{\Ty}[]}} && [\elim_{\Sub}\,\sigma]^M_{\Tm}\,(\elim_{\Tm}\,t) \\
-  \elim_{\Sub}[] & : \elim_{\Sub}(\sigma\uparrow A) && =^{\lam{B^M}\Sub^M\;(\Gamma^M,^M B^M)\;(\Delta^M, A^M)\;(\sigma \uparrow A)}_{\alert{\elim_{\Ty}[]}} && (\elim_{\Sub} \sigma) \uparrow^M (\elim_{\Ty}\,A) 
+  \elim_{\Sub}[] & : \elim_{\Sub}(\sigma\uparrow A) && =^{\lam{B^M}\Sub^M\;(\Gamma^M,^M B^M)\;(\Delta^M, A^M)\;(\sigma \uparrow A)}_{\alert{\elim_{\Ty}[]}} && (\elim_{\Sub} \sigma) \uparrow^M (\elim_{\Ty}\,A)
 \end{alignat*}
-\end{proposition}
+\end{restatable}
 
 These identities are needed for the computation rules where strict identities are used in syntax.
 For example, for $\sigma : \Sub\;\Gamma\;\Delta$ and $t : \Tm\;\Gamma\;([\sigma]_{\Ty}\,A)$, we have 
@@ -1113,7 +1028,7 @@ Either choice is possible, but we need to use \cref{prop:correctness-1,prop:corr
 For example, the equality constructor $\mathsf{concat}_{\IR}$ uses the constructor form, so the method $\mathsf{concat}^M_{\I}$ relies on the identity $[ \sigma ]\,t = [\sigma]_{\Tm}\,t$ if the recursive form $[\sigma^{\prec}]_{\Tm}\,t^{\prec}$ is chosen for the translation.
 
 Going back and forth from one definition to the other gives us the equivalences
-\begin{theorem}
+\begin{restatable}{theorem}{equivalence}
   Type theory defined as a QIIRT and a QIIT are equivalent, i.e.\ 
   \begin{itemize}
     \item $\eqv{\Ctx_{\IR}}{\Ctx_{\I}}$, 
@@ -1123,8 +1038,7 @@ Going back and forth from one definition to the other gives us the equivalences
     \item $\eqv{\left((\Gamma : \Ctx_{\IR}) \to (A : \Ty_{\IR}\;\Gamma) \to \Tm_{\IR}\;\Gamma\;A\right)}
                {\left((\Gamma : \Ctx_{\I}) \to (A : \Ty_{\I}\;\Gamma) \to \Tm_{\I}\;\Gamma\;A\right)}$.
   \end{itemize}
-\end{theorem}
-%\Fredrik{Why only on contexts? If that's the limit of the proof at the moment, I think it would be better to state just the translations, and maybe have a running text remark after the theorem.}
+\end{restatable}
 
 \section{Formal implementation} \label{sec:formal-implementation}
 
@@ -1330,28 +1244,115 @@ We give the QIIR definition for type theory with a universe of small types, $\Pi
 \end{alignat*}
 \LT{To be finished}
 
-\section{Omitted proofs}
+\section{Omitted proofs}\label{appendix:proofs}
 
-\Fredrik{Do properly with restate-thm etc}
-The first set of equality constructors are easy to prove, since the lifting and substitution operations compute independently for these cases:
-\begin{proposition}[Coherence, I]
-  \danger
-  For the following equality constructors $p : \sigma = \tau$
+\propConfluenceTwo*
+\begin{proof}
+  In addition to previous cases in the proof of \cref{prop:local-confluence-1}, consider terms 
+  \[
+    [\idS]_{\Ty}\;(\El\,u), \qquad [\sigma;\tau]_{\Ty}\;(\El\,u), \qquad [\pi_1(\sigma, t)]_{\Ty}\;(\El\,u), \qquad\text{and}\qquad [\pi_1(\sigma; \tau)]_{\Ty}\;(\El\,u)
+  \]
+  which reduce to the following terms
+  \[
+    \El\,u, \qquad \El([\sigma]_{\Tm}\,[\tau]_{\Tm}\,u), \qquad \El([\sigma]_{\Tm}\,u), \qquad\text{and}\qquad
+    \El([\sigma]_{\Tm}\,[\pi_1\tau]_{\Tm}\,u)
+  \]
+  respectively, no matter which function clause of $[\blank]_{\Ty}\blank$ is used.
+  Therefore, type substitution is locally confluent.
+\end{proof}
+
+\propCorrectness*
+\begin{proof}
+  We show this statement by induction on $\sigma$. Since we are proving a propositional equality, and we are assuming UIP, all equality constructors are automatically respected, so we only need to worry about the point constructors.
+  \begin{enumerate}
+    \item For the identity substitution $\idS$, we have $[\idS]t = t \judgeq [\idS]_{\Tm} t$ by definition.
+    \item For a composite substitution $\sigma; \tau$, we have
+      \begin{align*}
+        [\sigma;\tau]t & = [\sigma]\,([\tau] t)            && \text{by $[;]t$} \\
+%                       & = [\sigma]\,([\tau]_{\Tm}\,t)       && \text{by the induction hypothesis $[\tau]t = [\tau]_{\Tm}\,t$ for any $t$} \\
+                       & = [\sigma]_{\Tm}\,([\tau]_{\Tm}\,t) && \text{by the induction hypothesis (twice)} \\ %$[\sigma]u = [\sigma]_{\Tm}\,u$ for any $u$} \\
+                       & \judgeq [\sigma;\tau]_{\Tm}\,t && \text{by definition.}
+      \end{align*}
+    \item For $\pi_1(\sigma, t)$, we have
+      \begin{align*}
+        [\pi_1(\sigma, t)]t & = [\sigma] t               && \text{by $\pi_1\beta$} \\
+                            & = [\sigma]_{\Tm} \,t       && \text{by the induction hypothesis} \\ % $[\tau]t = [\tau]_{\Tm}\,t$ for any $t$} \\
+                            & \judgeq [\pi_1(\sigma, t)]_{\Tm}\,t && \text{by definition.}
+      \end{align*}
+    %\item For $\pi_1(\sigma; \tau)$, it is proved similarly as the previous case.
+    \item For the remaining cases, $[\sigma]_{\Tm} t$ is equal to $[\sigma]\,t$ strictly.
+  \end{enumerate}
+  Hence, we conclude that $[\blank]_{\Tm}\blank$ is propositionally equal to $[\blank]\blank$.
+\end{proof}
+
+\propCoherence*
+\begin{proof}
+  By \cref{re:coherence-proof}, for type substitution, we only have to consider the following cases 
+  \begin{align*}
+    [\sigma; (\tau, t)]_{\Ty} \;A    & = [(\sigma;\tau), [\sigma]\, t]_{\Ty}\;A,
+                                     & [\sigma]_{\Ty} \;A               & = [\emptyctx]_{\Ty}\;A,
+                                     & [\sigma]_{\Ty} \;A               & = [\pi_1\sigma, \pi_2\sigma]_{\Ty}\;A
+  \end{align*}
+  while other cases hold strictly.
+  Again, for each case, we prove them by induction on $A$ and consider the case $A \defeq \El\,u$ only which is added to the definition of $[\blank]_{\Ty}\blank$ in this section. 
+  However, all cases follow easily from \cref{prop:correctness-1}.
+  For example, consider the first case:
+  \begin{align*}
+    [\sigma; (\tau, t)]_{\Ty}(\El\,u) & \judgeq \El([\sigma; (\tau, t)]_{\Tm}\,u) && \text{by \eqref{eq:def-type-subst-7}} \\
+                                      & = \El( [\sigma; (\tau, t)]\,u)            && \text{by \cref{prop:correctness-1}} \\
+                                      & = \El( [\sigma; \tau, [\sigma]t)]\,u)     && \text{by $\mathsf{concat}$} \\
+                                      & = \El( [\sigma; \tau, [\sigma]t)]_{\Tm}\,u) && \text{by \cref{prop:correctness-1}} \\
+                                      & \judgeq [\sigma; \tau, [\sigma]t)]_{\Ty}\left(\El\,u\right) && \text{by \eqref{eq:def-type-subst-7} }
+  \end{align*}
+  The remaining two cases are omitted.
+
+  As for term substitution $[\blank]_{\Tm}\blank$, each case follows from \cref{prop:correctness-1} in conjunction with the congruence rule for the identity type.
+\end{proof}
+
+\propConfluenceThree*
+\begin{proof}
+  In addition to previous cases in \cref{prop:local-confluence-1,prop:local-confluence-2}, consider
+  \begin{align*}
+    [\idS]_{\Ty}\;(\Pi\;A\;B) && [\sigma;\tau]_{\Ty}\;(\Pi\;A\;B) && [\pi_1(\sigma, t)]_{\Ty}\;(\Pi\;A\;B) && [\pi_1(\sigma; \tau)]_{\Ty}\;(\Pi\;A\;B).
+  \end{align*}
+  Each of them reduces to the following terms after applying clauses of $\blank\uparrow\blank$ and $[\blank]_{\Ty}\blank$:
+  \begin{align*}
+    & \Pi\;A\;B                && \Pi\;([\sigma]_{\Ty}\,[\tau]_{\Ty}\,A)\;([\sigma \uparrow [\tau]\,A ]_{\Ty}\,[\tau \uparrow A ]_{\Ty}\,B) \\
+    & \Pi\;([\sigma]_{\Ty}\;A)([\sigma \uparrow A]_{\Ty}\;B) && \Pi\;([\sigma]_{\Ty}\,[\pi_1\tau]_{\Ty}\,A)\;([\sigma \uparrow [\pi_1\tau]_{\Ty}\,[\pi_1\tau \uparrow A]_{\Ty}\,B)
+  \end{align*}
+  respectively.
+  Hence, the type substitution $[\blank]_{\Ty}\blank$ is locally confluent.
+\end{proof}
+
+\propCorrectnessTwo*
+\begin{proof}
+  We prove the statement by induction on $\sigma$ with \cref{lem:lifting}.
+  Every case follows from equational reasoning straightforwardly.
+  For example, if $\sigma$ is a composite $\sigma;\tau$, we have
+  \begin{align*}
+    (\sigma;\tau) \uparrow A & \judgeq (\sigma \uparrow [\tau]\,A);(\tau \uparrow A) && \text{by definition} \\
+                             & = \sigma^+;\tau^+                                     && \text{by induction hypothesis} \\ 
+                             & = (\sigma;\tau)^+                                     && \text{by \cref{lem:lifting}.} 
+  \end{align*}
+  Other cases follow similarly.
+\end{proof}
+
+\propCoherenceUparrow*
+\begin{proof}
+  These two identities follow from \cref{prop:correctness-2,prop:correctness-3} easily with the heterogeneous identity (see \cref{sec:meta}).
+\end{proof}
+
+\coherenceTel*
+\begin{proof}
+  \Fredrik{TODO: spell out all cases here}
+  The proposition is easy to prove for the following equality
+  constructors, since the lifting and substitution operations compute
+  independently for these cases:
   \[
     \mathsf{idr} : \sigma;\idS = \sigma, \quad
     \mathsf{idl} : \idS;\sigma = \sigma, \quad\text{and}\quad
-    \textnormal{;-}\mathsf{assoc} : (\sigma;\tau);\gamma = \sigma; (\tau; \gamma), 
+    \textnormal{;-}\mathsf{assoc} : (\sigma;\tau);\gamma = \sigma; (\tau; \gamma),
   \]
-  the identities $[\sigma]_{\Tel}\,\Xi \judgeq [\tau]_{\Tel}\,\Xi$ and $[\sigma ]_{\Ty}\,A \judgeq [\tau ]_{\Ty}\,A$
-  hold strictly for any telescope $\Xi$ and any type $A$ and
-  \[
-    \sigma \upuparrows \Xi =^{\Sub\;(\Gamma\dplus [\sigma]_{\Tel}\Xi)\;(\Delta\dplus\Xi)}
-    \tau   \upuparrows \Xi
-  \]
-  holds propositionally for any telescope $\Xi$.
-\end{proposition}
-\begin{proof}
-  Thanks to overlapping patterns, the coherence of $[\blank]_{\Tel}\blank$ and $[\blank]_{\Ty}\blank$ for these cases holds strictly by definition and the coherence of $\blank \upuparrows \blank$ boils down to the equality constructor itself.
   Take $\mathsf{idr}$ as an example, we can see 
   \begin{align*}
     (\sigma; \idS) \upuparrows \Xi & \judgeq (\sigma \upuparrows [\idS]_{\Tel} \Xi) ; (\idS \upuparrows \Xi) \\
@@ -1361,9 +1362,8 @@ The first set of equality constructors are easy to prove, since the lifting and 
   where the last identity follows from $\mathsf{idr}:(\sigma \upuparrows \Xi) ; \idS = \sigma \upuparrows \Xi$.
 
   For other two equality constructors, the arguments follow similarly.
-\end{proof}
+
 The second set of equality constructors are more involved, as we have to prove the coherence for the lifting and substitution operations altogether mutually:
-\begin{proposition}[Coherence, II]
   \LT[noinline]{Josh Ko suggests us to follow the proof structure in our formal implementation.}
   For the following equality constructors $p : \sigma = \tau$
   \begin{alignat*}{5}
@@ -1371,7 +1371,6 @@ The second set of equality constructors are more involved, as we have to prove t
     \emptyctx\eta & : \sigma            && = \emptyctx & \pi\eta & : \sigma && = \pi_1\sigma, \pi_2\sigma
   \end{alignat*}
    the identities
-  \danger
   \begin{align*}
   [\sigma]_{\Tel}\,\Xi & = [\tau]_{\Tel}\,\Xi 
                          & [\sigma \upuparrows \Xi ]_{\Ty}\,A & =^{\lam{\gamma}\Ty\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Ty}\,A \\
@@ -1380,8 +1379,6 @@ The second set of equality constructors are more involved, as we have to prove t
 %  [\sigma \upuparrows \Xi ]_{\Tm}\,t & =^{\lam{\gamma}\Tm\;(\Gamma \dplus [\gamma]_{\Tel}\Xi)\;([\gamma \upuparrows \Xi]_{\Ty} A)}_{\alert{p}} [\tau \upuparrows \Xi ]_{\Tm}\,t
   \end{align*}
   hold for any telescope $\Xi : \Tel\,\Delta$ and type $A : \Ty\;(\Delta\dplus \Xi)$.
-\end{proposition}
-\begin{proof}
   We show the statement for $\pi_1\beta: \pi_1(\sigma, t) = t$ and the other three cases follow similarly.
 
   First, we prove the coherence for $[\blank]_{\Ty}\,A$ by induction on $A$ and the coherence for the other two identities $[\blank]_{\Tel}\, \Xi$ and $\blank \upuparrows \Xi$ by induction on $\Xi$.
@@ -1437,8 +1434,16 @@ The second set of equality constructors are more involved, as we have to prove t
           \end{align*}
       \end{description}
   \end{enumerate}
-  
 \end{proof}
 
+\propProvableFunc*
+\begin{proof}
+  TODO
+\end{proof}
+
+\equivalence*
+\begin{proof}
+  TODO
+\end{proof}
 
 \end{document}
