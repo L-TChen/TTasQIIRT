@@ -2,6 +2,7 @@
 module SC.QIIT2.Elimination where
 
 open import Prelude
+  hiding (_∘_)
 open import SC.QIIT2.Base
 open import SC.QIIT2.Model
 
