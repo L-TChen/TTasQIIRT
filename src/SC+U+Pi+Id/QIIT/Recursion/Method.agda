@@ -24,7 +24,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : (Γᴹ : Ctxᴹ)(Aᴹ : Tyᴹ Γᴹ i)
         → Ctxᴹ
       ∅ˢᴹ
-        : Subᴹ Δᴹ ∅ᶜᴹ
+        : Subᴹ Γᴹ ∅ᶜᴹ
       _,ˢᴹ_
         : (σᴹ : Subᴹ Γᴹ Δᴹ){Aᴹ : Tyᴹ Δᴹ i}(tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ))
         → Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ)
