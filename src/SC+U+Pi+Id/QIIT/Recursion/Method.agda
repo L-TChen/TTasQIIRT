@@ -13,7 +13,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
     Aᴹ Bᴹ Cᴹ    : Tyᴹ Γᴹ i
     aᴹ tᴹ uᴹ    : Tmᴹ Γᴹ Aᴹ
 
-  record CwF₁ : Set (ℓ ⊔ ℓ′) where
+  record CwF : Set (ℓ ⊔ ℓ′) where
     field
       [_]ᴹ_
         : (σᴹ : Subᴹ Γᴹ Δᴹ)(Aᴹ : Tyᴹ Δᴹ i)
@@ -58,8 +58,6 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       : {i : ℕ}{Γᴹ Δᴹ : Ctxᴹ} → Tyᴹ Γᴹ i → Set ℓ′
     Subᴹ,ᶜᴹFam {_} {Γᴹ} {Δᴹ} Aᴹ = Subᴹ (Γᴹ ,ᶜᴹ Aᴹ) Δᴹ
 
-  record CwF₂ (C₁ : CwF₁) : Set (ℓ ⊔ ℓ′) where
-    open CwF₁ C₁
     field
       _⨟idSᴹ
         : (σᴹ : Subᴹ Γᴹ Δᴹ)
@@ -86,13 +84,9 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       π₂,ᴹ
         : {Aᴹ : Tyᴹ Δᴹ i}{σᴹ : Subᴹ Γᴹ Δᴹ}{tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ)}
         → tr (λ τᴹ → TmᴹFam ([ τᴹ ]ᴹ Aᴹ)) π₁,ᴹ (π₂ᴹ (σᴹ ,ˢᴹ tᴹ)) ≡ tᴹ
-  
-  record CwF : Set (ℓ ⊔ ℓ′) where
-    field
-      C₁ : CwF₁
-      C₂ : CwF₂ C₁
-    open CwF₁ C₁ public
-    open CwF₂ C₂ public
+
+    -----------
+    -- derived equalities of CwF
     π₁⨟ᴹ 
       : {Aᴹ : Tyᴹ Θᴹ i}(τᴹ : Subᴹ Γᴹ Δᴹ)(σᴹ : Subᴹ Δᴹ (Θᴹ ,ᶜᴹ Aᴹ))
       → π₁ᴹ (τᴹ ⨟ᴹ σᴹ) ≡ τᴹ ⨟ᴹ π₁ᴹ σᴹ
@@ -106,6 +100,56 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       τᴹ ⨟ᴹ π₁ᴹ σᴹ
         ∎
       where open ≡-Reasoning
+    
+    π₂⨟ᴹ : (σᴹ : Subᴹ Γᴹ Δᴹ){Aᴹ : Tyᴹ Θᴹ i}(τᴹ : Subᴹ Δᴹ (Θᴹ ,ᶜᴹ Aᴹ))
+         → tr TmᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ) ∙ [⨟]ᴹ) (π₂ᴹ (σᴹ ⨟ᴹ τᴹ))
+         ≡ [ σᴹ ]tmᴹ (π₂ᴹ τᴹ)
+    π₂⨟ᴹ σᴹ {Aᴹ} τᴹ = ≅-to-≡ $ begin
+      tr TmᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ) ∙ [⨟]ᴹ) (π₂ᴹ (σᴹ ⨟ᴹ τᴹ))
+        ≅⟨ tr≅ TmᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ) ∙ [⨟]ᴹ) (π₂ᴹ (σᴹ ⨟ᴹ τᴹ)) ⟩
+      π₂ᴹ (σᴹ ⨟ᴹ τᴹ)
+        ≅⟨ hcong (λ x → π₂ᴹ (σᴹ ⨟ᴹ x)) (≡-to-≅ η,ᴹ) ⟩
+      π₂ᴹ (σᴹ ⨟ᴹ (π₁ᴹ τᴹ ,ˢᴹ π₂ᴹ τᴹ))
+        ≅⟨ hcong π₂ᴹ (≡-to-≅ ⨟,ᴹ) ⟩
+      π₂ᴹ ((σᴹ ⨟ᴹ π₁ᴹ τᴹ) ,ˢᴹ tr TmᴹFam (sym [⨟]ᴹ) ([ σᴹ ]tmᴹ π₂ᴹ τᴹ))
+        ≅⟨ tr≅ (TmᴹFam ∘ ([_]ᴹ Aᴹ)) π₁,ᴹ (π₂ᴹ ((σᴹ ⨟ᴹ π₁ᴹ τᴹ) ,ˢᴹ _)) ⟨
+      tr (TmᴹFam ∘ ([_]ᴹ Aᴹ)) π₁,ᴹ
+         (π₂ᴹ ((σᴹ ⨟ᴹ π₁ᴹ τᴹ) ,ˢᴹ tr TmᴹFam (sym [⨟]ᴹ) ([ σᴹ ]tmᴹ π₂ᴹ τᴹ)))
+        ≅⟨ ≡-to-≅ $ π₂,ᴹ ⟩
+      tr TmᴹFam (sym [⨟]ᴹ) ([ σᴹ ]tmᴹ π₂ᴹ τᴹ)
+        ≅⟨ tr≅ TmᴹFam (sym [⨟]ᴹ) _ ⟩
+      [ σᴹ ]tmᴹ π₂ᴹ τᴹ
+        ∎
+      where open ≅-Reasoning
+    
+    _⨟π₁idSᴹ : (σᴹ : Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ)) → π₁ᴹ σᴹ ≡ σᴹ ⨟ᴹ π₁ᴹ idSᴹ
+    σᴹ ⨟π₁idSᴹ = sym (cong π₁ᴹ (σᴹ ⨟idSᴹ)) ∙ π₁⨟ᴹ σᴹ idSᴹ
+    
+    ↑⨟wkᴹ : (σᴹ : Subᴹ Γᴹ Δᴹ){Aᴹ : Tyᴹ Δᴹ i} → (σᴹ ↑ᴹ Aᴹ) ⨟ᴹ π₁ᴹ idSᴹ ≡ π₁ᴹ idSᴹ ⨟ᴹ σᴹ
+    ↑⨟wkᴹ {Γᴹ} {Δᴹ} {i} σᴹ {Aᴹ} = begin
+      (σᴹ ↑ᴹ Aᴹ) ⨟ᴹ π₁ᴹ idSᴹ                                     ≡⟨ (σᴹ ↑ᴹ Aᴹ) ⨟π₁idSᴹ ⟨
+      π₁ᴹ ((π₁ᴹ idSᴹ ⨟ᴹ σᴹ) ,ˢᴹ tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ)) ≡⟨ π₁,ᴹ ⟩
+      π₁ᴹ idSᴹ ⨟ᴹ σᴹ ∎
+      where open ≡-Reasoning
+    
+    [↑]vzᴹ : (σᴹ : Subᴹ Γᴹ Δᴹ)(Aᴹ : Tyᴹ Δᴹ i)
+           → [ σᴹ ↑ᴹ Aᴹ ]tmᴹ π₂ᴹ idSᴹ ≅ π₂ᴹ {Aᴹ = [ σᴹ ]ᴹ Aᴹ} idSᴹ
+    [↑]vzᴹ σᴹ Aᴹ = begin
+      [ σᴹ ↑ᴹ Aᴹ ]tmᴹ π₂ᴹ idSᴹ
+        ≅⟨ ≡-to-≅ $ π₂⨟ᴹ (σᴹ ↑ᴹ Aᴹ) idSᴹ ⟨
+      tr TmᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ (σᴹ ↑ᴹ Aᴹ) idSᴹ) ∙ [⨟]ᴹ) (π₂ᴹ ((σᴹ ↑ᴹ Aᴹ) ⨟ᴹ idSᴹ))
+        ≅⟨ tr≅ TmᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ (σᴹ ↑ᴹ Aᴹ) idSᴹ) ∙ [⨟]ᴹ) _ ⟩
+      π₂ᴹ ((σᴹ ↑ᴹ Aᴹ) ⨟ᴹ idSᴹ)
+        ≅⟨ hcong π₂ᴹ (≡-to-≅ $ (σᴹ ↑ᴹ Aᴹ) ⨟idSᴹ) ⟩
+      π₂ᴹ ((π₁ᴹ idSᴹ ⨟ᴹ σᴹ) ,ˢᴹ tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ))
+        ≅⟨ tr≅ (TmᴹFam ∘ ([_]ᴹ Aᴹ)) π₁,ᴹ _ ⟨
+      tr (TmᴹFam ∘ ([_]ᴹ Aᴹ)) π₁,ᴹ _
+        ≅⟨ ≡-to-≅ $ π₂,ᴹ ⟩
+      tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ)
+        ≅⟨ tr≅ TmᴹFam (sym [⨟]ᴹ) _ ⟩
+      π₂ᴹ idSᴹ
+        ∎
+      where open ≅-Reasoning
     
     idS↑ᴹ
       : tr Subᴹ,ᶜᴹFam [idS]ᴹ (idSᴹ ↑ᴹ Aᴹ) ≡ idSᴹ
@@ -138,24 +182,66 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
          (HEq.trans (tr≅ TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ))
                     (hcong (λ Bᴹ → π₂ᴹ {Γᴹ ,ᶜᴹ Bᴹ} idSᴹ) (≡-to-≅ [idS]ᴹ))))
     
-    -- ⨟ᴹ↑ᴹ
-    --   : tr Subᴹ,ᶜᴹFam [⨟]ᴹ ((σᴹ ⨟ᴹ τᴹ) ↑ᴹ Aᴹ) ≡ (σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (τᴹ ↑ᴹ Aᴹ)
-    -- ⨟ᴹ↑ᴹ {σᴹ = σᴹ} {τᴹ = τᴹ} {Aᴹ = Aᴹ} = begin
-    --   tr Subᴹ,ᶜᴹFam [⨟]ᴹ
-    --       ((π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ)) ,ˢᴹ tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ {Aᴹ = [ σᴹ ⨟ᴹ τᴹ ]ᴹ Aᴹ} idSᴹ))
-    --     ≡⟨ cong (tr Subᴹ,ᶜᴹFam [⨟]ᴹ) (apd₂ (λ x y → x ,ˢᴹ y) ⨟ᴹ-assoc refl) ⟩
-    --   tr Subᴹ,ᶜᴹFam [⨟]ᴹ
-    --     (((π₁ᴹ idSᴹ ⨟ᴹ σᴹ) ⨟ᴹ τᴹ) ,ˢᴹ tr (TmᴹFam ∘ ([_]ᴹ Aᴹ)) ⨟ᴹ-assoc
-    --                                     (tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ)))
-    --     ≡⟨ cong (λ uᴹ → tr Subᴹ,ᶜᴹFam [⨟]ᴹ (((π₁ᴹ idSᴹ ⨟ᴹ σᴹ) ⨟ᴹ τᴹ) ,ˢᴹ uᴹ))
-    --             (tr-cong {P = TmᴹFam} ⨟ᴹ-assoc) ⟩
-    --   tr Subᴹ,ᶜᴹFam [⨟]ᴹ
-    --      ((((π₁ᴹ idSᴹ ⨟ᴹ σᴹ) ⨟ᴹ τᴹ) ,ˢᴹ tr TmᴹFam (cong ([_]ᴹ Aᴹ) ⨟ᴹ-assoc)
-    --                                       (tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ))))
-    --     ≡⟨ cong (λ uᴹ → tr Subᴹ,ᶜᴹFam [⨟]ᴹ (((π₁ᴹ idSᴹ ⨟ᴹ σᴹ) ⨟ᴹ τᴹ) ,ˢᴹ uᴹ))
-    --             {!   !} ⟩
-    --   {!  ⨟ᴹ,ˢᴹ !}
-    --   where open ≡-Reasoning
+    ⨟↑ᴹ
+      : tr Subᴹ,ᶜᴹFam [⨟]ᴹ ((σᴹ ⨟ᴹ τᴹ) ↑ᴹ Aᴹ) ≡ (σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (τᴹ ↑ᴹ Aᴹ)
+    ⨟↑ᴹ {Γᴹ} {Δᴹ} {σᴹ} {Θᴹ} {τᴹ} {i} {Aᴹ} = ≅-to-≡ $ begin
+      tr Subᴹ,ᶜᴹFam [⨟]ᴹ
+          ((π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ)) ,ˢᴹ tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ {Aᴹ = [ σᴹ ⨟ᴹ τᴹ ]ᴹ Aᴹ} idSᴹ))
+        ≡⟨ tr-nat (λ Bᴹ → Tmᴹ (Γᴹ ,ᶜᴹ Bᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ) ]ᴹ Aᴹ))
+                  (λ _ tᴹ → (π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ)) ,ˢᴹ tᴹ) [⨟]ᴹ ⟩
+      (π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ)) ,ˢᴹ
+        tr (λ Bᴹ → Tmᴹ (Γᴹ ,ᶜᴹ Bᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ) ]ᴹ Aᴹ)) [⨟]ᴹ
+           (tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ))
+        ≡⟨ eq ≡,≅ heq ⟩
+      ((σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (π₁ᴹ idSᴹ ⨟ᴹ τᴹ)) ,ˢᴹ
+          tr TmᴹFam (sym [⨟]ᴹ)
+             ([ σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ) ]tmᴹ tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ))
+        ≡⟨ ⨟,ᴹ ⟨
+      (σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (τᴹ ↑ᴹ Aᴹ)
+        ∎
+      where
+        open ≅-Reasoning
+        _≡,≅_
+          : ∀{Γᴹ Δᴹ i}{Aᴹ : Tyᴹ Δᴹ i}
+            {σᴹ σ'ᴹ : Subᴹ Γᴹ Δᴹ}{tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ)}{t'ᴹ : Tmᴹ Γᴹ ([ σ'ᴹ ]ᴹ Aᴹ)}
+          → σᴹ ≡ σ'ᴹ → tᴹ ≅ t'ᴹ
+          → _≡_ {A = Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ)} (σᴹ ,ˢᴹ tᴹ) (σ'ᴹ ,ˢᴹ t'ᴹ)
+        refl ≡,≅ eq = cong (_ ,ˢᴹ_) (≅-to-≡ eq)
+
+        eq : π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ) ≡ (σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (π₁ᴹ idSᴹ ⨟ᴹ τᴹ)
+        eq = ≅-to-≡ $ begin
+          π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ)
+            ≡⟨ ⨟-assocᴹ ⟩
+          (π₁ᴹ idSᴹ ⨟ᴹ σᴹ) ⨟ᴹ τᴹ
+            ≡⟨ cong (_⨟ᴹ τᴹ) (↑⨟wkᴹ σᴹ) ⟨
+          ((σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ π₁ᴹ idSᴹ) ⨟ᴹ τᴹ
+            ≡⟨ ⨟-assocᴹ ⟨
+          (σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (π₁ᴹ idSᴹ ⨟ᴹ τᴹ)
+            ∎
+        
+        heq : tr (λ Bᴹ → Tmᴹ (Γᴹ ,ᶜᴹ Bᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ) ]ᴹ Aᴹ)) [⨟]ᴹ
+                 (tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ))
+            ≅ tr TmᴹFam (sym [⨟]ᴹ)
+                 ([ σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ) ]tmᴹ tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ))
+        heq = begin
+          tr (λ Bᴹ → Tmᴹ (Γᴹ ,ᶜᴹ Bᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ) ]ᴹ Aᴹ)) [⨟]ᴹ
+             (tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ))
+            ≅⟨ tr≅ (λ Bᴹ → Tmᴹ (Γᴹ ,ᶜᴹ Bᴹ) ([ π₁ᴹ idSᴹ ⨟ᴹ (σᴹ ⨟ᴹ τᴹ) ]ᴹ Aᴹ)) [⨟]ᴹ
+                   (tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ)) ⟩
+          tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ)
+            ≅⟨ tr≅ TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ) ⟩
+          π₂ᴹ {Aᴹ = [ σᴹ ⨟ᴹ τᴹ ]ᴹ Aᴹ} idSᴹ
+            ≅⟨ hcong (λ Aᴹ → π₂ᴹ {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ [⨟]ᴹ) ⟩
+          π₂ᴹ {Aᴹ = [ σᴹ ]ᴹ ([ τᴹ ]ᴹ Aᴹ)} idSᴹ
+            ≅⟨ [↑]vzᴹ σᴹ ([ τᴹ ]ᴹ Aᴹ) ⟨
+          [ σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ) ]tmᴹ π₂ᴹ {Aᴹ = [ τᴹ ]ᴹ Aᴹ} idSᴹ
+            ≅⟨ icong TmᴹFam [⨟]ᴹ ([ σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ) ]tmᴹ_)
+                     (tr≅ TmᴹFam (sym [⨟]ᴹ) _) ⟨
+          [ σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ) ]tmᴹ tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ)
+            ≅⟨ tr≅ TmᴹFam (sym [⨟]ᴹ) _ ⟨
+          tr TmᴹFam (sym [⨟]ᴹ)
+             ([ σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ) ]tmᴹ tr TmᴹFam (sym [⨟]ᴹ) (π₂ᴹ idSᴹ))
+            ∎
     
     π₁,↑ᴹ
       : tr Subᴹ,ᶜᴹFam (cong ([_]ᴹ Aᴹ) π₁,ᴹ) (π₁ᴹ (σᴹ ,ˢᴹ tᴹ) ↑ᴹ Aᴹ)
@@ -169,20 +255,26 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         ∎
       where open ≡-Reasoning
 
-    -- π₁⨟ᴹ↑ᴹ
-    --   : tr Subᴹ,ᶜᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ) ∙ [⨟]ᴹ)
-    --        ((π₁ᴹ (σᴹ ⨟ᴹ τᴹ)) ↑ᴹ Aᴹ)
-    --   ≡ (σᴹ ↑ᴹ ([ π₁ᴹ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (π₁ᴹ τᴹ ↑ᴹ Aᴹ)
-    -- π₁⨟ᴹ↑ᴹ {Aᴹ = Aᴹ} {σᴹ = σᴹ} {τᴹ = τᴹ} = begin
-    --   tr Subᴹ,ᶜᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ) ∙ [⨟]ᴹ)
-    --      ((π₁ᴹ (σᴹ ⨟ᴹ τᴹ)) ↑ᴹ Aᴹ)
-    --     ≡⟨ tr² (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ)) ⟨
-    --   tr Subᴹ,ᶜᴹFam [⨟]ᴹ
-    --     (tr Subᴹ,ᶜᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ))
-    --         ((π₁ᴹ (σᴹ ⨟ᴹ τᴹ)) ↑ᴹ Aᴹ))
-    --     ≡⟨ {!   !} ⟩
-    --   {!   !}
-    --   where open ≡-Reasoning
+    π₁⨟↑ᴹ
+      : tr Subᴹ,ᶜᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ) ∙ [⨟]ᴹ)
+           ((π₁ᴹ (σᴹ ⨟ᴹ τᴹ)) ↑ᴹ Aᴹ)
+      ≡ (σᴹ ↑ᴹ ([ π₁ᴹ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (π₁ᴹ τᴹ ↑ᴹ Aᴹ)
+    π₁⨟↑ᴹ {Aᴹ = Aᴹ} {σᴹ = σᴹ} {τᴹ = τᴹ} = begin
+      tr Subᴹ,ᶜᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ) ∙ [⨟]ᴹ)
+         ((π₁ᴹ (σᴹ ⨟ᴹ τᴹ)) ↑ᴹ Aᴹ)
+        ≡⟨ tr² (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ)) ⟨
+      tr Subᴹ,ᶜᴹFam [⨟]ᴹ
+        (tr Subᴹ,ᶜᴹFam (cong ([_]ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ))
+            ((π₁ᴹ (σᴹ ⨟ᴹ τᴹ)) ↑ᴹ Aᴹ))
+        ≡⟨ cong (tr Subᴹ,ᶜᴹFam [⨟]ᴹ) (tr-cong (π₁⨟ᴹ σᴹ τᴹ)) ⟨
+      tr Subᴹ,ᶜᴹFam [⨟]ᴹ
+        (tr (Subᴹ,ᶜᴹFam ∘ ([_]ᴹ Aᴹ)) (π₁⨟ᴹ σᴹ τᴹ) ((π₁ᴹ (σᴹ ⨟ᴹ τᴹ)) ↑ᴹ Aᴹ))
+        ≡⟨ cong (tr Subᴹ,ᶜᴹFam [⨟]ᴹ) (apd (_↑ᴹ Aᴹ) (π₁⨟ᴹ σᴹ τᴹ)) ⟩
+      tr Subᴹ,ᶜᴹFam [⨟]ᴹ ((σᴹ ⨟ᴹ π₁ᴹ τᴹ) ↑ᴹ Aᴹ)
+        ≡⟨ ⨟↑ᴹ ⟩
+      (σᴹ ↑ᴹ ([ π₁ᴹ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (π₁ᴹ τᴹ ↑ᴹ Aᴹ)
+        ∎
+      where open ≡-Reasoning
   
   record Univ (C : CwF) : Set (ℓ ⊔ ℓ′) where
     open CwF C

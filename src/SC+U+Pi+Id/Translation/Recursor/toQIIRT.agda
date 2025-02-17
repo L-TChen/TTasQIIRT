@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 open import Prelude
 
 module SC+U+Pi+Id.Translation.Recursor.toQIIRT where
@@ -49,9 +48,9 @@ module _  {ℓ ℓ′}(rec : Recursor {ℓ} {ℓ′}) where
       ; [_]tmᴹ_   = [_]tmᴹ_
       ; _↑ᴹ_      = _↑ᴹ_
       ; idS↑ᴹ     = idS↑ᴹ
-      ; ⨟↑ᴹ       = {!   !}
+      ; ⨟↑ᴹ       = ⨟↑ᴹ
       ; π₁,↑ᴹ     = π₁,↑ᴹ
-      ; π₁⨟↑ᴹ     = {!   !}
+      ; π₁⨟↑ᴹ     = π₁⨟↑ᴹ
       ; ∅↑ᴹ       = refl
       ; ,↑ᴹ       = refl
       ; π₁idS↑ᴹ   = refl
