@@ -31,7 +31,6 @@
 
 \newcommand{\reduce}{\mathbin{\Rightarrow}}
 \newcommand\dplus{\ensuremath{\mathbin{+\mkern-10mu+}}}
-\newcommand{\sub}[2]{[#1]\,{#2}}
 
 \newcommand{\transp}{\ensuremath{\mathsf{transport}}\xspace}
 \newcommand{\alert}[1]{{\color{red}#1}}
@@ -374,3 +373,11 @@
 \newcommand{\idS}{\ensuremath{\mathsf{id}}} 
 %\newcommand{\instSub}[1]{\ensuremath{(\idS, #1)}}
 \newcommand{\instSub}[1]{\ensuremath{\langle\,#1\,\rangle}}
+
+%\newcommand{\sub}[2]{[#1]\,{#2}}
+\newcommand{\sub}[2]{{{#1}[ #2 ]}}
+\newcommand{\subTm}[2]{{{#1}[ #2 ]_{\Tm}}}
+\newcommand{\subTy}[2]{{{#1}[ #2 ]_{\Ty}}}
+\newcommand{\subTel}[2]{{{#1}[ #2 ]_{\Tel}}}
+
+\newcommand{\cc}{\mathsf{c}}
