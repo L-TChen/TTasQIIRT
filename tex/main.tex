@@ -48,13 +48,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage[obeyFinal,textsize=footnotesize]{todonotes}
+\usepackage{float}
 \usepackage{manfnt}
 \newcommand{\danger}{\marginpar[\hfill\dbend]{\dbend\hfill}}
 \newcommand{\LT}[2][]{\todo[inline,author={L-T},caption={},color={pink},#1]{#2}}
 \newcommand{\Gene}[2][]{\todo[inline,author={Gene},caption={},#1]{#2}}
 \newcommand{\Fredrik}[2][]{\todo[inline,author={Fred},caption={},#1]{#2}}
 \lstset{
-    basicstyle=\large\ttfamily,
+    basicstyle=\ttfamily,
     breaklines=true,
     breakatwhitespace=true,
     literate=%
@@ -147,7 +148,7 @@ In particular, we give
 \end{itemize}
 
 \subparagraph*{Plan of the paper}
-In the rest of the paper, we introduce the metalanguage in \cref{sec:meta}.
+In the rest of the paper, we introduce the metatheory in \cref{sec:meta}.
 Then, we develop type theories formulated as QIIRTs in \cref{sec:QIIRTs}, followed by their elimination principles and usage in \cref{sec:models}.
 We outline the \Agda formal implementation in \cref{sec:formal-implementation}, and we conclude with related and future work in \cref{sec:conclusion}.
 
@@ -181,7 +182,7 @@ In contrast, an inductive-recursive type is defined inductively \emph{simultaneo
 \]
 with $T(\pi(a, b)) = (x : T\,a) \to T(b\, x)$ only makes sense because we already have access to the decoding function $T$.
 %
-Inductive-recursive types (IRT) were introduced by Dybjer~\cite{Dybjer2000}, and then extensively studied by Dybjer and Setzer~\cite{Dybjer1999,Dybjer2003}.
+Inductive-recursive types (IRT), introduced by Dybjer~\cite{Dybjer2000}, were extensively studied by Dybjer and Setzer~\cite{Dybjer1999,Dybjer2003}.
 The general schema allows one to define a type $A$ inductively, together with a recursive function $F : A \to D$, for some fixed (possibly large) type $D$.
 
 An IRT $(A, F)$ comes with an elimination rule that allows to define a dependent function  $f : (x : A) \to P(x)$ by giving values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of $A$, again reflecting that $A$ is inductively defined.
@@ -208,19 +209,26 @@ Since we assume the uniqueness of identity proofs, all QITs are implicitly trunc
 %
 For example, the type of \emph{join lists} $\JList{A}$ can be given by the QIT
 with the following constructors:
+%\begin{figure}[H]
+\begin{minipage}{.35\textwidth}
 \begin{alignat*}{3}
   \Jnil                    & : \implicit{A}      && \JList{A} \\
   \Jsing{\blank}           & : \implicit{A}      && A \to \JList{A} \\
-  \Jconcat{\blank}{\blank} & : \implicit{A}      && \JList{A} \to \JList{A} \to \JList{A} \\
-  \mathsf{idl}             & : \implicit{\ell}\; && (\Jconcat{\ell}{\Jnil}) =^{\JList{A}} \ell \\
-  \mathsf{idr}             & : \implicit{\ell}\; && (\Jconcat{\Jnil}{\ell}) =^{\JList{A}} \ell \\
+  \Jconcat{\blank}{\blank} & : \implicit{A}      && \JList{A} \to \JList{A} \to \JList{A}
+\end{alignat*}
+\end{minipage}
+\begin{minipage}{.64\textwidth}
+\begin{alignat*}{3}
+  \mathsf{idr}             & : \implicit{\ell}\; && (\Jconcat{\ell}{\Jnil}) =^{\JList{A}} \ell \\
+  \mathsf{idl}             & : \implicit{\ell}\; && (\Jconcat{\Jnil}{\ell}) =^{\JList{A}} \ell \\
   \mathsf{assoc}           & : \implicit{\ell_0, \ell_1, \ell_2}\; && \Jconcat{(\Jconcat{\ell_0}{\ell_1})}{\ell_2} =^{\JList{A}} \Jconcat{\ell_0}{(\Jconcat{\ell_1}{\ell_2})}
 \end{alignat*}
-
-
+\end{minipage}
+%\end{figure}
+\vskip\belowdisplayskip\noindent
 A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a type family $B : A \to \Set$, where both $A$ and $B$ are defined inductively --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively.
 %; indeed, inductive-inductive definitions only make sense when $D = \Set$.
-The metatheory of QIITs has been extensively studied by Altenkirch, Kaposi and Kov\'acs~\cite{Kaposi2018,Kaposi2019,Kovacs2020}.
+The metatheory of QIITs has been studied by Altenkirch et al.~\cite{Kaposi2018,Kaposi2019,Kovacs2020}
 
 We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: the type $\JList{A}$ is defined simultaneously with a recursion $\flatten : \implicit{A}\;\JList{A} \to \List{A}$ which flattens a join list into an ordinary list. We keep the constructors $\Jnil$, $\Jsing{\blank}$ and $\Jconcat{\blank}{\blank}$, but replace $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
 \[
@@ -232,8 +240,11 @@ which states that join lists are equal as soon as their flattenings are equal. F
 
 
 \subsection{Definitions by overlapping patterns} \label{sec:meta:overlapping}
-\begin{figure}[b]
-\begin{minipage}[t]{.48\textwidth}
+Functions are typically defined informally using pattern matching for convenience and readability. Formally, however, they are either defined using an explicit pattern-matching construct or elaborated into case trees, which correspond to the \emph{eliminator}, following \emph{first-match} semantics~\cite{Cockx2020a} and employing termination and completeness checking.
+This elaboration offers the conventional notation, while making computational behaviour opaque and favouring asymmetric definitions.
+For example, two definitions of addition below
+%\begin{figure}[H]%
+\begin{minipage}{.48\textwidth}
   \begin{alignat*}{5}
     \blank  & + \blank     && : \N \to \N \to \N \\
     0       &  + m         && = m  \\
@@ -242,7 +253,7 @@ which states that join lists are equal as soon as their flattenings are equal. F
   n         &  + (\suc\;m) && = \suc\;(n + m)
 \end{alignat*}
 \end{minipage}
-\begin{minipage}[t]{.5\textwidth}
+\begin{minipage}{.5\textwidth}
 \begin{alignat*}{5}
   \blank         & +'\blank     && : \N \to \N \to \N \\
   0              & +' m         && \defeq m  \\
@@ -250,13 +261,11 @@ which states that join lists are equal as soon as their flattenings are equal. F
   (\suc\;n)      & +' (\suc\;m) && \defeq \suc\;(n +' \suc\;m)
 \end{alignat*}
 \end{minipage}
-\caption{Two seemingly different definitions of addition}
-\label{fig:additions}
-\end{figure}
-Functions are typically defined informally using pattern matching for convenience and readability. Formally, however, they are either defined using an explicit pattern-matching construct or elaborated into case trees, which correspond to the \emph{eliminator}, following \emph{first-match} semantics~\cite{Cockx2020a} and employing termination and completeness checking.
-This elaboration offers the conventional notation, while making computational behaviour opaque and favouring asymmetric definitions.
-For example, two definitions of addition in \cref{fig:additions} are the same
-after elaboration in \Agda: eliminating the first argument of $+$ distinguishes $0$ and $\suc\;n$ and refines the second and the third clauses into clauses of $+'$, making the fourth clause useless.
+\vskip\belowdisplayskip\noindent
+%\caption{Two seemingly different definitions of addition}
+%\label{fig:additions}
+%\end{figure}
+are the same after elaboration in \Agda: eliminating the first argument of $+$ distinguishes $0$ and $\suc\;n$ and refines the second and the third clauses into clauses of $+'$, making the fourth clause useless.
 Each clause of $+'$ is strict (hence the symbol $\defeq$ is used) while clauses of $+$ are not necessarily strict by definition.
 %This semantics for function definitions decides how definitions reduce and therefore how identities are proved.
 
@@ -282,8 +291,8 @@ We then introduce its QIIRT counterpart (\cref{subsec:SC-QIIRT}) which shortens 
 
 \subsection{Substitution calculus as a quotient inductive-inductive type} \label{subsec:SC-QIIT}
 
-Substitution calculus has a type $\Ctx$ of contexts, a type $\Ty\,\Gamma$ of types in context $\Gamma : \Ctx$, a type $\Sub\;\Gamma\;\Delta$ of substitutions from context $\Gamma$ to context $\Delta$, and a type $\Tm\;\Gamma\;A$ of terms in context $\Gamma$ of type $A$. 
-This amounts to the following type families, all mutually inductively defined (hence inductive-inductive):
+Substitution calculus has a type $\Ctx$ of contexts, a type $\Ty\,\Gamma$ of types in context $\Gamma : \Ctx$, a type $\Sub\;\Gamma\;\Delta$ of substitutions from context $\Gamma$ to context $\Delta$, and a type $\Tm\;\Gamma\;A$ of $A$-typed terms in $\Gamma$. 
+This amounts to the following type families, mutually inductively defined:
 \begin{align*}
   \Ctx   & : \Set                   & \Sub   & : \Ctx \to \Ctx \to \Set \\
   \Ty    & : \Ctx \to \Set          & \Tm    & : (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Set
@@ -296,11 +305,11 @@ $\Ctx$ has two constructors: $\emptyctx$ for the empty context, and $\blank,\bla
 \]
 Note that a context extension $\Gamma , A$ is only wellformed if $A : \Ty\;\Gamma$, ensuring overall wellformedness of contexts, but requiring contexts and types to be defined simultaneously.
 
-Type substitution takes a substitution $\sigma : \Sub\;\Gamma\;\Delta$ and an inhabitant $A : \Ty\;\Delta$ to form a type under $\Gamma$, i.e., type substitution as a constructor has type
+Type substitution takes a substitution $\sigma : \Sub\;\Gamma\;\Delta$ and an inhabitant $A : \Ty\;\Delta$ to form a type under $\Gamma$, i.e.\ with $\Gamma$ and $\Delta$ being implicit type substitution as a constructor has type
 \begin{alignat*}{3}
   [\blank]\blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma
 \end{alignat*}
-where $\Gamma$ and $\Delta$ are kept implicit.
+
 \Fredrik[noinline]{Could we change this to $A[\sigma]$ instead?}
 \LT[noinline]{I am okay with changing it in the paper: This notation is used in the formalisation to avoid using $\comp$ for substitution composition}
 \LT[noinline]{The rule \textsf{concat} doesn't look like concatenation with the $\tau \comp \sigma$ because the $\sigma$ is a snoc-list.}
@@ -323,7 +332,8 @@ Substitutions from $\Gamma$ to $\Delta$ can be understood intuitively as (snoc-)
   \blank,\blank : \implicit{\Gamma, \Delta, A}\; (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\;\Gamma\;([ \sigma ]\, A) \to \Sub\;\Gamma\;(\Delta, A).
 \]
 Note that type substitution $[\sigma]\,A$ is needed, because $A$ is well-formed in context $\Delta$ rather than in $\Gamma$.
-We also ask for identity substitutions $\idS$ and compositions $\sigma;\tau$, because the substitution calculus is supposed to be the initial \emph{category} with families:
+We also ask for identity substitutions $\idS$ and compositions $\sigma;\tau$
+%because the substitution calculus is supposed to be the initial \emph{category} with families:
 %Substitutions also have the identity substitution $\idS$ and composition $\blank;\blank$ (because substitution calculus is the initial \emph{category} with families),
 \[
   \idS : \implicit{\Gamma}\; \Sub\;\Gamma\;\Gamma
@@ -342,7 +352,7 @@ Finally, we have term substitution, which given $\sigma : \Sub\;\Gamma\;\Delta$ 
 \begin{alignat*}{3}
   [\blank] \blank & : \implicit{\Gamma,\Delta, A}\;(\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Delta\;A \to \Tm\;\Gamma\;([\sigma]\, A).
 \end{alignat*}
-Note that $[\blank]\blank$ is overloaded for type and term substitution.
+%Note that $[\blank]\blank$ is overloaded for type and term substitution.
 
 The structural rules for type substitution are stipulated by following equality constructors:
 \begin{alignat*}{3}
@@ -785,7 +795,7 @@ Instead of resorting to \transp, we also turn telescope substitution $[\blank]_{
   & (\sigma;\tau) && \upuparrows \Xi && \reduce (\sigma \upuparrows [ \tau ]_{\Tel} \Xi) ; (\tau \upuparrows \Xi)
 \end{alignat*}
 \end{minipage}\vskip\belowdisplayskip\noindent
-whose confluence property is easy to see.
+%whose confluence property is easy to see.
 
 Of course, we also have to prove coherence for the newly introduced recursive functions to verify that they are well defined.
 
@@ -825,30 +835,27 @@ can be derived without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref
 
 \subsection{Adding other type formers} \label{subsec:SC+U+Pi+more}
 
-We can add extensional identity types, a hierarchy of Coquand universes~\cite{Coquand2018}, and a unit type with an eta law, all without any additional difficulty. In particular, all these additions can be done without introducing any transports in the syntax. However, adding an inductive type such as the Booleans does introduce a little bit of friction; let us see why. We introduce the type $\bool$ itself, its two constructors $\btrue$ and $\bfalse$, and its elimination principle $\belim$:
+We can add extensional identity types, a hierarchy of Coquand universes~\cite{Coquand2018}, and a unit type with an eta law, all without any additional difficulty. In particular, all these additions can be done without introducing any transports in the syntax. However, adding an inductive type such as the Booleans does introduce a little bit of friction; let us see why.
+We introduce the type $\bool : \implicit{\Gamma}\;\Ty\;\Gamma$ itself, its constructors $\btrue, \bfalse : \implicit{\Gamma}\;\Tm\;\Gamma\;\bool$ and its elimination principle:
 %
 \begin{alignat*}{3}
-  \bool     &: \implicit{\Gamma}         \;  && \Ty\;\Gamma \\
-  \btrue, \bfalse &: \implicit{\Gamma}   \;  && \Tm\;\Gamma\;\bool \\
   \belim &: \implicit{\Gamma} \; && (P : \Ty\;(\Gamma , \bool)) \to \Tm\;\Gamma\;([ \instSub{\bfalse} ]_{\Ty} P) \to \Tm\;\Gamma\;([ \instSub{\btrue} ]_{\Ty} P) \\
   &&& \qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\quad \to (b : \Tm\;\Gamma\;\bool) \to \Tm\;\Gamma\;([ \instSub{b} ]_{\Ty} P)
 \end{alignat*}
 %
-where we have written $\instSub{t} = (\idS, t) : \Sub\;\Gamma\;(\Gamma, A)$ for the substitution that substitutes $t : A$ for the top variable and leaves all other variables in place. We can add the expected computation rules
+where $\instSub{t} \defeq (\idS, t) : \Sub\;\Gamma\;(\Gamma, A)$ for the substitution that substitutes $t : A$ for the top variable and leaves all other variables in place. We can add the expected computation rules
 %
 \begin{alignat*}{5}
   \bool\beta_{\bfalse}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\bfalse && =^{\Tm\;\Gamma\;[\instSub{\bfalse}]_{\Ty} P} {} && f \\
   \bool\beta_{\btrue}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\btrue && =^{\Tm\;\Gamma\;[\instSub{\btrue}]_{\Ty} P} {} && t
 \end{alignat*}
 %
-and the structural rule for type substitution as another straightforward clause
-\[
-  \;[ \sigma ]_{\Ty}\,\bool \reduce \bool \enspace ,
-\]
+and the structural rule for type substitution as another straightforward clause $[ \sigma ]_{\Ty}\,\bool \reduce \bool$,
 but when we try to add the structural rule for term substitution applied to the eliminator, we end up with the following:
 %
 \begin{alignat*}{5}
-  []\belim & : \implicit{\Gamma, \sigma, P, f, t, b}\; \\ & \quad [ \sigma ] (\belim\,P\,f\,t\,b) =^{\Tm\,\Gamma\,([ \sigma; \instSub{b} ]\,P)}_{\alert{p(b)}} \belim\,([ \sigma^+ ] P)\,&&(\alert{\transfib{\Tm\,\Gamma}{p(\bfalse)}{\textcolor{black}{[ \sigma ]\,f}}}) \\&&&(\alert{\transfib{\Tm\,\Gamma}{p(\btrue)}{\textcolor{black}{[ \sigma ]\,t}}})\\&&&([\sigma ]\,b)
+  []\belim & : \implicit{\Gamma, \sigma, P, f, t, b}\; [ \sigma ] (\belim\,P\,f\,t\,b) \\
+           & =^{\Tm\,\Gamma\,([ \sigma; \instSub{b} ]\,P)}_{\alert{p(b)}} \belim\,([ \sigma^+ ] P)\;(\alert{\transfib{\Tm\,\Gamma}{p(\bfalse)}{\textcolor{black}{[ \sigma ]\,f}}})\;(\alert{\transfib{\Tm\,\Gamma}{p(\btrue)}{\textcolor{black}{[ \sigma ]\,t}}})\; ([\sigma ]\,b)
 \end{alignat*}
 where the proof $p(x) : [ \instSub{[ \sigma ]_{\Ty}\,x} ; \sigma^+ ]\;P = [ \sigma ; \instSub{x} ]_{\Ty}\;P$ is needed to line up the types. Even though this is an equation between type substitutions, which we could hope make compute, there is no obvious way to direct the equation, and simply adding it as a reduction leads to confluence problems. Hence, we do not know how to get rid of these transports.
 
@@ -1078,23 +1085,24 @@ Hence, we use the heterogeneous congruence $\mathit{hap}_f\colon (p : x \simeq y
 
 \section{Conclusions, and related and future work}\label{sec:conclusion}
 
-We have used quotient inductive-recursive types and overlapping
-patterns to represent type theory in type theory. By defining type
+We have used QIIRTs and overlapping
+patterns to represent type theory in (intensional) type theory. By defining type
 substitution recursively with overlapping patterns, we can avoid most
-transports that show up in terms in other formalisations of type
-theory in (intensional) type theory. In other words, we have shown that so-called
+coercions that appear in terms in other formalisations of type
+theory in type theory. In other words, we have shown that so-called
 `transport hell' can be minimised when formalising type theory in type
-theory this way, without hiding any details in the formalisation.
+theory this way, without hiding details in the formalisation.
 
 %\subsection{Related work}
 %\paragraph*{Formalisation of type theory in type theory}
 
-The idea of representing type theory in type theory in a well typed manner goes back to Dybjer~\cite{Dybjer1996} (see also Clairambault and Dybjer~\cite{Clairambault2014} and Castellan, Clairambault and Dybjer~\cite{Castellan2021} for recent developments). Dybjer's notion of \emph{category with families} can be seen as a semantic structure corresponding closely to the syntax of type theory, and many of the formalisations of type theory in type theory can be understood as capturing the initial category with families via inductive or quotient-inductive types. The equations involved are very similar to the equations described in Martin-L\"of's substitution calculus~\cite{Martin-Lof1992}.
+The idea of representing type theory in type theory in a well typed manner goes back to Dybjer~\cite{Dybjer1996} (see also~\cite{Clairambault2014,Castellan2021}). Dybjer's notion of \emph{category with families} can be seen as a semantic structure corresponding closely to the syntax of type theory, and many of the formalisations of type theory in type theory can be understood as capturing the initial category with families via inductive or quotient-inductive types. The equations involved are very similar to the equations described in Martin-L\"of's substitution calculus~\cite{Martin-Lof1992}.
 
-Like us, Danielsson~\cite{Danielsson2006} defines type substitution by a recursive function, while keeping term substitution a constructor. However because he does not use quotients, he also has an explicit term constructor for transporting terms along an inductively defined type of conversion rules, which explicitly contains congruence rules. We are able to remove a lot of the boilerplate by using actual equality constructors instead. Chapman~\cite{Chapman2009} similarly uses explicit term substitutions and explicit transports along conversion rules, but also uses explicit type substitition in favour of more straightforward foundations.
+Like us, Danielsson~\cite{Danielsson2006} defines type substitution by a recursive function, while keeping term substitution a constructor. However because he does not use quotients, he also has an explicit term constructor for transporting terms along an inductively defined type of conversion rules, which explicitly contains congruence rules. We are able to remove a lot of the boilerplate by using equality constructors instead. Chapman~\cite{Chapman2009} similarly uses explicit term substitutions and explicit transports along conversion rules, but also uses explicit type substitition in favour of more straightforward foundations.
 McBride~\cite{McBride2010} offers another solution which uses an inductive-recursive type to reuse the equality of the metatheory rather than using explicit transports. This works well if the object theory and meta theory are similar, but does not allow to represent equalities that do not hold in the metatheory.
 
-Altenkirch and Kaposi~\cite{Altenkirch2016a} were the first to exploit QIITs to simplify the treatment of computation rules in representations of type theory in type theory. We build heavily on their ideas, but by using Danielsson's~\cite{Danielsson2006} idea of defining type substitution recursively, we are able to remove many explicit transports from the definition, with the result that it is closer to an informal exposition on paper. Such a benefit was also suggested by Kaposi's~\cite{Kaposi2023} work, where the simply typed lambda calculus was used as an example. Altenkirch and Kaposi has built on the QIIT representation with great success to derive non-trivial results such as normalisation by evaluation~\cite{Altenkirch2017}, and investigate the metatheory of QIITs themselves, together with Kov\'acs~\cite{Kaposi2019}.
+Altenkirch and Kaposi~\cite{Altenkirch2016a} were the first to exploit QIITs to simplify the treatment of computation rules in representations of type theory.% in type theory.
+We build heavily on their ideas, but by using Danielsson's~\cite{Danielsson2006} idea of defining type substitution recursively, we are able to remove many explicit transports from the definition, with the result that it is closer to an informal exposition on paper. Such a benefit was also suggested by Kaposi's~\cite{Kaposi2023} work, where simply typed lambda calculus was used as an example. Altenkirch and Kaposi has built on the QIIT representation with great success to derive non-trivial results such as normalisation by evaluation~\cite{Altenkirch2017}, and investigate the metatheory of QIITs themselves, together with Kov\'acs~\cite{Kaposi2019}.
 
 In the future, we hope to settle the foundational status of the
 combination of quotient types, inductive-inductive types, and the kind
