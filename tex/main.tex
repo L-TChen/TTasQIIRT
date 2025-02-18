@@ -445,9 +445,9 @@ Note that this does not follow the schema of inductive-recursive definitions giv
 %Nevertheless, $[\idS]_{\Ty}\,A$ and $[\sigma; \tau]_{\Ty}\,A$ do not reduce to~$A$ and~$[\sigma]_{\Ty}\,[\tau]_{\Ty}\,A$ respectively, even though they are provable.
 %This definition fails to remove any transport in the definition of substitution calculus.
 %
-Since we want type substitution to both act structurally on types and commute with identities and composition, we could try to define it recursively as follows:
+Since we want type substitution to both act structurally on types and commute with identities and composition, we could try to define$[\blank]_{\Ty} \blank : \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma$ recursively as follows:
 \begin{alignat}{3}
-[\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \nonumber \\
+%[\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \nonumber \\
 [ \sigma ]_{\Ty}       \;\UU  & = \UU                                   \label{eq:type-sub-at2-1} \\
 [ \idS ]_{\Ty}         \;A    & = A                                     \label{eq:type-sub-at2-2} \\
 [ \sigma ; \tau ]_{\Ty}\;A    & = [ \sigma ]_{\Ty}\;([ \tau ]_{\Ty}\;A) \label{eq:type-sub-at2-3}
@@ -1119,25 +1119,33 @@ using sheaf theory.
 \appendix
 
 \section{Complete definitions}\label{appendix:full-def}
+
+\paragraph*{Quotient inductive-inductive-recursive types}
 We give the QIIR definition for type theory with a universe of small types, $\Pi$-types, and extensional identity types in one place below.
 
-\paragraph*{Substitution calculus with a base type $\UU$}
+\subparagraph*{Substitution calculus with a base type $\UU$}
 \begin{alignat*}{3}
   \Ctx      & : && \Set                   \\
   \Ty       & : && \Ctx \to \Set          \\
   \Sub      & : && \Ctx \to \Ctx \to \Set \\
-  \Tm       & : && (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Set \\
-  [\blank]_{\Ty}\blank & : \implicit{\Gamma, \Delta}\; && \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
+  \Tm       & : && (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Set
+\end{alignat*}
+\begin{alignat*}{5}
   \emptyctx & : && \Ctx \\
-  \blank,\blank & : && (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Ctx \\
+  \blank,\blank & : && (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Ctx
+\end{alignat*}
+\begin{alignat*}{5}
+  [\blank]_{\Ty}\blank & : \implicit{\Gamma, \Delta}\; && \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
+  \UU     & : \implicit{\Gamma}\; && \Ty\; \Gamma
+\end{alignat*}
+\begin{alignat*}{5}
   \emptysub & : \implicit{\Gamma} && \Sub\;\Gamma\;\emptyctx \\
   \blank,\blank & : \implicit{\Gamma, \Delta, A} && (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Gamma\;([ \sigma ]_{\Ty}\,A) \to \Sub\;\Gamma,(\Delta, A) \\
   \idS & : \implicit{\Gamma} && \Sub\;\Gamma\;\Gamma \\
   \blank;\blank & : \implicit{\Gamma, \Delta, \Theta} && \Sub\;\Gamma\;\Delta \to \Sub\;\Delta\;\Theta \to \Sub\;\Gamma\;\Theta \\
   \pi_1 & : \implicit{\Gamma, \Delta, A}\; && \Sub\;\Gamma\;(\Delta, A) \to \Sub\;\Gamma\;\Delta \\
   \pi_2 & : \implicit{\Gamma, \Delta, A}\; && (\sigma : \Sub\;\Gamma\;(\Delta, A)) \to \Tm\;\Gamma\;([ \pi_1\;\sigma ]_{\Ty}\, A) \\
-  [\blank] \blank & : \implicit{\Gamma,\Delta, A} && (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Delta\;A \to \Tm\;\Gamma\;([\sigma]_{\Ty}\, A) \\
-  \UU     & : \implicit{\Gamma}\; && \Ty\; \Gamma
+  [\blank] \blank & : \implicit{\Gamma,\Delta, A} && (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Delta\;A \to \Tm\;\Gamma\;([\sigma]_{\Ty}\, A)
 \end{alignat*}
 \begin{alignat*}{5}
   & [ \idS ]_{\Ty}\,               && A           && \reduce A \\
@@ -1147,19 +1155,19 @@ We give the QIIR definition for type theory with a universe of small types, $\Pi
   & [ \sigma ]_{\Ty}\,             && \UU         && \reduce \UU
 \end{alignat*}
 \begin{alignat*}{5}
-  \mathsf{idr}    & : \implicit{\Gamma, \Delta, \sigma}\; && {\sigma ; \idS_{\Delta}} && =^{\Sub\;\Gamma\;\Delta} && {\sigma} \\
-  \mathsf{idl}    & : \implicit{\Gamma, \Delta, \sigma}\; && {\idS_{\Gamma} ; \sigma} && =^{\Sub\;\Gamma\;\Delta} && {\sigma} \\
+  ;\text{-}\mathsf{idr}    & : \implicit{\Gamma, \Delta, \sigma}\; && {\sigma ; \idS_{\Delta}} && =^{\Sub\;\Gamma\;\Delta} && {\sigma} \\
+  ;\text{-}\mathsf{idl}    & : \implicit{\Gamma, \Delta, \sigma}\; && {\idS_{\Gamma} ; \sigma} && =^{\Sub\;\Gamma\;\Delta} && {\sigma} \\
   ;\text{-}\mathsf{assoc} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, \gamma}\; && (\sigma ; \tau) ; \gamma && =^{\Sub\;\Gamma\;\Theta} &&  \sigma ; (\tau ; \gamma) \\
   \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t}\; &&\sigma ; (\tau , t) && =^{\Sub\;\Gamma\;(\Theta, A)} &&  (\sigma ; \tau) , [ \sigma ] t \\
   \pi_1\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t}\; && \pi_1(\sigma , t)        && =^{\Sub\;\Gamma,\Delta} &&  \sigma \\
   \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t}\; && \pi_2(\sigma , t)        && =^{\Tm\;\Gamma\; A} &&  t \\
   \emptyctx\eta   & : \implicit{\Gamma, \sigma}\; && \sigma                   && =^{\Sub\;\Gamma\;\emptyctx} & \emptysub \\
   \pi\eta         & : \implicit{\Gamma, A, \sigma}\; && \sigma                   && =^{\Sub\;\Gamma\;(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma) \\
-  [\idS]t         & : \implicit{\Gamma, A, t}\; && {[\idS]\;t}          && =^{\Tm\;\Gamma\;A} && t \\
-  [;]t            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t}\; && {[\sigma ; \tau]\;t} && =^{\Tm\;\Gamma\;[\sigma ; \tau] A} && {[ \sigma ]\;[ \tau ]\;t}
+  [\idS]          & : \implicit{\Gamma, A, t}\; && {[\idS]\;t}          && =^{\Tm\;\Gamma\;A} && t \\
+  [;]             & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t}\; && {[\sigma ; \tau]\;t} && =^{\Tm\;\Gamma\;[\sigma ; \tau] A} && {[ \sigma ]\;[ \tau ]\;t}
 \end{alignat*}
 
-\paragraph*{Universe of small types}
+\subparagraph*{Universe of small types}
 \begin{alignat*}{5}
   [\blank]_{\Tm}\blank            & : \implicit{\Gamma, \Delta, A}\; (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Delta\;A \to \Tm\;\Gamma\;([\sigma]_{\Ty}\,A) \\ 
  [ \idS ]_{\Tm}\,t                & \reduce t \\
@@ -1174,10 +1182,10 @@ We give the QIIR definition for type theory with a universe of small types, $\Pi
 \end{alignat*}
 
 \begin{alignat*}{5}
-  \nameless & : [ \sigma ]_{\Ty}\,  && (\El\, u) \reduce \El\,([\sigma]_{\Tm}{u})
+  [ \sigma ]_{\Ty}\,  && (\El\, u) \reduce \El\,([\sigma]_{\Tm}{u})
 \end{alignat*}
 
-\paragraph*{$\Pi$-types}
+\subparagraph*{$\Pi$-types}
 \begin{alignat*}{5}
   \blank^+ & : \implicit{\Gamma, \Delta, A}\; (\sigma : \Sub\;\Gamma\;\Delta) \to \Sub\;(\Gamma, [\sigma]_{\Ty}\;A)\;(\Delta, A) \\
   \sigma^+ & \defeq (\pi_1\idS; \sigma), \pi_2\sigma
@@ -1196,22 +1204,25 @@ We give the QIIR definition for type theory with a universe of small types, $\Pi
   \mathsf{app}    &: \implicit{\Gamma, A, B} \; && \Tm\;\Gamma\;(\Pi\;A\;B) \to \Tm\;(\Gamma, A)\;B
 \end{alignat*}
 \begin{alignat*}{5}
-  \nameless       &: && [ \sigma ]_{\Ty}\, (\Pi\,A\,B) && {} \reduce {} && \Pi\,(\sub{\sigma}{A})\,(\sub{\sigma\uparrow A}{B}) \\
+  [ \sigma ]_{\Ty}\, (\Pi\,A\,B) \reduce \Pi\,(\sub{\sigma}{A})\,(\sub{\sigma\uparrow A}{B})
+\end{alignat*}
+\begin{alignat*}{5}
   []\lambda       & : \implicit{\Gamma, \Delta, \sigma, A, t}\;&& [ \sigma ] \,(\lambda\,t) && {} =^{\Tm\;\Gamma\;([\sigma]_{\Ty}(\Pi\,A\,B)} {} && \lambda ([\sigma \uparrow A ]\,t)\\
   \Pi\beta        & : \implicit{\Gamma, A, B, t}\; && \mathsf{app}\,(\lambda\,t)            && =^{\Tm\;\Gamma\;A} && t \\
   \Pi\eta         & : \implicit{\Gamma, A, B, t}\; && t                                     && =^{\Tm\;\Gamma\;A} && \lambda(\mathsf{app}\,t)
 \end{alignat*}
 
-\paragraph*{Extensional identity types}
+\subparagraph*{Extensional identity types}
 
 \begin{alignat*}{5}
   \mathsf{Id} & : \implicit{\Gamma} && (a : \Tm\;\Gamma\;\UU) (t : \Tm\;\Gamma\;(\El\,a)(u : \Tm\;\Gamma\;(\El\,a)) \to \Ty\;\Gamma \\
-  \nameless & : && [ \sigma ]_{\Ty}\, \idtype[a]{t}{u} \reduce \idtype[{[\sigma]_{\Tm}\,a}]{[\sigma]_{\Tm}\,t}{[\sigma]_{\Tm}\,u} \\
-  \mathsf{refl} & : \implicit{\Gamma, a, t}\;&&\Tm\;\Gamma\;(\mathsf{Id}\;a\;t\;t) \\
+  \nameless & : && [ \sigma ]_{\Ty}\;(\mathsf{Id}\;a\;t\;u) \reduce \mathsf{Id}\;([\sigma]_{\Tm}\,a)\;([\sigma]_{\Tm}\,t)\;([\sigma]_{\Tm}\,u) \\
+  \mathsf{refl}   & : \implicit{\Gamma, a, t}\;&&\Tm\;\Gamma\;(\mathsf{Id}\;a\;t\;t) \\
+  []\mathsf{refl} & : \implicit{\Gamma, a, t}\;&& [\sigma]\,(\mathsf{refl}\;t) =^{\Tm\;\Gamma\;([\sigma](\mathsf{Id}\,a\,t\,t))} \mathsf{refl}([ \sigma ]_{\Tm}\,t) \\
   \mathsf{reflect} & : \implicit{\Gamma, a, t, u}\;&& \Tm\;\Gamma\;(\idtype[a]{t}{u}) \to t =^{\Tm\;\Gamma\;(\El\,a)} u
 \end{alignat*}
 
-\paragraph*{Elimination principle}
+\paragraph*{Elimination principles for type theories as QIIRTs}
 
 \subparagraph*{Motives}
 \begin{align*}
@@ -1261,30 +1272,65 @@ Each variable $\mathsf{c}^M$ with the superscript $(\blank)^M$ is always indexed
 
 \begin{alignat*}{5}
   \idS\mathord{\uparrow}^M      & : \idS^M              && \uparrow^M A^M  =^{\lam{B^M} \Sub^M\,(\Gamma^M ,_{\Ctx}^M B^M)\,(\Gamma^M ,_{\Ctx}^M A^M)\;\idS}_{\alert{[\idS]^M_{\Ty}}} {} && \idS^M \\
-  ;\mathord{\uparrow}^M         & : (\sigma^M ; \tau^M) && \uparrow^M A^M  =^{\lam{B^M} \Sub^M\,(\Gamma^M ,_{\Ctx}^M B^M)\,(\Gamma^M ,_{\Ctx}^M A^M)\;\nameless}_{\alert{[;]^M_{\Ty}}} {} && (\sigma^M \uparrow^M [ \tau^M ]^M_{\Ty} \,A^M) ;^M (\tau^M \uparrow^M A^M)  \\
-  \pi_1,\mathord{\uparrow}^M    & : \pi_1^M(\sigma^M ,^M_{\Sub} t^M) && \uparrow^M A^M  =^{\lam{B^M} \Sub^M\,(\Gamma^M ,_{\Ctx}^M B^M)\,(\Gamma^M ,_{\Ctx}^M A^M)\;\nameless}_{\alert{[\pi_1,]^M_{\Ty}}}            {} && \sigma^M \uparrow^M  A^M \\
-  \pi_1;\mathord{\uparrow}^M    & : \pi_1^M(\sigma^M ;^M \tau^M)     && \uparrow^M A^M  =^{\lam{B^M} \Sub^M\,(\Gamma^M ,_{\Ctx}^M B^M)\,(\Gamma^M ,_{\Ctx}^M A^M)\;\nameless}_{\alert{[\pi_1;]^M_{\Ty}}} {} && (\sigma^M \uparrow^M  [\pi_1^M\tau^M]^M_{\Ty}\,A^M);^M (\pi_1^M\tau^M \uparrow^M A^M) \\
-  \emptysub^M_{\Sub} \mathord{\uparrow}^M & : \emptysub^M_{\Sub} && \uparrow^M A^M = (\emptysub^M_{\Sub})^{+M} \\
+  \mathord{;\uparrow}^M         & : (\sigma^M ; \tau^M) && \uparrow^M A^M  =^{\lam{B^M} \Sub^M\,(\Gamma^M ,_{\Ctx}^M B^M)\,(\Gamma^M ,_{\Ctx}^M A^M)\;\nameless}_{\alert{[;]^M_{\Ty}}} {} && (\sigma^M \uparrow^M [ \tau^M ]^M_{\Ty} \,A^M) ;^M (\tau^M \uparrow^M A^M)  \\
+  \mathord{\pi_1,\uparrow}^M    & : \pi_1^M(\sigma^M ,^M_{\Sub} t^M) && \uparrow^M A^M  =^{\lam{B^M} \Sub^M\,(\Gamma^M ,_{\Ctx}^M B^M)\,(\Gamma^M ,_{\Ctx}^M A^M)\;\nameless}_{\alert{[\pi_1,]^M_{\Ty}}}            {} && \sigma^M \uparrow^M  A^M \\
+  \mathord{\pi_1;\uparrow}^M    & : \pi_1^M(\sigma^M ;^M \tau^M)     && \uparrow^M A^M  =^{\lam{B^M} \Sub^M\,(\Gamma^M ,_{\Ctx}^M B^M)\,(\Gamma^M ,_{\Ctx}^M A^M)\;\nameless}_{\alert{[\pi_1;]^M_{\Ty}}} {} && (\sigma^M \uparrow^M  [\pi_1^M\tau^M]^M_{\Ty}\,A^M);^M (\pi_1^M\tau^M \uparrow^M A^M) \\
+  \mathord{\emptysub^M_{\Sub}\uparrow}^M & : \emptysub^M_{\Sub} && \uparrow^M A^M = (\emptysub^M_{\Sub})^{+M} \\
   ,\mathord{\uparrow}^M & : (\sigma^M ,_{\Sub}^M t^M)  && \uparrow^M A^M = (\sigma^M ,_{\Sub}^M t^M)^{+M} \\
-  \pi_1\idS\mathord{\uparrow}^M & : (\pi_1^M\,\idS^M) && \uparrow^M A^M = (\pi_1^M\,\idS^M)^{+M} \\
-  \pi_1\pi_1\mathord{\uparrow}^M & : (\pi_1^M\,(\pi_1^M\,\sigma^M)) && \uparrow^M A^M = (\pi_1^M\,(\pi_1^M\,\sigma^M))^{+M}
+  \mathord{\pi_1\idS\uparrow}^M & : (\pi_1^M\,\idS^M) && \uparrow^M A^M = (\pi_1^M\,\idS^M)^{+M} \\
+  \mathord{\pi_1\pi_1\uparrow}^M & : (\pi_1^M\,(\pi_1^M\,\sigma^M)) && \uparrow^M A^M = (\pi_1^M\,(\pi_1^M\,\sigma^M))^{+M}
 \end{alignat*}
 
 \begin{alignat*}{5}
   [\idS]_{\Tm}^M      & : [\idS^M]^M_{\Tm}                               && \;t^M =^{\lam{A^M}\Tm^M\,\Gamma^M\,A^M\,t}_{\alert{[\idS]^M_{\Ty}}} && \; t^M \\
   [;]^M_{\Tm}         & : [ \sigma^M ;^M \tau^M ]^M_{\Tm}                && \;t^M =^{\lam{A^M}\Tm^M\,\Gamma^M\,A^M\,t}_{\alert{[;]^M_{\Ty}}} && [ \sigma^M ]^M\; \left([ \tau^M ]^M_{\Tm}\,t^M\right) \\
-  [\pi_1,]^M_{\Tm}    & : [\pi_1^M (\sigma^M ,_{\Sub}^M t^M) ]^M_{\Tm}   && \;u^M =^{\lam{A^M}\Tm^M\,\Gamma^M\,A^M\,t}_{\alert{[\pi_1,]^M_{\Ty}}} && [\sigma^M]_{\Tm}^M\;u^M \\
+  [\pi_1,]^M_{\Tm}    & : [\pi_1^M (\sigma^M ,_{\Sub}^M u^M) ]^M_{\Tm}   && \;t^M =^{\lam{A^M}\Tm^M\,\Gamma^M\,A^M\,t}_{\alert{[\pi_1,]^M_{\Ty}}} && [\sigma^M]_{\Tm}^M\;t^M \\
   [\pi_1;]^M_{\Tm}    & : [\pi_1^M (\sigma^M ;^M \tau^M) ]^M_{\Tm}       && \;t^M =^{\lam{A^M}\Tm^M\,\Gamma^M\,A^M\,t}_{\alert{[\pi_1;]^M_{\Ty}}} && [\sigma^M]_{\Tm}^M\;\left([\pi_1^M\,\tau^M]^M_{\Tm}\;t^M\right) \\
   [\emptysub]^M_{\Tm} & : [\emptysub^M_{\Sub}]^M_{\Tm}                   && \;t^M = %^{\Tm^M\,\Gamma^M\;([\emptysub_{\Sub}^M]^M_{\Ty}\,A^M)\,([\emptysub]_{\Tm}\,t)}
-                      && [ \emptysub^M_{\Sub} ]^M \;t^M \\
-  [,]_{\Tm}^M         & : [ \sigma^M ,_{\Sub}^M t^M ]^M_{\Tm}            && \;u^M = %^{\Tm^M\,\Gamma^M\;([\sigma^M ,_{\Sub}^M t ]^M_{\Ty}\,A^M)\,([\sigma , t]_{\Tm}\,t)} &&
-                      [ \sigma^M ,_{\Sub}^M t^M ]^M \;u \\
-  [\pi_1\idS]^M_{\Tm} & : [ \pi_1^M\,\idS^M ]^M_{\Tm}                    && \;t^M = %^{\Tm^M\,(\Gamma^M ,^M_{\Ctx} A^M)\,([\pi_1^M\,\idS^M ]^M_{\Ty})\,A^M)\;([\pi_1\idS]_{\Tm}\,t)}{} &&
-                      [ \pi_1^M\,\idS^M ]^M\;t^M \\
-  [\pi_1\pi_1]^M_{\Tm}& : [ \pi_1^M\,(\pi_1^M\,\sigma^M) ]^M_{\Tm}       && \;t^M = %^{\Tm^M\,\Gamma^M\,([\pi_1^M\,(\pi_1^1\,\sigma^M)]^M_{\Ty}\,A)\;([\pi_1(\pi_1\,\sigma)]_{\Tm}\,t)} &&
-                      [ \pi_1^M\,(\pi_1^M\,\sigma^M) ]^M\;t^M
+                      [ \emptysub^M_{\Sub} ]^M  && t^M \\
+  [,]_{\Tm}^M         & : [ \sigma^M ,_{\Sub}^M u^M ]^M_{\Tm}            && \;t^M = %^{\Tm^M\,\Gamma^M\;([\sigma^M ,_{\Sub}^M t ]^M_{\Ty}\,A^M)\,([\sigma , t]_{\Tm}\,t)}
+                      [ \sigma^M ,_{\Sub}^M u^M ]^M && t^M \\
+  [\pi_1\idS]^M_{\Tm} & : [ \pi_1^M\,\idS^M ]^M_{\Tm}                    && \;t^M = %^{\Tm^M\,(\Gamma^M ,^M_{\Ctx} A^M)\,([\pi_1^M\,\idS^M ]^M_{\Ty})\,A^M)\;([\pi_1\idS]_{\Tm}\,t)}{}
+                      [ \pi_1^M\,\idS^M ]^M && t^M \\
+  [\pi_1\pi_1]^M_{\Tm}& : [ \pi_1^M\,(\pi_1^M\,\sigma^M) ]^M_{\Tm}       && \;t^M = %^{\Tm^M\,\Gamma^M\,([\pi_1^M\,(\pi_1^1\,\sigma^M)]^M_{\Ty}\,A)\;([\pi_1(\pi_1\,\sigma)]_{\Tm}\,t)}
+                      [ \pi_1^M\,(\pi_1^M\,\sigma^M) ]^M && t^M
 \end{alignat*}
-\LT{To be finished}
+
+\begin{alignat*}{5}
+  ;\text{-}\textsf{idr}^M   & : \sigma^M ;^M \idS^M && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{;\text{-}\mathsf{idr}}} && \sigma^M \\
+  ;\text{-}\textsf{idl}^M   & : \idS^M ;^M \sigma^M && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{;\text{-}\mathsf{idl}}} && \sigma^M \\
+  ;\text{-}\textsf{assoc}^M & : (\sigma^M ;^M \tau^M) ;^M \gamma^M   && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{;\text{-}\mathsf{assoc}}} && \sigma^M ;^M (\tau^M ;^M \gamma^M) \\
+  \mathsf{concat}^M         & : \sigma^M ;^M (\tau^M ,_{\Sub}^M t^M) && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{\mathsf{concat}}} && (\sigma^M ;^M \tau^M) ,_{\Sub}^M \alert{\transfib{}{([;]^M)^{-1}}{\color{black}[\sigma^M]_{\Ty}^M\,t^M}} \\
+  \pi_1\beta^M              & : \pi_1^M (\sigma^M ,^M_{\Sub} t^M)    && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{\pi_1\beta}}      && \sigma^M \\
+  \pi_2\beta^M              & : \pi_2^M (\sigma^M ,^M_{\Sub} t^M)    && =^{\Tm^M\,\Gamma^M}_{\alert{[\pi_1,]^M, \pi_2}}       && t^M \\
+  \cdot\eta^M               & : \sigma^M                             && =^{\Sub^M\,\Gamma^M\,\emptyctx^M_{\Ctx}}_{\alert{\cdot\eta}}  && \emptysub_{\Sub}^M \\
+  \pi\eta^M                 & : \sigma^M                             && =^{\Sub^M\,\Gamma^M\,(\Delta^M ,^M_{\Ctx} A^M)}_{\alert{\pi\eta}} {} && \pi_1^M \sigma^M ,_{\Sub}^M \pi_2^M \sigma^M \\
+  [\idS]^M                  & : [ \idS ]^M\,t^M                      && =^{\Tm^M\,\Gamma^M}_{\alert{[\idS]^M_{\Ty}, [\idS]}} && t^M \\
+  [;]^M                     & : [ \sigma^M ;^M \tau^M ]^M\,t^M       && =^{\Tm^M\,\Gamma^M}_{\alert{[;]^M_{\Ty}, [;]}} && [\sigma^M]^M\,([\tau^M]^M\,t^M) 
+\end{alignat*}
+
+\begin{alignat*}{5}
+  []\UU^M & : [ \sigma^M ]^M_{\Ty}\;\UU^M          && =^{\Ty^M\,\Gamma^M\,\UU}      {} && \UU^M \\
+  []\El^M & : [ \sigma^M ]^M_{\Ty}\;(\El^M\;u^M)   && =^{\Ty^M\,\Gamma^M\,(\El\,u)} {} && \El^M\,(\alert{\transfib{}{[]\UU^M}{\color{black}[ \sigma^M ]^M_{\Tm}\,u^M}}
+\end{alignat*}
+
+\begin{alignat*}{5}
+  []\Pi^M         & : [ \sigma^M ]^M_{\Ty} \;(\Pi^M\;A^M\;B^M)  && =^{\Ty^M\,\Gamma^M\,([\sigma]_{\Ty} (\Pi\,A\,B))} && \Pi^M\;([ \sigma^M ]^M_{\Ty}\;A^M)\;([ \sigma^M ]^M_{\Ty}\;B^M) \\
+  []\lambda^M     & : [ \sigma^M ]^M\;(\lambda^M\;t^M)          && =^{\Tm^M\,\Gamma^M}_{\alert{[]\Pi^M, []\lambda}} && \lambda^M\;([ \sigma^M \uparrow^M A^M ]^M\;t^M) \\
+  \Pi\beta^M      & : \mathsf{app}^M\;(\lambda^M\;t^M)          && =^{\Tm^M\,(\Gamma^M,_{\Ctx}^M A^M)\,B^M}_{\alert{\Pi\beta}}      && t^M  \\
+  \Pi\eta^M       & : \lambda^M\;(\mathsf{app}^M\;t^M)          && =^{\Tm^M\,\Gamma^M\,(\Pi\,A^M\,B^M)}_{\alert{\Pi\eta}}           && t^M 
+\end{alignat*}
+
+\begin{alignat*}{5}
+  []\mathsf{Id}^M    :{} & [ \sigma^M ]^M_{\Ty} (\mathsf{Id}^M\;a^M\;t^M\;u^M) =^{\Ty^M\,\Gamma^M\,([\sigma]_{\Ty}(\mathsf{Id}\,a\,t\,u))} \\
+                      & \mathsf{Id}^M\; (\transfib{}{[]\UU^M}{[ \sigma^M ]^M_{\Tm}\,a^M})\;
+                  (\transfib{}{[]\El^M}{[ \sigma^M ]^M_{\Tm}\,t^M})\;
+                  (\transfib{}{[]\El^M}{[ \sigma^M ]^M_{\Tm}\,u^M}) \\
+  []\mathsf{refl}    :{} & [ \sigma^M ]^M\;(\mathsf{refl}^M\;t^M) =^{\Tm^M\;\Gamma^M}_{\alert{[]\mathsf{Id}^M, []\mathsf{refl}}} \\
+                      & \mathsf{refl}^M\;(\transfib{\lam{A^M}\Tm^M\,\Gamma^M\,A^M\,\nameless}{[]\El^M}{[\sigma^M]^M_{\Tm} \,t^M}) \\
+  \mathsf{reflect}^M :{} & \Tm^M\;\Gamma^M\;(\mathsf{Id}^M\;a^M\;t^M\;u^M)\;p \to t^M =^{\Tm^M\;\Gamma^M\;A^M}_{\alert{\mathsf{reflect}\;p}} u^M
+\end{alignat*}
+
 
 \section{Omitted proofs}\label{appendix:proofs}
 
