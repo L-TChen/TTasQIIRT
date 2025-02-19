@@ -90,7 +90,7 @@ In the spirit of type theory, we would like to represent well scoped and well ty
 %
 Doing this effectively seems to require several sophisticated features of the host type theory, most notably advanced inductive definitions.
 %
-For example, inductive families~\cite{Dybjer1994} can be used to represent the simply typed lambda calculus~\cite{Altenkirch1999}, while some kind of simultaneous definitions such as inductive-recursive~\cite{Dybjer2000} or inductive-inductive~\cite{Nordvall-Forsberg2014} definitions seem to be required for dependent type theory~\cite{Danielsson2006,Chapman2009}.
+For example, inductive families~\cite{Dybjer1994} can be used to represent the simply typed $\lambda$-calculus~\cite{Altenkirch1999}, while some kind of simultaneous definitions such as inductive-recursive~\cite{Dybjer2000} or inductive-inductive~\cite{Nordvall-Forsberg2014} definitions seem to be required for dependent type theory~\cite{Danielsson2006,Chapman2009}.
 %
 This is not just a matter of the pure strength of the host theory, but also expressivity and convenience: while it is known how to reduce inductive-inductive definitions to inductive families in principle~\cite{Kaposi2020a}, the resulting development would be considerably harder to work with, most likely exhausting the resources of both the proof assistant and its user.
 
@@ -109,7 +109,7 @@ Also, the presentation often differs from the actual definition of type theory i
 Any method that reduces the friction introduced by the use of equality constructors without compromising on computational properties and the gap between formalisation and presentation seem worth exploring.
 %
 
-In this paper, we show that the development can be further streamlined by combining quotient inductive-inductive types and inductive-recursive types, called quotient inductive-inductive-recursive types (\emph{QIIRT}s for short).
+In this paper, we show that the development can be further streamlined by combining quotient inductive-inductive types and inductive-recursive types, called quotient inductive-inductive-recursive types (\emph{QIIRT}s, for short).
 %
 The basic idea, following a suggestion by Kaposi~\cite{Kaposi2023} and a precursor by Dybjer~\cite{Dybjer1996} and Danielsson~\cite{Danielsson2006}, is to replace the inductively defined action of a substitution on a type with a recursive definition, which computes.
 %
@@ -168,33 +168,29 @@ However, some statements are metatheoretical and not checked in \Agda, while oth
 We have marked such `informal' proofs with the symbol \resizebox*{!}{\baselineskip}{\textdbend}.
 
 \subsection{Inductive-recursive types}
-\LT[noinline]{Shorten this section}
-\LT[noinline]{the recursion part of IR is not given by the elimination rule}
-
-An ordinary inductive type $A$, such as the type of natural numbers $A = \mathbb{N}$, allows functions out of the type $f : A \to X$ to be defined by recursion, using an elimination rule which says that such a function $f$ is defined by its values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of~$A$. For example, a function $f: \mathbb{N} \to X$ is given by the values $f(0)$ and $f(\suc\,n)$, where the latter might refer to the already computed value $f(n)$.
+An inductive type $A$, such as the type of natural numbers $A = \mathbb{N}$, allows functions out of the type $f : A \to X$ to be defined, using an elimination rule which says that $f$ is defined by its values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of~$A$.
+%For example, a function $f: \mathbb{N} \to X$ is given by the values $f(0)$ and $f(\suc\,n)$, where the latter might refer to the already computed value $f(n)$.
 %
-The type is first defined inductively by listing its constructors, and then afterwards recursive functions can be defined out of it.
+The type is first defined inductively by listing its constructors, and then recursive functions can be defined out of it.
 
-In contrast, an inductive-recursive type is defined inductively \emph{simultaneously} with a recursively defined function out of it. The prototypical example is Martin-L\"of's universe \`a la Tarski, where a type $U$ of codes for small types is defined simultaneously with a `decoding' function $T : U \to \Set$ which maps each code to the type it represents. Crucially, the code for dependent function types
+In contrast, an inductive-recursive type(IRT), introduced by Dybjer~\cite{Dybjer2000} and studied by Dybjer and Setzer~\cite{Dybjer1999,Dybjer2003}, is an inductive type $A$ defined \emph{simultaneously} with a recursively defined function $F$ out of $A$ to some fixed (possibly large) type $D$.
+The prototypical example is Tarski universe: a type $U$ of codes for small types is defined with a `decoding' function $T : U \to \Set$ which maps each code to the type it represents. Crucially, the code
 \[
   \pi : (a : U) \to (T(a) \to U) \to U
+  \quad\text{with}\quad T(\pi(a, b)) \defeq (x : T\,a) \to T(b\, x)
 \]
-with $T(\pi(a, b)) = (x : T\,a) \to T(b\, x)$ only makes sense because we already have access to the decoding function $T$.
+for dependent function types makes sense only because we have access to the function $T$.
 %
-Inductive-recursive types (IRT), introduced by Dybjer~\cite{Dybjer2000}, were extensively studied by Dybjer and Setzer~\cite{Dybjer1999,Dybjer2003}.
-The general schema allows one to define a type $A$ inductively, together with a recursive function $F : A \to D$, for some fixed (possibly large) type $D$.
 
-An IRT $(A, F)$ comes with an elimination rule that allows to define a dependent function  $f : (x : A) \to P(x)$ by giving values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of $A$, again reflecting that $A$ is inductively defined.
+An IRT $(A, F)$ comes with an elimination rule that allows to define a dependent function  $f : (x : A) \to P(x)$ by giving values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of $A$, but the recursive function $F : A \to D$ is \emph{not} defined using this elimination rule, but part of the definition of the type itself.
 %
-However, note that the recursive function $F : A \to D$ is \emph{not} defined using this elimination rule, but part of the definition of the type itself.
+In particular, the elimination rule can be used to define endofunctions on $A$, but the recursive function  $F : A \to D$ must target a pre-existing type $D$.
 %
-In particular, the elimination rule can be used to define endofunctions on $A$, but the recursive function  $F : A \to D$ must always target a fixed pre-existing type $D$.
+In this work, we will consider an extension \emph{generalised} IRTs, where $F : A \to A$ is also allowed.
 %
-In this work, we will consider an extension \emph{generalised} IRTs, where also $F : A \to A$ is allowed.
+Such IRTs are accepted in \Agda and were previously used~\cite{Danielsson2006} to represent type theory in type theory.
 %
-Such IRTs were previously used by Danielsson~\cite{Danielsson2006} to represent type theory in type theory, and are discussed by Kaposi~\cite{Kaposi2023}.
-%
-Their general metatheory would be interesting future work.
+%Their general metatheory would be interesting future work.
 
 %\LT{Mention that the recursion part of induction-recursion are already not defined by elimination rule.}
 
@@ -204,11 +200,10 @@ Their general metatheory would be interesting future work.
 
 Quotient inductive types (QITs) are a special case of higher inductive types~\cite{Lumsdaine2020}, where constructors can introduce not only new elements but also new equalities between the introduced elements.
 %
-Since we assume the uniqueness of identity proofs, all QITs are implicitly truncated to be sets in the sense of homotopy type theory.
+%Since we assume the uniqueness of identity proofs, all QITs are implicitly truncated to be sets in the sense of homotopy type theory.
 %
-For example, the type of \emph{join lists} $\JList{A}$ can be given by the QIT
-with the following constructors:
-%\begin{figure}[H]
+For example, the type $\JList{A}$ of \emph{join lists} can be given by the QIT in \cref{fig:QIT-join-list}.
+\begin{figure}
 \begin{minipage}{.35\textwidth}
 \begin{alignat*}{3}
   \Jnil                    & : \implicit{A}      && \JList{A} \\
@@ -223,9 +218,12 @@ with the following constructors:
   \mathsf{assoc}           & : \implicit{\ell_0, \ell_1, \ell_2}\; && \Jconcat{(\Jconcat{\ell_0}{\ell_1})}{\ell_2} =^{\JList{A}} \Jconcat{\ell_0}{(\Jconcat{\ell_1}{\ell_2})}
 \end{alignat*}
 \end{minipage}
-%\end{figure}
-\vskip\belowdisplayskip\noindent
-A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a type family $B : A \to \Set$, where both $A$ and $B$ are defined inductively --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively.
+\caption{The quotient inductive type of join lists}
+\label{fig:QIT-join-list}
+\end{figure}
+%\vskip\belowdisplayskip\noindent
+A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a type family $B : A \to \Set$ defined inductively.
+% --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively.
 %; indeed, inductive-inductive definitions only make sense when $D = \Set$.
 The metatheory of QIITs has been studied by Altenkirch et al.~\cite{Kaposi2018,Kaposi2019,Kovacs2020}
 
@@ -234,15 +232,17 @@ We can also define join lists as a quotient inductive-\emph{recursive} type, as 
   \mathsf{nf} : \implicit{A}\;(\ell, \ell' : \JList{A}) \to \flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell' \to \ell =^{\JList{A}} \ell'
 \]
 which states that join lists are equal as soon as their flattenings are equal. For $\flatten$ to be well defined, it needs to respect the $\mathsf{nf}$ constructor, but this is a tautology: if $\ell =^{\JList{A}} \ell'$ because $\flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell'$, then obviously $\flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell'$.
+%In this work, we will consider quotient inductive-inductive-recursive types, generalising QIITs and QITs.
 
 %Shulman~\cite{Shulman2014} considered combining higher inductive types and inductive-recursive types, but the foundational status of this combination is underdeveloped. We will also make use of such a combination, which gives additional motivation to study its metatheory in future work.
 
 
 \subsection{Definitions by overlapping patterns} \label{sec:meta:overlapping}
-Functions are typically defined informally using pattern matching for convenience and readability. Formally, however, they are either defined using an explicit pattern-matching construct or elaborated into case trees, which correspond to the \emph{eliminator}, following \emph{first-match} semantics~\cite{Cockx2020a} and employing termination and completeness checking.
-This elaboration offers the conventional notation, while making computational behaviour opaque and favouring asymmetric definitions.
+In a proof assistant, functions are typically defined using pattern matching and elaborated into case trees, which correspond to the eliminator, following \emph{first-match} semantics~\cite{Cockx2020a} and employing termination checking.
+This elaboration offers the conventional notation, while making computational behaviour opaque.
+% and favouring asymmetric definitions.
 For example, two definitions of addition below
-%\begin{figure}[H]%
+%\begin{figure}[b]%
 \begin{minipage}{.48\textwidth}
   \begin{alignat*}{5}
     \blank  & + \blank     && : \N \to \N \to \N \\
@@ -265,7 +265,7 @@ For example, two definitions of addition below
 %\label{fig:additions}
 %\end{figure}
 are the same after elaboration in \Agda: eliminating the first argument of $+$ distinguishes $0$ and $\suc\;n$ and refines the second and the third clauses into clauses of $+'$, making the fourth clause useless.
-Each clause of $+'$ is strict (hence the symbol $\defeq$ is used) while clauses of $+$ are not necessarily strict by definition.
+Each clause of $+'$ is strict while clauses of $+$ are not necessarily strict.
 %This semantics for function definitions decides how definitions reduce and therefore how identities are proved.
 
 Cockx~\cite{Cockx2014} explores an alternative semantics for pattern matching, where all clauses are strict, even in the presence of \emph{overlapping patterns}.
@@ -281,7 +281,8 @@ Cockx shows that if a definition of $f$ is
 then $f$ is confluent---essentially a variant of Newman's Lemma~\cite{Newman1942}.
 We call a diagram $\sigma t_2 \Leftarrow f\;\sigma\overrightarrow{p_1} \Rightarrow \sigma t_1$ used in the analysis of local confluence a \emph{local peak}.
 
-\LT[noinline]{remark that recursions in IR are not defined by elimination rules}
+In this work, we will consider inductive types defined simultaneously with recursive functions using overlapping patterns.
+Note that in the schema of IRTs these simultaneously defined functions are already not given by using elimination rules.
 
 \section{Type theories as quotient inductive-inductive-recursive types} \label{sec:QIIRTs}
 
@@ -444,11 +445,8 @@ One possibility is to define the substitution calculus as a QIIRT, where type su
 %[\blank]_{\Ty} \blank &: \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma \\
 %[ \sigma ]_{\Ty}\;\UU & = \UU
 %\end{alignat*}
-Note that this does not follow the schema of inductive-recursive definitions given by Dybjer and Setzer~\cite{Dybjer2000,Dybjer2003}, since the codomain of the recursive function is the inductively defined typed itself.\footnote{%
-  While the general schema for this more liberal notion of induction-recursion remains underdeveloped, this definition is accepted in \Agda and used in other formalisations of type theory~\cite{Danielsson2006}.}
+Note that this does not follow the schema of inductive-recursive definitions given by Dybjer and Setzer, since the codomain of the recursive function is the inductively defined typed itself.
 %Nevertheless, $[\idS]_{\Ty}\,A$ and $[\sigma; \tau]_{\Ty}\,A$ do not reduce to~$A$ and~$[\sigma]_{\Ty}\,[\tau]_{\Ty}\,A$ respectively, even though they are provable.
-%This definition fails to remove any transport in the definition of substitution calculus.
-%
 Since we want type substitution to both act structurally on types and commute with identities and composition, we could try to define$[\blank]_{\Ty} \blank : \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma$ recursively as follows:
 \begin{alignat}{3}
 %\subTy{\blank}{\blank} &: \implicit{\Gamma, \Delta} \; \Ty\;\Delta \to \Sub\;\Gamma\;\Delta \to \Ty\;\Gamma \nonumber \\
@@ -1098,7 +1096,7 @@ Like us, Danielsson~\cite{Danielsson2006} defines type substitution by a recursi
 McBride~\cite{McBride2010} offers another solution which uses an inductive-recursive type to reuse the equality of the metatheory rather than using explicit transports. This works well if the object theory and meta theory are similar, but does not allow to represent equalities that do not hold in the metatheory.
 
 Altenkirch and Kaposi~\cite{Altenkirch2016a} were the first to exploit QIITs to simplify the treatment of computation rules in representations of type theory.% in type theory.
-We build heavily on their ideas, but by using Danielsson's~\cite{Danielsson2006} idea of defining type substitution recursively, we are able to remove many explicit transports from the definition, with the result that it is closer to an informal exposition on paper. Such a benefit was also suggested by Kaposi's~\cite{Kaposi2023} work, where simply typed lambda calculus was used as an example. Altenkirch and Kaposi has built on the QIIT representation with great success to derive non-trivial results such as normalisation by evaluation~\cite{Altenkirch2017}, and investigate the metatheory of QIITs themselves, together with Kov\'acs~\cite{Kaposi2019}.
+We build heavily on their ideas, but by using Danielsson's~\cite{Danielsson2006} idea of defining type substitution recursively, we are able to remove many explicit transports from the definition, with the result that it is closer to an informal exposition on paper. Such a benefit was also suggested by Kaposi's~\cite{Kaposi2023} work, where the simply typed $\lambda$-calculus was used as an example. Altenkirch and Kaposi has built on the QIIT representation with great success to derive non-trivial results such as normalisation by evaluation~\cite{Altenkirch2017}, and investigate the metatheory of QIITs themselves, together with Kov\'acs~\cite{Kaposi2019}.
 
 In the future, we hope to settle the foundational status of the
 combination of quotient types, inductive-inductive types, and the kind
@@ -1125,7 +1123,7 @@ using sheaf theory.
 \section{Complete definitions}\label{appendix:full-def}
 
 \paragraph*{Quotient inductive-inductive-recursive types}
-We give the QIIR definition for type theory with a universe of small types, $\Pi$-types, and extensional identity types in one place below.
+We give the QIIRTs for type theories with a universe of small types, $\Pi$-types, and extensional identity types in one place below.
 
 \subparagraph*{Substitution calculus with a base type $\UU$}
 \begin{alignat*}{3}
