@@ -833,11 +833,17 @@ $t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{(\idS , t)}$ of type $\Tm\,\Ga
 %used to define the ordinal application: $t \mathop{\$} u \defeq [ \left< u \right> ]_{\Tm} (\mathsf{app}\,t)$, 
 %can be introduced without any transport, which is $(\idS, \alert{\transfib{\Tm\;\Gamma}{[id]_T^{-1}}{\color{black}t}})$ in its QII definition.
 Similarly, the structural rule for substitution on $\mathsf{app}$
-\begin{align*}
-  \sub{(\mathsf{app}\;t)}{\sigma \uparrow A} & = \mathsf{app}\,\lambda(\sub{(\mathsf{app}\;t)}{\sigma \uparrow A}) && \text{by $\Pi\beta^{-1}$} \\
-                                              & = \mathsf{app}\,\left(\sub{(\lambda\,(\mathsf{app}\,t))}{\sigma}\right) && \text{by $[]\lambda^{-1}$} \\
-                                              & = \mathsf{app}\,(\sub{t}{\sigma}) && \text{by $\Pi\eta^{-1}$.}
-\end{align*}
+\[
+  \sub{(\mathsf{app}\;t)}{\sigma \uparrow A} \overset{\Pi\beta^{-1}}{=}
+  \mathsf{app}\,\lambda(\sub{(\mathsf{app}\;t)}{\sigma \uparrow A}) \overset{[]\lambda^{-1}}{=}
+  \mathsf{app}\,\left(\sub{(\lambda\,(\mathsf{app}\,t))}{\sigma}\right) \overset{\Pi\eta^{-1}}{=}
+  \mathsf{app}\,(\sub{t}{\sigma})
+\]
+%\begin{align*}
+%  \sub{(\mathsf{app}\;t)}{\sigma \uparrow A} & = \mathsf{app}\,\lambda(\sub{(\mathsf{app}\;t)}{\sigma \uparrow A}) && \text{by $\Pi\beta^{-1}$} \\
+%                                              & = \mathsf{app}\,\left(\sub{(\lambda\,(\mathsf{app}\,t))}{\sigma}\right) && \text{by $[]\lambda^{-1}$} \\
+%                                              & = \mathsf{app}\,(\sub{t}{\sigma}) && \text{by $\Pi\eta^{-1}$.}
+%\end{align*}
 can be derived without transport (cf.\ Altenkirch and Kaposi~\cite{Altenkirch2016a}), since \eqref{eq:def-type-subst-8} is now strict.
 
 \subsection{Adding other type formers} \label{subsec:SC+U+Pi+more}
@@ -850,16 +856,16 @@ We introduce the type $\bool : \implicit{\Gamma}\;\Ty\;\Gamma$ itself, its const
   &&& \qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\quad \to (b : \Tm\;\Gamma\;\bool) \to \Tm\;\Gamma\;(\subTy{P}{\instSub{b}})
 \end{alignat*}
 %
-where $\instSub{t} \defeq (\idS, t) : \Sub\;\Gamma\;(\Gamma, A)$ for the substitution that substitutes $t : A$ for the top variable and leaves all other variables in place. We can add the expected computation rules
+where $\instSub{t} \defeq (\idS, t) : \Sub\;\Gamma\;(\Gamma, A)$ is the substitution that substitutes $t : A$ for the top variable and leaves all other variables in place. We can add the expected computation rules
 %
 \begin{alignat*}{5}
   \bool\beta_{\bfalse}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\bfalse && =^{\Tm\;\Gamma\;(\subTy{P}{\instSub{\bfalse}})} {} && f \\
   \bool\beta_{\btrue}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\btrue && =^{\Tm\;\Gamma\;(\subTy{P}{\instSub{\btrue}})} {} && t
 \end{alignat*}
 %
-and the structural rule for type substitution as another straightforward clause
+as constructors, and the structural rule for type substitution as another straightforward clause
 $\subTy{\bool}{\sigma} \reduce \bool$,
-but when we try to add the structural rule for term substitution applied to the eliminator, we end up with the following:
+but when we try to add the structural rule for term substitution applied to the eliminator, we end up with the following
 %
 \begin{alignat*}{5}
   []\belim & : \implicit{\Gamma, \sigma, P, f, t, b}\; \sub{(\belim\,P\,f\,t\,b)}{\sigma} \\
@@ -879,7 +885,9 @@ where the proof $p(x) : \subTy{P}{\instSub{\sub{x}{\sigma}} ; \sigma^+} = \subTy
 
 \section{The elimination principle and models} \label{sec:models}
 
-We show how to eliminate out of our QIIRT definition of type theory (\cref{subsec:eliminator}). In particular, we show how the elimination principle can be used to construct a standard model (\cref{subsec:std-model}) and compare our QIIRT definition with its QIIT counterpart (\cref{subsec:equivalence}).
+We show how to eliminate out of our QIIRT definition of type theory,
+use the eliminator to construct a ``standard'' model,
+and compare our QIIRT definition with its QIIT counterpart.
 
 \subsection{The elimination principle} \label{subsec:eliminator}
 
@@ -946,10 +954,10 @@ We refer to \cref{appendix:full-def} and our \Agda development for the full defi
 %That is, the eliminator for the QIIR definition requires fewer transports than its QII counterpart.
 \end{remark}
 
-The elimination principle computes by interpreting each constructor using the corresponding method inductively, e.g.,
+The elimination principle computes by recursively interpreting each constructor using the corresponding method. For example, we have
 \begin{alignat*}{5}
 %  \elim_{\Ctx}\;\emptyctx   & \reduce \emptyctx_{\Ctx}                                    && : \Ctx^M\;\emptyctx  \\
-  \elim_{\Ctx}\;(\Gamma, A) & \reduce (\elim_{\Ctx}\,\Gamma),_{\Ctx}^{M} (\elim_{\Ty}\,A) && : \Ctx^M\;(\Gamma, A) %\\
+  \elim_{\Ctx}\;(\Gamma, A) & \reduce (\elim_{\Ctx}\,\Gamma),_{\Ctx}^{M} (\elim_{\Ty}\,A) . && %\\
 %  \elim_{\Ty}\;\UU          & \reduce \UU^M && :\Ty^M\;\Gamma^M\;\UU \\
 %  \elim_{\Sub}\;\emptysub   & \reduce \emptysub^M_{\Sub} &&: \Sub^M\;\Gamma^M\;\emptyctx^M_{\Ctx}\;\emptyctx \\
 %                            & \vdots
@@ -989,9 +997,8 @@ where the transport is needed since $\elim_{\Tm}\;t : \Tm^M\;(\elim_{\Ctx}\,\Gam
 % \]
 % transporting $\elim_{\Tm}\,t$ along the identity proof $\elim_{\Ty}[]$.
 
-
 \begin{remark} \label{re:method-recursion-IIR}
-Note that a simultaneously defined function does not need a corresponding interpretation for Dybjer and Setzer's inductive-recursive types, as their framework targets meta-theoretic types rather than the inductive types being defined.
+Note that a simultaneously defined function does not need a corresponding interpretation for Dybjer and Setzer's inductive-recursive types~\cite{Dybjer1999}, as their framework targets meta-theoretic types rather than the inductive types being defined.
 \end{remark}
 
 \subsection{The standard model} \label{subsec:std-model}
@@ -1009,8 +1016,8 @@ The standard model, justifying the soundness of our definition, is given by the 
 %\end{align*}
 %where $[\blank]_{\Tm}^M\blank$ is the same as the method for the explicit term substitution $[\blank]^M\blank$.
 %
-We once again refer to our \Agda formalisation for details.
-We remark that because our lack of transports in the syntax, many of the identities in the standard model simply hold strictly --- more so than in the QIIT standard model, where an extra step~\cite[Lemma~2.3.5]{UFP2013} is often needed for reasoning about constant transports.
+See our \Agda formalisation for details.
+Because of the lack of transports in the syntax, many identities in the standard model hold strictly --- more so than in the QIIT standard model, where an extra step~\cite[Lemma~2.3.5]{UFP2013} is needed for reasoning about constant transports.
 
 %In the QIIT counterpart standard model, none of identities hold strictly, since their indices always involve equality constructors.
 %E.g., the constructor $[\idS]_{\Ty}$ gives rise to
@@ -1030,19 +1037,21 @@ We remark that because our lack of transports in the syntax, many of the identit
 %By definition, it is a strict equality $(\lam{\gamma}(\pi_1\gamma, \pi_2\gamma)) \judgeq (\lam{\gamma}\gamma)$ by the $\eta$-law for $\Sigma$-types.
 
 \subsection{Comparison with type theory as QIIT} \label{subsec:equivalence}
-We have used additional rules to enable further reduction which are derivable in the QIIT definition.
+Our additional rules, enabling further reduction, are derivable in the QIIT definition.
 Indeed, the QIIRT definition of type theory is equivalent to its QIIT definition, as we can translate every constructor to its corresponding constructor and vice versa.
 For comparison, we add a subscript to constructors and types in the QIIRT and QIIT definitions by $\blank_\IR$ and $\blank_\I$, respectively, and write $(\blank)^{\succ}$ and $(\blank)^{\prec}$ for the translation from the QIIRT definition to its QIIT counterpart and the converse, respectively.
-
-The recursor for $(\blank)^{\succ}$ is given straightforwardly: each method $c^M_{\IR}$ is given by the corresponding constructor $c_{\I}$ in the QIIT counterpart.
-Additional equality constructors are all derivable in the QIIT definition. 
+%
+The definition of $(\blank)^{\succ}$ is given straightforwardly: each method $c^M_{\IR}$ is given by the corresponding constructor $c_{\I}$ in the QIIT counterpart.
+The additional equality constructors are all derivable in the QIIT definition. 
 
 On the other hand, the converse $(\blank)^{\prec}$ has some choices.
 Since in the QIIT definition there is only one term substitution $\blank [\blank]_{\I}$ and lifting $(\blank)^+_{\I}$, we may choose to translate $t [\sigma]_{\I}$ to the recursive form $t^{\prec} [\sigma^{\prec}]_{\Tm}$ to carry out some computation, or to the constructor form $t^{\prec} [\sigma^{\prec}]_{\IR}$ to stay verbatim.
 Either choice is possible, but we need to use \cref{prop:correctness-1,prop:correctness-3} to switch from one to the other whenever suitable.
 For example, the equality constructor $\mathsf{concat}_{\IR}$ uses the constructor form, so the method $\mathsf{concat}^M_{\I}$ relies on the identity $\sub{t}{\sigma} = \subTm{t}{\sigma}$ if the recursive form $\subTm{t^{\prec}}{\sigma^{\prec}}$ is chosen for the translation.
-
-Going back and forth from one definition to the other gives us the equivalences
+%
+% Going back and forth from one definition to the other gives us the equivalences:
+%The equivalence can be summed up as follows:
+%
 \begin{restatable}{theorem}{equivalence}\label{thm:equivalence}
   Type theory defined as a QIIRT and a QIIT are equivalent, i.e.\ 
   \begin{itemize}
@@ -1057,12 +1066,12 @@ Going back and forth from one definition to the other gives us the equivalences
 
 \section{Formal implementation} \label{sec:formal-implementation}
 
-We have a formal implementation in \Agda, using the options \texttt{-{}-with-K} for the uniqueness of identity proofs, \texttt{-{}-exact-split} to ensure that all function clauses are definitional, and \texttt{-{}-rewriting} with \texttt{-{}-local-confluence-check} \cite{Cockx2020,Cockx2021} to implement definitions by overlapping patterns.
-Quotient inductive types are simulated by postulating equations to introduce equality constructors~\cite{Licata2011}, as \textsc{Cubical Agda} does not support user-defined rewrite rules.
+Our formal \Agda implementation uses the options \texttt{-{}-with-K} (for uniqueness of identity proofs), \texttt{-{}-exact-split} (to ensure that function clauses are definitional), and \texttt{-{}-rewriting} with \texttt{-{}-local-confluence-check} \cite{Cockx2020,Cockx2021} (to implement definitions by overlapping patterns).
+Quotient inductive types are simulated by postulating equations for equality constructors~\cite{Licata2011}. %We do not use \textsc{Cubical Agda}, since it does not support user-defined rewrite rules.
 
 \subparagraph*{Implementing overlapping patterns via rewrite rules}
 %The mechanism of defining a function by overlapping patterns is only implemented in an outdated experimental fork of \Agda.
-To emulate a function by overlapping patterns, we declare each function clause a rewrite and another rewrite to identify the clause with the reflexivity proof
+To emulate a function by overlapping patterns, we declare each function clause a rewrite, together with another rewrite to identify the witness as the reflexivity proof $\mathsf{refl}$.
 For example, the first few clauses for type substitution (written $[\sigma]_{\Ty}\,A$ rather than $\subTy{A}{\sigma}$ in the formalisation) are defined as
 \begin{lstlisting}
 postulate
@@ -1072,12 +1081,11 @@ postulate
   [id]≡refl : [id] {A = A} ≡ refl
   {-# REWRITE [id]=refl #-}
 \end{lstlisting}
-where \lstinline|[id]≡refl| is used to ensure that \lstinline|[id]| need not be referred.
-We also turn on the option \texttt{-{}-local-confluence-check} to check local confluence.
-
-
-Defining by overlapping patterns is indeed one of the use cases of user-defined rewrite rules discussed by Cockx~\cite{Cockx2020}. 
-The caveat, though, is that the termination checker is not imposed, so we have to check the termination informally.
+where \lstinline|[id]≡refl| ensures that \lstinline|[id]| disappears in transports.
+We also turn on the option \texttt{-{}-local-confluence-check}  to check local confluence.
+%
+Overlapping patterns is indeed one of the use cases of user-defined rewrite rules discussed by Cockx~\cite{Cockx2020}.
+The caveat, though, is that the termination checking is not imposed, so we need to check termination informally.
 
 %\subparagraph*{Heterogeneous identity}
 %In our implementation, some statements are proved differently from our presentation. 
@@ -1094,10 +1102,10 @@ The caveat, though, is that the termination checker is not imposed, so we have t
 \section{Conclusions, and related and future work}\label{sec:conclusion}
 
 We have used QIIRTs and overlapping
-patterns to represent type theory in (intensional) type theory. By defining type
+patterns to represent type theory in intensional type theory. By defining type
 substitution recursively with overlapping patterns, we can avoid most
 coercions that appear in terms in other formalisations of type
-theory in type theory. In other words, we have shown that so-called
+theory in type theory. That is, we have shown that so-called
 `transport hell' can be minimised when formalising type theory in type
 theory this way, without hiding details in the formalisation.
 
@@ -1109,8 +1117,8 @@ The idea of representing type theory in type theory in a well typed manner goes 
 Like us, Danielsson~\cite{Danielsson2006} defines type substitution by a recursive function, while keeping term substitution a constructor. However because he does not use quotients, he also has an explicit term constructor for transporting terms along an inductively defined type of conversion rules, which explicitly contains congruence rules. We are able to remove a lot of the boilerplate by using equality constructors instead. Chapman~\cite{Chapman2009} similarly uses explicit term substitutions and explicit transports along conversion rules, but also uses explicit type substitition in favour of more straightforward foundations.
 McBride~\cite{McBride2010} offers another solution which uses an inductive-recursive type to reuse the equality of the metatheory rather than using explicit transports. This works well if the object theory and meta theory are similar, but does not allow to represent equalities that do not hold in the metatheory.
 
-Altenkirch and Kaposi~\cite{Altenkirch2016a} were the first to exploit QIITs to simplify the treatment of computation rules in representations of type theory.% in type theory.
-We build heavily on their ideas, but by using Danielsson's~\cite{Danielsson2006} idea of defining type substitution recursively, we are able to remove many explicit transports from the definition, with the result that it is closer to an informal exposition on paper. Such a benefit was also suggested by Kaposi's~\cite{Kaposi2023} work, where the simply typed $\lambda$-calculus was used as an example. Altenkirch and Kaposi has built on the QIIT representation with great success to derive non-trivial results such as normalisation by evaluation~\cite{Altenkirch2017}, and investigate the metatheory of QIITs themselves, together with Kov\'acs~\cite{Kaposi2019}.
+Altenkirch and Kaposi~\cite{Altenkirch2016a} were the first to exploit QIITs to simplify the treatment of computation rules in representations of type theory. % in type theory.
+We build heavily on their ideas, but by using Danielsson's~\cite{Danielsson2006} idea of defining type substitution recursively, we are able to remove many explicit transports from the definition, with the result that it is closer to an informal exposition on paper. Such a benefit was also suggested by Kaposi~\cite{Kaposi2023}, who used the simply typed $\lambda$-calculus as an example. Altenkirch and Kaposi have built on the QIIT representation with great success to derive non-trivial results such as normalisation by evaluation~\cite{Altenkirch2017}, and used it to investigate the metatheory of QIITs themselves, together with Kov\'acs~\cite{Kaposi2019}.
 
 In the future, we hope to settle the foundational status of the
 combination of quotient types, inductive-inductive types, and the kind
