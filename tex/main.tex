@@ -605,7 +605,6 @@ to retain the local confluence for type substitution. The proof is similar to th
 %\end{proof}
 \begin{restatable}{proposition}{propConfluenceTwo}\label{prop:local-confluence-2}
   Type substitution $\subTy{\blank}{\blank}$ is terminating and locally confluent.
-  \qed
   \danger
 \end{restatable}
 
@@ -613,7 +612,7 @@ We also have to show that the recursive substitution $\subTm{\blank}{\blank}$ is
 
 
 \begin{restatable}{proposition}{propCorrectness}\label{prop:correctness-1}
-  For any $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Tm\;\Delta\;A$, the term $\sub{t}{\sigma}$ is propositionally equal to $\subTm{t}{\sigma}$. \qed
+  For any $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Tm\;\Delta\;A$, the term $\sub{t}{\sigma}$ is propositionally equal to $\subTm{t}{\sigma}$.
 \end{restatable}
 
 Finally, we have to show that both $\subTy{\blank}{\blank}$ and $\subTm{\blank}{\blank}$ are coherent.
@@ -626,7 +625,7 @@ Finally, we have to show that both $\subTy{\blank}{\blank}$ and $\subTm{\blank}{
     \quad\text{and}\quad
     \subTm{t}{\sigma} = \subTm{t}{\tau}
   \]
-  hold for any type $A$ and any term $t$. \qed
+  hold for any type $A$ and any term $t$.
 \end{restatable}
 
 \begin{remark}
@@ -679,32 +678,26 @@ Then, we add another clause for type substitution and an equality constructor fo
 
 \begin{restatable}{proposition}{propConfluenceThree}\label{prop:local-confluence-3}
   Type substitution $\subTy{\blank}{\blank}$ is terminating and locally confluent.
-  \qed
     \danger
 \end{restatable}
 
-Similar to term substitution, we can show that the lifted substitution $\sigma \uparrow A$ is propositionally equal to $\sigma^+$, based on two basic properties\footnote{%
-  The reader is invited to prove them using the QII definition with transports.}
-about the lifting.
+The lifting $\sigma^+$ interacts well with identities and composition.
+For comparision, the reader is invited to prove the corresponding QIIT version with transports of the following lemma.
+%
 \begin{lemma} \label{lem:lifting}
-  The following statements hold:
-  \[
-    \idS^+ =^{\Sub\;(\Gamma, A)\;(\Gamma, A)} \idS
-    \qquad\text{and}\qquad
-    (\sigma; \tau)^+     =^{\Sub\;(\Gamma, \subTy{A}{\sigma; \tau})\;(\Theta, A)} \sigma^+ ; \tau^+.
-  \]
+  For all contexts $\Gamma$, $\Delta$, $\Theta$, types $A : \Ty\,\Theta$ and substitutions $\sigma : \Sub\,\Gamma\,\Delta$ and $\tau : \Sub\,\Delta\,\Theta$, we have $\idS^+ =^{\Sub\;(\Theta, A)\;(\Theta, A)} \idS$ and $(\sigma; \tau)^+     =^{\Sub\;(\Gamma, \subTy{A}{\sigma; \tau})\;(\Theta, A)} \sigma^+ ; \tau^+$.
 \end{lemma}
 
+Using this lemma, we can show that the lifted substitution $\sigma \uparrow A$ agrees propositionally with its `default' reduction $\sigma^+$.
+
 \begin{restatable}{proposition}{propCorrectnessTwo}\label{prop:correctness-2}
-    For every $\sigma : \Sub\;\Gamma\;\Delta$, and $A : \Ty\;\Delta$, the lifting
-    $\sigma \uparrow A$ is propositionally equal to $\sigma^+$.
-    \qed
+    For every $\sigma : \Sub\;\Gamma\;\Delta$, and $A : \Ty\;\Delta$, we have
+    $\sigma \uparrow A = \sigma^+$.
 \end{restatable}
 
 As we are working with a different type theory from \cref{subsec:SC+U}, we still have to prove the identity $\sub{t}{\sigma} = \subTm{t}{\sigma}$ but the same argument still applies:
 \begin{proposition} \label{prop:correctness-3}
-  For every $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Ty\;\Delta\;A$,
-  the term $\sub{t}{\sigma}$ is propositionally equal to $\subTm{t}{\sigma}$.
+  For every $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Ty\;\Delta\;A$, we have $\sub{t}{\sigma} = \subTm{t}{\sigma}$.
 \end{proposition}
 
 Finally, we show that these simultaneously defined functions are coherent.
@@ -717,17 +710,16 @@ Finally, we show that these simultaneously defined functions are coherent.
       \subTm{t}{\sigma} =^{\lam{\gamma}\Tm\;\Gamma\;(\subTy{A}{\gamma})}_{\alert{\cc}} \subTm{t}{\tau},
     \]
     for any type $A$ and any term $t$.
-    \qed
 \end{restatable}
 
-\subsubsection{Multiple lifting and the coherence of type substitution}
+\subsubsection*{Multiple lifting and the coherence of type substitution}
 
 We also need to prove the coherence for type substitution, i.e., that $\subTy{A}{\sigma} = \subTy{A}{\tau}$ for every equality constructor $\cc : \sigma = \tau$.
 To do this, we need to generalise the desired identity to account for liftings, since a naive induction does not work: for example, on $\Pi$-types, we have
-\begin{align*}
-  \subTy{(\Pi\;A\;B)}{\sigma} & = \Pi\;(\subTy{A}{\sigma})\;(\subTy{B}{\sigma\uparrow A}) \\
-  \subTy{(\Pi\;A\;B)}{\tau} & = \Pi\;(\subTy{A}{\tau})\;(\subTy{B}{\tau\uparrow A})
-\end{align*}
+\[
+  \subTy{(\Pi\;A\;B)}{\sigma} = \Pi\;(\subTy{A}{\sigma})\;(\subTy{B}{\sigma\uparrow A}) \qquad
+  \subTy{(\Pi\;A\;B)}{\tau} = \Pi\;(\subTy{A}{\tau})\;(\subTy{B}{\tau\uparrow A})
+\]
 but the induction hypothesis does not give us $\subTy{B}{\sigma\uparrow A} = \subTy{B}{\tau\uparrow A}$.
 Instead, we will define the \emph{multiple lifting} $\sigma \upuparrows \Xi$ by a telescope $\Xi = A_1, \dots, A_n$, which intuitively means multiple applications of lifting: $\sigma \uparrow A_1 \uparrow \dots \uparrow A_n$.
 Then, for each constructor $\cc : \sigma = \tau$, we show the identity
@@ -795,7 +787,7 @@ Of course, we also have to prove coherence for the newly introduced recursive fu
 \begin{restatable}%[{Coherence for $[\blank]_{\Tel}$ and $\blank\upuparrows\blank$}]
 {proposition}{coherenceTel}
   For every equality constructor $\cc : \sigma = \tau$ and telescope $\Xi$, we have
-  $\subTel{\Xi}{\sigma} = \subTel{\Xi}{\tau}$ and $\sigma \upuparrows \Xi =^{\Sub\;(\Gamma\dplus \subTel{\Xi}{\sigma})\;(\Delta\dplus\Xi)} \tau \upuparrows \Xi$. \qed
+  $\subTel{\Xi}{\sigma} = \subTel{\Xi}{\tau}$ and $\sigma \upuparrows \Xi =^{\Sub\;(\Gamma\dplus \subTel{\Xi}{\sigma})\;(\Delta\dplus\Xi)} \tau \upuparrows \Xi$.
   \danger
 \end{restatable}
 
@@ -803,7 +795,6 @@ As promised, by instantiating $\Xi$ to be empty, we also get coherence for $\sub
 
 \begin{corollary}
   We have $\subTy{A}{\sigma} = \subTy{A}{\tau}$ for every equality constructor $\cc : \sigma = \tau$.
-  \qed
   \danger
 \end{corollary}
 
