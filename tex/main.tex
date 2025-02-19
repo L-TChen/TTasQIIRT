@@ -150,29 +150,30 @@ This paper explores the use of QIIRTs and definitions by overlapping patterns to
 %Then, we develop type theories formulated as QIIRTs in \cref{sec:QIIRTs}, follo%wed by their elimination principles and usage in \cref{sec:models}.
 %We outline the \Agda formal implementation in \cref{sec:formal-implementation}, and we conclude with related and future work in \cref{sec:conclusion}.
 
-\section{Metatheory and formalisation} \label{sec:meta}
+\section{Notation and metatheory} \label{sec:meta}
 
 We work in intensional Martin-L\"of type theory with uniqueness of identity proofs. In \cref{sec:models,sec:formal-implementation}, we also assume function extensionality and $\eta$-rules for $\Pi$-types and $\Sigma$-types.
 %
 We mostly follow the notational conventions of the HoTT book~\cite{UFP2013} (even if we do not assume the univalence axiom), except that we write dependent function types using \Agda notation $(x : A) \to B\,x$.
 %
 We are further inspired by \Agda in writing $\implicit{x}\;B\,x$ for $(x : A) \to B\,x$ when $x$ is treated as an `implicit' argument which should be clear from the context.
-We write $\Set_i$ for the hierarchy of universes with the level index $i$ suppressed.
+%We write $\Set_i$ for the hierarchy of universes with the level index $i$ suppressed.
+We write $\Set$ for the universe of types (suppressing to mention a hierarchy of universes $\Set_i$).
 
-We write $x \jdeq y$ for strict equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the `dependent' identity type where $P : A \to \Set$, $t : P\,x$, $u : P\,y$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P\,y} u$, where $\transfibf{P} : (p : x =^A y) \to P\,x \to P\,y$ is the operation to transport values between the type family $P$ along the identity type.
+We write $x \jdeq y$ for strict (definitional) equality, $x =^{A} y$ for the identity type stating that elements $x : A$ and $y : A$ of a type $A$ are equal, and $\dpath{P}{p}{t}{u}$ for the `dependent' identity type where $P : A \to \Set$, $t : P\,x$, $u : P\,y$ and $p : x =^A y$. One possible realisation of this type is as $t =^{P}_{p} u \defeq \transfib{P}{p}{t} =^{P\,y} u$, where $\transfibf{P} : (p : x =^A y) \to P\,x \to P\,y$ is the operation to transport values in the type family $P$ along an equality proof.
 %
 
 We have implemented our definitions and proofs in \Agda; see \cref{sec:formal-implementation} for details.
-However, some statements are metatheoretical and not checked in \Agda, while others are only partially checked by \Agda, as proof obligations are given manually. %for postulated equality constructors.
+However, some statements are metatheoretical and thus not checked in \Agda. %, while others are only partially checked by \Agda, as proof obligations are given manually. %for postulated equality constructors.
 We have marked such `informal' proofs with the symbol \resizebox*{!}{\baselineskip}{\textdbend}.
 
 \subsection{Inductive-recursive types}
-An inductive type $A$, such as the type of natural numbers $A = \mathbb{N}$, allows functions out of the type $f : A \to X$ to be defined, using an elimination rule which says that $f$ is defined by its values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of~$A$.
+An inductive type $A$, such as the type of natural numbers $A = \mathbb{N}$, allows functions out of the type $f : A \to X$ to be defined using an elimination rule which says that $f$ is defined by its values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of~$A$.
 %For example, a function $f: \mathbb{N} \to X$ is given by the values $f(0)$ and $f(\suc\,n)$, where the latter might refer to the already computed value $f(n)$.
 %
 The type is first defined inductively by listing its constructors, and then recursive functions can be defined out of it.
 
-In contrast, an inductive-recursive type(IRT), introduced by Dybjer~\cite{Dybjer2000} and studied by Dybjer and Setzer~\cite{Dybjer1999,Dybjer2003}, is an inductive type $A$ defined \emph{simultaneously} with a recursively defined function $F$ out of $A$ to some fixed (possibly large) type $D$.
+In contrast, an inductive-recursive type (IRT), introduced by Dybjer~\cite{Dybjer2000} and studied by Dybjer and Setzer~\cite{Dybjer1999,Dybjer2003}, is an inductive type $A$ defined \emph{simultaneously} with a recursively defined function $F : A \to D$ to some fixed (possibly large) type $D$.
 The prototypical example is Tarski universe: a type $U$ of codes for small types is defined with a `decoding' function $T : U \to \Set$ which maps each code to the type it represents. Crucially, the code
 \[
   \pi : (a : U) \to (T(a) \to U) \to U
@@ -185,7 +186,7 @@ An IRT $(A, F)$ comes with an elimination rule that allows to define a dependent
 %
 In particular, the elimination rule can be used to define endofunctions on $A$, but the recursive function  $F : A \to D$ must target a pre-existing type $D$.
 %
-In this work, we will consider an extension \emph{generalised} IRTs, where $F : A \to A$ is also allowed.
+In this work, we will consider an extension of \emph{generalised} IRTs, where $F : A \to A$ is also allowed.
 %
 Such IRTs are accepted in \Agda and were previously used~\cite{Danielsson2006} to represent type theory in type theory.
 %
@@ -224,9 +225,9 @@ For example, the type $\JList{A}$ of \emph{join lists} can be given by the QIT i
 A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a type family $B : A \to \Set$ defined inductively.
 % --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively.
 %; indeed, inductive-inductive definitions only make sense when $D = \Set$.
-The metatheory of QIITs has been studied by Altenkirch et al.~\cite{Kaposi2018,Kaposi2019,Kovacs2020}
+The metatheory of QIITs has been studied by Altenkirch et al.~\cite{Kaposi2018,Kaposi2019,Kovacs2020}.
 
-We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: the type $\JList{A}$ is defined simultaneously with a recursion $\flatten : \implicit{A}\;\JList{A} \to \List{A}$ which flattens a join list into an ordinary list. We keep the constructors $\Jnil$, $\Jsing{\blank}$ and $\Jconcat{\blank}{\blank}$, but replace $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
+We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: the type $\JList{A}$ is defined simultaneously with a recursive function $\flatten : \implicit{A}\;\JList{A} \to \List{A}$ which flattens a join list into an ordinary list. We keep the constructors $\Jnil$, $\Jsing{\blank}$ and $\Jconcat{\blank}{\blank}$ from \cref{fig:QIT-join-list}, but replace $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
 \[
   \mathsf{nf} : \implicit{A}\;(\ell, \ell' : \JList{A}) \to \flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell' \to \ell =^{\JList{A}} \ell'
 \]
@@ -237,14 +238,15 @@ which states that join lists are equal as soon as their flattenings are equal. F
 
 
 \subsection{Definitions by overlapping patterns} \label{sec:meta:overlapping}
-In a proof assistant, functions are typically defined using pattern matching and elaborated into case trees, which correspond to the eliminator, following \emph{first-match} semantics~\cite{Cockx2020a} and employing termination checking.
-This elaboration offers the conventional notation, while making computational behaviour opaque.
+In a proof assistant such as \Agda, functions are defined using pattern matching and elaborated into case trees, which correspond to the eliminator, following a \emph{first-match} semantics~\cite{Cockx2020a} and employing termination checking.
+%This elaboration offers conventional notation, while making computational behaviour opaque.
 % and favouring asymmetric definitions.
-For example, two definitions of addition below
+For example, the two definitions of addition $\blank  + \blank$, $\blank  +' \blank $
+%
 %\begin{figure}[b]%
 \begin{minipage}{.48\textwidth}
   \begin{alignat*}{5}
-    \blank  & + \blank     && : \N \to \N \to \N \\
+%    \blank  & + \blank     && : \N \to \N \to \N \\
     0       &  + m         && = m  \\
   n         &  + 0         && = m  \\
   (\suc\;n) &  + m         && = \suc\;(n + m) \\
@@ -253,7 +255,7 @@ For example, two definitions of addition below
 \end{minipage}
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{5}
-  \blank         & +'\blank     && : \N \to \N \to \N \\
+%  \blank         & +'\blank     && : \N \to \N \to \N \\
   0              & +' m         && \defeq m  \\
   (\suc\;n)      & +' 0         && \defeq \suc\;n \\
   (\suc\;n)      & +' (\suc\;m) && \defeq \suc\;(n +' \suc\;m)
@@ -269,15 +271,15 @@ Each clause of $+'$ is strict while clauses of $+$ are not necessarily strict.
 
 Cockx~\cite{Cockx2014} explores an alternative semantics for pattern matching, where all clauses are strict, even in the presence of \emph{overlapping patterns}.
 Thus, when a function $f$ is defined with overlapping patterns, the notation $f\;\overrightarrow{p_i} \reduce t_i$ is used to emphasize its reduction behaviour.
-Under this semantics, each clause of $+$ is strictly equal to its right-hand side, also allowing the symmetry addition to be proved commutative directly by induction on $n$ and $m$.
+Under this semantics, each clause of $+$ is strictly equal to its right-hand side. %, also allowing the symmetry addition to be proved commutative directly by induction on $n$ and $m$.
 
-A key requirement for definitions with overlapping patterns is that, in addition to termination and completeness, any clause must eventually compute to the same term, i.e.\ $f$ is confluent.
+A key requirement for definitions with overlapping patterns is that, in addition to termination and completeness, any overlapping clauses must eventually compute to the same term, i.e.\ the definition must be confluent.
 Cockx shows that if a definition of $f$ is
 \begin{enumerate}
   \item \emph{structurally recursive}~\cite{Abel2002}, i.e.\ arguments of recursive calls are structurally smaller, and
-  \item \emph{locally confluent}, i.e.\ for any two function clauses $f\;\overrightarrow{p_1} \reduce t_1$ and $f\;\overrightarrow{p_2} \reduce t_2$ with a most general unifer $\sigma$ for $\overrightarrow{p_1}$ and $\overrightarrow{p_2}$, terms $\sigma t_1$ and $\sigma t_2$ have the same normal form, 
+  \item \emph{locally confluent}, i.e.\ for any two function clauses $f\;\overrightarrow{p_1} \reduce t_1$ and $f\;\overrightarrow{p_2} \reduce t_2$ with a most general unifer $\sigma$ for $\overrightarrow{p_1}$ and $\overrightarrow{p_2}$, the terms $\sigma t_1$ and $\sigma t_2$ have the same normal form, 
 \end{enumerate}
-then $f$ is confluent---essentially a variant of Newman's Lemma~\cite{Newman1942}.
+then $f$ is confluent --- essentially a variant of Newman's Lemma~\cite{Newman1942}.
 We call a diagram $\sigma t_2 \Leftarrow f\;\sigma\overrightarrow{p_1} \Rightarrow \sigma t_1$ used in the analysis of local confluence a \emph{local peak}.
 
 In this work, we will consider inductive types defined simultaneously with recursive functions using overlapping patterns.
