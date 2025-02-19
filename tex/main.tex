@@ -1065,17 +1065,17 @@ We also turn on the option \texttt{-{}-local-confluence-check} to check local co
 Defining by overlapping patterns is indeed one of the use cases of user-defined rewrite rules discussed by Cockx~\cite{Cockx2020}. 
 The caveat, though, is that the termination checker is not imposed, so we have to check the termination informally.
 
-\subparagraph*{Heterogeneous identity}
-In our implementation, some statements are proved differently from our presentation. 
-We have sometimes used John Major equality~\cite{McBride1999} $x \cong y$  for $A, B : \Set$, and $x : A$ and $y : B$, where dependent congruence rule or dependent identity type are needed.
-
-For instance, in \cref{ex:pi-comp-qiirt}, the identity $\pi_2(\sigma ; \tau) = \pi_2(\sigma; (\pi_1 \tau, \pi_2 \tau)$ could be proved by $\apdfunc f \colon (p : x =^A y) \to f\,x =^{P}_{p} f\,y$ and the equality constructor $\pi\eta : \tau = (\pi_1\tau, \pi_2\tau)$, resulting an additional transport to remove later.
-However, as $\subTy{A}{\pi_1(\sigma; \tau)}$ and $\subTy{A}{\pi_1(\sigma; (\pi_1\tau, \pi_2\tau))}$ are strictly equal, the resulting identity is indeed homogeneous.
-Hence, we use the heterogeneous congruence $\mathit{hap}_f\colon (p : x \simeq y) \to f\,x\simeq f\,y$ (by \lstinline|hcong|) and switch back to the ordinary identity type $f\,x = f\, y$ (by \lstinline|≅-to-≡|) as their types match.
- 
-%As shown by McBride, the heterogeneous identity type is equivalent to the ordinary identity type equipped with the principle of uniqueness of identity proofs.
-
-\LT[noinline]{Mention the NbE for SC here?}
+%\subparagraph*{Heterogeneous identity}
+%In our implementation, some statements are proved differently from our presentation. 
+%We have sometimes used John Major equality~\cite{McBride1999} $x \cong y$  for $A, B : \Set$, and $x : A$ and $y : B$, where dependent congruence rule or dependent identity type are needed.
+%
+%For instance, in \cref{ex:pi-comp-qiirt}, the identity $\pi_2(\sigma ; \tau) = \pi_2(\sigma; (\pi_1 \tau, \pi_2 \tau)$ could be proved by $\apdfunc f \colon (p : x =^A y) \to f\,x =^{P}_{p} f\,y$ and the equality constructor $\pi\eta : \tau = (\pi_1\tau, \pi_2\tau)$, resulting an additional transport to remove later.
+%However, as $\subTy{A}{\pi_1(\sigma; \tau)}$ and $\subTy{A}{\pi_1(\sigma; (\pi_1\tau, \pi_2\tau))}$ are strictly equal, the resulting identity is indeed homogeneous.
+%Hence, we use the heterogeneous congruence $\mathit{hap}_f\colon (p : x \simeq y) \to f\,x\simeq f\,y$ (by \lstinline|hcong|) and switch back to the ordinary identity type $f\,x = f\, y$ (by \lstinline|≅-to-≡|) as their types match.
+% 
+%%As shown by McBride, the heterogeneous identity type is equivalent to the ordinary identity type equipped with the principle of uniqueness of identity proofs.
+%
+%\LT[noinline]{Mention the NbE for SC here?}
 
 \section{Conclusions, and related and future work}\label{sec:conclusion}
 
