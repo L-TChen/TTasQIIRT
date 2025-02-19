@@ -577,7 +577,7 @@ However, we still have a little bit more work to do before we can declare victor
 
 \subsection{Adding a universe} \label{subsec:SC+U}
 Now we extend substitution calculus with an empty universe $\UU$ of small types~$\El\,u$.
-For a QII definition \cite{Altenkirch2016a}, this extension adds the following constructors
+In a QIIT definition \cite{Altenkirch2016a}, this extension adds the following constructors
 \begin{alignat*}{3}
   \El   & : \implicit{\Gamma} && \Tm\,\Gamma\;\UU \to \Ty\,\Gamma \\
   []\El & : \implicit{\Gamma, \Delta, \sigma, u} && \sub{(\El\, u)}{\sigma} =^{\Tm\;\Gamma\;\UU} \El\,(\alert{\transfib{\Tm\;\Gamma}{[]\UU}{\color{black}\sub{u}{\sigma}}})
@@ -590,27 +590,29 @@ Likewise, the equality constructor $[]\El$ may be replaced by the reduction
 \begin{alignat*}{3}
   \subTy{(\El\, u)}{\sigma} & \reduce \El\,(\sub{u}{\sigma})
 \end{alignat*}
-Yet, this naive change breaks the local confluence!
-The problem is that there is now additional interaction between types and terms. Observe that the local peak
-\[
+Yet, this naive change breaks local confluence!
+The problem is that there is now additional interaction between types and terms.
+% Observe that
+The local peak
+\(
   \El\,u \Leftarrow \subTy{(\El\,u)}{\idS} \reduce \El(\sub{u}{\idS})
-\]
+\)
 cannot reduce to the same term, since the term substitution $\sub{u}{\idS}$ is merely a constructor.
 %
-To repair the local confluence, we add a simultaneously defined function $\subTm{\blank}{\blank}$ for term substitution apart from the explicit term substitution $\sub{\blank}{\blank}$ as follows
+To repair local confluence, we add a simultaneously defined term substitution function $\subTm{\blank}{\blank} : \implicit{\Gamma, \Delta, A}\;\Tm\,\Delta\,A \to (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Gamma\,(\subTy{A}{\sigma})$, different from the constructor $\sub{\blank}{\blank}$, with the following reductions:
 \begin{alignat*}{3}
-  \subTm{\blank}{\blank} & : \implicit{\Gamma, \Delta, A}\;\Tm\,\Delta\,A \to (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Gamma\,(\subTy{A}{\sigma}) \\
+%  \subTm{\blank}{\blank} & : \implicit{\Gamma, \Delta, A}\;\Tm\,\Delta\,A \to (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Gamma\,(\subTy{A}{\sigma}) \\
 \subTm{t}{\idS}          & \reduce t \\
 \subTm{t}{\sigma ; \tau} & \reduce \subTm{(\subTm{t}{\tau})}{\sigma} \\
 \subTm{t}{\pi_1(\sigma, s)} & \reduce \subTm{t}{\sigma} \\
 \subTm{t}{\pi_1(\sigma; \tau)} & \reduce \subTm{(\subTm{t}{\pi_1\tau})}{\sigma} \\
 \subTm{t}{\sigma}        & \reduce \sub{t}{\sigma}, \quad \text{otherwise}
 \end{alignat*}
-which reduces substitutions that occur in \eqref{eq:def-type-subst-1}--\eqref{eq:def-type-subst-4} recursively so that the reduction can be propagated from type to term substitution.
-The remaining cases reduce to the explicit term substitution $\sub{t}{\sigma}$.
-Note that $\subTm{\blank}{\blank}$ can be defined with the standard semantics for function definition, since there are no overlapping patterns.
+This reduces substitutions that occur in \eqref{eq:def-type-subst-1}--\eqref{eq:def-type-subst-4} recursively so that the reduction can be propagated from types to terms.
+The remaining ``default'' cases reduce to the constructor $\sub{t}{\sigma}$.
+Note that $\subTm{\blank}{\blank}$ can be defined with the standard first-match pattern matching semantics, since there are no overlapping patterns.
 \begin{remark}
-  The function $\subTm{\blank}{\blank}$ can be understood as a \emph{smart constructor} for the explicit term substitution $\sub{\blank}{\blank}$, a well-known idiom in functional programming, since the function $\subTm{\blank}{\blank}$ (mostly) builds an explicit substitution but computes certain cases away.
+  The function $\subTm{\blank}{\blank}$ can be understood as a \emph{smart constructor} for the explicit term substitution $\sub{\blank}{\blank}$, a well-known idiom in functional programming: the function $\subTm{\blank}{\blank}$ computes certain cases away, but mostly reduces to the non-smart constructor $\sub{\blank}{\blank}$.
 \end{remark}
 
 The equality constructor $[]\El$ is now accordingly replaced by the reduction
@@ -626,15 +628,15 @@ to retain the local confluence for type substitution. The proof is similar to th
 %  Again, each recursive call is on a structurally smaller term~\cite{Abel2002}.
 %\end{proof}
 \begin{restatable}{proposition}{propConfluenceTwo}\label{prop:local-confluence-2}
-  Type substitution $\subTy{\blank}{\blank}$ is terminating and locally confluent.
   \danger
+  Type substitution $\subTy{\blank}{\blank}$ is terminating and locally confluent.
 \end{restatable}
 
 We also have to show that the recursive substitution $\subTm{\blank}{\blank}$ is propositionally equal to the explicit substitution $\sub{\blank}{\blank}$, so they can be used together consistently.
 
 
 \begin{restatable}{proposition}{propCorrectness}\label{prop:correctness-1}
-  For any $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Tm\;\Delta\;A$, the term $\sub{t}{\sigma}$ is propositionally equal to $\subTm{t}{\sigma}$.
+  For any $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Tm\;\Delta\;A$, we have $\sub{t}{\sigma} = \subTm{t}{\sigma}$.
 \end{restatable}
 
 Finally, we have to show that both $\subTy{\blank}{\blank}$ and $\subTm{\blank}{\blank}$ are coherent.
@@ -642,33 +644,36 @@ Finally, we have to show that both $\subTy{\blank}{\blank}$ and $\subTm{\blank}{
 \begin{restatable}{proposition}{propCoherence}\label{prop:coherence-2}
   For every equality constructor $\cc : \sigma =^{\Sub\;\Gamma\;\Delta} \tau$, the identities
   \danger
-  \[
-    \subTy{A}{\sigma} = \subTy{A}{\tau}
-    \quad\text{and}\quad
-    \subTm{t}{\sigma} = \subTm{t}{\tau}
-  \]
+    $\subTy{A}{\sigma} = \subTy{A}{\tau}$
+    and
+    $\subTm{t}{\sigma} = \subTm{t}{\tau}$
   hold for any type $A$ and any term $t$.
 \end{restatable}
 
 \begin{remark}
-We have seen that a naive extension with a universe breaks the local confluence of type substitution defined in \cref{subsec:SC-QIIRT}, because the newly added function clause interacts with other existing clauses.
-In general, every term occurs on the right-hand side of a clause needs to propagate the reduction to allow a confluent term to exist, and this propagation can be achieved by turning a term involving a substitution $\sigma$ into a recursion.
+We have seen that a naive addition of a universe breaks the local confluence of type substitution defined in \cref{subsec:SC-QIIRT}, because the newly added function clause interacts with existing clauses.
+In general, every term that occurs on the right-hand side of a clause needs to propagate the reduction to allow a confluent term to exist, and this propagation can be achieved by turning a constructor involving a substitution into a recursive function.
 \end{remark}
 
 \subsection{Adding \texorpdfstring{$\Pi$}{Π}-types} \label{subsec:SC+U+Pi}
 
-We extend the type theory in \cref{subsec:SC+U} with $\Pi$-types, i.e.\ dependent function types, where the context of its codomain is extended with the domain type.
-For the QIIT of type theory in \cite{Altenkirch2016a}, it amounts to adding the following constructors for the type formation rule, the term introduction/elimination rules:
+We extend the type theory in \cref{subsec:SC+U} with $\Pi$-types, i.e.\ dependent function types. % --- the context of the codomain is extended with the domain type.
+For a QIIT definition~\cite{Altenkirch2016a}, this amounts to adding the following constructors for the type formation rule and the term introduction/elimination rules
 \begin{alignat*}{3}
   \Pi     &: \implicit{\Gamma}           \; && (A : \Ty\,\Gamma) \to \Ty\,(\Gamma, A) \to \Ty\,\Gamma \\
   \lambda &: \implicit{\Gamma, A, B}     \; && \Tm\;(\Gamma, A)\;B \to \Tm\,\Gamma\,(\Pi\;A\;B) \\
   \mathsf{app} &: \implicit{\Gamma, A, B}\; && \Tm\;\Gamma\;(\Pi\;A\;B) \to \Tm\;(\Gamma, A)\;B
 \end{alignat*}
 the computation rules
-\begin{alignat*}{5}
-  \Pi\beta           & : \implicit{\Gamma, A, B, t}\; && \mathsf{app}\,(\lambda\,t) && =^{\Tm\;\Gamma\;A} && t \\
-  \Pi\eta            & : \implicit{\Gamma, A, B, t}\; && t                          && =^{\Tm\;\Gamma\;A} && \lambda(\mathsf{app}\,t)
-\end{alignat*}
+\[
+  \Pi\beta           : \implicit{\Gamma, A, B, t}\; \mathsf{app}\,(\lambda\,t) =^{\Tm\;\Gamma\;A} t
+  \qquad\qquad
+  \Pi\eta            : \implicit{\Gamma, A, B, t}\; t                         =^{\Tm\;\Gamma\;A} \lambda(\mathsf{app}\,t)
+\]
+%\begin{alignat*}{5}
+%  \Pi\beta           & : \implicit{\Gamma, A, B, t}\; && \mathsf{app}\,(\lambda\,t) && =^{\Tm\;\Gamma\;A} && t \\
+%  \Pi\eta            & : \implicit{\Gamma, A, B, t}\; && t                      %    && =^{\Tm\;\Gamma\;A} && \lambda(\mathsf{app}\,t)
+%\end{alignat*}
 and the structural rules for substitution
 \begin{alignat}{5}
   []\Pi              & : \implicit{\Gamma, \Delta, \sigma, A, B}\;    && \subTy{(\Pi\;A\;B)}{\sigma} && =^{\Ty\;\Gamma} && \Pi\,(\sub{A}{\sigma})\,(\sub{B}{\sigma\uparrow A}) \label{eq:def-type-subst-8} \\
@@ -678,7 +683,7 @@ where $\sigma \uparrow A$ is the \emph{lifting}  of $\sigma$ by a type $A$ defin
 
 For our QIIR definition, %$\sigma\uparrow A$ and $[]\lambda$ do not need a transport since $[;]_T$ and $[]\Pi$ are strict.
 we do not need any transport since $[;]_T$ and $[]\Pi$ are strict.
-However, once again, adding \eqref{eq:def-type-subst-8} directly to the type substitution $\subTy{\blank}{\blank}$ breaks the local confluence, because the reduction gets stuck upon the lifting $\sigma \uparrow A$.
+However, once again, adding \eqref{eq:def-type-subst-8} directly to the type substitution $\subTy{\blank}{\blank}$ breaks local confluence, because the reduction gets stuck upon the lifting $\sigma \uparrow A$.
 For example, $\subTy{(\Pi\;A\;B)}{\idS}$ reduces to $\Pi\;A\;(\subTy{B}{\idS \uparrow A})$ where $\idS \uparrow A$ is propositionally but not strictly equal to $\idS$, so the local peak $\Pi\;A\;B \Leftarrow \subTy{(\Pi\;A\;B)}{\idS} \reduce \Pi\;A\;(\subTy{B}{\idS \uparrow A})$ cannot be joined. 
 
 To retain the local confluence, we turn $\sigma \uparrow A$ into a simultaneously defined function:
@@ -691,12 +696,14 @@ To retain the local confluence, we turn $\sigma \uparrow A$ into a simultaneousl
 \sigma              \uparrow A & \reduce \sigma^+ , \quad \text{otherwise} \nonumber
 \end{alignat}
 where $\sigma^+ \defeq (\pi_1\idS ; \sigma), \pi_2\idS$.
-Then, we add another clause for type substitution and an equality constructor for term substitution without transport:
+Then, we add another clause for type substitution
+\begin{equation*}
+  \subTy{(\Pi\,A\,B)}{\sigma} \reduce \Pi\,(\sub{A}{\sigma})\,(\sub{B}{\sigma\uparrow A}) %\label{eq:def-type-subst-9}
+\end{equation*}
+and an equality constructor for term substitution without transport:
 \begin{alignat}{5}
-                     & \subTy{(\Pi\,A\,B)}{\sigma} && \reduce \Pi\,(\sub{A}{\sigma})\,(\sub{B}{\sigma\uparrow A}) \label{eq:def-type-subst-9} \\
   \mathsf{[]\lambda} :{} & \sub{(\lambda\,t)}{\sigma} && =^{\Tm\,\Gamma\,(\subTy{(\Pi\,A\,B)}{\sigma})} && \lambda\,(\sub{t}{\sigma \uparrow A}) \nonumber
 \end{alignat}
-
 
 \begin{restatable}{proposition}{propConfluenceThree}\label{prop:local-confluence-3}
   Type substitution $\subTy{\blank}{\blank}$ is terminating and locally confluent.
@@ -717,49 +724,45 @@ Using this lemma, we can show that the lifted substitution $\sigma \uparrow A$ a
     $\sigma \uparrow A = \sigma^+$.
 \end{restatable}
 
-As we are working with a different type theory from \cref{subsec:SC+U}, we still have to prove the identity $\sub{t}{\sigma} = \subTm{t}{\sigma}$ but the same argument still applies:
+As we are working with a different type theory from \cref{subsec:SC+U}, we  have to again prove the identity $\sub{t}{\sigma} = \subTm{t}{\sigma}$, but the same argument still applies:
 \begin{proposition} \label{prop:correctness-3}
   For every $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Ty\;\Delta\;A$, we have $\sub{t}{\sigma} = \subTm{t}{\sigma}$.
 \end{proposition}
 
 Finally, we show that these simultaneously defined functions are coherent.
 \begin{restatable}{proposition}{propCoherenceUparrow} %[Coherence]
-    For every equality constructor $\cc : \sigma =^{\Sub\;\Gamma\;\Delta} \tau$, we have
-    \danger
-    \[
-      \sigma \uparrow A =^{\lam{\gamma}\Sub\;(\Gamma, \subTy{A}{\gamma})\;(\Delta, A)}_{\alert{\cc}} \tau \uparrow A
-      \qquad\text{and}\qquad
-      \subTm{t}{\sigma} =^{\lam{\gamma}\Tm\;\Gamma\;(\subTy{A}{\gamma})}_{\alert{\cc}} \subTm{t}{\tau},
-    \]
-    for any type $A$ and any term $t$.
-\end{restatable}
+  For every equality constructor $\cc : \sigma =^{\Sub\;\Gamma\;\Delta} \tau$ and  any type $A$ and term $t$,   \danger we have
+  $\sigma \uparrow A =^{\lam{\gamma}\Sub\;(\Gamma, \subTy{A}{\gamma})\;(\Delta, A)}_{\alert{\cc}} \tau \uparrow A$
+      and
+      $\subTm{t}{\sigma} =^{\lam{\gamma}\Tm\;\Gamma\;(\subTy{A}{\gamma})}_{\alert{\cc}} \subTm{t}{\tau}$.
+    \end{restatable}
 
 \subsubsection*{Multiple lifting and the coherence of type substitution}
 
-We also need to prove the coherence for type substitution, i.e., that $\subTy{A}{\sigma} = \subTy{A}{\tau}$ for every equality constructor $\cc : \sigma = \tau$.
+We also need to prove coherence of type substitution, i.e., for every equality constructor $\cc : \sigma = \tau$, we have $\subTy{A}{\sigma} = \subTy{A}{\tau}$ .
 To do this, we need to generalise the desired identity to account for liftings, since a naive induction does not work: for example, on $\Pi$-types, we have
 \[
   \subTy{(\Pi\;A\;B)}{\sigma} = \Pi\;(\subTy{A}{\sigma})\;(\subTy{B}{\sigma\uparrow A}) \qquad
   \subTy{(\Pi\;A\;B)}{\tau} = \Pi\;(\subTy{A}{\tau})\;(\subTy{B}{\tau\uparrow A})
 \]
 but the induction hypothesis does not give us $\subTy{B}{\sigma\uparrow A} = \subTy{B}{\tau\uparrow A}$.
-Instead, we will define the \emph{multiple lifting} $\sigma \upuparrows \Xi$ by a telescope $\Xi = A_1, \dots, A_n$, which intuitively means multiple applications of lifting: $\sigma \uparrow A_1 \uparrow \dots \uparrow A_n$.
-Then, for each constructor $\cc : \sigma = \tau$, we show the identity
+Instead, we define the \emph{multiple lifting} $\sigma \upuparrows \Xi$ of $\sigma$ by a telescope $\Xi = A_1, \dots, A_n$, given by multiple applications of lifting $\sigma \uparrow A_1 \uparrow \dots \uparrow A_n$.
+For each constructor $\cc : \sigma = \tau$, we then show %the identity
 $\subTy{A}{\sigma \mathop{\upuparrows} \Xi} = \subTy{A}{\tau \mathop{\upuparrows} \Xi}$
 for arbitrary $\Xi$, subsuming the special case $\subTy{A}{\sigma} = \subTy{A}{\tau}$ when $\Xi$ is empty.
 
-The type of telescopes over a `base' context $\Gamma$ $\Tel : \Ctx \to \Set$ are defined inductive-recursively simultaneously with a concatenation $\blank \dplus \blank$ as follows.
+The type of telescopes $\Tel : \Ctx \to \Set$ over a `base' context $\Gamma$ are defined inductive-recursively together with a concatenation $\blank \dplus\blank : (\Gamma : \Ctx) (\Xi : \Tel\;\Gamma) \to \Ctx$ as follows.
 
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{5}
-  \Tel               & :                   && \Ctx \to \Set                                     \\
+  %\Tel               & :                   && \Ctx \to \Set                                     \\
   \emptytel          & : \implicit{\Gamma} && \Tel\;\Gamma \\
   \blank,\blank      & : \implicit{\Gamma} && (\Xi : \Tel\;\Gamma) (A : \Ty\;(\Gamma \dplus \Xi)) \to \Tel\;\Gamma
 \end{alignat*}
 \end{minipage}
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{5}
-  \blank & \dplus\blank     && :       (\Gamma : \Ctx) (\Xi : \Tel\;\Gamma) \to \Ctx \\
+  %\blank & \dplus\blank     && :       (\Gamma : \Ctx) (\Xi : \Tel\;\Gamma) \to \Ctx \\
   \Gamma & \dplus \emptytel && \reduce \Gamma \\
   \Gamma & \dplus (\Xi, A)  && \reduce (\Gamma \dplus \Xi) , A
 \end{alignat*}
@@ -792,7 +795,7 @@ Instead of resorting to \transp, we also turn telescope substitution $\subTel{\b
 
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{3}
-  & \subTel{\Xi}{\idS}       \Xi && \reduce \Xi \\
+  & \subTel{\Xi}{\idS}          && \reduce \Xi \\
   & \subTel{\Xi}{\sigma ; \tau} && \reduce \subTel{(\subTel{\Xi}{\tau})}{\sigma}
 \end{alignat*}
 \end{minipage}
@@ -820,9 +823,8 @@ As promised, by instantiating $\Xi$ to be empty, we also get coherence for $\sub
   \danger
 \end{corollary}
 
-
-We conclude this extension with $\Pi$-types by noting that for $t : \Tm\,\Gamma\,(\Pi\,A\,B)$ and $u : \Tm\,\Gamma\,A$, also `ordinary' application
-$t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{(\idS , t)}$ of type $\Tm\,\Gamma\,(\sub{B}{(\idS , t)})$ can be defined without any transport. This is in contrast to the pure QII situation, where application is defined as $\subTm{(\mathsf{app}\,t)}{(\idS, \alert{\transfib{\Tm\;\Gamma}{[id]_T^{-1}}{\color{black}t}})}$.
+Finally, we note that for $t : \Tm\,\Gamma\,(\Pi\,A\,B)$ and $u : \Tm\,\Gamma\,A$, also `ordinary' application
+$t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{(\idS , t)}$ of type $\Tm\,\Gamma\,(\sub{B}{(\idS , t)})$ can be defined without any transport. This is in contrast to the QIIT situation, where ordinary application is defined as $t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{(\idS, \alert{\transfib{\Tm\;\Gamma}{[id]_T^{-1}}{\color{black}t}})}$.
 %
 %\begin{alignat*}{3}
 %  \left<\blank\right> & : \implicit{\Gamma, A} \Tm\;\Gamma\;A \to \Sub\;\Gamma\;(\Gamma, A) \\
@@ -836,8 +838,7 @@ Similarly, the structural rule for substitution on $\mathsf{app}$
                                               & = \mathsf{app}\,\left(\sub{(\lambda\,(\mathsf{app}\,t))}{\sigma}\right) && \text{by $[]\lambda^{-1}$} \\
                                               & = \mathsf{app}\,(\sub{t}{\sigma}) && \text{by $\Pi\eta^{-1}$.}
 \end{align*}
-can be derived without any transport (cf.\ \cite{Altenkirch2016a}), since \eqref{eq:def-type-subst-8} has become strict. 
-
+can be derived without transport (cf.\ Altenkirch and Kaposi~\cite{Altenkirch2016a}), since \eqref{eq:def-type-subst-8} is now strict.
 
 \subsection{Adding other type formers} \label{subsec:SC+U+Pi+more}
 
