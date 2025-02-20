@@ -1,12 +1,12 @@
 -- Elimination of Substitution Calculus
-module SC+U+Pi+Id.QIIRT.Recursion where
+module Theory.SC+U+Pi+Id.QIIRT.Recursion where
 
 open import Prelude
   renaming (_,_ to _,'_)
-open import SC+U+Pi+Id.QIIRT.Syntax
-open import SC+U+Pi+Id.QIIRT.Recursion.Motive
-open import SC+U+Pi+Id.QIIRT.Recursion.Method
-open import SC+U+Pi+Id.QIIRT.Properties
+open import Theory.SC+U+Pi+Id.QIIRT.Syntax
+open import Theory.SC+U+Pi+Id.QIIRT.Recursion.Motive
+open import Theory.SC+U+Pi+Id.QIIRT.Recursion.Method
+open import Theory.SC+U+Pi+Id.QIIRT.Properties
 
 record Recursor {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field

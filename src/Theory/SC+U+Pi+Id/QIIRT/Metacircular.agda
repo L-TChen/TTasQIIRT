@@ -1,11 +1,11 @@
 open import Prelude
 
-module SC+U+Pi+Id.QIIRT.Metacircular where
+module Theory.SC+U+Pi+Id.QIIRT.Metacircular where
 
 open import Level
 
-open import SC+U+Pi+Id.QIIRT.Syntax
-open import SC+U+Pi+Id.QIIRT.Recursion
+open import Theory.SC+U+Pi+Id.QIIRT.Syntax
+open import Theory.SC+U+Pi+Id.QIIRT.Recursion
 open Recursor
 
 intp : Recursor
@@ -27,7 +27,7 @@ intp .met = record
     ; π₁ᴹ         = λ σᴹ γ → σᴹ γ .proj₁
     ; [idS]ᴹ      = refl
     ; [⨟]ᴹ        = refl
-    ; [π₁,ᴹ]ᴹ     = refl
+    ; [π₁,]ᴹ     = refl
     ; [π₁⨟]ᴹ      = refl
     ; π₂ᴹ         = λ σᴹ γ → σᴹ γ .proj₂
     ; [_]tmᴹ_     = λ σᴹ tᴹ γ → tᴹ (σᴹ γ)

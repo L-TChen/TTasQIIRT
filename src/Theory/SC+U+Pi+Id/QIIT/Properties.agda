@@ -1,8 +1,8 @@
 open import Prelude
   
-module SC+U+Pi+Id.QIIT.Properties where 
+module Theory.SC+U+Pi+Id.QIIT.Properties where 
 
-open import SC+U+Pi+Id.QIIT.Syntax
+open import Theory.SC+U+Pi+Id.QIIT.Syntax
 
 opaque 
   []tapp : (σ : Sub Γ Δ)

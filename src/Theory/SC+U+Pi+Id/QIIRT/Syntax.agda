@@ -2,7 +2,7 @@ open import Prelude
   hiding (_,_)
 
 
-module SC+U+Pi+Id.QIIRT.Syntax where
+module Theory.SC+U+Pi+Id.QIIRT.Syntax where
 
 infixr 20 [_]_ [_]t_ [_]tm_ [_]l_
 infixl 15 _↑_ _⁺ _⇈_

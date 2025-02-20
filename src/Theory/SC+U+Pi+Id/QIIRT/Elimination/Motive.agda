@@ -1,10 +1,10 @@
--- Motives of Model of Substitution Calculus
-module SC+U+Pi+Id.QIIRT.Elimination.Motive where
+-- Motives of Eliminator of SC+U+Pi+Id
+module Theory.SC+U+Pi+Id.QIIRT.Elimination.Motive where
 
 open import Prelude
   hiding (_,_)
 open import Data.Nat hiding (_⊔_)
-open import SC+U+Pi+Id.QIIRT.Syntax
+open import Theory.SC+U+Pi+Id.QIIRT.Syntax
 
 record Motive {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field

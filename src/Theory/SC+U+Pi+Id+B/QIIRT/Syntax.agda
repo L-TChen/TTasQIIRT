@@ -1,4 +1,4 @@
-module SC+U+Pi+Id+B.QIIRT.Base where
+module Theory.SC+U+Pi+Id+B.QIIRT.Syntax where
  
 open import Prelude
   hiding (_,_)
@@ -214,10 +214,10 @@ interleaved mutual
       → (cf : Tm Δ ([ idS , `f ] C))
       → (b : Tm Δ 𝔹)
       → [ σ ]tm elim-𝔹 C ct cf b
-      ≡ tr (Tm Γ) {!!}
+      ≡ tr (Tm Γ) {! !}
                   (elim-𝔹 ([ σ ⁺ ] C)
-                          (tr (Tm Γ) {!!} ([ σ ]t ct))
-                          (tr (Tm Γ) {!!} ([ σ ]t cf))
+                          (tr (Tm Γ) {! !} ([ σ ]t ct))
+                          (tr (Tm Γ) {! !} ([ σ ]t cf))
                           ([ σ ]t b))
 
   -- Computational rules

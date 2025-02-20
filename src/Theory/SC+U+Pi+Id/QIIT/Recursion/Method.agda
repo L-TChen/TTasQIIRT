@@ -1,11 +1,11 @@
 -- Methods of SC+U+Pi+Id.QIIT Recursor
-module SC+U+Pi+Id.QIIT.Recursion.Method where
+module Theory.SC+U+Pi+Id.QIIT.Recursion.Method where
 
 open import Prelude
-open import SC+U+Pi+Id.QIIT.Recursion.Motive
+open import Theory.SC+U+Pi+Id.QIIT.Recursion.Motive
 
-module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
-  open Motive Mot
+module _ {ℓ ℓ′}(mot : Motive ℓ ℓ′) where
+  open Motive mot
   private variable
     i j k : ℕ
     Γᴹ Δᴹ Θᴹ Φᴹ : Ctxᴹ

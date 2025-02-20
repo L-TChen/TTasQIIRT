@@ -1,9 +1,9 @@
 open import Prelude
   hiding (_,_)
   
-module SC+U+Pi+Id.QIIRT.Properties where
+module Theory.SC+U+Pi+Id.QIIRT.Properties where
 
-open import SC+U+Pi+Id.QIIRT.Syntax
+open import Theory.SC+U+Pi+Id.QIIRT.Syntax
 
 cong-U : Γ ≅ Δ → U {Γ} i ≅ U {Δ} i
 cong-U refl = refl

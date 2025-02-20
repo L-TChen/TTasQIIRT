@@ -1,14 +1,14 @@
-module SC+U+Pi+Id.QIIRT.Recursion.Method where
+module Theory.SC+U+Pi+Id.QIIRT.Recursion.Method where
 
 open import Prelude
   hiding (_,_)
 open import Data.Nat hiding (_⊔_)
-open import SC+U+Pi+Id.QIIRT.Syntax
-open import SC+U+Pi+Id.QIIRT.Properties
-open import SC+U+Pi+Id.QIIRT.Recursion.Motive
+open import Theory.SC+U+Pi+Id.QIIRT.Syntax
+open import Theory.SC+U+Pi+Id.QIIRT.Properties
+open import Theory.SC+U+Pi+Id.QIIRT.Recursion.Motive
 
-module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
-  open Motive Mot
+module _ {ℓ ℓ′}(mot : Motive {ℓ} {ℓ′}) where
+  open Motive mot
   private variable
     Γᴹ Δᴹ Θᴹ : Ctxᴹ
     σᴹ τᴹ γᴹ : Subᴹ Γᴹ Δᴹ

@@ -1,12 +1,12 @@
--- Elimination of Substitution Calculus
-module SC+U+Pi+Id.QIIRT.Elimination where
+-- Elimination of SC+U+Pi+Id
+module Theory.SC+U+Pi+Id.QIIRT.Elimination where
 
 open import Prelude
   renaming (_,_ to _,'_)
-open import SC+U+Pi+Id.QIIRT.Syntax
-open import SC+U+Pi+Id.QIIRT.Elimination.Motive
-open import SC+U+Pi+Id.QIIRT.Elimination.Method
-open import SC+U+Pi+Id.QIIRT.Properties
+open import Theory.SC+U+Pi+Id.QIIRT.Syntax
+open import Theory.SC+U+Pi+Id.QIIRT.Elimination.Motive
+open import Theory.SC+U+Pi+Id.QIIRT.Elimination.Method
+open import Theory.SC+U+Pi+Id.QIIRT.Properties
 
 record Eliminator {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field

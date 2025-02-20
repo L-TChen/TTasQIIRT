@@ -1,10 +1,10 @@
 -- Recursion for SC+U+Pi+Id
 open import Prelude
 
-module SC+U+Pi+Id.QIIT.Recursion where
+module Theory.SC+U+Pi+Id.QIIT.Recursion where
 
-open import SC+U+Pi+Id.QIIT.Recursion.Motive
-open import SC+U+Pi+Id.QIIT.Recursion.Method
+open import Theory.SC+U+Pi+Id.QIIT.Recursion.Motive
+open import Theory.SC+U+Pi+Id.QIIT.Recursion.Method
 
 record Recursor {ℓ ℓ′ : Level} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
@@ -16,7 +16,7 @@ record Recursor {ℓ ℓ′ : Level} : Set (lsuc (ℓ ⊔ ℓ′)) where
 
 module _ {ℓ ℓ′ : Level} (rec : Recursor {ℓ} {ℓ′}) where
   open Recursor rec
-  open import SC+U+Pi+Id.QIIT.Syntax
+  open import Theory.SC+U+Pi+Id.QIIT.Syntax
   
   {-# TERMINATING #-}
   recCtx

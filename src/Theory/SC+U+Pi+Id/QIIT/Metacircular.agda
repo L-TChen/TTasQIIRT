@@ -1,13 +1,13 @@
 open import Prelude
   hiding (⊤; tt)
 
-module SC+U+Pi+Id.QIIT.Metacircular where
+module Theory.SC+U+Pi+Id.QIIT.Metacircular where
 
 open import Level
 open import Data.Unit.Polymorphic
 
-open import SC+U+Pi+Id.QIIT.Syntax
-open import SC+U+Pi+Id.QIIT.Recursion
+open import Theory.SC+U+Pi+Id.QIIT.Syntax
+open import Theory.SC+U+Pi+Id.QIIT.Recursion
 open Recursor
 
 module _ (fext : ∀{ℓ ℓ'}{A : Set ℓ}{B : A → Set ℓ'}{f g : (a : A) → B a}
@@ -22,32 +22,28 @@ module _ (fext : ∀{ℓ ℓ'}{A : Set ℓ}{B : A → Set ℓ'}{f g : (a : A) �
     }
   intp .met = record
     { 𝒞    = record
-      { C₁ = record
-        { [_]ᴹ_ = λ σᴹ tᴹ γ → tᴹ (σᴹ γ)
-        ; ∅ᶜᴹ   = ⊤
-        ; _,ᶜᴹ_ = Σ
-        ; ∅ˢᴹ   = λ _ → tt
-        ; _,ˢᴹ_ = λ σᴹ tᴹ γ → σᴹ γ , tᴹ γ
-        ; idSᴹ = λ γ → γ
-        ; _⨟ᴹ_ = λ σᴹ τᴹ → τᴹ ∘ σᴹ
-        ; π₁ᴹ  = λ σᴹ γ → σᴹ γ .proj₁
-        ; [idS]ᴹ  = refl
-        ; [⨟]ᴹ   = refl
-        ; π₂ᴹ     = λ σᴹ γ → σᴹ γ .proj₂
-        ; [_]tmᴹ_ = λ σᴹ tᴹ γ → tᴹ (σᴹ γ)
-        }
-      ; C₂ = record
-        { _⨟idSᴹ   = λ σᴹ → refl
-        ; idS⨟ᴹ_   = λ σᴹ → refl
-        ; ⨟-assocᴹ  = refl
-        ; π₁,ᴹ    = refl
-        ; ⨟,ᴹ     = refl
-        ; η∅ᴹ      = refl
-        ; η,ᴹ      = refl
-        ; [idS]tmᴹ = refl
-        ; [⨟]tmᴹ   = refl
-        ; π₂,ᴹ    = refl
-        }
+      { [_]ᴹ_ = λ σᴹ tᴹ γ → tᴹ (σᴹ γ)
+      ; ∅ᶜᴹ   = ⊤
+      ; _,ᶜᴹ_ = Σ
+      ; ∅ˢᴹ   = λ _ → tt
+      ; _,ˢᴹ_ = λ σᴹ tᴹ γ → σᴹ γ , tᴹ γ
+      ; idSᴹ = λ γ → γ
+      ; _⨟ᴹ_ = λ σᴹ τᴹ → τᴹ ∘ σᴹ
+      ; π₁ᴹ  = λ σᴹ γ → σᴹ γ .proj₁
+      ; [idS]ᴹ  = refl
+      ; [⨟]ᴹ   = refl
+      ; π₂ᴹ     = λ σᴹ γ → σᴹ γ .proj₂
+      ; [_]tmᴹ_ = λ σᴹ tᴹ γ → tᴹ (σᴹ γ)
+      ; _⨟idSᴹ   = λ σᴹ → refl
+      ; idS⨟ᴹ_   = λ σᴹ → refl
+      ; ⨟-assocᴹ  = refl
+      ; π₁,ᴹ    = refl
+      ; ⨟,ᴹ     = refl
+      ; η∅ᴹ      = refl
+      ; η,ᴹ      = refl
+      ; [idS]tmᴹ = refl
+      ; [⨟]tmᴹ   = refl
+      ; π₂,ᴹ    = refl
       }
     ; univ = {! !}
     ; piTy = record

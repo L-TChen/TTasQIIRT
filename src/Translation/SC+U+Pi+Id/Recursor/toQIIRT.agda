@@ -1,14 +1,13 @@
 open import Prelude
 
-module SC+U+Pi+Id.Translation.Recursor.toQIIRT where
+module Translation.SC+U+Pi+Id.Recursor.toQIIRT where
 
-open import SC+U+Pi+Id.QIIT.Syntax
-open import SC+U+Pi+Id.QIIT.Properties
-open import SC+U+Pi+Id.QIIT.Recursion
+open import Theory.SC+U+Pi+Id.QIIT.Syntax
+open import Theory.SC+U+Pi+Id.QIIT.Properties
+open import Theory.SC+U+Pi+Id.QIIT.Recursion
 
-import SC+U+Pi+Id.QIIRT.Syntax as IR
-  -- hiding (i) 
-import SC+U+Pi+Id.QIIRT.Recursion as IR
+import Theory.SC+U+Pi+Id.QIIRT.Syntax as IR 
+import Theory.SC+U+Pi+Id.QIIRT.Recursion as IR
 
 module _  {ℓ ℓ′}(rec : Recursor {ℓ} {ℓ′}) where
   open Recursor rec

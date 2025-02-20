@@ -1,12 +1,12 @@
--- Methods of Model of Substitution Calculus
-module SC+U+Pi+Id.QIIRT.Elimination.Method where
+-- Methods of Eliminator of SC+U+Pi+Id
+module Theory.SC+U+Pi+Id.QIIRT.Elimination.Method where
 
 open import Prelude
   hiding (_,_)
 open import Data.Nat hiding (_⊔_)
-open import SC+U+Pi+Id.QIIRT.Syntax
-open import SC+U+Pi+Id.QIIRT.Properties
-open import SC+U+Pi+Id.QIIRT.Elimination.Motive
+open import Theory.SC+U+Pi+Id.QIIRT.Syntax
+open import Theory.SC+U+Pi+Id.QIIRT.Properties
+open import Theory.SC+U+Pi+Id.QIIRT.Elimination.Motive
 
 module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
   open Motive Mot

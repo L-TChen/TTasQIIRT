@@ -1,12 +1,12 @@
 -- translation of syntax between QIIRT and QIIT
 open import Prelude
 
-module SC+U+Pi+Id.Translation.Syntax.Translate where
+module Translation.SC+U+Pi+Id.Syntax.Translate where
 
 
 module QIIRT→QIIT where
-  open import SC+U+Pi+Id.Translation.Syntax.toQIIT
-  open import SC+U+Pi+Id.QIIRT.Recursion
+  open import Translation.SC+U+Pi+Id.Syntax.toQIIT
+  open import Theory.SC+U+Pi+Id.QIIRT.Recursion
 
   _>c = recCtx toQIIT
   _>ty = recTy toQIIT
@@ -17,8 +17,8 @@ module QIIRT→QIIT where
 --  ↑>Sub = recSub↑ toQIIT
 
 module QIIT→QIIRT where
-  open import SC+U+Pi+Id.Translation.Syntax.toQIIRT
-  open import SC+U+Pi+Id.QIIT.Recursion
+  open import Translation.SC+U+Pi+Id.Syntax.toQIIRT
+  open import Theory.SC+U+Pi+Id.QIIT.Recursion
   _<c  = recCtx toQIIRT
   _<ty = recTy toQIIRT
   _<s  = recSub toQIIRT

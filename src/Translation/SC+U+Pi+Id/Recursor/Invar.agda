@@ -1,18 +1,18 @@
 -- Invariance of translation of recursor of QIIT
 open import Prelude
 
-module SC+U+Pi+Id.Translation.Recursor.Invar where
+module Translation.SC+U+Pi+Id.Recursor.Invar where
 
-import SC+U+Pi+Id.QIIT.Syntax as I
-import SC+U+Pi+Id.QIIT.Recursion as I
-import SC+U+Pi+Id.QIIRT.Recursion as IR
+import Theory.SC+U+Pi+Id.QIIT.Syntax as I
+import Theory.SC+U+Pi+Id.QIIT.Recursion as I
+import Theory.SC+U+Pi+Id.QIIRT.Recursion as IR
 
-import SC+U+Pi+Id.Translation.Syntax.Translate as ST
-import SC+U+Pi+Id.Translation.Recursor.Translate as RT
+import Translation.SC+U+Pi+Id.Syntax.Translate as ST
+import Translation.SC+U+Pi+Id.Recursor.Translate as RT
 
 module recᴵ∘>≅recᴵᴿ {ℓ ℓ′ : Level} (rec : I.Recursor {ℓ} {ℓ′}) where
   open I.Recursor rec
-  open import SC+U+Pi+Id.QIIRT.Syntax
+  open import Theory.SC+U+Pi+Id.QIIRT.Syntax
   open ST.QIIRT→QIIT
   open RT.QIIT→QIIRT
   open ≡-Reasoning

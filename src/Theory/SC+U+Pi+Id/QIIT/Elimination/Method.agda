@@ -1,14 +1,14 @@
 -- Methods of SC+U+Pi+Id/QIIT
 open import Prelude
 
-module SC+U+Pi+Id.QIIT.Elimination.Method where
+module Theory.SC+U+Pi+Id.QIIT.Elimination.Method where
 
-open import SC+U+Pi+Id.QIIT.Syntax
-open import SC+U+Pi+Id.QIIT.Properties
-open import SC+U+Pi+Id.QIIT.Elimination.Motive
+open import Theory.SC+U+Pi+Id.QIIT.Syntax
+open import Theory.SC+U+Pi+Id.QIIT.Properties
+open import Theory.SC+U+Pi+Id.QIIT.Elimination.Motive
 
-module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
-  open Motive Mot
+module _ {ℓ ℓ′}(mot : Motive ℓ ℓ′) where
+  open Motive mot
   private variable
     Γᴹ Δᴹ Θᴹ Φᴹ : Ctxᴹ Γ
     σᴹ τᴹ γᴹ : Subᴹ Γᴹ Δᴹ σ

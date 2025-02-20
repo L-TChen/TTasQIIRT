@@ -1,10 +1,10 @@
 open import Prelude
 -- copy and modify from Theory
-module SC+U+Pi+Id.Translation.Syntax.toQIIT where
+module Translation.SC+U+Pi+Id.Syntax.toQIIT where
 
-open import SC+U+Pi+Id.QIIT.Syntax
-open import SC+U+Pi+Id.QIIT.Properties
-open import SC+U+Pi+Id.QIIRT.Recursion
+open import Theory.SC+U+Pi+Id.QIIT.Syntax
+open import Theory.SC+U+Pi+Id.QIIT.Properties
+open import Theory.SC+U+Pi+Id.QIIRT.Recursion
 
 open ≡-Reasoning
 open Recursor

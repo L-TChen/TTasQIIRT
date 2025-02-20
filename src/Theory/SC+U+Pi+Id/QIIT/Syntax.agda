@@ -1,4 +1,4 @@
-module SC+U+Pi+Id.QIIT.Syntax where
+module Theory.SC+U+Pi+Id.QIIT.Syntax where
  
 open import Prelude
 

@@ -1,11 +1,11 @@
 open import Prelude
   renaming (_,_ to _,'_)
 
-module SC+U+Pi+Id.QIIT.Elimination where
+module Theory.SC+U+Pi+Id.QIIT.Elimination where
 
-open import SC+U+Pi+Id.QIIT.Syntax
-open import SC+U+Pi+Id.QIIT.Elimination.Motive
-open import SC+U+Pi+Id.QIIT.Elimination.Method
+open import Theory.SC+U+Pi+Id.QIIT.Syntax
+open import Theory.SC+U+Pi+Id.QIIT.Elimination.Motive
+open import Theory.SC+U+Pi+Id.QIIT.Elimination.Method
 
 record Eliminator {ℓ ℓ′ : Level} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field

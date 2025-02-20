@@ -2,9 +2,9 @@
 open import Prelude
   -- renaming (_,_ to _,'_)
 
-module SC+U+Pi+Id.Translation.Syntax.Iso where
+module Translation.SC+U+Pi+Id.Syntax.Iso where
 
-import SC+U+Pi+Id.Translation.Syntax.Translate as ST
+import Translation.SC+U+Pi+Id.Syntax.Translate as ST
 open ST.QIIRT→QIIT
 open ST.QIIT→QIIRT
 
@@ -14,8 +14,8 @@ private
   p ≡,≅ q = ≅-to-≡ $ hcong₂ _,_ (≡-to-≅ p) q
 
 module <>≡id where
-  open import SC+U+Pi+Id.QIIT.Syntax
-  import SC+U+Pi+Id.QIIRT.Syntax as IR
+  open import Theory.SC+U+Pi+Id.QIIT.Syntax
+  import Theory.SC+U+Pi+Id.QIIRT.Syntax as IR
   open ≅-Reasoning
 
   {-# TERMINATING #-}
@@ -107,12 +107,10 @@ module <>≡id where
 
 
 module ><≡id where
-  open import SC+U+Pi+Id.QIIRT.Syntax
-  open import SC+U+Pi+Id.QIIRT.Properties
-  import SC+U+Pi+Id.QIIT.Syntax as I
+  open import Theory.SC+U+Pi+Id.QIIRT.Syntax
+  open import Theory.SC+U+Pi+Id.QIIRT.Properties
+  import Theory.SC+U+Pi+Id.QIIT.Syntax as I
 
-  open import SC+U+Pi+Id.Translation.Syntax.toQIIRT
-  open import SC+U+Pi+Id.QIIRT.Recursion
   open ≅-Reasoning
 
 
