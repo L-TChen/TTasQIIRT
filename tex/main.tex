@@ -711,9 +711,9 @@ and an equality constructor for term substitution without transport:
 The lifting $\sigma^+$ interacts well with identities and composition.
 For comparision, the reader is invited to prove the corresponding QIIT version with transports of the following lemma.
 %
-\begin{lemma} \label{lem:lifting}
+\begin{restatable}{lemma}{lemIdentities}\label{lem:lifting}
   For all contexts $\Gamma$, $\Delta$, $\Theta$, types $A : \Ty\,\Theta$ and substitutions $\sigma : \Sub\,\Gamma\,\Delta$ and $\tau : \Sub\,\Delta\,\Theta$, we have $\idS^+ =^{\Sub\;(\Theta, A)\;(\Theta, A)} \idS$ and $(\sigma; \tau)^+     =^{\Sub\;(\Gamma, \subTy{A}{\sigma; \tau})\;(\Theta, A)} \sigma^+ ; \tau^+$.
-\end{lemma}
+\end{restatable}
 
 Using this lemma, we can show that the lifted substitution $\sigma \uparrow A$ agrees propositionally with its `default' reduction $\sigma^+$.
 
@@ -723,9 +723,9 @@ Using this lemma, we can show that the lifted substitution $\sigma \uparrow A$ a
 \end{restatable}
 
 As we are working with a different type theory from \cref{subsec:SC+U}, we  have to again prove the identity $\sub{t}{\sigma} = \subTm{t}{\sigma}$, but the same argument still applies:
-\begin{proposition} \label{prop:correctness-3}
+\begin{restatable}{proposition}{propCorrectnessThree}\label{prop:correctness-3}
   For every $\sigma : \Sub\;\Gamma\;\Delta$, $A : \Ty\;\Delta$, and $t : \Ty\;\Delta\;A$, we have $\sub{t}{\sigma} = \subTm{t}{\sigma}$.
-\end{proposition}
+\end{restatable}
 
 Finally, we show that these simultaneously defined functions are coherent.
 \begin{restatable}{proposition}{propCoherenceUparrow} %[Coherence]
@@ -1385,7 +1385,8 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
 
 \propConfluenceTwo*
 \begin{proof}
-  In addition to previous cases in the proof of \cref{prop:local-confluence-1}, consider terms 
+  Termination is once again clear, since all recursion is structural.
+  In addition to previous cases in the proof of \cref{prop:local-confluence-1}, consider terms
   \[
     \subTy{(\El\,u)}{\idS}, \qquad \subTy{(\El\,u)}{\sigma;\tau}, \qquad \subTy{(\El\,u)}{\pi_1(\sigma, t)}, \qquad\text{and}\qquad \subTy{(\El\,u)}{\pi_1(\sigma; \tau)}
   \]
@@ -1424,7 +1425,14 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
 
 \propCoherence*
 \begin{proof}
-  By \cref{re:coherence-proof}, for type substitution, we only have to consider the following cases 
+  For term substitution, the claim follows by \cref{prop:correctness-1}: if
+  $\cc : \sigma = \tau$ then
+  \begin{align*}
+    \subTm{t}{\sigma} & = \sub{t}{\sigma} && \text{by \cref{prop:correctness-1}} \\
+                      & = \sub{t}{\tau} && \text{by congruence and $\cc$} \\
+                      & = \subTm{t}{\tau} && \text{by \cref{prop:correctness-1}}
+  \end{align*}
+  For type substitution, by \cref{re:coherence-proof}, we only have to consider the following cases
   \begin{align*}
     \subTy{A}{\sigma; (\tau, t)}    & = \subTy{A}{(\sigma;\tau), \sub{t}{\sigma}},
                                      & \subTy{A}{\sigma}               & = \subTy{A}{\emptyctx},
@@ -1436,14 +1444,13 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
   For example, consider the first case:
   \begin{align*}
     \subTy{(\El\,u)}{\sigma; (\tau, t)} & \judgeq \El(\subTm{u}{\sigma; (\tau, t)}) && \text{by \eqref{eq:def-type-subst-7}} \\
-                                      & = \El( \sub{u}{\sigma; (\tau, t)})            && \text{by \cref{prop:correctness-1}} \\
-                                      & = \El( \sub{u}{\sigma; \tau, \sub{t}{\sigma}})     && \text{by $\mathsf{concat}$} \\
-                                      & = \El( \subTm{u}{\sigma; \tau, \sub{t}{\sigma}}) && \text{by \cref{prop:correctness-1}} \\
+%                                      & = \El( \sub{u}{\sigma; (\tau, t)})            && \text{by \cref{prop:correctness-1}} \\
+%                                      & = \El( \sub{u}{\sigma; \tau, \sub{t}{\sigma}})     && \text{by $\mathsf{concat}$} \\
+%                                      & = \El( \subTm{u}{\sigma; \tau, \sub{t}{\sigma}}) && \text{by \cref{prop:correctness-1}} \\
+                                      & = \El( \subTm{u}{\sigma; \tau, \sub{t}{\sigma}}) && \text{by coherence of $\subTm{\blank}{\blank}$} \\
                                       & \judgeq \subTy{\left(\El\,u\right)}{\sigma; \tau, \sub{t}{\sigma}} && \text{by \eqref{eq:def-type-subst-7} }
   \end{align*}
-  The remaining two cases are omitted.
-
-  As for term substitution $\subTm{\blank}{\blank}$, each case follows from \cref{prop:correctness-1} in conjunction with the congruence rule for the identity type.
+  The other two cases are dealt with in exactly the same way.
 \end{proof}
 
 \propConfluenceThree*
@@ -1461,6 +1468,23 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
   Hence, the type substitution $\subTy{\blank}{\blank}$ is locally confluent.
 \end{proof}
 
+\lemIdentities*
+\begin{proof}
+  We have
+  \[
+    \idS^+ \judgeq ((\pi_1\idS; \idS), \pi_2 \idS) = (\pi_1\idS, \pi_2 \idS) = \idS
+  \]
+  For commuting with composition, first note that $\pi_1(\sigma; \tau) = \sigma; \pi_1 \tau$ by $\mathsf{concat}$. In particular, we have $\sigma; \pi_1 \idS = \sigma^+; \pi_1\idS$. Now
+  \begin{align*}
+    (\sigma; \tau)^+ &= (\pi_1\idS; (\sigma; \tau), \pi_2 \idS) \\
+                     &= ((\pi_1\idS; \sigma); \tau, \pi_2 \idS) \\
+                     &= ((\sigma^+; \pi_1\idS); \tau, \sub{\pi_2 \idS}{\sigma^+}) \\
+                     &= (\sigma^+; (\pi_1\idS; \tau), \pi_2 \idS) \\
+                     &= \sigma^+; \tau^+
+  \end{align*}
+  as required.
+\end{proof}
+
 \propCorrectnessTwo*
 \begin{proof}
   We prove the statement by induction on $\sigma$ with \cref{lem:lifting}.
@@ -1474,14 +1498,18 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
   Other cases follow similarly.
 \end{proof}
 
+\propCorrectnessThree*
+\begin{proof}
+  Again by induction on $\sigma$.
+\end{proof}
+
 \propCoherenceUparrow*
 \begin{proof}
-  These two identities follow from \cref{prop:correctness-2,prop:correctness-3} easily.
+  These two identities follow from \cref{prop:correctness-2,prop:correctness-3}.
 \end{proof}
 
 \coherenceTel*
 \begin{proof}
-  \Fredrik{TODO: spell out all cases here}
   The proposition is easy to prove for the following equality
   constructors, since the lifting and substitution operations compute
   independently for these cases:
@@ -1501,7 +1529,7 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
   For other two equality constructors, the arguments follow similarly.
 
 The second set of equality constructors are more involved, as we have to prove the coherence for the lifting and substitution operations altogether mutually:
-  \LT[noinline]{Josh Ko suggests us to follow the proof structure in our formal implementation.}
+  %\LT[noinline]{Josh Ko suggests us to follow the proof structure in our formal implementation.}
   For the following equality constructors $\cc : \sigma = \tau$
   \begin{alignat*}{5}
     \pi_1\beta    & : \pi_1(\sigma, t)  && = \sigma \qquad\qquad & \mathsf{concat} & : \sigma; (\tau, t) && = (\sigma;\tau), \sub{t}{\sigma} \\
@@ -1574,12 +1602,13 @@ The second set of equality constructors are more involved, as we have to prove t
 
 \propProvableFunc*
 \begin{proof}
-  TODO
+  These properties are proven mutually with the definition of the
+  eliminators. The property $\elim_{\Ty}[]$ is proven by induction on the type $A$, while $\elim_{\Tm}[]$ and $\elim_{\Sub}[]$ are proven by induction on the substitution.
 \end{proof}
 
 \equivalence*
 \begin{proof}
-  TODO
+  See our \Agda formalisation for the exact definition of the functions back and forth, and how the roundtrips are identities.
 \end{proof}
 
 \end{document}
