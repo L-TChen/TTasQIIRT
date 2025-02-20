@@ -125,7 +125,7 @@ module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
         ≡ (σᴹ ⨟ᴹ τᴹ) ⨟ᴹ γᴹ
       π₁ᴹ,ˢᴹ
         : tr (Subᴹ Γᴹ Δᴹ) π₁, (π₁ᴹ (σᴹ ,ˢᴹ tᴹ)) ≡ σᴹ
-      ⨟ᴹ,ˢᴹ -- the transport equation seems too long
+      ⨟ᴹ,ˢᴹ
         : tr SubᴹFam ⨟, (σᴹ ⨟ᴹ (τᴹ ,ˢᴹ tᴹ))
         ≡ (σᴹ ⨟ᴹ τᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) ([ σᴹ ]tmᴹ tᴹ)
       η∅ˢᴹ
