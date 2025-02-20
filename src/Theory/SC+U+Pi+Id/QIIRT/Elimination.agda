@@ -1,37 +1,38 @@
+-- Elimination of Substitution Calculus
+module SC+U+Pi+Id.QIIRT.Elimination where
+
 open import Prelude
   renaming (_,_ to _,'_)
+open import SC+U+Pi+Id.QIIRT.Syntax
+open import SC+U+Pi+Id.QIIRT.Elimination.Motive
+open import SC+U+Pi+Id.QIIRT.Elimination.Method
+open import SC+U+Pi+Id.QIIRT.Properties
 
-module Theory.SC+U+Pi+Id.QIIRT.Elimination where
-
-open import Theory.SC+U+Pi+Id.QIIRT.Syntax
-open import Theory.SC+U+Pi+Id.QIIRT.Elimination.Motive
-open import Theory.SC+U+Pi+Id.QIIRT.Elimination.Method
-
-record Eliminator {ℓ ℓ′ : Level} : Set (lsuc (ℓ ⊔ ℓ′)) where
+record Eliminator {ℓ ℓ′} : Set (lsuc (ℓ ⊔ ℓ′)) where
   field
-    mot : Motive ℓ ℓ′
+    mot : Motive {ℓ} {ℓ′}
     met : Method mot
-
+  
   open Motive mot public
   open Method met public
 
-module _ {ℓ ℓ′ : Level} (elim : Eliminator {ℓ} {ℓ′}) where
-  open Eliminator elim
-  
+module elim {ℓ ℓ′}(M : Eliminator {ℓ} {ℓ′}) where
+  open Eliminator M
+
   {-# TERMINATING #-}
   elimCtx
     : (Γ : Ctx) → Ctxᴹ Γ
   elimTy
     : (A : Ty Γ i) → Tyᴹ (elimCtx Γ) i A
   elimSub
-    : (σ : Sub Γ Δ) → Subᴹ (elimCtx Γ) (elimCtx Δ) σ
+    : (σ : Sub Δ Γ) → Subᴹ (elimCtx Δ) (elimCtx Γ) σ
   elimTm
     : (t : Tm Γ A) → Tmᴹ (elimCtx Γ) (elimTy A) t
   elimTy[]
-    : (σ : Sub Γ Δ)(A : Ty Δ i)
+    : (σ : Sub Δ Γ)(A : Ty Γ i)
     → [ elimSub σ ]ᴹ elimTy A ≡ elimTy ([ σ ] A)
   elimTm[]
-    : (σ : Sub Γ Δ){A : Ty Δ i}(t : Tm Δ A)
+    : (σ : Sub Δ Γ){A : Ty Γ i}(t : Tm Γ A)
     → tr TmᴹFamₜ (elimTy[] σ A) ([ elimSub σ ]tᴹ elimTm t) ≡ elimTm ([ σ ]t t)
   
   elimCtx ∅          = ∅ᶜᴹ
@@ -40,7 +41,7 @@ module _ {ℓ ℓ′ : Level} (elim : Eliminator {ℓ} {ℓ′}) where
   elimTy (El u)      = Elᴹ (elimTm u)
   elimTy (Lift A)    = Liftᴹ (elimTy A)
   elimTy (Π A B)     = Πᴹ (elimTy A) (elimTy B)
-  elimTy (Id a t u)      = Idᴹ (elimTm a) (elimTm t) (elimTm u)
+  elimTy (Id a t u)  = Idᴹ (elimTm a) (elimTm t) (elimTm u)
   elimSub ∅          = ∅ˢᴹ
   elimSub (σ , t)    = elimSub σ ,ˢᴹ tr TmᴹFamₜ (sym $ elimTy[] σ _) (elimTm t)
   elimSub idS        = idSᴹ
@@ -53,11 +54,13 @@ module _ {ℓ ℓ′ : Level} (elim : Eliminator {ℓ} {ℓ′}) where
   elimTm (un t)      = unᴹ (elimTm t)
   elimTm (ƛ t)       = (ƛᴹ elimTm t)
   elimTm (app t)     = appᴹ (elimTm t)
+  elimTm (refl t)    = reflᴹ (elimTm t)
 
-  elimSub↑-tot : (σ : Sub Δ Γ)(A : Ty Γ i)
-               → _≡_ {A = ∃ λ PB → Subᴹ (elimCtx Δ ,ᶜᴹ PB) (elimCtx Γ ,ᶜᴹ elimTy A) (σ ↑ A)}
-                     ([ elimSub σ ]ᴹ elimTy A ,' elimSub σ ↑ᴹ elimTy A)
-                     (elimTy ([ σ ] A) ,' elimSub (σ ↑ A))
+  elimSub↑-tot
+    : (σ : Sub Δ Γ)(A : Ty Γ i)
+    → _≡_ {A = ∃ λ PB → Subᴹ (elimCtx Δ ,ᶜᴹ PB) (elimCtx Γ ,ᶜᴹ elimTy A) (σ ↑ A)}
+      ([ elimSub σ ]ᴹ elimTy A ,' elimSub σ ↑ᴹ elimTy A)
+      (elimTy ([ σ ] A) ,' elimSub (σ ↑ A))
 
   elimTy[] σ (U i) = []ᴹUᴹ
   elimTy[] σ (El u) = begin
@@ -96,6 +99,27 @@ module _ {ℓ ℓ′ : Level} (elim : Eliminator {ℓ} {ℓ′}) where
           ≡⟨ cong (elimTy ([ σ ] A) ,'_) (elimTy[] (σ ↑ A) B) ⟩
         elimTy ([ σ ] A) ,' elimTy ([ σ ↑ A ] B)
           ∎
+      {-
+      eq : tr (λ PB → Tyᴹ (elimCtx Δ ,ᶜᴹ PB) i ([ σ ↑ A ] B))
+              (elimTy[] σ A)
+              ([ elimSub σ ↑ᴹ elimTy A ]ᴹ elimTy B)
+          ≡ elimTy ([ σ ↑ A ] B)
+      eq = begin
+        tr (λ PB → Tyᴹ (elimCtx Δ ,ᶜᴹ PB) i ([ σ ↑ A ] B))
+           (elimTy[] σ A)
+           ([ elimSub σ ↑ᴹ elimTy A ]ᴹ elimTy B)
+          ≡⟨ tr-nat (λ PB → Subᴹ (elimCtx Δ ,ᶜᴹ PB) (elimCtx Γ ,ᶜᴹ elimTy A) (σ ↑ A))
+                    (λ _ Pσ → [ Pσ ]ᴹ elimTy B)
+                    (elimTy[] σ A) ⟩
+        [ tr (λ PB → Subᴹ (elimCtx Δ ,ᶜᴹ PB) (elimCtx Γ ,ᶜᴹ elimTy A) (σ ↑ A))
+             (elimTy[] σ A)
+             (elimSub σ ↑ᴹ elimTy A) ]ᴹ elimTy B
+          ≡⟨ cong ([_]ᴹ elimTy B) (elimSub↑ σ A) ⟩
+        [ elimSub (σ ↑ A) ]ᴹ elimTy B
+          ≡⟨ elimTy[] (σ ↑ A) B ⟩
+        elimTy ([ σ ↑ A ] B)
+          ∎
+      -}
   elimTy[] {Δ} {Γ} {i} σ (Id a t u) = begin
     [ elimSub σ ]ᴹ Idᴹ (elimTm a) (elimTm t) (elimTm u)
       ≡⟨ []ᴹIdᴹ ⟩
@@ -302,9 +326,9 @@ module _ {ℓ ℓ′ : Level} (elim : Eliminator {ℓ} {ℓ′}) where
             (tr TmᴹFamₜ (elimTy[] wk ([ ∅ ] A)) (π₂ᴹ idSᴹ))
             ∎
             where
-              vzᴹ≅ : π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ ([ elimSub ∅ ]ᴹ elimTy A)} {Aᴹ = [ elimSub ∅ ]ᴹ elimTy A} idSᴹ
-                    ≅ π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ elimTy ([ ∅ ] A)} {Aᴹ = elimTy ([ ∅ ] A)} idSᴹ
-              vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ Aᴹ} {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ elimTy[] ∅ A)
+              vzᴹ≅ : π₂ᴹ {Γᴹ = elimCtx Δ ,ᶜᴹ ([ elimSub ∅ ]ᴹ elimTy A)} {Aᴹ = [ elimSub ∅ ]ᴹ elimTy A} idSᴹ
+                    ≅ π₂ᴹ {Γᴹ = elimCtx Δ ,ᶜᴹ elimTy ([ ∅ ] A)} {Aᴹ = elimTy ([ ∅ ] A)} idSᴹ
+              vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Γᴹ = elimCtx Δ ,ᶜᴹ Aᴹ} {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ elimTy[] ∅ A)
   
   elimSub↑-tot {Δ} (_,_ σ {A'} t) A = ≅-to-≡ $ begin
     [ elimSub σ ,ˢᴹ tᴹ ]ᴹ elimTy A
@@ -342,9 +366,9 @@ module _ {ℓ ℓ′ : Level} (elim : Eliminator {ℓ} {ℓ′}) where
           (tr TmᴹFamₜ (elimTy[] wk ([ σ , t ] A)) (π₂ᴹ idSᴹ))
           ∎
           where
-            vzᴹ≅ : π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ ([ elimSub (σ , t) ]ᴹ elimTy A)} {Aᴹ = [ elimSub (σ , t) ]ᴹ elimTy A} idSᴹ
-                  ≅ π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ elimTy ([ σ , t ] A)} {Aᴹ = elimTy ([ σ , t ] A)} idSᴹ
-            vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Δᴹ = elimCtx Δ ,ᶜᴹ Aᴹ} {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ elimTy[] (σ , t) A)
+            vzᴹ≅ : π₂ᴹ {Γᴹ = elimCtx Δ ,ᶜᴹ ([ elimSub (σ , t) ]ᴹ elimTy A)} {Aᴹ = [ elimSub (σ , t) ]ᴹ elimTy A} idSᴹ
+                  ≅ π₂ᴹ {Γᴹ = elimCtx Δ ,ᶜᴹ elimTy ([ σ , t ] A)} {Aᴹ = elimTy ([ σ , t ] A)} idSᴹ
+            vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Γᴹ = elimCtx Δ ,ᶜᴹ Aᴹ} {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ elimTy[] (σ , t) A)
       
   elimSub↑-tot {Δ} {Γ} {i} (π₁ {A = A'} idS) A = ≅-to-≡ $ begin
     [ π₁ᴹ idSᴹ ]ᴹ elimTy A ,' (π₁ᴹ idSᴹ ↑ᴹ elimTy A)
@@ -379,8 +403,8 @@ module _ {ℓ ℓ′ : Level} (elim : Eliminator {ℓ} {ℓ′}) where
            (tr TmᴹFamₜ (elimTy[] wk ([ wk ] A)) (π₂ᴹ idSᴹ))
           ∎
         where
-          vzᴹ≅ : π₂ᴹ {Δᴹ = (_ ,ᶜᴹ elimTy A') ,ᶜᴹ _} {Aᴹ = [ elimSub wk ]ᴹ elimTy A} idSᴹ
-               ≅ π₂ᴹ {Δᴹ = (_ ,ᶜᴹ elimTy A') ,ᶜᴹ _} {Aᴹ = elimTy ([ wk ] A)} idSᴹ
+          vzᴹ≅ : π₂ᴹ {Γᴹ = (_ ,ᶜᴹ elimTy A') ,ᶜᴹ _} {Aᴹ = [ elimSub wk ]ᴹ elimTy A} idSᴹ
+               ≅ π₂ᴹ {Γᴹ = (_ ,ᶜᴹ elimTy A') ,ᶜᴹ _} {Aᴹ = elimTy ([ wk ] A)} idSᴹ
           vzᴹ≅ = hcong (λ Aᴹ → π₂ᴹ {Aᴹ = Aᴹ} idSᴹ) (≡-to-≅ $ elimTy[] wk A)
           
   elimSub↑-tot {Δ} (π₁ (π₁ σ)) A = ≅-to-≡ $ begin

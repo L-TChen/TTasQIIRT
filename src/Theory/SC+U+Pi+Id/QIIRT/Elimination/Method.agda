@@ -1,13 +1,14 @@
 -- Methods of Model of Substitution Calculus
+module SC+U+Pi+Id.QIIRT.Elimination.Method where
+
 open import Prelude
+  hiding (_,_)
+open import Data.Nat hiding (_⊔_)
+open import SC+U+Pi+Id.QIIRT.Syntax
+open import SC+U+Pi+Id.QIIRT.Properties
+open import SC+U+Pi+Id.QIIRT.Elimination.Motive
 
-module Theory.SC+U+Pi+Id.QIIRT.Elimination.Method where
-
-open import Theory.SC+U+Pi+Id.QIIRT.Syntax
-open import Theory.SC+U+Pi+Id.QIIRT.Properties
-open import Theory.SC+U+Pi+Id.QIIRT.Elimination.Motive
-
-module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
+module _ {ℓ ℓ′}(Mot : Motive {ℓ} {ℓ′}) where
   open Motive Mot
   private variable
     Γᴹ Δᴹ Θᴹ : Ctxᴹ Γ
@@ -27,30 +28,30 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : (Γᴹ : Ctxᴹ Γ)(Aᴹ : Tyᴹ Γᴹ i A)
         → Ctxᴹ (Γ , A)
       ∅ˢᴹ
-        : Subᴹ Δᴹ ∅ᶜᴹ ∅
+        : Subᴹ Γᴹ ∅ᶜᴹ ∅
       _,ˢᴹ_
         : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(tᴹ : Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ) t)
         → Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ) (σ , t)
       idSᴹ
         : Subᴹ Γᴹ Γᴹ idS
       _⨟ᴹ_
-        : (τᴹ : Subᴹ Γᴹ Δᴹ τ)(σᴹ : Subᴹ Δᴹ Θᴹ σ)
-        → Subᴹ Γᴹ Θᴹ (τ ⨟ σ)
+        : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(τᴹ : Subᴹ Δᴹ Θᴹ τ)
+        → Subᴹ Γᴹ Θᴹ (σ ⨟ τ)
       π₁ᴹ
         : (σᴹ : Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ) σ)
         → Subᴹ Γᴹ Δᴹ (π₁ σ)
       [idSᴹ]
         : [ idSᴹ ]ᴹ Aᴹ ≡ Aᴹ
       [⨟ᴹ]ᴹ
-        : [ σᴹ ⨟ᴹ τᴹ ]ᴹ Aᴹ ≡ [ σᴹ ]ᴹ ([ τᴹ ]ᴹ Aᴹ)
+        : [ τᴹ ⨟ᴹ σᴹ ]ᴹ Aᴹ ≡ [ τᴹ ]ᴹ ([ σᴹ ]ᴹ Aᴹ)
       [π₁ᴹ,ˢᴹ]ᴹ
         : ([ π₁ᴹ (σᴹ ,ˢᴹ tᴹ) ]ᴹ Aᴹ) ≡ [ σᴹ ]ᴹ Aᴹ
       [π₁ᴹ⨟ᴹ]ᴹ
         : [ π₁ᴹ (σᴹ ⨟ᴹ τᴹ) ]ᴹ Aᴹ ≡ [ σᴹ ]ᴹ ([ π₁ᴹ τᴹ ]ᴹ Aᴹ)
       π₂ᴹ
-        : (σᴹ : Subᴹ Δᴹ (Γᴹ ,ᶜᴹ Aᴹ) σ)
+        : (σᴹ : Subᴹ Γᴹ (Δᴹ ,ᶜᴹ Aᴹ) σ)
         ---------------------------------
-        → Tmᴹ Δᴹ ([ π₁ᴹ σᴹ ]ᴹ Aᴹ) (π₂ σ)
+        → Tmᴹ Γᴹ ([ π₁ᴹ σᴹ ]ᴹ Aᴹ) (π₂ σ)
       [_]tmᴹ_
         : (σᴹ : Subᴹ Γᴹ Δᴹ σ) {Aᴹ : Tyᴹ Δᴹ i A}
         → (tᴹ : Tmᴹ Δᴹ Aᴹ t)
@@ -60,7 +61,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       : (σᴹ : Subᴹ Γᴹ Δᴹ σ)
       → Subᴹ (Γᴹ ,ᶜᴹ ([ σᴹ ]ᴹ Aᴹ)) (Δᴹ ,ᶜᴹ Aᴹ) (σ ⁺)
     σᴹ ⁺ᴹ = (π₁ᴹ idSᴹ ⨟ᴹ σᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) (π₂ᴹ idSᴹ)
-
+    
     Subᴹ,ᶜᴹFam
       : {Γᴹ : Ctxᴹ Γ} → {Ctxᴹ Δ} → {Sub (Γ , A) Δ} → Tyᴹ Γᴹ i A → Set ℓ′
     Subᴹ,ᶜᴹFam {_} {_} {_} {_} {Γᴹ} {Δᴹ} {σ} Aᴹ = Subᴹ (Γᴹ ,ᶜᴹ Aᴹ) Δᴹ σ
@@ -69,9 +70,8 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       _↑ᴹ_
         : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(Aᴹ : Tyᴹ Δᴹ i A)
         → Subᴹ (Γᴹ ,ᶜᴹ ([ σᴹ ]ᴹ Aᴹ)) (Δᴹ ,ᶜᴹ Aᴹ) (σ ↑ A)
-
       idSᴹ↑ᴹ
-        : tr Subᴹ,ᶜᴹFam [idSᴹ] (idSᴹ ↑ᴹ Aᴹ) ≡ idSᴹ
+          : tr Subᴹ,ᶜᴹFam [idSᴹ] (idSᴹ ↑ᴹ Aᴹ) ≡ idSᴹ
       ⨟ᴹ↑ᴹ
         : tr Subᴹ,ᶜᴹFam [⨟ᴹ]ᴹ ((σᴹ ⨟ᴹ τᴹ) ↑ᴹ Aᴹ)
         ≡ (σᴹ ↑ᴹ ([ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (τᴹ ↑ᴹ Aᴹ)
@@ -82,7 +82,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : tr Subᴹ,ᶜᴹFam [π₁ᴹ⨟ᴹ]ᴹ (π₁ᴹ (σᴹ ⨟ᴹ τᴹ) ↑ᴹ Aᴹ)
         ≡ (σᴹ ↑ᴹ ([ π₁ᴹ τᴹ ]ᴹ Aᴹ)) ⨟ᴹ (π₁ᴹ τᴹ ↑ᴹ Aᴹ)
       ∅ˢᴹ↑ᴹ
-        : ∅ˢᴹ {Δᴹ = Δᴹ} ↑ᴹ Aᴹ ≡ ∅ˢᴹ ⁺ᴹ
+        : ∅ˢᴹ {Γᴹ = Γᴹ} ↑ᴹ Aᴹ ≡ ∅ˢᴹ ⁺ᴹ
       ,ˢᴹ↑ᴹ
         : (σᴹ ,ˢᴹ tᴹ) ↑ᴹ Aᴹ ≡ (σᴹ ,ˢᴹ tᴹ) ⁺ᴹ
       π₁ᴹidSᴹ↑ᴹ
@@ -93,7 +93,6 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       [_]tᴹ_
         : (σᴹ : Subᴹ Γᴹ Δᴹ σ)(tᴹ : Tmᴹ Δᴹ Aᴹ t)
         → Tmᴹ Γᴹ ([ σᴹ ]ᴹ Aᴹ) ([ σ ]t t)
-
       [idSᴹ]tᴹ
         : tr TmᴹFamₜ [idSᴹ] ([ idSᴹ ]tᴹ tᴹ) ≡ tᴹ
       [⨟ᴹ]tᴹ
@@ -106,12 +105,11 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : tr TmᴹFamₜ [π₁ᴹ⨟ᴹ]ᴹ ([ π₁ᴹ (σᴹ ⨟ᴹ τᴹ) ]tᴹ tᴹ)
         ≡ [ σᴹ ]tᴹ ([ π₁ᴹ τᴹ ]tᴹ tᴹ)
       [∅ˢᴹ]tᴹ
-        : [ ∅ˢᴹ {Δ} {Δᴹ} ]tᴹ tᴹ ≡ [ ∅ˢᴹ ]tmᴹ tᴹ
+        : [ ∅ˢᴹ {Γ} {Γᴹ} ]tᴹ tᴹ ≡ [ ∅ˢᴹ ]tmᴹ tᴹ
       [,ˢᴹ]tᴹ
         : [ σᴹ ,ˢᴹ tᴹ ]tᴹ uᴹ ≡ [ σᴹ ,ˢᴹ tᴹ ]tmᴹ uᴹ
       [π₁ᴹidSᴹ]tᴹ
-        : [ π₁ᴹ {Γᴹ = Γᴹ ,ᶜᴹ Aᴹ} idSᴹ ]tᴹ tᴹ
-        ≡ [ π₁ᴹ idSᴹ ]tmᴹ tᴹ
+        : [ π₁ᴹ {Γᴹ = Γᴹ ,ᶜᴹ Aᴹ} idSᴹ ]tᴹ tᴹ ≡ [ π₁ᴹ idSᴹ ]tmᴹ tᴹ
       [π₁ᴹπ₁ᴹ]tᴹ
         : [ π₁ᴹ (π₁ᴹ σᴹ) ]tᴹ tᴹ ≡ [ π₁ᴹ (π₁ᴹ σᴹ) ]tmᴹ tᴹ
 
@@ -127,7 +125,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         ≡ (σᴹ ⨟ᴹ τᴹ) ⨟ᴹ γᴹ
       π₁ᴹ,ˢᴹ
         : tr (Subᴹ Γᴹ Δᴹ) π₁, (π₁ᴹ (σᴹ ,ˢᴹ tᴹ)) ≡ σᴹ
-      ⨟ᴹ,ˢᴹ -- the transport equation seems too long
+      ⨟ᴹ,ˢᴹ
         : tr SubᴹFam ⨟, (σᴹ ⨟ᴹ (τᴹ ,ˢᴹ tᴹ))
         ≡ (σᴹ ⨟ᴹ τᴹ) ,ˢᴹ tr TmᴹFamₜ (sym $ [⨟ᴹ]ᴹ) ([ σᴹ ]tmᴹ tᴹ)
       η∅ˢᴹ
@@ -135,7 +133,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       η,ˢᴹ
         : tr SubᴹFam η, σᴹ ≡ π₁ᴹ σᴹ ,ˢᴹ π₂ᴹ σᴹ
       [idSᴹ]tmᴹ
-        : tr₂ (Tmᴹ Γᴹ) [idSᴹ] [idS]tm ([ idSᴹ ]tmᴹ tᴹ)
+        : tr₂ (Tmᴹ Γᴹ) [idSᴹ] [id]tm ([ idSᴹ ]tmᴹ tᴹ)
         ≡ tᴹ
       [⨟ᴹ]tmᴹ
         : tr₂ (Tmᴹ Γᴹ) [⨟ᴹ]ᴹ [⨟]tm ([ σᴹ ⨟ᴹ τᴹ ]tmᴹ tᴹ)
@@ -152,8 +150,8 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         : (i : ℕ)
         → Tyᴹ Γᴹ (suc i) (U i)
       Elᴹ
-        : Tmᴹ Γᴹ (Uᴹ i) t
-        → Tyᴹ Γᴹ i (El t)
+        : Tmᴹ Γᴹ (Uᴹ i) u
+        → Tyᴹ Γᴹ i (El u)
       Liftᴹ
         : Tyᴹ Γᴹ i A
         → Tyᴹ Γᴹ (suc i) (Lift A)
@@ -180,7 +178,7 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
       []mkᴹ
         : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ σ)
         → tr₂ (Tmᴹ Γᴹ) []ᴹLiftᴹ ([]mk σ _) ([ σᴹ ]tmᴹ mkᴹ tᴹ)
-        ≡ mkᴹ ([ σᴹ ]tmᴹ tᴹ)
+        ≡ mkᴹ ([ σᴹ ]tᴹ tᴹ)
       []unᴹ
         : (σ : Sub Γ Δ) (σᴹ : Subᴹ Γᴹ Δᴹ σ)
         → tr TmᴹFam ([]un σ A t) ([ σᴹ ]tmᴹ unᴹ tᴹ)
@@ -229,6 +227,12 @@ module _ {ℓ ℓ′}(Mot : Motive ℓ ℓ′) where
         ≡ Idᴹ (tr TmᴹFamₜ []ᴹUᴹ ([ σᴹ ]tᴹ aᴹ))
             (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ tᴹ))
             (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ uᴹ))
+      reflᴹ
+        : (tᴹ : Tmᴹ Γᴹ (Elᴹ aᴹ) t)
+        → Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ tᴹ) (refl t)
+      []reflᴹ
+          : tr₂ (Tmᴹ Δᴹ) []ᴹIdᴹ ([]refl σ t) ([ σᴹ ]tmᴹ (reflᴹ tᴹ))
+          ≡ reflᴹ (tr TmᴹFamₜ ([]ᴹElᴹ σᴹ aᴹ) ([ σᴹ ]tᴹ tᴹ))
       reflectᴹ
         : (Pp : Tmᴹ Γᴹ (Idᴹ aᴹ tᴹ uᴹ) p)
         → tr TmᴹFam (reflect p) tᴹ ≡ uᴹ

@@ -1,7 +1,6 @@
 name: DTT-QIIRT
 include: 
   src
-  .
 depend: 
   standard-library
   cubical

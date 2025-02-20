@@ -1,9 +1,9 @@
 open import Prelude
   hiding (_,_)
   
-module Theory.SC+U+Pi+Id.QIIRT.Properties where
+module SC+U+Pi+Id.QIIRT.Properties where
 
-open import Theory.SC+U+Pi+Id.QIIRT.Syntax
+open import SC+U+Pi+Id.QIIRT.Syntax
 
 cong-U : Γ ≅ Δ → U {Γ} i ≅ U {Δ} i
 cong-U refl = refl
@@ -136,7 +136,7 @@ id↑ Γ A = begin
   [ σ ]t  [ π₁ τ ]t  u  ≡⟨⟩
   [ π₁ (σ ⨟ τ) ]t u ∎
   where open ≡-Reasoning
-[]tm≡[]t u idS      = [idS]tm
+[]tm≡[]t u idS      = [id]tm
 []tm≡[]t u (σ ⨟ τ) = begin
   [ σ ⨟ τ ]tm u     ≡⟨ [⨟]tm ⟩
   [ σ ]tm [ τ ]tm u ≡⟨ cong ([ σ ]tm_) ([]tm≡[]t u τ) ⟩
@@ -195,11 +195,9 @@ module _ {Γ Δ Θ : Ctx} (σ : Sub Γ Δ) (τ : Sub Δ Θ) where
     : (Ξ : Tel Θ) 
     → (σ ⨟ τ) ⇈ Ξ ≅ (σ ⇈ ([ τ ]l Ξ)) ⨟ (τ ⇈ Ξ)
   [⨟]l ∅       = refl
-  [⨟]l (Ξ , A) = ≅-to-≡ $ hcong₂ {B = λ Ξ → Ty (_ ⧺ Ξ) _} {C = λ _ _ → Tel Γ} _,_
-    (≡-to-≅ $ [⨟]l Ξ) $
-    begin
-      [ (σ ⨟ τ) ⇈ Ξ ] A ≅⟨ icong (λ Ξ → Sub (_ ⧺ Ξ) _) ([⨟]l Ξ) ([_] A) (⨟⇈ Ξ) ⟩
-      [ (σ ⇈ ([ τ ]l Ξ)) ⨟ (τ ⇈ Ξ) ] A ≡⟨⟩
-      [ σ ⇈ ([ τ ]l Ξ) ] [ τ ⇈ Ξ ] A ∎
+  [⨟]l (Ξ , A) = ≅-to-≡ $ hcong₂ {B = λ Ξ → Ty (_ ⧺ Ξ) _} {C = λ _ _ → Tel Γ} _,_ (≡-to-≅ $ [⨟]l Ξ) $ begin
+    [ (σ ⨟ τ) ⇈ Ξ ] A               ≅⟨ icong (λ Ξ → Sub (_ ⧺ Ξ) _) ([⨟]l Ξ) ([_] A) (⨟⇈ Ξ) ⟩
+    [ (σ ⇈ [ τ ]l Ξ) ⨟ (τ ⇈ Ξ) ] A  ≡⟨⟩ 
+    [ σ ⇈ [ τ ]l Ξ ] [ τ ⇈ Ξ ] A    ∎ 
   ⨟⇈ ∅         = refl
   ⨟⇈ (Ξ , A)   = icong (λ Ξ → Sub (_ ⧺ Ξ) _) ([⨟]l Ξ) (_↑ A) (⨟⇈ Ξ)
