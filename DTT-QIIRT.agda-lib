@@ -1,9 +1,0 @@
-name: DTT-QIIRT
-include: 
-  src
-depend: 
-  standard-library
-  cubical
-
-flags:
-  --auto-inline --with-K --exact-split --rewriting --local-confluence-check

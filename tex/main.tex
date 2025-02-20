@@ -27,7 +27,7 @@
 \relatedversion{} %optional, e.g. full version hosted on arXiv, HAL, or other respository/website
 %\relatedversiondetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93]{Classification (e.g. Full Version, Extended Version, Previous Version}{URL to related version} %linktext and cite are optional
 
-\supplement{Formal Agda development: \url{https://github.com/L-TChen/TTasQIIRT}./}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
+\supplement{Formal Agda development: \url{https://github.com/L-TChen/TTasQIIRT}.}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
 %\supplementdetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93, subcategory={Description, Subcategory}, swhid={Software Heritage Identifier}]{General Classification (e.g. Software, Dataset, Model, ...)}{URL to related version} %linktext, cite, and subcategory are optional
 \acknowledgements{We'd like to thank Hsiang-Shang Ko for useful discussion.}%optional
 
@@ -109,7 +109,7 @@ Also, the presentation often differs from the actual definition in type theory.
 Any method that reduces the friction introduced by equality constructors without compromising on computational properties and the gap between formalisation and presentation seem worth exploring.
 %
 
-In this paper, we show that the development can be streamlined by combining quotient inductive-inductive types and inductive-recursive types, called quotient inductive-inductive-recursive types (\emph{QIIRT}s).
+In this paper, we show that the development can be streamlined by combining quotient inductive-inductive types and inductive-recursive types, called \emph{quotient inductive-inductive-recursive types} (QIIRTs).
 %
 The basic idea, following a suggestion by Kaposi~\cite{Kaposi2023} and precursors by Dybjer~\cite{Dybjer1996} and Danielsson~\cite{Danielsson2006}, is to replace the inductively defined action of a substitution on a type with a recursive definition, which computes.
 %
@@ -142,7 +142,7 @@ This paper explores the use of QIIRTs and definitions by overlapping patterns to
 \begin{itemize}
   \item We give definitions of the parallel substitution calculus and type theories with a universe and $\Pi$-types as a QIIRT (\cref{sec:QIIRTs}).
   \item We show how elimination principles for reasoning about the type theory can be derived, and use it to construct its standard model (\cref{sec:models}).
-  \item We compare our definition to definitions using quotient inductive-inductive types, and prove that the two definitions are actually equivalent (\cref{thm:equivalence}).
+  \item We compare our definition to definitions using quotient inductive-inductive types, and prove that the two definitions are actually equivalent (\cref{thm:equivalence}) in type theory.
 \end{itemize}
 
 %\subparagraph*{Plan of the paper}
@@ -168,7 +168,7 @@ However, some statements are metatheoretical and thus not checked in \Agda. %, w
 We have marked such `informal' proofs with the symbol \resizebox*{!}{\baselineskip}{\textdbend}.
 
 \subsection{Inductive-recursive types}
-An inductive type $A$, such as the type of natural numbers $A = \mathbb{N}$, allows functions out of the type $f : A \to X$ to be defined using an elimination rule which says that $f$ is defined by its values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of~$A$.
+An inductive type $A$, such as the type of natural numbers $A = \mathbb{N}$, allows functions out of the type $f : A \to X$ to be defined using an elimination rule which says that $f$ is defined by its values $f(\cc_i\,x)$ on all of the constructors $\cc_i$ of~$A$.
 %For example, a function $f: \mathbb{N} \to X$ is given by the values $f(0)$ and $f(\suc\,n)$, where the latter might refer to the already computed value $f(n)$.
 %
 The type is first defined inductively by listing its constructors, and then recursive functions can be defined out of it.
@@ -176,13 +176,13 @@ The type is first defined inductively by listing its constructors, and then recu
 In contrast, an inductive-recursive type (IRT), introduced by Dybjer~\cite{Dybjer2000} and studied by Dybjer and Setzer~\cite{Dybjer1999,Dybjer2003}, is an inductive type $A$ defined \emph{simultaneously} with a recursively defined function $F : A \to D$ to some fixed (possibly large) type $D$.
 The prototypical example is Tarski universe: a type $U$ of codes for small types is defined with a `decoding' function $T : U \to \Set$ which maps each code to the type it represents. Crucially, the code
 \[
-  \pi : (a : U) \to (T(a) \to U) \to U
-  \quad\text{with}\quad T(\pi(a, b)) \defeq (x : T\,a) \to T(b\, x)
+  \pi : (a : U) \to (T\,a \to U) \to U
+  \quad\text{with}\quad T(\pi(a, b)) \defeq (x : T\,a) \to T\,(b\, x)
 \]
 for dependent function types makes sense only because we have access to the function $T$.
 %
 
-An IRT $(A, F)$ comes with an elimination rule that allows to define a dependent function  $f : (x : A) \to P(x)$ by giving values $f(\mathsf{c}_i\,x)$ on all of the constructors $\mathsf{c}_i$ of $A$, but the recursive function $F : A \to D$ is \emph{not} defined using this elimination rule, but part of the definition of the type itself.
+An IRT $(A, F)$ comes with an elimination rule that allows to define a dependent function  $f : (x : A) \to P\,x$ by giving values $f(\cc_i\,\overrightarrow{x})$ on all of the constructors $\cc_i$ of $A$, but the recursive function $F : A \to D$ is \emph{not} defined using this elimination rule, but part of the definition of the type itself.
 %
 In particular, the elimination rule can be used to define endofunctions on $A$, but the recursive function  $F : A \to D$ must target a pre-existing type $D$.
 %
@@ -202,36 +202,36 @@ Quotient inductive types (QITs) are a special case of higher inductive types~\ci
 %
 %Since we assume the uniqueness of identity proofs, all QITs are implicitly truncated to be sets in the sense of homotopy type theory.
 %
-For example, the type $\JList{A}$ of \emph{join lists} can be given by the QIT in \cref{fig:QIT-join-list}.
-\begin{figure}[b]
-\begin{minipage}{.35\textwidth}
+For example, the type $\JList{A}$ of \emph{join lists} can be given by the QIT below.
+%\begin{figure}[b]
+\begin{minipage}{.4\textwidth}
 \begin{alignat*}{3}
   \Jnil                    & : \implicit{A}\;      && \JList{A} \\
   \Jsing{\blank}           & : \implicit{A}\;      && A \to \JList{A} \\
   \Jconcat{\blank}{\blank} & : \implicit{A}\;      && \JList{A} \to \JList{A} \to \JList{A}
 \end{alignat*}
 \end{minipage}
-\begin{minipage}{.64\textwidth}
+\begin{minipage}{.58\textwidth}
 \begin{alignat*}{3}
   \mathsf{idr}             & : \implicit{\ell}\; && (\Jconcat{\ell}{\Jnil}) =^{\JList{A}} \ell \\
   \mathsf{idl}             & : \implicit{\ell}\; && (\Jconcat{\Jnil}{\ell}) =^{\JList{A}} \ell \\
   \mathsf{assoc}           & : \implicit{\ell_0, \ell_1, \ell_2}\; && \Jconcat{(\Jconcat{\ell_0}{\ell_1})}{\ell_2} =^{\JList{A}} \Jconcat{\ell_0}{(\Jconcat{\ell_1}{\ell_2})}
 \end{alignat*}
 \end{minipage}
-\caption{The quotient inductive type of join lists}
-\label{fig:QIT-join-list}
-\end{figure}
-%\vskip\belowdisplayskip\noindent
+%\caption{The quotient inductive type of join lists}
+%\label{fig:QIT-join-list}
+%\end{figure}
+\vskip\belowdisplayskip\noindent
 A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a type family $B : A \to \Set$ defined inductively.
 % --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively.
 %; indeed, inductive-inductive definitions only make sense when $D = \Set$.
 The metatheory of QIITs has been studied by Altenkirch et al.~\cite{Kaposi2018,Kaposi2019,Kovacs2020}.
 
-We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: the type $\JList{A}$ is defined simultaneously with a recursive function $\flatten : \implicit{A}\;\JList{A} \to \List{A}$ which flattens a join list into an ordinary list. We keep the constructors $\Jnil$, $\Jsing{\blank}$ and $\Jconcat{\blank}{\blank}$ from \cref{fig:QIT-join-list}, but replace $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
+We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: the type $\JList{A}$ is defined simultaneously with a recursive function $\flatten : \implicit{A}\;\JList{A} \to \List{A}$ which flattens a join list into an ordinary list and replaces equality constructors $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
 \[
-  \mathsf{nf} : \implicit{A}\;(\ell, \ell' : \JList{A}) \to \flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell' \to \ell =^{\JList{A}} \ell'
+  \mathsf{nf} : \implicit{A}\;(\ell, \ell' : \JList{A}) \to \flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell' \to \ell =^{\JList{A}} \ell'.
 \]
-which states that join lists are equal as soon as their flattenings are equal. For $\flatten$ to be well defined, it needs to respect the $\mathsf{nf}$ constructor, but this is a tautology: if $\ell =^{\JList{A}} \ell'$ because $\flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell'$, then obviously $\flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell'$.
+This constructor states that join lists are equal as soon as their flattenings are equal. For $\flatten$ to be well defined, it needs to respect the $\mathsf{nf}$ constructor, but this is a tautology: if $\ell =^{\JList{A}} \ell'$ because $\flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell'$, then obviously $\flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell'$.
 %In this work, we will consider quotient inductive-inductive-recursive types, generalising QIITs and QITs.
 
 %Shulman~\cite{Shulman2014} considered combining higher inductive types and inductive-recursive types, but the foundational status of this combination is underdeveloped. We will also make use of such a combination, which gives additional motivation to study its metatheory in future work.
@@ -280,7 +280,7 @@ Cockx shows that if a definition of $f$ is
   \item \emph{locally confluent}, i.e.\ for any two function clauses $f\;\overrightarrow{p_1} \reduce t_1$ and $f\;\overrightarrow{p_2} \reduce t_2$ with a most general unifer $\sigma$ for $\overrightarrow{p_1}$ and $\overrightarrow{p_2}$, the terms $\sigma t_1$ and $\sigma t_2$ have the same normal form, 
 \end{enumerate}
 then $f$ is confluent --- essentially a variant of Newman's Lemma~\cite{Newman1942}.
-We call a diagram $\sigma t_2 \Leftarrow f\;\sigma\overrightarrow{p_1} \Rightarrow \sigma t_1$ used in the analysis of local confluence a \emph{local peak}.
+We call a diagram $\sigma t_2 \Leftarrow f\,(\sigma\overrightarrow{p_1}) \Rightarrow \sigma t_1$ used in the analysis of local confluence a \emph{local peak}.
 
 In this work, we will consider inductive types defined simultaneously with recursive functions using overlapping patterns.
 Note that in the schema of IRTs these simultaneously defined functions are already not given by using elimination rules.
@@ -428,21 +428,20 @@ The use of transports in the formal definition fixes type mismatches but hinders
   \[
     \pi_2\,(\sigma ; \tau) = \sub{(\pi_2\,\tau)}{\sigma}
   \]
-  apparently holds and can checked by a back-of-the-envelope calculation
+  apparently holds and can be checked by a back-of-the-envelope calculation
   \begin{equation} \label{eq:pi2-comp-proof}
     \pi_2\,(\sigma ; \tau) 
     = \pi_2\,(\sigma; (\pi_1\,\tau, \pi_2\,\tau))
     = \pi_2\,(\sigma;\pi_1\,\tau, \sub{(\pi_2\,\tau)}{\sigma})
     = \sub{(\pi_2\,\tau)}{\sigma}.
   \end{equation}
-  Yet, the left-hand side is a term of type $\sub{A}{\pi_1\,(\sigma;\tau)}$, but the other is $\sub{\sub{A}{\pi_1\,\tau}}{\sigma}$.
-  Hence the above identity does not even make sense, since their types do not match.
+  Yet, the above identity does not even make sense, since their types do not match --- the left-hand side is a term of type $\sub{A}{\pi_1\,(\sigma;\tau)}$, but the other is $\sub{\sub{A}{\pi_1\,\tau}}{\sigma}$.
   Alas, instead, we have to write $\pi_2\,(\sigma ; \tau) =^{\Tm\,\Gamma}_{p} \sub{(\pi_2\,\tau)}{\sigma}$ for some $p: \sub{A}{\pi_1(\sigma; \tau)} = \sub{\sub{A}{\pi_1\tau}}{\sigma}$ or, equivalently
   \begin{equation}\label{eq:pi2-comp-real-proof}
     (\sub{A}{\pi_1(\sigma; \tau)}, \pi_2(\sigma; \tau)) =^{(A : \Ty\,\Gamma) \times (\Tm \Gamma A)} (\sub{\sub{A}{\pi_1\,\tau}}{\sigma}, \sub{(\pi_2\,\tau)}{\sigma})
   \end{equation}
   as inhabitants of a $\Sigma$-type, so we can reason about term equalities along with type equalities.
-  Moreover, in~\eqref{eq:pi2-comp-proof} we have used the rule $\mathsf{concat}$ which introduced another transported term, so we will have to remove that $\transp$ to derive the right hand side.
+  Moreover, in~\eqref{eq:pi2-comp-proof} we have used the rule $\mathsf{concat}$ which introduced another transported term, so we will have to remove that $\transp$ to derive the right-hand side.
 
   To better illustrate the annoyance, note that \eqref{eq:pi2-comp-real-proof} can be proved by following equations:
   \begin{alignat*}{3}
@@ -467,7 +466,7 @@ One possibility is to define the substitution calculus as a QIIRT, where type su
 %\end{alignat*}
 Note that this does not follow the schema of inductive-recursive definitions given by Dybjer and Setzer~\cite{Dybjer1999}, since the codomain of the recursive function is the inductively defined typed itself.
 %Nevertheless, $[\idS]_{\Ty}\,A$ and $[\sigma; \tau]_{\Ty}\,A$ do not reduce to~$A$ and~$[\sigma]_{\Ty}\,[\tau]_{\Ty}\,A$ respectively, even though they are provable.
-Since we want type substitution to both act structurally on types and commute with identities and composition, we could try to define $[\blank]_{\Ty} \blank : \implicit{\Gamma, \Delta} \; \Sub\;\Gamma\;\Delta \to \Ty\;\Delta \to \Ty\;\Gamma$ recursively as follows:
+Since we want type substitution to both act structurally on types and commute with identities and composition, we could try to define $\subTy{\blank}{\blank} : \implicit{\Gamma, \Delta} \; \Ty\;\Delta \to \Sub\;\Gamma\;\Delta \to \Ty\;\Gamma$ recursively as follows:
 \begin{alignat}{3}
 %\subTy{\blank}{\blank} &: \implicit{\Gamma, \Delta} \; \Ty\;\Delta \to \Sub\;\Gamma\;\Delta \to \Ty\;\Gamma \nonumber \\
 \subTy{\UU}{\sigma}         & \defid \UU                                   \label{eq:type-sub-at2-1} \\
@@ -528,10 +527,10 @@ We first check that this definition of type substitution is confluent.
 
 With this definition of type substitution, other equality constructors can be introduced without any $\transp$, and we can give the updated constructors the types below.
 \begin{alignat*}{5}
-  \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t}\; &&\sigma ; (\tau , t) {} && =^{\Sub\,\Gamma\,(\Theta, A)} &&  (\sigma ; \tau), \sub{t}{\sigma} \\
-  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_2(\sigma , t)          {} && =^{\Tm\,\Gamma\, A} &&  t \\
-  [\idS]t         & : \implicit{\Gamma, A, t} && {\sub{t}{\idS}}          && =^{\Tm\,\Gamma\,A}     {} && t \\
-  [;]t            & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t}  && {\sub{t}{\sigma ; \tau}} && =^{\Tm\,\Gamma\,\sub{A}{\sigma ; \tau}} {} && {\sub{\sub{t}{\tau}}{\sigma}}
+  \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t}\; &&\sigma ; (\tau , t) {} && =^{\Sub\,\Gamma\,(\Theta, A)} {} &&  (\sigma ; \tau), \sub{t}{\sigma} \\
+  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t} && \pi_2(\sigma , t)          {} && =^{\Tm\,\Gamma\, (\subTy{A}{\sigma})} {} &&  t \\
+  [\idS]         & : \implicit{\Gamma, A, t} && {\sub{t}{\idS}}          && =^{\Tm\,\Gamma\,A}      {} && t \\
+  [;]            & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t}  && {\sub{t}{\sigma ; \tau}} && =^{\Tm\,\Gamma\,(\subTy{A}{\sigma ; \tau})} {} && {\sub{\sub{t}{\tau}}{\sigma}}
 \end{alignat*}
 
 We revisit \cref{ex:pi2-comp} to demonstrate the pragmatic benefit of QIIRTs over QIITs.
@@ -578,7 +577,7 @@ Now we extend substitution calculus with an empty universe $\UU$ of small types~
 In a QIIT definition \cite{Altenkirch2016a}, this extension adds the following constructors
 \begin{alignat*}{3}
   \El   & : \implicit{\Gamma} && \Tm\,\Gamma\;\UU \to \Ty\,\Gamma \\
-  []\El & : \implicit{\Gamma, \Delta, \sigma, u} && \sub{(\El\, u)}{\sigma} =^{\Tm\;\Gamma\;\UU} \El\,(\alert{\transfib{\Tm\;\Gamma}{[]\UU}{\color{black}\sub{u}{\sigma}}})
+  []\El & : \implicit{\Gamma, \Delta, \sigma, u} && \sub{(\El\, u)}{\sigma} =^{\Ty\;\Gamma} \El\,(\alert{\transfib{\Tm\;\Gamma}{[]\UU}{\color{black}\sub{u}{\sigma}}})
 \end{alignat*}
 %as the type $\UU$ of universe and its structural rule $[]\UU$ have been added to avoid a trivial inductive type.
 The type substitution $\sub{(\El\,u)}{\sigma}$ is, informally, the type of the term substitution $\sub{u}{\sigma}$ for $u : \Tm\;\Delta\;\UU$, and the transport is needed to coerce $\sub{u}{\sigma} : \Tm\;\Gamma\;(\sub{\UU}{\sigma})$ into $\Tm\;\Gamma\;\UU$.
@@ -602,9 +601,9 @@ To repair local confluence, we add a simultaneously defined term substitution fu
 \begin{alignat*}{3}
 %  \subTm{\blank}{\blank} & : \implicit{\Gamma, \Delta, A}\;\Tm\,\Delta\,A \to (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\,\Gamma\,(\subTy{A}{\sigma}) \\
 \subTm{t}{\idS}          & \reduce t \\
-\subTm{t}{\sigma ; \tau} & \reduce \subTm{(\subTm{t}{\tau})}{\sigma} \\
+\subTm{t}{\sigma ; \tau} & \reduce \subTm{\subTm{t}{\tau}}{\sigma} \\
 \subTm{t}{\pi_1(\sigma, s)} & \reduce \subTm{t}{\sigma} \\
-\subTm{t}{\pi_1(\sigma; \tau)} & \reduce \subTm{(\subTm{t}{\pi_1\tau})}{\sigma} \\
+\subTm{t}{\pi_1(\sigma; \tau)} & \reduce \subTm{\subTm{t}{\pi_1\tau}}{\sigma} \\
 \subTm{t}{\sigma}        & \reduce \sub{t}{\sigma}, \quad \text{otherwise}
 \end{alignat*}
 This reduces substitutions that occur in \eqref{eq:def-type-subst-1}--\eqref{eq:def-type-subst-4} recursively so that the reduction can be propagated from types to terms.
@@ -678,10 +677,10 @@ and the structural rules for substitution
   []\Pi              & : \implicit{\Gamma, \Delta, \sigma, A, B}\;    && \sub{(\Pi\;A\;B)}{\sigma} && =^{\Ty\;\Gamma} && \Pi\,(\sub{A}{\sigma})\,(\sub{B}{\sigma\uparrow A}) \label{eq:def-type-subst-8} \\
   \mathsf{[]\lambda} & : \implicit{\Gamma, \Delta, \sigma, A, B, t}\; && \sub{(\lambda\,t)}{\sigma} && =^{\Tm\,\Gamma}_{\alert{[]\Pi}} && \lambda\,(\sub{t}{\sigma \uparrow A}) \nonumber
 \end{alignat}
-where $\sigma \uparrow A$ is the \emph{lifting}  of $\sigma$ by a type $A$ defined as $(\pi_1\idS; \sigma, \alert{\transfib{\Tm\;\Gamma}{[;]_T}{\color{black}\pi_2\idS}})$. 
+where $\sigma \uparrow A$ is the \emph{lifting}  of $\sigma$ by a type $A$ defined as $(\pi_1\idS; \sigma, \alert{\transfib{\Tm\;\Gamma}{[;]_{\Ty}}{\color{black}\pi_2\idS}})$. 
 
 For our QIIR definition, %$\sigma\uparrow A$ and $[]\lambda$ do not need a transport since $[;]_T$ and $[]\Pi$ are strict.
-we do not need any transport since $[;]_T$ and $[]\Pi$ are strict.
+we do not need any transport since $[;]_{\Ty}$ and $[]\Pi$ are strict.
 However, once again, adding \eqref{eq:def-type-subst-8} directly to the type substitution $\subTy{\blank}{\blank}$ breaks local confluence, because the reduction gets stuck upon the lifting $\sigma \uparrow A$.
 For example, $\subTy{(\Pi\;A\;B)}{\idS}$ reduces to $\Pi\;A\;(\subTy{B}{\idS \uparrow A})$ where $\idS \uparrow A$ is propositionally but not strictly equal to $\idS$, so the local peak $\Pi\;A\;B \Leftarrow \subTy{(\Pi\;A\;B)}{\idS} \reduce \Pi\;A\;(\subTy{B}{\idS \uparrow A})$ cannot be joined. 
 
@@ -731,9 +730,9 @@ As we are working with a different type theory from \cref{subsec:SC+U}, we  have
 Finally, we show that these simultaneously defined functions are coherent.
 \begin{restatable}{proposition}{propCoherenceUparrow} %[Coherence]
   For every equality constructor $\cc : \sigma =^{\Sub\;\Gamma\;\Delta} \tau$ and  any type $A$ and term $t$,   \danger we have
-  $\sigma \uparrow A =^{\lam{\gamma}\Sub\;(\Gamma, \subTy{A}{\gamma})\;(\Delta, A)}_{\alert{\cc}} \tau \uparrow A$
+  $\sigma \uparrow A =^{\Sub\;(\Gamma, \subTy{A}{\blank})\;(\Delta, A)}_{\alert{\cc}} \tau \uparrow A$
       and
-      $\subTm{t}{\sigma} =^{\lam{\gamma}\Tm\;\Gamma\;(\subTy{A}{\gamma})}_{\alert{\cc}} \subTm{t}{\tau}$.
+      $\subTm{t}{\sigma} =^{\Tm\;\Gamma\;(\subTy{A}{\blank})}_{\alert{\cc}} \subTm{t}{\tau}$.
     \end{restatable}
 
 \subsubsection*{Multiple lifting and the coherence of type substitution}
@@ -752,14 +751,14 @@ for arbitrary $\Xi$, subsuming the special case $\subTy{A}{\sigma} = \subTy{A}{\
 
 The type of telescopes $\Tel : \Ctx \to \Set$ over a `base' context $\Gamma$ are defined inductive-recursively together with a concatenation $\blank \dplus\blank : (\Gamma : \Ctx) \to \Tel\;\Gamma \to \Ctx$ as follows.
 
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.6\textwidth}
 \begin{alignat*}{5}
   %\Tel               & :                   && \Ctx \to \Set                                     \\
   \emptytel          & : \implicit{\Gamma}\; && \Tel\;\Gamma \\
   \blank,\blank      & : \implicit{\Gamma}\; && (\Xi : \Tel\;\Gamma) (A : \Ty\;(\Gamma \dplus \Xi)) \to \Tel\;\Gamma
 \end{alignat*}
 \end{minipage}
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.4\textwidth}
 \begin{alignat*}{5}
   %\blank & \dplus\blank     && :       (\Gamma : \Ctx) (\Xi : \Tel\;\Gamma) \to \Ctx \\
   \Gamma & \dplus \emptytel && \reduce \Gamma \\
@@ -774,13 +773,13 @@ Equipped with telescopes, we can now generalise single lifting with type \eqref{
 \]
 which asks for telescope substitution $\subTel{\blank}{\blank} :  \Tel\;\Delta \to \Sub\;\Gamma\;\Delta \to \Tel\;\Gamma$ defined mutually:
 
-\begin{minipage}{.5\linewidth}
+\begin{minipage}{.6\textwidth}
 \begin{alignat*}{5}
   \subTel{\emptytel}{\sigma} & {} \reduce \emptytel \\
   \subTel{(\Xi, A)}{\sigma}  & {} \reduce \subTel{\Xi}{\sigma}, \subTy{A}{\sigma \upuparrows \Xi}
 \end{alignat*}
 \end{minipage}
-\begin{minipage}{.5\linewidth}
+\begin{minipage}{.4\textwidth}
 \begin{alignat*}{5}
   & \sigma \upuparrows \emptytel && \reduce \sigma \\
   & \sigma \upuparrows (\Xi, A)  && \reduce (\sigma \upuparrows \Xi) \uparrow A
@@ -814,8 +813,8 @@ Of course, we also have to prove coherence for the newly introduced recursive fu
   \danger
   \begin{align*}
     \subTel{\Xi}{\sigma} & = \subTel{\Xi}{\tau}
-                         && \sigma \upuparrows \Xi =^{\lam{\gamma}\Sub\;(\Gamma\dplus \subTel{\Xi}{\gamma})\;(\Delta\dplus\Xi)}_{\alert{\mathsf{c}}} \tau \upuparrows \Xi \\
-    \subTy{A}{\sigma \upuparrows \Xi} & =^{\lam{\gamma}\Ty\;(\Gamma \dplus \subTel{\Xi}{\gamma})}_{\alert{\mathsf{c}}} \subTy{A}{\tau \upuparrows \Xi}.
+                         && \sigma \upuparrows \Xi =^{\Sub\;(\Gamma\dplus \subTel{\Xi}{\blank})\;(\Delta\dplus\Xi)}_{\alert{\cc}} \tau \upuparrows \Xi \\
+    \subTy{A}{\sigma \upuparrows \Xi} & =^{\Ty\;(\Gamma \dplus \subTel{\Xi}{\blank})}_{\alert{\cc}} \subTy{A}{\tau \upuparrows \Xi}.
   \end{align*}
 \end{restatable}
 
@@ -827,7 +826,7 @@ As promised, by instantiating $\Xi$ to be empty, we also get coherence for $\sub
 \end{corollary}
 
 Finally, we note that for $t : \Tm\,\Gamma\,(\Pi\,A\,B)$ and $u : \Tm\,\Gamma\,A$, also `ordinary' application
-$t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{(\idS , t)}$ of type $\Tm\,\Gamma\,(\sub{B}{(\idS , t)})$ can be defined without any transport. This is in contrast to the QIIT situation, where ordinary application is defined as $t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{(\idS, \alert{\transfib{\Tm\;\Gamma}{[id]_T^{-1}}{\color{black}t}})}$.
+$t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{(\idS , t)}$ of type $\Tm\,\Gamma\,(\sub{B}{(\idS , t)})$ can be defined without any transport. This is in contrast to the QIIT situation, where ordinary application is defined as $t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{(\idS, \alert{\transfib{\Tm\;\Gamma}{[\idS]_{\Tm}^{-1}}{\color{black}t}})}$.
 %
 %\begin{alignat*}{3}
 %  \left<\blank\right> & : \implicit{\Gamma, A} \Tm\;\Gamma\;A \to \Sub\;\Gamma\;(\Gamma, A) \\
@@ -859,20 +858,20 @@ We introduce the type $\bool : \implicit{\Gamma}\;\Ty\;\Gamma$ itself, its const
   &&& \qquad\qquad\qquad\qquad\qquad\qquad\qquad\qquad\quad \to (b : \Tm\;\Gamma\;\bool) \to \Tm\;\Gamma\;(\subTy{P}{\instSub{b}})
 \end{alignat*}
 %
-where $\instSub{t} \defeq (\idS, t) : \Sub\;\Gamma\;(\Gamma, A)$ is the substitution that substitutes $t : A$ for the top variable and leaves all other variables in place. We can add the expected computation rules
+where $\instSub{t} \defeq (\idS, t) : \Sub\;\Gamma\;(\Gamma, A)$ is the substitution that substitutes $t : A$ for the top variable and leaves all other variables in place. We can add the expected computation rules 
 %
-\begin{alignat*}{5}
-  \bool\beta_{\bfalse}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\bfalse && =^{\Tm\;\Gamma\;(\subTy{P}{\instSub{\bfalse}})} {} && f \\
-  \bool\beta_{\btrue}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\btrue && =^{\Tm\;\Gamma\;(\subTy{P}{\instSub{\btrue}})} {} && t
-\end{alignat*}
+%\begin{alignat*}{5}
+%  \bool\beta_{\bfalse}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\bfalse && =^{\Tm\;\Gamma\;(\subTy{P}{\instSub{\bfalse}})} {} && f \\
+%  \bool\beta_{\btrue}           & : \implicit{\Gamma, P, f, t}\; && \belim\,P\,f\,t\,\btrue && =^{\Tm\;\Gamma\;(\subTy{P}{\instSub{\btrue}})} {} && t
+%\end{alignat*}
 %
-as constructors, and the structural rule for type substitution as another straightforward clause
+as constructors, e.g.\ $ \bool\beta_{\bfalse} : \implicit{\Gamma, P, f, t}\; \belim\,P\,f\,t\,\bfalse = f$, and the structural rule for type substitution as another straightforward clause
 $\subTy{\bool}{\sigma} \reduce \bool$,
 but when we try to add the structural rule for term substitution applied to the eliminator, we end up with the following
 %
 \begin{alignat*}{5}
   []\belim & : \implicit{\Gamma, \sigma, P, f, t, b}\; \sub{(\belim\,P\,f\,t\,b)}{\sigma} \\
-           & =^{\Tm\,\Gamma\,(\sub{P}{\sigma; \instSub{b}})}_{\alert{p(b)}} \belim\,(\sub{P}{\sigma^+})\;(\alert{\transfib{\Tm\,\Gamma}{p(\bfalse)}{\textcolor{black}{\sub{f}{\sigma}}}})\;(\alert{\transfib{\Tm\,\Gamma}{p(\btrue)}{\textcolor{black}{\sub{t}{\sigma}}}})\; (\sub{b}{\sigma})
+           & =^{\Tm\,\Gamma}_{\alert{p(b)}} \belim\,(\sub{P}{\sigma^+})\;(\alert{\transfib{\Tm\,\Gamma}{p(\bfalse)}{\textcolor{black}{\sub{f}{\sigma}}}})\;(\alert{\transfib{\Tm\,\Gamma}{p(\btrue)}{\textcolor{black}{\sub{t}{\sigma}}}})\; (\sub{b}{\sigma})
 \end{alignat*}
 where the proof $p(x) : \subTy{P}{\instSub{\sub{x}{\sigma}} ; \sigma^+} = \subTy{P}{\sigma ; \instSub{x}}$ is needed to line up the types. Even though this is an equation between type substitutions, which we could hope make compute, there is no obvious way to direct the equation, and simply adding it as a reduction leads to confluence problems. Hence, we do not know how to get rid of these transports.
 
@@ -908,7 +907,7 @@ to act as the target types for the elimination principle:
   \elim_{\Ty}  & : (A : \Ty\;\Gamma) && \to \Ty^M\;(\elim_{\Ctx}\,\Gamma)\;A \quad
                & \elim_{\Tm}  & : (t : \Tm\;\Gamma\;A) && \to \Tm^M\; && (\elim_{\Ctx}\,\Gamma)\;(\elim_{\Ty}\,A)\;&&t.
 \end{alignat*}
-Each constructor $\mathsf{c}$ should be interpreted by a corresponding \emph{method} $\mathsf{c}^M$ indexed by it, e.g.,
+Each constructor $\cc$ should be interpreted by a corresponding \emph{method} $\cc^M$ indexed by it, e.g.,
 \begin{alignat*}{3}
 %  \emptyctx_{\Ctx}^M     & :                    && \Ctx^M\;\emptyctx \\
   \blank,_{\Ctx}^M\blank & : \implicit{\Gamma, A}\; && (\Gamma^M : \Ctx^M\;\Gamma) \to \Ty^M\;\Gamma^M\;A \to \Ctx^M\;(\Gamma, A) %\\
@@ -927,7 +926,7 @@ and simultaneously defined functions are also interpreted by corresponding funct
 \end{alignat*}
 subject to the identities corresponding to equality constructors and function clauses, e.g.,
 \begin{alignat*}{5}
-  [\idS]_{\Ty}^M & : \implicit{\Gamma, \Gamma^M, A, A^M}\; && \subTyM{A^M}{\idS^M} && =^{\Ty^M\,\Gamma^M}\;&& A^M %\\
+  [\idS]_{\Ty}^M & : \implicit{\Gamma, \Gamma^M, A, A^M}\; && \subTyM{A^M}{\idS^M} && =^{\Ty^M\,\Gamma^M\,A}\;&& A^M %\\
   %[;]_{\Ty}^M    & : \implicit{\dots}   && [ \sigma^M ;^M \tau^M ]^M_{\Ty} \;A^M && =^{\Ty^M\,\Gamma^M}\; && [\sigma^M]^M_{\Ty}\,([\tau^M]^M_{\Ty}\,A^M) \\
   %[\idS]_{\Tm}^M & : \implicit{\Gamma^M, t, t^M}   && [\idS^M]^M_{\Tm}\;t^M && =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{[\idS]^M_{\Ty}}} && \; t^M
 \end{alignat*}
@@ -945,9 +944,9 @@ We refer to \cref{appendix:full-def} and our \Agda development for the full defi
 %
 
 \begin{remark}
-  To state the methods, we cannot avoid using transports in identities that would need transports in its QII definition of a type theory --- for example, we have
+  To state the methods, we cannot avoid using transports in identities that would need transports in its QIIT definition of a type theory --- for example, we have
   \[
-    [\idS]_{\Tm}^M : \implicit{\Gamma^M, t, t^M} \;\subTmM{t^M}{\idS^M} =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{[\idS]^M_{\Ty}}} \; t^M
+    [\idS]_{\Tm}^M : \implicit{\Gamma, \Gamma^M, t, t^M} \;\subTmM{t^M}{\idS^M} =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{[\idS]^M_{\Ty}}} \; t^M
   \]
   since identities occurring in a method %(e.g.\ $[\idS]_{\Ty}^M$)
   are propositional just like equality constructors in its QIIT definition.
@@ -1132,8 +1131,8 @@ that such a combination could be useful.
 %
 Various schemas for inductive types have been developed in recent
 years~\cite{Ghani2017,Kaposi2018,Kovacs2023}, and it seems
-promising to see if they can be extended to also handle quotient
-inductive-inductive-recursive types. Overlapping patterns are
+promising to see if they can be extended to also handle QIIRTs.
+Overlapping patterns are
 discussed by Cockx~\cite{Cockx2014}, but we would like to integrate it
 with such a schema. Eremondi and Kammar~\cite{Eremondi2025} has
 recently given a promising direction for overlapping patterns
@@ -1167,7 +1166,7 @@ We give the QIIRTs for type theories with a universe of small types, $\Pi$-types
 \end{alignat*}
 \begin{alignat*}{5}
   \emptysub & : \implicit{\Gamma} && \Sub\;\Gamma\;\emptyctx \\
-  \blank,\blank & : \implicit{\Gamma, \Delta, A} && (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Gamma\;(\subTy{A}{\sigma}) \to \Sub\;\Gamma,(\Delta, A) \\
+  \blank,\blank & : \implicit{\Gamma, \Delta, A} && (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Gamma\;(\subTy{A}{\sigma}) \to \Sub\;\Gamma\,(\Delta, A) \\
   \idS & : \implicit{\Gamma} && \Sub\;\Gamma\;\Gamma \\
   \blank;\blank & : \implicit{\Gamma, \Delta, \Theta} && \Sub\;\Gamma\;\Delta \to \Sub\;\Delta\;\Theta \to \Sub\;\Gamma\;\Theta \\
   \pi_1 & : \implicit{\Gamma, \Delta, A}\; && \Sub\;\Gamma\;(\Delta, A) \to \Sub\;\Gamma\;\Delta \\
@@ -1176,9 +1175,9 @@ We give the QIIRTs for type theories with a universe of small types, $\Pi$-types
 \end{alignat*}
 \begin{alignat*}{3}
   & \subTy{A}{\idS}           && \reduce A \\
-  & \subTy{A}{\sigma ; \tau}  && \reduce \subTy{(\subTy{A}{\tau})}{\sigma} \\
+  & \subTy{A}{\sigma ; \tau}  && \reduce \subTy{\subTy{A}{\tau}}{\sigma} \\
   & \subTy{A}{\pi_1(\sigma, t)} && \reduce \subTy{A}{\sigma} \\
-  & \subTy{A}{\pi_1(\sigma; \tau)} && \reduce \subTy{(\subTy{A}{\pi_1\tau})}{\sigma} \\
+  & \subTy{A}{\pi_1(\sigma; \tau)} && \reduce \subTy{\subTy{A}{\pi_1\tau}}{\sigma} \\
   & \subTy{\UU}{\sigma} && \reduce \UU
 \end{alignat*}
 \begin{alignat*}{5}
@@ -1198,9 +1197,9 @@ We give the QIIRTs for type theories with a universe of small types, $\Pi$-types
 \begin{alignat*}{5}
   \subTm{\blank}{\blank}        & : \implicit{\Gamma, \Delta, A}\; \Tm\;\Delta\;A \to (\sigma : \Sub\;\Gamma\;\Delta) \to  \Tm\;\Gamma\;(\subTy{A}{\sigma}) \\
  \subTm{t}{\idS}                & \reduce t \\
- \subTm{t}{\sigma ; \tau}       & \reduce \subTm{(\subTm{t}{\tau})}{\sigma} \\
+ \subTm{t}{\sigma ; \tau}       & \reduce \subTm{\subTm{t}{\tau}}{\sigma} \\
  \subTm{t}{\pi_1(\sigma, s)}    & \reduce \subTm{t}{\sigma} \\
- \subTm{t}{\pi_1(\sigma; \tau)} & \reduce \subTm{(\subTm{t}{\pi_1\tau})}{\sigma} \\
+ \subTm{t}{\pi_1(\sigma; \tau)} & \reduce \subTm{\subTm{t}{\pi_1\tau}}{\sigma} \\
  \subTm{t}{\sigma}              & \reduce \sub{t}{\sigma}, \quad \text{otherwise}
 \end{alignat*}
 %
@@ -1222,8 +1221,8 @@ We give the QIIRTs for type theories with a universe of small types, $\Pi$-types
 \idS                \uparrow A  & \reduce \idS \\
 \sigma ; \tau       \uparrow A  & \reduce (\sigma \uparrow \subTy{A}{\tau}) ; (\tau \uparrow A) \\
 \pi_1(\sigma, t)    \uparrow A  & \reduce \sigma \uparrow A \\
-\pi_1(\sigma; \tau) \uparrow A  & \reduce \sigma \uparrow (\subTy{A}{\pi_1 \tau}) ; (\pi_1 \tau \uparrow A) \\
-\sigma              \uparrow A  & \reduce \sigma^+,\quad  \text{otherwiese}
+\pi_1(\sigma; \tau) \uparrow A  & \reduce (\sigma \uparrow \subTy{A}{\pi_1 \tau}) ; (\pi_1 \tau \uparrow A) \\
+\sigma              \uparrow A  & \reduce \sigma^+,\quad  \text{otherwise}
 \end{alignat*}
 \begin{alignat*}{5}
   \Pi             & : \implicit{\Gamma}\; && (A : \Ty\;\Gamma) \to \Ty\;(\Gamma, A) \to \Ty\;\Gamma \\
@@ -1234,22 +1233,22 @@ We give the QIIRTs for type theories with a universe of small types, $\Pi$-types
   & \subTy{(\Pi\,A\,B)}{\sigma}       && {} \reduce {} && \Pi\,(\subTy{A}{\sigma})\,(\subTy{B}{\sigma\uparrow A})
 \end{alignat*}
 \begin{alignat*}{5}
-  []\lambda       & : \implicit{\Gamma, \Delta, \sigma, A, t}\;&& \sub{(\lambda\,t)}{\sigma} && {} =^{\Tm\;\Gamma\;(\subTy{(\Pi\,A\,B)}{\sigma})} {} && \lambda (\sub{t}{\sigma \uparrow A}) \\
-  \Pi\beta        & : \implicit{\Gamma, A, B, t}\; && \mathsf{app}\,(\lambda\,t)            && =^{\Tm\;\Gamma\;A} && t \\
-  \Pi\eta         & : \implicit{\Gamma, A, B, t}\; && t                                     && =^{\Tm\;\Gamma\;A} && \lambda(\mathsf{app}\,t)
+  []\lambda       & : \implicit{\Gamma, \Delta, \sigma, A, t}\;&& \sub{(\lambda\,t)}{\sigma} && {} =^{\Tm\,\Gamma\,(\subTy{(\Pi\,A\,B)}{\sigma})} {} && \lambda (\sub{t}{\sigma \uparrow A}) \\
+  \Pi\beta        & : \implicit{\Gamma, A, B, t}\; && \mathsf{app}\,(\lambda\,t)            && =^{\Tm\,(\Gamma, A)\,B} && t \\
+  \Pi\eta         & : \implicit{\Gamma, A, B, t}\; && t                                     && =^{\Tm\,\Gamma\,(\Pi\,A\,B)} && \lambda(\mathsf{app}\,t)
 \end{alignat*}
 
 \subparagraph*{Extensional identity types}
 
 \begin{alignat*}{5}
-  \mathsf{Id} & : \implicit{\Gamma}\; && (a : \Tm\;\Gamma\;\UU) (t : \Tm\;\Gamma\;(\El\,a))(u : \Tm\;\Gamma\;(\El\,a)) \to \Ty\;\Gamma
+  \mathsf{Id} & : \implicit{\Gamma}\; && (a : \Tm\;\Gamma\;\UU) \to \Tm\;\Gamma\;(\El\,a) \to \Tm\;\Gamma\;(\El\,a) \to \Ty\;\Gamma
 \end{alignat*}
 \begin{alignat*}{5}
   \subTy{(\mathsf{Id}\;a\;t\;u)}{\sigma} \reduce \mathsf{Id}\,(\subTm{a}{\sigma})\,(\subTm{t}{\sigma})\,(\subTm{u}{\sigma})
 \end{alignat*}
 \begin{alignat*}{5}
   \mathsf{refl} & : \implicit{\Gamma, a}\;&&(t : \Tm\;\Gamma\;(\El\,a)) \to \Tm\;\Gamma\;(\mathsf{Id}\,a\,t\,t) \\
-  []\mathsf{refl} & : \implicit{\Gamma, a, t}\;&& \sub{(\mathsf{refl}\;t)}{\sigma} =^{\Tm\;\Gamma\;(\sub{(\mathsf{Id}\,a\,t\,t)}{\sigma})} \mathsf{refl}(\sub{t}{\sigma}) \\
+  []\mathsf{refl} & : \implicit{\Gamma, a, t}\;&& \sub{(\mathsf{refl}\;t)}{\sigma} =^{\Tm\;\Gamma\;(\subTy{(\mathsf{Id}\,a\,t\,t)}{\sigma})} \mathsf{refl}(\sub{t}{\sigma}) \\
   \mathsf{reflect} & : \implicit{\Gamma, a, t, u}\;&& \Tm\;\Gamma\;(\mathsf{Id}\,a\,t\,u) \to t =^{\Tm\;\Gamma\;(\El\,a)} u
 \end{alignat*}
 
@@ -1265,7 +1264,7 @@ We give the QIIRTs for type theories with a universe of small types, $\Pi$-types
 
 \subparagraph*{Methods}
 Note that implicitly quantified variables which would be otherwise declared inside $\implicit{\dots}$ are omitted below.
-Each variable $\mathsf{c}^M$ with the superscript $(\blank)^M$ is always indexed by $\mathsf{c}$ in addition to other indices.
+Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\cc$ in addition to other indices.
 
 \subparagraph*{Substitution calculus with a base type $\UU$}
 \begin{alignat*}{10}
@@ -1284,9 +1283,9 @@ Each variable $\mathsf{c}^M$ with the superscript $(\blank)^M$ is always indexed
 
 \begin{alignat*}{5}
   [\idS]_{\Ty}^M      & : \subTyM{A^M}{\idS^M}                             && = A^M \\
-  [;]_{\Ty}^M         & : \subTyM{A^M}{\sigma^M ;^M \tau^M}                && = \subTyM{(\subTyM{A^M}{\tau^M})}{\sigma^M} \\
+  [;]_{\Ty}^M         & : \subTyM{A^M}{\sigma^M ;^M \tau^M}                && = \subTyM{\subTyM{A^M}{\tau^M}}{\sigma^M} \\
   [\pi_1,]^M_{\Ty}    & : \subTyM{A^M}{\pi_1^M\,(\sigma^M ,^M_{\Sub} t^M)} && = \subTyM{A^M}{\sigma^M} \\
-  [\pi_1;]^M_{\Ty}    & : \subTyM{A^M}{\pi_1^M\,(\sigma^M ;^M \tau^M)}     && = \left(\subTyM{A^M}{\pi_1^M\,\tau^M}\right) [\sigma^M]^M_{\Ty} \\
+  [\pi_1;]^M_{\Ty}    & : \subTyM{A^M}{\pi_1^M\,(\sigma^M ;^M \tau^M)}     && = \subTyM{\subTyM{A^M}{\pi_1^M\,\tau^M}}{\sigma^M} \\
   []\UU^M             & : \subTyM{\UU^M}{\sigma^M}                         && = \UU^M
 \end{alignat*}
 
@@ -1295,13 +1294,13 @@ Each variable $\mathsf{c}^M$ with the superscript $(\blank)^M$ is always indexed
   ;\text{-}\textsf{idr}^M   & : \sigma^M ;^M \idS^M && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{;\text{-}\mathsf{idr}}} && \sigma^M \\
   ;\text{-}\textsf{idl}^M   & : \idS^M ;^M \sigma^M && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{;\text{-}\mathsf{idl}}} && \sigma^M \\
   ;\text{-}\textsf{assoc}^M & : (\sigma^M ;^M \tau^M) ;^M \gamma^M   && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{;\text{-}\mathsf{assoc}}} && \sigma^M ;^M (\tau^M ;^M \gamma^M) \\
-  \mathsf{concat}^M         & : \sigma^M ;^M (\tau^M ,_{\Sub}^M t^M) && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{\mathsf{concat}}} && (\sigma^M ;^M \tau^M) ,_{\Sub}^M \alert{\transfib{}{([;]^M)^{-1}}{\color{black} \subM{t^M}{\sigma^M}}} \\
+  \mathsf{concat}^M         & : \sigma^M ;^M (\tau^M ,_{\Sub}^M t^M) && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{\mathsf{concat}}} && (\sigma^M ;^M \tau^M) ,_{\Sub}^M \alert{\transfib{}{([;]^M_{\Ty})^{-1}}{\color{black} \subM{t^M}{\sigma^M}}} \\
   \pi_1\beta^M              & : \pi_1^M (\sigma^M ,^M_{\Sub} t^M)    && =^{\Sub^M\,\Gamma^M\,\Delta^M}_{\alert{\pi_1\beta}}      && \sigma^M \\
-  \pi_2\beta^M              & : \pi_2^M (\sigma^M ,^M_{\Sub} t^M)    && =^{\Tm^M\,\Gamma^M}_{\alert{[\pi_1,]^M, \pi_2\beta}}       && t^M \\
+  \pi_2\beta^M              & : \pi_2^M (\sigma^M ,^M_{\Sub} t^M)    && =^{\Tm^M\,\Gamma^M}_{\alert{[\pi_1,]^M_{\Ty}, \pi_2\beta}}       && t^M \\
   \cdot\eta^M               & : \sigma^M                             && =^{\Sub^M\,\Gamma^M\,\emptyctx^M_{\Ctx}}_{\alert{\cdot\eta}}  && \emptysub_{\Sub}^M \\
   \pi\eta^M                 & : \sigma^M                             && =^{\Sub^M\,\Gamma^M\,(\Delta^M ,^M_{\Ctx} A^M)}_{\alert{\pi\eta}} {} && \pi_1^M \sigma^M ,_{\Sub}^M \pi_2^M \sigma^M \\
   [\idS]^M                  & : t^M [ \idS ]^M                      && =^{\Tm^M\,\Gamma^M}_{\alert{[\idS]^M_{\Ty}, [\idS]}} && t^M \\
-  [;]^M                     & : t^M [ \sigma^M ;^M \tau^M ]^M       && =^{\Tm^M\,\Gamma^M}_{\alert{[;]^M_{\Ty}, [;]}} && (t^M [\tau^M]^M) [\sigma^M]^M
+  [;]^M                     & : t^M [ \sigma^M ;^M \tau^M ]^M       && =^{\Tm^M\,\Gamma^M}_{\alert{[;]^M_{\Ty}, [;]}} && \subM{\subM{t^M}{\tau^M}}{\sigma^M}
 \end{alignat*}
 
 \subparagraph*{Universe of small types}
@@ -1334,7 +1333,7 @@ Each variable $\mathsf{c}^M$ with the superscript $(\blank)^M$ is always indexed
 \subparagraph*{$\Pi$-types}
 \begin{alignat*}{5}
   (\blank)^{+M} & : (\sigma^M : \Sub^M\;\Gamma^M\;\Delta^M\;\sigma) \to \Sub^M\;(\Gamma^M ,_{\Ctx}^M (\subTyM{A^M}{\sigma^M}))\;(\Delta^M ,_{\Ctx}^M A^M)\;(\sigma^+) \\
-  (\sigma^M)^{+M} & \defeq (\pi_1^M \idS^M ;^M \sigma^M) ,_{\Sub}^M \alert{\transfib{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;\pi_2\idS}{([;]^M)^{-1}}{\color{black}\pi_2^M \idS^M}}
+  (\sigma^M)^{+M} & \defeq (\pi_1^M \idS^M ;^M \sigma^M) ,_{\Sub}^M \alert{\transfib{\Tm^M\;\Gamma^M\;\blank\;\pi_2\idS}{([;]_{\Ty}^M)^{-1}}{\color{black}\pi_2^M \idS^M}}
 \end{alignat*}
 
 \begin{alignat*}{10}
@@ -1359,10 +1358,10 @@ Each variable $\mathsf{c}^M$ with the superscript $(\blank)^M$ is always indexed
 \end{alignat*}
 
 \begin{alignat*}{5}
-  []\Pi^M         & : \subTyM{(\Pi^M\;A^M\;B^M)}{\sigma^M}  && =^{\Ty^M\,\Gamma^M\,\left(\subTy{(\Pi\,A\,B)}{\sigma}\right)} {} && \Pi^M\;(\subTyM{A^M}{\sigma^M})\;(\subTyM{B^M}{\sigma^M}) \\
-  []\lambda^M     & : \subM{(\lambda^M\;t^M)}{\sigma^M}     && =^{\Tm^M\,\Gamma^M}_{\alert{[]\Pi^M, []\lambda}} && \lambda^M\;(\subM{t^M}{\sigma^M \uparrow^M A^M}) \\
-  \Pi\beta^M      & : \mathsf{app}^M\;(\lambda^M\;t^M)      && =^{\Tm^M\,(\Gamma^M,_{\Ctx}^M A^M)\,B^M}_{\alert{\Pi\beta}}      && t^M  \\
-  \Pi\eta^M       & : \lambda^M\;(\mathsf{app}^M\;t^M)      && =^{\Tm^M\,\Gamma^M\,(\Pi\,A^M\,B^M)}_{\alert{\Pi\eta}}           && t^M 
+  []\Pi^M         & : \subTyM{(\Pi^M\;A^M\;B^M)}{\sigma^M}  && =^{\Ty^M\,\Gamma^M\,\left(\subTy{(\Pi\,A\,B)}{\sigma}\right)} {} && \Pi^M\;(\subTyM{A^M}{\sigma^M})\;(\subTyM{B^M}{\sigma^M \uparrow^M A^M}) \\
+  []\lambda^M     & : \subM{(\lambda^M\;t^M)}{\sigma^M}     && =^{\Tm^M\,\Gamma^M}_{\alert{[]\Pi^M, []\lambda}} {} && \lambda^M\;(\subM{t^M}{\sigma^M \uparrow^M A^M}) \\
+  \Pi\beta^M      & : \mathsf{app}^M\;(\lambda^M\;t^M)      && =^{\Tm^M\,(\Gamma^M,_{\Ctx}^M A^M)\,B^M}_{\alert{\Pi\beta}}   {} && t^M  \\
+  \Pi\eta^M       & : t^M                                   && =^{\Tm^M\,\Gamma^M\,(\Pi\,A^M\,B^M)}_{\alert{\Pi\eta}}        {} && \lambda^M\;(\mathsf{app}^M\;t^M)
 \end{alignat*}
 
 \subparagraph*{Extensional identity types}
@@ -1392,8 +1391,8 @@ Each variable $\mathsf{c}^M$ with the superscript $(\blank)^M$ is always indexed
   \]
   which reduce to the following terms
   \[
-    \El\,u, \qquad \El(\subTm{(\subTm{u}{\tau})}{\sigma}, \qquad \El(\subTm{u}{\sigma}), \qquad\text{and}\qquad
-    \El(\subTm{(\subTm{u}{\pi_1\tau})}{\sigma})
+    \El\,u, \qquad \El\,(\subTm{\subTm{u}{\tau}}{\sigma}), \qquad \El\,(\subTm{u}{\sigma}), \qquad\text{and}\qquad
+    \El\,(\subTm{\subTm{u}{\pi_1\tau}}{\sigma})
   \]
   respectively, no matter which function clause of $\subTy{\blank}{\blank}$ is used.
   Therefore, type substitution is locally confluent.
@@ -1477,7 +1476,7 @@ Each variable $\mathsf{c}^M$ with the superscript $(\blank)^M$ is always indexed
 
 \propCoherenceUparrow*
 \begin{proof}
-  These two identities follow from \cref{prop:correctness-2,prop:correctness-3} easily with the heterogeneous identity (see \cref{sec:meta}).
+  These two identities follow from \cref{prop:correctness-2,prop:correctness-3} easily.
 \end{proof}
 
 \coherenceTel*
@@ -1529,7 +1528,6 @@ The second set of equality constructors are more involved, as we have to prove t
           \]
           By assumption, $\subTel{\Xi}{\pi_1(\sigma, t)} = \subTel{\Xi}{\sigma}$ and by congruence $\Gamma \dplus \subTel{\Xi}{\pi_1(\sigma, t)} = \Gamma \dplus \subTel{\Xi}{\sigma}$ holds.
           Then, $\UU_{\Gamma \dplus \subTel{\Xi}{\pi_1(\sigma, t)}} \simeq \UU_{\Gamma \dplus \subTel{\Xi}{\sigma}}$ holds by congruence for $\UU$.
-          \LT{Justify the use of congruence rule for QIIT, e.g. $\transfib{\Ty}{p}{\UU_{\Gamma}} = \UU_{\Delta}$ for $p : \Gamma = \Delta$}
 
         \item[$A$ is $\El\,u$:]
           Similar to \cref{prop:coherence-2}, we use \cref{prop:correctness-3} and the congruence law for $\sub{u}{\blank}$ to derive the desired identity.
