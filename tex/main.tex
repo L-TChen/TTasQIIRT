@@ -354,7 +354,7 @@ The structural rules for type substitution are stipulated by following equality 
 \begin{alignat*}{9}
   [\idS]_{\Ty} &: \implicit{\Gamma, A} \; && \sub{A}{\idS} && =^{\Ty\,\Gamma} A
   \qquad\qquad
-  [;]_{\Ty}  : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A}\; \sub{A}{\sigma ; \tau} =^{\Ty\,\Gamma} \sub{(\sub{A}{\tau})}{\sigma}
+  [;]_{\Ty}  : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A}\; \sub{A}{\sigma ; \tau} =^{\Ty\,\Gamma} \sub{\sub{A}{\tau}}{\sigma}
   \\
   []\UU &: \implicit{\Gamma, \Delta, \sigma} \; && \sub{\UU}{\sigma} && =^{\Ty\,\Gamma} \UU
 \end{alignat*}
@@ -560,7 +560,7 @@ However, we still have a little bit more work to do before we can declare victor
                                      & \subTy{A}{\sigma}               & = \subTy{A}{\pi_1\sigma, \pi_2\sigma}
   \end{align*}
   hold propositionally.
-  The first two identities of the first row hold strictly by \eqref{eq:def-type-subst-1} and \eqref{eq:def-type-subst-2}, while both sides of the third reduce to $\subTy{(\subTy{(\subTy{A}{\gamma})}{\tau})}{\sigma}$ by \eqref{eq:def-type-subst-2}.
+  The first two identities of the first row hold strictly by \eqref{eq:def-type-subst-1} and \eqref{eq:def-type-subst-2}, while both sides of the third reduce to $\subTy{\subTy{\subTy{A}{\gamma}}{\tau}}{\sigma}$ by \eqref{eq:def-type-subst-2}.
   %
   The second row is clause \eqref{eq:def-type-subst-3} of the definition of $\subTy{\blank}{\blank}$.
   %
@@ -755,7 +755,7 @@ The type of telescopes $\Tel : \Ctx \to \Set$ over a `base' context $\Gamma$ are
 \begin{alignat*}{5}
   %\Tel               & :                   && \Ctx \to \Set                                     \\
   \emptytel          & : \implicit{\Gamma}\; && \Tel\;\Gamma \\
-  \blank,\blank      & : \implicit{\Gamma}\; && (\Xi : \Tel\;\Gamma) (A : \Ty\;(\Gamma \dplus \Xi)) \to \Tel\;\Gamma
+  \blank,\blank      & : \implicit{\Gamma}\; && (\Xi : \Tel\;\Gamma) \to \Ty\;(\Gamma \dplus \Xi) \to \Tel\;\Gamma
 \end{alignat*}
 \end{minipage}
 \begin{minipage}{.4\textwidth}
@@ -769,7 +769,7 @@ The type of telescopes $\Tel : \Ctx \to \Set$ over a `base' context $\Gamma$ are
 Equipped with telescopes, we can now generalise single lifting with type \eqref{eq:type-of-lifting} to multiple lifting with type
 \[
 \blank\upuparrows \blank : (\sigma : \Sub\;\Gamma\;\Delta) \to (\Xi : \Tel\;\Delta)
-\to \Sub\;(\Gamma \dplus (\subTel{\Xi}{\sigma}))\;(\Delta \dplus \Xi)
+\to \Sub\;(\Gamma \dplus \subTel{\Xi}{\sigma})\;(\Delta \dplus \Xi)
 \]
 which asks for telescope substitution $\subTel{\blank}{\blank} :  \Tel\;\Delta \to \Sub\;\Gamma\;\Delta \to \Tel\;\Gamma$ defined mutually:
 
@@ -794,7 +794,7 @@ Instead of resorting to \transp, we can also turn telescope substitution $\subTe
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{3}
   \subTel{\Xi}{\idS}          & \reduce \Xi \\
-  \subTel{\Xi}{\sigma ; \tau} & \reduce \subTel{(\subTel{\Xi}{\tau})}{\sigma}
+  \subTel{\Xi}{\sigma ; \tau} & \reduce \subTel{\subTel{\Xi}{\tau}}{\sigma}
 \end{alignat*}
 \end{minipage}
 \begin{minipage}{.5\textwidth}
@@ -826,7 +826,7 @@ As promised, by instantiating $\Xi$ to be empty, we also get coherence for $\sub
 \end{corollary}
 
 Finally, we note that for $t : \Tm\,\Gamma\,(\Pi\,A\,B)$ and $u : \Tm\,\Gamma\,A$, also `ordinary' application
-$t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{(\idS , t)}$ of type $\Tm\,\Gamma\,(\sub{B}{(\idS , t)})$ can be defined without any transport. This is in contrast to the QIIT situation, where ordinary application is defined as $t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{(\idS, \alert{\transfib{\Tm\;\Gamma}{[\idS]_{\Tm}^{-1}}{\color{black}t}})}$.
+$t \mathop{\$} u \defeq \subTm{(\mathsf{app}\,t)}{\idS , t}$ of type $\Tm\,\Gamma\,(\sub{B}{\idS , t})$ can be defined without any transport. This is in contrast to the QIIT situation, where ordinary application is defined as $t \mathop{\$} u \defeq \sub{(\mathsf{app}\,t)}{\idS, \alert{\transfib{\Tm\;\Gamma}{[\idS]_{\Ty}^{-1}}{\color{black}t}}}$.
 %
 %\begin{alignat*}{3}
 %  \left<\blank\right> & : \implicit{\Gamma, A} \Tm\;\Gamma\;A \to \Sub\;\Gamma\;(\Gamma, A) \\
@@ -946,7 +946,7 @@ We refer to \cref{appendix:full-def} and our \Agda development for the full defi
 \begin{remark}
   To state the methods, we cannot avoid using transports in identities that would need transports in its QIIT definition of a type theory --- for example, we have
   \[
-    [\idS]_{\Tm}^M : \implicit{\Gamma, \Gamma^M, t, t^M} \;\subTmM{t^M}{\idS^M} =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{[\idS]^M_{\Ty}}} \; t^M
+    [\idS]_{\Tm}^M : \implicit{\Gamma, \Gamma^M, t, t^M} \;\subTmM{t^M}{\idS^M} =^{\Tm^M\,\Gamma^M\,\blank\,t}_{\alert{[\idS]^M_{\Ty}}} \; t^M
   \]
   since identities occurring in a method %(e.g.\ $[\idS]_{\Ty}^M$)
   are propositional just like equality constructors in its QIIT definition.
@@ -971,8 +971,8 @@ Interestingly, a key difference compared to its QIIT counterpart is that $\subTy
   Given the motives and the methods, we can prove
 \begin{alignat*}{5}
   \elim_{\Ty}[] & : \elim_{\Ty}\,(\subTy{A}{\sigma}) && = && \subTyM{(\elim_{\Ty}\,A)}{\elim_{\Sub}\,\sigma} \\
-  \elim_{\Tm}[] & : \elim_{\Tm}\,(\subTm{t}{\sigma}) && =^{\lam{A^M}\Tm^M\;\Gamma^M\;A^M\;t}_{\alert{\elim_{\Ty}[]}} && \subTmM{(\elim_{\Tm}\,t)}{\elim_{\Sub}\,\sigma} \\
-  \elim_{\Sub}[] & : \elim_{\Sub}(\sigma\uparrow A) && =^{\lam{B^M}\Sub^M\;(\Gamma^M,^M B^M)\;(\Delta^M, A^M)\;(\sigma \uparrow A)}_{\alert{\elim_{\Ty}[]}} && (\elim_{\Sub} \sigma) \uparrow^M (\elim_{\Ty}\,A)
+  \elim_{\Tm}[] & : \elim_{\Tm}\,(\subTm{t}{\sigma}) && =^{\Tm^M\,\Gamma^M\,\blank\,t}_{\alert{\elim_{\Ty}[]}} {} && \subTmM{(\elim_{\Tm}\,t)}{\elim_{\Sub}\,\sigma} \\
+  \elim_{\Sub}[] & : \elim_{\Sub}(\sigma\uparrow A) && =^{\Sub^M\,(\Gamma^M,^M \blank)\,(\Delta^M, A^M)\,(\sigma \uparrow A)}_{\alert{\elim_{\Ty}[]}} {} && (\elim_{\Sub} \sigma) \uparrow^M (\elim_{\Ty}\,A)
 \end{alignat*}
 \end{restatable}
 
@@ -1299,8 +1299,8 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
   \pi_2\beta^M              & : \pi_2^M (\sigma^M ,^M_{\Sub} t^M)    && =^{\Tm^M\,\Gamma^M}_{\alert{[\pi_1,]^M_{\Ty}, \pi_2\beta}}       && t^M \\
   \cdot\eta^M               & : \sigma^M                             && =^{\Sub^M\,\Gamma^M\,\emptyctx^M_{\Ctx}}_{\alert{\cdot\eta}}  && \emptysub_{\Sub}^M \\
   \pi\eta^M                 & : \sigma^M                             && =^{\Sub^M\,\Gamma^M\,(\Delta^M ,^M_{\Ctx} A^M)}_{\alert{\pi\eta}} {} && \pi_1^M \sigma^M ,_{\Sub}^M \pi_2^M \sigma^M \\
-  [\idS]^M                  & : t^M [ \idS ]^M                      && =^{\Tm^M\,\Gamma^M}_{\alert{[\idS]^M_{\Ty}, [\idS]}} && t^M \\
-  [;]^M                     & : t^M [ \sigma^M ;^M \tau^M ]^M       && =^{\Tm^M\,\Gamma^M}_{\alert{[;]^M_{\Ty}, [;]}} && \subM{\subM{t^M}{\tau^M}}{\sigma^M}
+  [\idS]^M                  & : \subM{t^M}{\idS}                     && =^{\Tm^M\,\Gamma^M}_{\alert{[\idS]^M_{\Ty}, [\idS]}} && t^M \\
+  [;]^M                     & : \subM{t^M}{\sigma^M ;^M \tau^M}      && =^{\Tm^M\,\Gamma^M}_{\alert{[;]^M_{\Ty}, [;]}} && \subM{\subM{t^M}{\tau^M}}{\sigma^M}
 \end{alignat*}
 
 \subparagraph*{Universe of small types}
@@ -1320,7 +1320,7 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
     \subTmM{t^M}{\sigma^M ,_{\Sub}^M u^M} && \\
     [\pi_1\idS]^M_{\Tm} & : \subTmM{t^M}{\pi_1^M\,\idS^M}                    && = %^{\Tm^M\,(\Gamma^M ,^M_{\Ctx} A^M)\,([\pi_1^M\,\idS^M ]^M_{\Ty})\,A^M)\;([\pi_1\idS]_{\Tm}\,t)}{}
     \subTmM{t^M}{\pi_1^M\,\idS^M} && \\
-                      [\pi_1\pi_1]^M_{\Tm}& : \subTmM{t^M}{\pi_1^M\,(\pi_1^M\,\sigma^M)}       && = %^{\Tm^M\,\Gamma^M\,([\pi_1^M\,(\pi_1^1\,\sigma^M)]^M_{\Ty}\,A)\;([\pi_1(\pi_1\,\sigma)]_{\Tm}\,t)}
+    [\pi_1\pi_1]^M_{\Tm}& : \subTmM{t^M}{\pi_1^M\,(\pi_1^M\,\sigma^M)}       && = %^{\Tm^M\,\Gamma^M\,([\pi_1^M\,(\pi_1^1\,\sigma^M)]^M_{\Ty}\,A)\;([\pi_1(\pi_1\,\sigma)]_{\Tm}\,t)}
                       \subTmM{t^M}{\pi_1^M\,(\pi_1^M\,\sigma^M)} &&
 \end{alignat*}
 
