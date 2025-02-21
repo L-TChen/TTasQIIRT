@@ -1525,26 +1525,21 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
   \[
     \mathsf{idr} : \sigma;\idS = \sigma, \quad
     \mathsf{idl} : \idS;\sigma = \sigma, \quad\text{and}\quad
-    \textnormal{;-}\mathsf{assoc} : (\sigma;\tau);\gamma = \sigma; (\tau; \gamma),
+    \textnormal{;-}\mathsf{assoc} : (\sigma;\tau);\gamma = \sigma; (\tau; \gamma).
   \]
   Take $\mathsf{idr}$ as an example, we can see 
-  \begin{align*}
-    (\sigma; \idS) \upuparrows \Xi & \judgeq (\sigma \upuparrows \subTel{\Xi}{\idS}) ; (\idS \upuparrows \Xi) \\
-                                   & \judgeq (\sigma \upuparrows \Xi) ; \idS \\
-                                   & = \sigma \upuparrows \Xi
-  \end{align*}
-  where the last identity follows from $\mathsf{idr}:(\sigma \upuparrows \Xi) ; \idS = \sigma \upuparrows \Xi$.
-
+  \[
+    (\sigma; \idS) \upuparrows \Xi \judgeq (\sigma \upuparrows \subTel{\Xi}{\idS}) ; (\idS \upuparrows \Xi) \judgeq (\sigma \upuparrows \Xi) ; \idS = \sigma \upuparrows \Xi
+  \]
+  where the last identity follows from $\mathsf{idr}$.
   For other two equality constructors, the arguments follow similarly.
 
-The second set of equality constructors are more involved, as we have to prove the coherence for the lifting and substitution operations altogether mutually:
-  %\LT[noinline]{Josh Ko suggests us to follow the proof structure in our formal implementation.}
-  For the following equality constructors $\cc : \sigma = \tau$
+  However, for the following equality constructors
   \begin{alignat*}{5}
     \pi_1\beta    & : \pi_1(\sigma, t)  && = \sigma \qquad\qquad & \mathsf{concat} & : \sigma; (\tau, t) && = (\sigma;\tau), \sub{t}{\sigma} \\
     \emptyctx\eta & : \sigma            && = \emptyctx & \pi\eta & : \sigma && = \pi_1\sigma, \pi_2\sigma
   \end{alignat*}
-   the identities
+  the coherence proofs are more involved, as we have to prove the coherence for the lifting and substitution operations altogether mutually, i.e.\ 
   \begin{align*}
   \subTel{\Xi}{\sigma} & = \subTel{\Xi}{\tau}
                          & \subTy{A}{\sigma \upuparrows \Xi} & =^{\lam{\gamma}\Ty\;(\Gamma \dplus \subTel{\Xi}{\gamma})}_{\alert{\cc}} \subTy{A}{\tau \upuparrows \Xi} \\
@@ -1556,8 +1551,9 @@ The second set of equality constructors are more involved, as we have to prove t
   We show the statement for $\pi_1\beta: \pi_1(\sigma, t) = t$ and the other three cases follow similarly.
 
   First, we prove the coherence for $\subTy{A}{\blank}$ by induction on $A$ and the coherence for the other two identities $\subTel{\Xi}{\blank}$ and $\blank \upuparrows \Xi$ by induction on $\Xi$.
+  For convenience, we use heterogeneous identity $t \simeq u$ (also known as John Major equality~\cite{McBride1999}) instead of dependent identity.
   \begin{enumerate}
-    \item Consider the following cases for $\subTy{A}{\sigma\upuparrows\Xi} = \subTy{A}{\tau \upuparrows \xi}$ by induction on $A$.
+    \item Consider the following cases for $\subTy{A}{\sigma\upuparrows\Xi} = \subTy{A}{\tau \upuparrows \Xi}$ by induction on $A$.
       \begin{description}
         \item[$A$ is $\UU$:] By definition
           \[
@@ -1578,10 +1574,10 @@ The second set of equality constructors are more involved, as we have to prove t
           \begin{align*}
             & \subTy{(\Pi\,B\,C)}{\pi_1(\sigma, t) \upuparrows \Xi} \\
             \judgeq{} & \Pi\,(\subTy{B}{\pi_1(\sigma, t) \upuparrows \Xi})\,(\subTy{C}{\pi_1(\sigma, t) \upuparrows \Xi \uparrow B}) && \text{by the definition of $\subTy{(\Pi\,B\,C)}{\blank}$} \\
-            \judgeq{} & \Pi\,(\subTy{B}{\pi_1(\sigma, t) \upuparrows \Xi})\,(\sub{C}{\pi_1(\sigma, t) \upuparrows (\Xi, B)}) && \text{by the definition of $\upuparrows$} \\
-            ={}       & \Pi\,(\subTy{B}{\sigma \upuparrows \Xi})\,(\sub{C}{\sigma \upuparrows (\Xi, B)}) && \text{by induction hypothesises} \\
-            \judgeq{} & \Pi\,(\subTy{B}{\sigma \upuparrows \Xi})\,(\sub{C}{(\sigma \upuparrows \Xi) \uparrow B}) && \text{by the definition of $\upuparrows$} \\
-            \judgeq{} & \subTy{(\Pi\,B\,C)}{\sigma\upuparrows \Xi} && \text{by the definition of $\subTy{(\Pi\,B\,C)}{\blank}$.}
+            \judgeq{} & \Pi\,(\subTy{B}{\pi_1(\sigma, t) \upuparrows \Xi})\,(\subTy{C}{\pi_1(\sigma, t) \upuparrows (\Xi, B)}) && \text{by the definition of $\upuparrows$} \\
+            ={}       & \Pi\,(\subTy{B}{\sigma \upuparrows \Xi})\,(\subTy{C}{\sigma \upuparrows (\Xi, B)}) && \text{by induction hypothesises} \\
+            \judgeq{} & \Pi\,(\subTy{B}{\sigma \upuparrows \Xi})\,(\subTy{C}{(\sigma \upuparrows \Xi) \uparrow B}) && \text{by definition} \\
+            \judgeq{} & \subTy{(\Pi\,B\,C)}{\sigma\upuparrows \Xi} && \text{by definition.}
           \end{align*}
       \end{description}
     \item By induction on $\Xi$, consider following cases for $\subTel{\Xi}{\pi_1(\sigma, t)} = \subTel{\Xi}{\sigma}$.
@@ -1590,19 +1586,19 @@ The second set of equality constructors are more involved, as we have to prove t
         \item[$\Xi$ is the telescope extension $\Xi, A$:]
           \begin{align*}
             \subTel{(\Xi, A)}{\pi_1(\sigma, t)} & \judgeq \subTel{\Xi}{\pi_1(\sigma, t)}, \subTy{A}{\pi_1(\sigma, t) \upuparrows \Xi} && \text{by definition} \\
-                                                & = \subTel{\Xi}{\sigma}, \subTy{A}{\sigma \upuparrows \Xi} \\
+                                                & = \subTel{\Xi}{\sigma}, \subTy{A}{\sigma \upuparrows \Xi} && \text{by induction hypothesis} \\
                                                 & \judgeq \subTel{(\Xi, A)}{\sigma} && \text{by definition}
           \end{align*}
       \end{description}
     \item By induction on $\Xi$, consider the following cases for $\pi_1(\sigma, t) \upuparrows \Xi = \sigma \upuparrows\,\Xi$.
       \begin{description}
-        \item[$\Xi$ is the empty telescope $\emptytel$:] $\pi_1(\sigma, t) \upuparrows \emptytel \judgeq \pi_1(\sigma, t) = \sigma \judgeq \sigma \upuparrows \emptytel$ by definition and the equality constructor.
+        \item[$\Xi$ is the empty telescope $\emptytel$:] $\pi_1(\sigma, t) \upuparrows \emptytel \judgeq \pi_1(\sigma, t) = \sigma \judgeq \sigma \upuparrows \emptytel$ by definition and the equality constructor $\pi_1\beta$.
         \item[$\Xi$ is the telescope extension $\Xi, A$:] 
           \begin{align*}
             \pi_1(\sigma, t) \upuparrows (\Xi, A) & \judgeq (\pi_1(\sigma, t) \upuparrows \Xi) \uparrow A \\
-                                                  & =^{} (\pi_1(\sigma, t) \upuparrows \Xi)^{+} \\
-                                                  & =^{\lam{\gamma}\Sub\,(\Gamma\dplus\subTel{\Xi}{\gamma}, \subTy{A}{\gamma \upuparrows \Xi})\,(\Delta \dplus \Xi, A)}_{p} (\sigma\upuparrows \Xi)^{+} \\
-                                                  & = (\sigma \upuparrows \Xi) \uparrow A \\
+                                                  & = (\pi_1(\sigma, t) \upuparrows \Xi)^{+} && \text{by \cref{prop:correctness-2}} \\
+                                                  & = (\sigma\upuparrows \Xi)^{+} && \text{by induction hypothesis} \\
+                                                  & = (\sigma \upuparrows \Xi) \uparrow A \text{by \cref{prop:correctness-2}}\\
                                                   & \judgeq \sigma \upuparrows (\Xi , A)
           \end{align*}
       \end{description}
