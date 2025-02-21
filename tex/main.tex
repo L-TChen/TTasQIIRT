@@ -939,7 +939,7 @@ subject to the identities corresponding to equality constructors and function cl
 %
 The elimination principle says that there are functions $\elim_{\Ctx}$, $\elim_{\Sub}$, $\elim_{\Ty}$ and $\elim_{\Tm}$ as soon as motives and methods are given.
 When the motive families are constant, we call the principle a \emph{recursion principle} instead.
-We refer to \cref{appendix:full-def} and our \Agda development for the full definition of the elimination principle.
+We refer to \cref{subsec:def:elimination} for the full definition of the elimination principle.
 %We also have omitted the list of implicitly quantified variables: each variable $A$ implicitly quantified in a constructor $c$ has accordingly an $A$-indexed variable $A^M$ in $c^M$. 
 %%
 %
@@ -1152,7 +1152,7 @@ using sheaf theory.
 
 \section{Complete definitions}\label{appendix:full-def}
 
-\paragraph*{Type theory as a quotient inductive-inductive-recursive type}
+\subsection{Type theory as a quotient inductive-inductive-recursive type}
 We give the QIIRT for type theory with a universe of small types, $\Pi$-types, and extensional identity types in one place below.
 
 \begin{alignat*}{3}
@@ -1237,13 +1237,13 @@ We give the QIIRT for type theory with a universe of small types, $\Pi$-types, a
 \end{alignat*}
 
 \begin{alignat*}{5}
-  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t}\; && \pi_2(\sigma , t)        && =^{\Tm\;\Gamma\; A} &&  t \\
-  [\idS]         & : \implicit{\Gamma, A, t}\; && {\sub{t}{\idS}}          && =^{\Tm\;\Gamma\;A} && t \\
-  [;]            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t}\; && {\sub{t}{\sigma ; \tau}} && =^{\Tm\;\Gamma\;\subTy{A}{\sigma ; \tau}} && {\sub{(\sub{t}{\tau})}{\sigma}} \\
-  []\lambda       & : \implicit{\Gamma, \Delta, \sigma, A, t}\;&& \sub{(\lambda\,t)}{\sigma} && {} =^{\Tm\,\Gamma\,(\subTy{(\Pi\,A\,B)}{\sigma})} {} && \lambda (\sub{t}{\sigma \uparrow A}) \\
-  \Pi\beta        & : \implicit{\Gamma, A, B, t}\; && \mathsf{app}\,(\lambda\,t)            && =^{\Tm\,(\Gamma, A)\,B} && t \\
-  \Pi\eta         & : \implicit{\Gamma, A, B, t}\; && t                                     && =^{\Tm\,\Gamma\,(\Pi\,A\,B)} && \lambda(\mathsf{app}\,t) \\
-  []\mathsf{refl} & : \implicit{\Gamma, a, t}\;&& \sub{(\mathsf{refl}\;t)}{\sigma} && =^{\Tm\;\Gamma\;(\subTy{(\mathsf{Id}\,a\,t\,t)}{\sigma})} {} && \mathsf{refl}(\sub{t}{\sigma})
+  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t}\;  & \pi_2(\sigma , t)                & =^{\Tm\;\Gamma\; A} &&  t \\
+  [\idS]         & : \implicit{\Gamma, A, t}\;                           & {\sub{t}{\idS}}                  & =^{\Tm\;\Gamma\;A} && t \\
+  [;]            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t}\; & {\sub{t}{\sigma ; \tau}}         & =^{\Tm\;\Gamma\;\subTy{A}{\sigma ; \tau}} && {\sub{\sub{t}{\tau}}{\sigma}} \\
+  []\lambda       & : \implicit{\Gamma, \Delta, \sigma, A, t}\;          & \sub{(\lambda\,t)}{\sigma}       & =^{\Tm\,\Gamma\,(\subTy{(\Pi\,A\,B)}{\sigma})} {} && \lambda (\sub{t}{\sigma \uparrow A}) \\
+  []\mathsf{refl} & : \implicit{\Gamma, a, t}\;                          & \sub{(\mathsf{refl}\;t)}{\sigma} & =^{\Tm\;\Gamma\;(\subTy{(\mathsf{Id}\,a\,t\,t)}{\sigma})} {} && \mathsf{refl}\,(\sub{t}{\sigma}) \\
+  \Pi\beta        & : \implicit{\Gamma, A, B, t}\;                       & \mathsf{app}\,(\lambda\,t)       & =^{\Tm\,(\Gamma, A)\,B} && t \\
+  \Pi\eta         & : \implicit{\Gamma, A, B, t}\;                       & t                                & =^{\Tm\,\Gamma\,(\Pi\,A\,B)} && \lambda(\mathsf{app}\,t)
 \end{alignat*}
 
 \begin{alignat*}{5}
@@ -1251,9 +1251,9 @@ We give the QIIRT for type theory with a universe of small types, $\Pi$-types, a
 \end{alignat*}
 
 
-\paragraph*{Elimination principles for type theories as QIIRTs}
+\subsection{The elimination principle for type theory as QIIRT} \label{subsec:def:elimination}
 
-\subparagraph*{Motives}
+\paragraph*{Motives}
 \begin{align*}
   \Ctx^M & : \Ctx \to \Set &
   \Sub^M & : \implicit{\Gamma, \Delta}\,\Ctx^M\;\Gamma \to \Ctx^M\;\Delta \to \Sub\;\Gamma\;\Delta \to \Set \\
@@ -1261,7 +1261,7 @@ We give the QIIRT for type theory with a universe of small types, $\Pi$-types, a
   \Tm^M  & : \implicit{\Gamma, A}\; (\Gamma^M : \Ctx^M\;\Gamma) \to \Ty^M\;\Gamma^M\;A \to \Tm\;\Gamma\;A \to \Set
 \end{align*}
 
-\subparagraph*{Methods}
+\paragraph*{Methods}
 Note that implicitly quantified variables which would be otherwise declared inside $\implicit{\dots}$ are omitted below.
 Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\cc$ in addition to other indices.
 
@@ -1326,8 +1326,6 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
 \begin{alignat*}{5}
   []\El^M & : \subTyM{(\El^M\;u^M)}{\sigma^M} && =^{\Ty^M\,\Gamma^M\,(\El\,u)} {} && \El^M\,(\alert{\transfib{}{[]\UU^M}{\color{black}\subTmM{u^M}{\sigma^M}}}
 \end{alignat*}
-
-
 
 \subparagraph*{$\Pi$-types}
 \begin{alignat*}{5}
