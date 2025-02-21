@@ -334,8 +334,8 @@ Substitutions from $\Gamma$ to $\Delta = \emptyctx, A_1, \ldots, A_n$ can be und
   \qquad\qquad
   \blank,\blank : \implicit{\Gamma, \Delta, A}\; (\sigma : \Sub\,\Gamma\,\Delta) \to \Tm\;\Gamma\;(\sub{A}{\sigma}) \to \Sub\;\Gamma\;(\Delta, A).
 \]
-Note that the type substitution $\sub{A}{\sigma}$ is needed, because $A$ is well-formed in context $\Delta$ rather than in $\Gamma$.
-We also ask for identity substitutions $\idS$ and compositions $\sigma;\tau$.
+Note that the type substitution $\sub{A}{\sigma}$ is needed in the type of $\blank,\blank$, because $A$ is well-formed in context $\Delta$ rather than in $\Gamma$.
+We also ask for identity substitutions and composition $\sigma;\tau$.
 %because the substitution calculus is supposed to be the initial \emph{category} with families:
 \[
   \idS : \implicit{\Gamma}\; \Sub\;\Gamma\;\Gamma
@@ -579,7 +579,7 @@ However, we still have a little bit more work to do before we can declare victor
 \end{remark}
 
 \subsection{Adding a universe} \label{subsec:SC+U}
-Now we extend substitution calculus with an empty universe $\UU$ of small types~$\El\,u$.
+Now we extend the substitution calculus with an empty universe $\UU$ of small types~$\El\,u$.
 In a QIIT definition \cite{Altenkirch2016a}, this extension adds the following constructors
 \begin{alignat*}{3}
   \El   & : \implicit{\Gamma} && \Tm\,\Gamma\;\UU \to \Ty\,\Gamma \\
@@ -588,7 +588,7 @@ In a QIIT definition \cite{Altenkirch2016a}, this extension adds the following c
 %as the type $\UU$ of universe and its structural rule $[]\UU$ have been added to avoid a trivial inductive type.
 The type substitution $\sub{(\El\,u)}{\sigma}$ is, informally, the type of the term substitution $\sub{u}{\sigma}$ for $u : \Tm\;\Delta\;\UU$, and the transport is needed to coerce $\sub{u}{\sigma} : \Tm\;\Gamma\;(\sub{\UU}{\sigma})$ into $\Tm\;\Gamma\;\UU$.
 %
-In our QIIR definition, $\transfib{\Tm\;\Gamma}{[]\UU}{\blank}$ is no longer needed, since $[]\UU$ becomes strict. 
+In our QIIRT definition, $\transfib{\Tm\;\Gamma}{[]\UU}{\blank}$ is no longer needed, since $[]\UU$ becomes strict. 
 Likewise, the equality constructor $[]\El$ may be replaced by the reduction
 \begin{alignat*}{3}
   \subTy{(\El\, u)}{\sigma} & \reduce \El\,(\sub{u}{\sigma})
@@ -715,7 +715,7 @@ and an equality constructor for term substitution without transport:
 \end{restatable}
 
 The lifting $\sigma^+$ interacts well with identities and composition.
-For comparision, the reader is invited to prove the corresponding QIIT version with transports of the following lemma.
+For comparison, the reader is invited to prove the corresponding QIIT version with transports of the following lemma.
 %
 \begin{restatable}{lemma}{lemIdentities}\label{lem:lifting}
   For all contexts $\Gamma$, $\Delta$, $\Theta$, types $A : \Ty\,\Theta$ and substitutions $\sigma : \Sub\,\Gamma\,\Delta$ and $\tau : \Sub\,\Delta\,\Theta$, we have $\idS^+ =^{\Sub\;(\Theta, A)\;(\Theta, A)} \idS$ and $(\sigma; \tau)^+     =^{\Sub\;(\Gamma, \subTy{A}{\sigma; \tau})\;(\Theta, A)} \sigma^+ ; \tau^+$.
@@ -857,7 +857,7 @@ can be derived without transport, since \eqref{eq:def-type-subst-8} is now stric
 \subsection{Adding other type formers} \label{subsec:SC+U+Pi+more}
 
 We can add extensional identity types, a hierarchy of Coquand universes~\cite{Coquand2018}, and a unit type with an eta law, all without any additional difficulty. In particular, all these additions can be done without introducing any transports in the syntax. However, adding an inductive type such as the Booleans does introduce a little bit of friction; let us see why.
-We introduce the type $\bool : \implicit{\Gamma}\;\Ty\;\Gamma$ itself, its constructors $\btrue, \bfalse : \implicit{\Gamma}\;\Tm\;\Gamma\;\bool$ and its elimination principle:
+We introduce the type $\bool : \implicit{\Gamma}\;\Ty\;\Gamma$ itself, its constructors $\btrue, \bfalse : \implicit{\Gamma}\;\Tm\;\Gamma\;\bool$, and its elimination principle:
 %
 \begin{alignat*}{3}
   \belim &: \implicit{\Gamma} \; && (P : \Ty\;(\Gamma , \bool)) \to \Tm\;\Gamma\;(\subTy{P}{\instSub{\bfalse}}) \to \Tm\;\Gamma\;(\subTy{P}{\instSub{\btrue}}) \\
