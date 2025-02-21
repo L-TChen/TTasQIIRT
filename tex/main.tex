@@ -29,7 +29,7 @@
 
 \supplement{Formal Agda development: \url{https://github.com/L-TChen/TTasQIIRT}.}%optional, e.g. related research data, source code, ... hosted on a repository like zenodo, figshare, GitHub, ...
 %\supplementdetails[linktext={opt. text shown instead of the URL}, cite=DBLP:books/mk/GrayR93, subcategory={Description, Subcategory}, swhid={Software Heritage Identifier}]{General Classification (e.g. Software, Dataset, Model, ...)}{URL to related version} %linktext, cite, and subcategory are optional
-\acknowledgements{We'd like to thank Hsiang-Shang Ko for useful discussion.}%optional
+\acknowledgements{We thank Hsiang-Shang Ko for useful discussions.}%optional
 
 \nolinenumbers %uncomment to disable line numbering
 
@@ -102,7 +102,7 @@ leading to intricate higher-dimensional equations between equations.
 
 A typical workaround in practice \cite{Kaposi2019,Kaposi2024a} is to add equality constructors as rewrite rules~\cite{Cockx2021,Cockx2020} after an inductive definition.
 %
-As the host theory is assumed to satisfy the uniqueness of identity proof and function extensionality, this workaround can be justified by conservativity of equality reflection over intensional type theory~\cite{Hofmann1996,Winterhalter2019,Kapulkin2025}.
+As the host theory is assumed to satisfy uniqueness of identity proofs and function extensionality, this workaround can be justified by conservativity of equality reflection over intensional type theory~\cite{Hofmann1996,Winterhalter2019,Kapulkin2025}.
 %
 However, this workaround is computationally ill-behaved, as confluence does not hold in general.
 Also, the presentation often differs from the actual definition in type theory.
@@ -175,10 +175,10 @@ An inductive type $A$, such as the type of natural numbers $A = \mathbb{N}$, all
 The type is first defined inductively by listing its constructors, and then recursive functions can be defined out of it.
 
 In contrast, an inductive-recursive type (IRT), introduced by Dybjer~\cite{Dybjer2000} and studied by Dybjer and Setzer~\cite{Dybjer1999,Dybjer2003}, is an inductive type $A$ defined \emph{simultaneously} with a recursively defined function $F : A \to D$ to some fixed (possibly large) type $D$.
-The prototypical example is Tarski universe: a type $U$ of codes for small types is defined with a `decoding' function $T : U \to \Set$ which maps each code to the type it represents. Crucially, the code
+The prototypical example is a Tarski universe: a type $U$ of codes for small types is defined with a `decoding' function $T : U \to \Set$ which maps each code to the type it represents. Crucially, the code
 \[
   \pi : (a : U) \to (T\,a \to U) \to U
-  \quad\text{with}\quad T(\pi(a, b)) \defeq (x : T\,a) \to T\,(b\, x)
+  \quad\text{with decoding}\quad T(\pi(a, b)) \defeq (x : T\,a) \to T\,(b\, x)
 \]
 for dependent function types makes sense only because we have access to the function $T$.
 %
@@ -203,7 +203,7 @@ Quotient inductive types (QITs) are a special case of higher inductive types~\ci
 %
 %Since we assume the uniqueness of identity proofs, all QITs are implicitly truncated to be sets in the sense of homotopy type theory.
 %
-For example, the type $\JList{A}$ of \emph{join lists} can be given below
+For example, the type $\JList{A}$ of \emph{join lists} can be given as follows:
 %\begin{figure}[b]
 \begin{mathpar}
   \Jnil : \implicit{A}\; \JList{A} \and
@@ -231,9 +231,9 @@ For example, the type $\JList{A}$ of \emph{join lists} can be given below
 A quotient inductive-inductive type~\cite{Altenkirch2018} (QIIT) further allows the simultaneous definition of a type $A$ and a type family $B : A \to \Set$ defined inductively.
 % --- this is different from an inductive-recursive definition of $A$ and $F : A \to D$, where $F$ is defined recursively.
 %; indeed, inductive-inductive definitions only make sense when $D = \Set$.
-The metatheory of QIITs has been extensively studied by Altenkirch et al.~\cite{Kaposi2018,Kaposi2019,Kovacs2020}.
+The metatheory of QIITs has been extensively studied by Altenkirch, Kaposi, and Kov\'acs~\cite{Kaposi2018,Kaposi2019,Kovacs2020}.
 
-We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: the type $\JList{A}$ is defined simultaneously with a recursive function $\flatten : \implicit{A}\;\JList{A} \to \List{A}$ which flattens a join list into an ordinary list and replaces equality constructors $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
+We can also define join lists as a quotient inductive-\emph{recursive} type, as follows: the type $\JList{A}$ is defined simultaneously with a recursive function $\flatten : \implicit{A}\;\JList{A} \to \List{A}$ which flattens a join list into an ordinary list, and we replace the equality constructors $\mathsf{idl}$, $\mathsf{idr}$ and $\mathsf{assoc}$ by a single constructor
 \[
   \mathsf{nf} : \implicit{A}\;(\ell, \ell' : \JList{A}) \to \flatten\,\ell =^{\mathsf{List}\,A} \flatten\,\ell' \to \ell =^{\JList{A}} \ell'.
 \]
@@ -262,9 +262,9 @@ For example, the two definitions of addition $+$ and $+'$
 \begin{minipage}{.5\textwidth}
 \begin{alignat*}{5}
 %  \blank         & +'\blank     && : \N \to \N \to \N \\
-  0              & +' m         && \defeq m  \\
-  (\suc\;n)      & +' 0         && \defeq \suc\;n \\
-  (\suc\;n)      & +' (\suc\;m) && \defeq \suc\;(n +' \suc\;m)
+  0              & +' m         && = m  \\
+  (\suc\;n)      & +' 0         && = \suc\;n \\
+  (\suc\;n)      & +' (\suc\;m) && = \suc\;(n +' \suc\;m)
 \end{alignat*}
 \end{minipage}
 \vskip\belowdisplayskip\noindent
