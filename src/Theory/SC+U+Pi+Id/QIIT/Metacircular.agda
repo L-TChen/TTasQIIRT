@@ -1,26 +1,33 @@
-open import Prelude
-  hiding (⊤; tt)
+-- For simplicity in dealing with the universe levels in the object
+-- theory, we turn on type in type in this module
+{-# OPTIONS --type-in-type #-}
+
 
 module Theory.SC+U+Pi+Id.QIIT.Metacircular where
 
 open import Level
 open import Data.Unit.Polymorphic
+open import Axiom.Extensionality.Propositional
+
+open import Prelude
+  hiding (⊤; tt)
 
 open import Theory.SC+U+Pi+Id.QIIT.Syntax
 open import Theory.SC+U+Pi+Id.QIIT.Recursion
 open Recursor
 
-module _ (fext : ∀{ℓ ℓ'}{A : Set ℓ}{B : A → Set ℓ'}{f g : (a : A) → B a}
-               → (∀ x → f x ≡ g x)
-               → f ≡ g) where
-  intp : Recursor
-  intp .mot = record
+
+postulate
+  funext : Extensionality _ _
+
+intp : Recursor
+intp .mot = record
     { Ctxᴹ = Set 
     ; Tyᴹ  = λ Γᴹ _ → Γᴹ → Set
     ; Subᴹ = λ Γᴹ Δᴹ → Γᴹ → Δᴹ
     ; Tmᴹ  = λ Γᴹ Aᴹ → (γ : Γᴹ) → Aᴹ γ
     }
-  intp .met = record
+intp .met = record
     { 𝒞    = record
       { [_]ᴹ_ = λ σᴹ tᴹ γ → tᴹ (σᴹ γ)
       ; ∅ᶜᴹ   = ⊤
@@ -45,8 +52,8 @@ module _ (fext : ∀{ℓ ℓ'}{A : Set ℓ}{B : A → Set ℓ'}{f g : (a : A) �
       ; [⨟]tmᴹ   = refl
       ; π₂,ᴹ    = refl
       }
-    ; univ = {! !}
-    ; piTy = record
+  ; univ = {! !}
+  ; piTy = record
       { Πᴹ    = λ Aᴹ Bᴹ γ → (x : Aᴹ γ) → Bᴹ (γ , x)
       ; ƛᴹ_   = λ tᴹ γ x → tᴹ (γ , x)
       ; appᴹ  = λ tᴹ (γ , x) → tᴹ γ x
@@ -55,11 +62,11 @@ module _ (fext : ∀{ℓ ℓ'}{A : Set ℓ}{B : A → Set ℓ'}{f g : (a : A) �
       ; Πβᴹ   = refl
       ; Πηᴹ   = refl
       }
-    ; idTy = record
+  ; idTy = record
       { Idᴹ      = λ aᴹ tᴹ uᴹ γ → tᴹ γ ≡ uᴹ γ
       ; []Idᴹ   = {! !} -- refl
       ; reflᴹ    = λ t γ → refl
       ; []reflᴹ  = λ σᴹ tᴹ → {!   !} -- refl
-      ; reflectᴹ = {! !}-- requires function extensionality
-      }
+      ; reflectᴹ = funext
     }
+  }

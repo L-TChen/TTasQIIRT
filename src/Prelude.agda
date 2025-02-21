@@ -212,3 +212,7 @@ tr-nat₂ : ∀{a b₁ b₂ b₃} {A : Set a}
           (f : {x : A} (y : B₁ x) → B₂ x y → B₃ x) (p : x ≡ x')
         → tr B₃ p (f y₁ y₂) ≡ f (tr B₁ p y₁) (tr (uncurry B₂) (lift B₁ y₁ p) y₂)
 tr-nat₂ B₁ B₂ f refl = refl
+
+natlevel : ℕ → Level
+natlevel zero = lzero
+natlevel (suc n) = lsuc (natlevel n)

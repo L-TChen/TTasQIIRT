@@ -1,17 +1,24 @@
+-- For simplicity in dealing with the universe levels in the object
+-- theory, we turn on type in type in this module
+{-# OPTIONS --type-in-type #-}
 open import Prelude
 
 module Theory.SC+U+Pi+Id.QIIRT.Metacircular where
 
 open import Level
+open import Axiom.Extensionality.Propositional
 
 open import Theory.SC+U+Pi+Id.QIIRT.Syntax
 open import Theory.SC+U+Pi+Id.QIIRT.Recursion
 open Recursor
 
+postulate
+  funext : Extensionality _ _
+
 intp : Recursor
 intp .mot = record
-  { Ctxᴹ = Set 
-  ; Tyᴹ  = λ Γᴹ _ → Γᴹ → Set
+  { Ctxᴹ = Set
+  ; Tyᴹ  = λ Γᴹ i → Γᴹ → Set (natlevel i)
   ; Subᴹ = λ Γᴹ Δᴹ → Γᴹ → Δᴹ
   ; Tmᴹ  = λ Γᴹ Aᴹ → (γ : Γᴹ) → Aᴹ γ
   }
@@ -53,28 +60,45 @@ intp .met = record
     ; idS⨟ᴹ_      = λ σᴹ → refl
     ; ⨟-assocᴹ    = refl
     ; π₁,ᴹ        = refl
-    ; ⨟,ᴹ         = refl 
+    ; ⨟,ᴹ         = refl
     ; η∅ᴹ         = refl
     ; η,ᴹ         = refl
     ; [idS]tmᴹ    = refl
     ; [⨟]tmᴹ      = refl
     ; π₂,ᴹ        = refl
     }
-  ; univ = {! !} -- requires a proper treatment for Coquand universes
+  ; univ = record
+            { Uᴹ = λ i _ → Set (natlevel i)
+            ; Elᴹ = λ a γ → a γ
+            ; Liftᴹ = λ A γ → Level.Lift _ (A γ)
+            ; cᴹ = λ A γ → A γ
+            ; mkᴹ = λ a γ → Level.lift (a γ)
+            ; unᴹ = λ a γ → Level.lower (a γ)
+            ; []Uᴹ = refl
+            ; []Elᴹ = λ σᴹ uᴹ → refl
+            ; []Liftᴹ = refl
+            ; []tcᴹ = λ σᴹ Aᴹ → refl
+            ; []mkᴹ = λ σᴹ tᴹ → refl
+            ; []unᴹ = λ σᴹ Aᴹ tᴹ → refl
+            ; Uβᴹ = refl
+            ; Uηᴹ = refl
+            ; Liftβᴹ = refl
+            ; Liftηᴹ = refl
+            }
   ; piTy = record
     { Πᴹ    = λ Aᴹ Bᴹ γ → (x : Aᴹ γ) → Bᴹ (γ , x)
     ; ƛᴹ_   = λ tᴹ γ x → tᴹ (γ , x)
     ; appᴹ  = λ tᴹ (γ , x) → tᴹ γ x
     ; []Πᴹ  = refl
     ; []ƛᴹ  = λ σ σᴹ → refl
-    ; Πβᴹ   = refl 
+    ; Πβᴹ   = refl
     ; Πηᴹ   = refl
     }
   ; idTy = record
     { Idᴹ      = λ aᴹ tᴹ uᴹ γ → tᴹ γ ≡ uᴹ γ
-    ; []Idᴹ    = {! !} -- refl
+    ; []Idᴹ    = refl
     ; reflᴹ    = λ t γ → refl
-    ; []reflᴹ  = {! !}
-    ; reflectᴹ = {! !} -- requires function extensionality
+    ; []reflᴹ  = λ σᴹ tᴹ → refl
+    ; reflectᴹ = funext
     }
   }
