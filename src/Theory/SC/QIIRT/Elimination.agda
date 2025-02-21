@@ -1,10 +1,10 @@
 -- Elimination of Substitution Calculus
-module SC.QIIRT2.Elimination where
+module Theory.SC.QIIRT.Elimination where
 
 open import Prelude
   hiding (_,_)
-open import SC.QIIRT2.Base
-open import SC.QIIRT2.Model
+open import Theory.SC.QIIRT.Syntax
+open import Theory.SC.QIIRT.Model
 
 module elim {i j}(P : Pdc {i} {j})(indP : IH P) where
   open Pdc P

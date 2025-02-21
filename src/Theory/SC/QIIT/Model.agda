@@ -1,9 +1,9 @@
 -- Model of Substitution Calculus
-module SC.QIIT2.Model where
+module Theory.SC.QIIT.Model where
 
 open import Prelude
   hiding (_∘_)
-open import SC.QIIT2.Base
+open import Theory.SC.QIIT.Syntax
 
 record Pdc {i j} : Set (lsuc (i ⊔ j)) where
   field

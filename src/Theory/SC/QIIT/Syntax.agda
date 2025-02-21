@@ -1,8 +1,8 @@
--- Formalizing Substitution Calculus as QIIT
+-- Formalising Substitution Calculus as QIIT
 open import Prelude
   hiding (_∘_)
 
-module SC.QIIT2.Base where
+module Theory.SC.QIIT.Syntax where
 
 open ≡-Reasoning
 

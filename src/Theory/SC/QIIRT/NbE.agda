@@ -1,13 +1,13 @@
 
-module SC.QIIRT2.NbE where
+module Theory.SC.QIIRT.NbE where
 
 open import Prelude
   renaming (_,_ to _/_)
   hiding (_∘_)
-open import SC.QIIRT2.Base
-open import SC.QIIRT2.Cong
-open import SC.QIIRT2.Model
-open import SC.QIIRT2.Elimination
+open import Theory.SC.QIIRT.Syntax
+open import Theory.SC.QIIRT.Cong
+open import Theory.SC.QIIRT.Model
+open import Theory.SC.QIIRT.Elimination
 
 -- Definition of Variables and Renaming
 -- with embedding into Tm and Sub

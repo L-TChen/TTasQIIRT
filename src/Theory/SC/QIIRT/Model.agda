@@ -1,10 +1,10 @@
 -- Model of Substitution Calculus
-module SC.QIIRT2.Model where
+module Theory.SC.QIIRT.Model where
 
 open import Prelude
   hiding (_,_; _∘_)
-open import SC.QIIRT2.Base
-open import SC.QIIRT2.Cong
+open import Theory.SC.QIIRT.Syntax
+open import Theory.SC.QIIRT.Cong
 
 private variable
   Φ : Ctx

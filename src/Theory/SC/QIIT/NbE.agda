@@ -1,11 +1,11 @@
-module SC.QIIT2.NbE where
+module Theory.SC.QIIT.NbE where
 
 open import Prelude
   hiding (_∘_)
 open import Data.Product
-open import SC.QIIT2.Base
-open import SC.QIIT2.Model
-open import SC.QIIT2.Elimination
+open import Theory.SC.QIIT.Syntax
+open import Theory.SC.QIIT.Model
+open import Theory.SC.QIIT.Elimination
 
 -- Definition of Variables and Renaming
 -- with embedding into Tm and Sub

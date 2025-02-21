@@ -1,5 +1,5 @@
--- Formalizing Substitution Calculus as QIIRT
-module SC.QIIRT2.Base where
+-- Formalising Substitution Calculus as QIIRT
+module Theory.SC.QIIRT.Syntax where
 
 open import Prelude
   hiding (_,_; _∘_)

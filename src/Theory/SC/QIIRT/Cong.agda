@@ -1,9 +1,9 @@
--- Congruence rules for SC.QIIRT2
-module SC.QIIRT2.Cong where
+-- Congruence rules for Theory.SC.QIIRT
+module Theory.SC.QIIRT.Cong where
 
 open import Prelude
   hiding (_,_; _∘_)
-open import SC.QIIRT2.Base
+open import Theory.SC.QIIRT.Syntax
 
 variable
   Γ' Δ' Θ' : Ctx
