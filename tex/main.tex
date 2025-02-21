@@ -276,14 +276,14 @@ Each clause of $+'$ is strict while clauses of $+$ are not necessarily strict.
 %This semantics for function definitions decides how definitions reduce and therefore how identities are proved.
 
 Cockx~\cite{Cockx2014} explores an alternative semantics for pattern matching, where all clauses are strict, even in the presence of \emph{overlapping patterns}.
-Thus, when a function $f$ is defined with overlapping patterns, the notation $f\;\overrightarrow{p_i} \reduce t_i$ is used to emphasize its reduction behaviour.
+Thus, when a function $f$ is defined with overlapping patterns, the notation $f\;\overrightarrow{p_i} \reduce t_i$ is used to emphasise its reduction behaviour.
 Under this semantics, each clause of $+$ is strictly equal to its right-hand side. %, also allowing the symmetry addition to be proved commutative directly by induction on $n$ and $m$.
 
 A key requirement for definitions with overlapping patterns is that, in addition to termination and completeness, any overlapping clauses must eventually compute to the same term, i.e.\ the definition must be confluent.
 Cockx shows that if a definition of $f$ is
 \begin{enumerate}
   \item \emph{structurally recursive}~\cite{Abel2002}, i.e.\ arguments of recursive calls are structurally smaller, and
-  \item \emph{locally confluent}, i.e.\ for any two function clauses $f\;\overrightarrow{p_1} \reduce t_1$ and $f\;\overrightarrow{p_2} \reduce t_2$ with a most general unifer $\sigma$ for $\overrightarrow{p_1}$ and $\overrightarrow{p_2}$, the terms $\sigma t_1$ and $\sigma t_2$ have the same normal form, 
+  \item \emph{locally confluent}, i.e.\ for any two function clauses $f\;\overrightarrow{p_1} \reduce t_1$ and $f\;\overrightarrow{p_2} \reduce t_2$ with a most general unifier $\sigma$ for $\overrightarrow{p_1}$ and $\overrightarrow{p_2}$, the terms $\sigma t_1$ and $\sigma t_2$ have the same normal form, 
 \end{enumerate}
 then $f$ is confluent --- essentially a variant of Newman's Lemma~\cite{Newman1942}.
 We call a diagram $\sigma t_2 \Leftarrow f\,(\sigma\overrightarrow{p_1}) \Rightarrow \sigma t_1$ used in the analysis of local confluence a \emph{local peak}.
@@ -685,7 +685,7 @@ and the structural rules for substitution
 \end{alignat}
 where $\sigma \uparrow A$ is the \emph{lifting}  of $\sigma$ by a type $A$ defined as $(\pi_1\idS; \sigma, \alert{\transfib{\Tm\;\Gamma}{[;]_{\Ty}}{\color{black}\pi_2\idS}})$. 
 
-For our QIIR definition, %$\sigma\uparrow A$ and $[]\lambda$ do not need a transport since $[;]_T$ and $[]\Pi$ are strict.
+For our QIIRT definition, %$\sigma\uparrow A$ and $[]\lambda$ do not need a transport since $[;]_T$ and $[]\Pi$ are strict.
 we do not need any transport since $[;]_{\Ty}$ and $[]\Pi$ are strict.
 However, once again, adding \eqref{eq:def-type-subst-8} directly to the type substitution $\subTy{\blank}{\blank}$ breaks local confluence, because the reduction gets stuck upon the lifting $\sigma \uparrow A$.
 For example, $\subTy{(\Pi\;A\;B)}{\idS}$ reduces to $\Pi\;A\;(\subTy{B}{\idS \uparrow A})$ where $\idS \uparrow A$ is propositionally but not strictly equal to $\idS$, so the local peak $\Pi\;A\;B \Leftarrow \subTy{(\Pi\;A\;B)}{\idS} \reduce \Pi\;A\;(\subTy{B}{\idS \uparrow A})$ cannot be joined. 
@@ -788,7 +788,7 @@ which asks for telescope substitution $\subTel{\blank}{\blank} :  \Tel\;\Delta \
 %\end{minipage}
 %\vskip\belowdisplayskip
 
-To prove the coherence property for the multiple lifting, we would need the properties $\idS_\Gamma \upuparrows \Xi = \idS_{\Gamma \dplus  \Xi}$ and $(\sigma; \tau) \upuparrows \Xi = (\sigma\upuparrows \subTel{\Xi}{\tau}); (\tau \upuparrows \Xi)$, similar to \cref{lem:lifting}, but these identities cannot be typed: the type of $\idS_{\Gamma} \upuparrows \Xi$ is $\Sub\;(\Gamma \dplus \subTel{\Xi}{\idS})\;(\Gamma \dplus \Xi)$ while the type of $\idS$ on the RHS is $\Sub\;(\Gamma \dplus \Xi)\;(\Gamma \dplus \Xi)$; similarly for the substitution composition.
+To prove the coherence property for the multiple lifting, we would need the properties $\idS_\Gamma \upuparrows \Xi = \idS_{\Gamma \dplus  \Xi}$ and $(\sigma; \tau) \upuparrows \Xi = (\sigma\upuparrows \subTel{\Xi}{\tau}); (\tau \upuparrows \Xi)$, similar to \cref{lem:lifting}, but these identities cannot be typed: the type of $\idS_{\Gamma} \upuparrows \Xi$ is $\Sub\;(\Gamma \dplus \subTel{\Xi}{\idS})\;(\Gamma \dplus \Xi)$ while the type of $\idS$ on the right hand side is $\Sub\;(\Gamma \dplus \Xi)\;(\Gamma \dplus \Xi)$; similarly for the substitution composition.
 %
 Instead of resorting to \transp, we can also turn telescope substitution $\subTel{\blank}{\blank}$ and the multiple lifting into definitions by overlapping patterns by adding the following clauses:
 \begin{alignat*}{9}
@@ -1122,7 +1122,7 @@ theory this way, without hiding details in the formalisation.
 
 The idea of representing type theory in type theory in a well typed manner goes back to Dybjer~\cite{Dybjer1996} (see also~\cite{Clairambault2014,Castellan2021}). Dybjer's notion of \emph{category with families} can be seen as a semantic structure corresponding closely to the syntax of type theory, and many of the formalisations of type theory in type theory can be understood as capturing the initial category with families via inductive or quotient-inductive types. The equations involved are very similar to the equations described in Martin-L\"of's substitution calculus~\cite{Martin-Lof1992}.
 
-Like us, Danielsson~\cite{Danielsson2006} defines type substitution by a recursive function, while keeping term substitution a constructor. However he does not use quotients, so he also has an explicit term constructor for transporting terms along an inductively defined type of conversion rules, which explicitly contains congruence rules. We are able to remove a lot of the boilerplate by using equality constructors instead. Chapman~\cite{Chapman2009} similarly uses explicit term substitutions and explicit transports along conversion rules, but also uses explicit type substitition in favour of more straightforward foundations.
+Like us, Danielsson~\cite{Danielsson2006} defines type substitution by a recursive function, while keeping term substitution a constructor. However he does not use quotients, so he also has an explicit term constructor for transporting terms along an inductively defined type of conversion rules, which explicitly contains congruence rules. We are able to remove a lot of the boilerplate by using equality constructors instead. Chapman~\cite{Chapman2009} similarly uses explicit term substitutions and explicit transports along conversion rules, but also uses explicit type substitution in favour of more straightforward foundations.
 McBride~\cite{McBride2010} offers another solution which uses an inductive-recursive type to reuse the equality of the metatheory rather than using explicit transports. This works well if the object theory and meta theory are similar, but does not allow to represent equalities that do not hold in the metatheory.
 
 Altenkirch and Kaposi~\cite{Altenkirch2016a} were the first to exploit QIITs to simplify the treatment of computation rules in representations of type theory. % in type theory.
