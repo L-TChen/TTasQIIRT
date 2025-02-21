@@ -1449,11 +1449,11 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
   However, all cases follow easily from \cref{prop:correctness-1}.
   For example, consider the first case:
   \begin{align*}
-    \subTy{(\El\,u)}{\sigma; (\tau, t)} & \judgeq \El(\subTm{u}{\sigma; (\tau, t)}) && \text{by \eqref{eq:def-type-subst-7}} \\
+    \subTy{(\El\,u)}{\sigma; (\tau, t)} & \judgeq \El\,(\subTm{u}{\sigma; (\tau, t)}) && \text{by \eqref{eq:def-type-subst-7}} \\
 %                                      & = \El( \sub{u}{\sigma; (\tau, t)})            && \text{by \cref{prop:correctness-1}} \\
 %                                      & = \El( \sub{u}{\sigma; \tau, \sub{t}{\sigma}})     && \text{by $\mathsf{concat}$} \\
 %                                      & = \El( \subTm{u}{\sigma; \tau, \sub{t}{\sigma}}) && \text{by \cref{prop:correctness-1}} \\
-                                      & = \El( \subTm{u}{\sigma; \tau, \sub{t}{\sigma}}) && \text{by coherence of $\subTm{\blank}{\blank}$} \\
+                                      & = \El\,( \subTm{u}{\sigma; \tau, \sub{t}{\sigma}}) && \text{by coherence of $\subTm{\blank}{\blank}$} \\
                                       & \judgeq \subTy{\left(\El\,u\right)}{\sigma; \tau, \sub{t}{\sigma}} && \text{by \eqref{eq:def-type-subst-7} }
   \end{align*}
   The other two cases are dealt with in exactly the same way.
@@ -1476,17 +1476,20 @@ Each variable $\cc^M$ with the superscript $(\blank)^M$ is always indexed by $\c
 
 \lemIdentities*
 \begin{proof}
-  We have
+  By the identity law $\mathsf{idr}$ and the $\eta$-law $\pi\eta$, we have
   \[
-    \idS^+ \judgeq ((\pi_1\idS; \idS), \pi_2 \idS) = (\pi_1\idS, \pi_2 \idS) = \idS
+    \idS^+ \judgeq ((\pi_1\idS; \idS), \pi_2 \idS) = (\pi_1\idS, \pi_2 \idS) = \idS.
   \]
-  For commuting with composition, first note that $\pi_1(\sigma; \tau) = \sigma; \pi_1 \tau$ by $\mathsf{concat}$. In particular, we have $\sigma; \pi_1 \idS = \sigma^+; \pi_1\idS$. Now
+  For commuting with composition, first note that $\pi_1(\sigma; \tau) = \sigma; \pi_1 \tau$ holds similarly to \eqref{eq:pi2-comp-proof} and, in particular, we have $\pi_1 \idS ; \sigma = \sigma^+; \pi_1\idS$.
+  Also note that $\pi_2\idS = \sub{\pi_2\idS}{\sigma^+}$ by \eqref{eq:pi2-comp-proof}.
+  Now
   \begin{align*}
-    (\sigma; \tau)^+ &= (\pi_1\idS; (\sigma; \tau), \pi_2 \idS) \\
-                     &= ((\pi_1\idS; \sigma); \tau, \pi_2 \idS) \\
-                     &= ((\sigma^+; \pi_1\idS); \tau, \sub{\pi_2 \idS}{\sigma^+}) \\
-                     &= (\sigma^+; (\pi_1\idS; \tau), \pi_2 \idS) \\
-                     &= \sigma^+; \tau^+
+    (\sigma; \tau)^+ & \judgeq (\pi_1\idS; (\sigma; \tau)), \pi_2 \idS && \text{by definition} \\
+                     & = ((\pi_1\idS; \sigma); \tau), \pi_2 \idS       && \text{by ;-$\mathsf{assoc}$}\\
+                     & = ((\sigma^+; \pi_1\idS); \tau), \sub{\pi_2 \idS}{\sigma^+} && \text{by $\pi_1\idS; \sigma = \sigma^+ ; \pi_1\idS$ and $\pi_2\idS = \sub{\pi_2\idS}{\sigma^+}$}\\
+                     & = (\sigma^+; (\pi_1\idS; \tau)) , \sub{\pi_2\idS}{\sigma^+}  && \text{by ;-$\mathsf{assoc}$} \\
+                     & = \sigma^+; ((\pi_1\idS ; \tau) , \pi_2\idS) && \text{by $\mathsf{concat}^{-1}$} \\
+                     & \judgeq \sigma^+; \tau^+ && \text{by definition}
   \end{align*}
   as required.
 \end{proof}
