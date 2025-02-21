@@ -12,7 +12,7 @@ The key feature of the QIIRT stated here is that we use recursive functions defi
 ## Contents of Formalisation
 `src` consists of two main parts, `Theory` and `Translation`.  
 
-In `Theory`, we formalised three kinds of type theory, `SC`, `SC+U+Pi+Id`, and `SC+U+Pi+Id+B` in two possible manner, as QIIT or as QIIRT.  
+In `Theory`, we formalised three kinds of type theory, `SC`, `SC+U+Pi+Id`, and `SC+U+Pi+Id+B` in two possible manners, as QIIT or as QIIRT.  
 
 1.  `Theory/SC` has the formalisation of substitution calculus with the only base universe $\mathcal U$. There are two versions of formalistion, `Theory/SC/QIIT` and `Theory/SC/QIIRT` to be compared. Each contains the syntax, elimination, and NbE of the type theory, formalised in `Syntax.agda`, `Elimination.agda`, and `NbE.agda` respectively.  
 
@@ -26,7 +26,7 @@ In `Theory`, we formalised three kinds of type theory, `SC`, `SC+U+Pi+Id`, and `
     `Theory/SC+U+Pi+Id/QIIRT` additionally contains
     * `Coherence.agda` formalising the proof of coherence of the recursive functions.
 
-3. `Theory/SC+U+Pi+Id/QIIRT` is an attempt of adding the Boolean type $\mathbf 2$ to the type theory as QIIRT, formalised in `Syntax.agda`.  
+3. `Theory/SC+U+Pi+Id+B/QIIRT` is an attempt of adding the Boolean type $\mathbf 2$ to the type theory as QIIRT, formalised in `Syntax.agda`.  
 
 In `Translation`, we formalised the translation between the two versions of the type theory.  
 * `Translation/SC+U+Pi+Id/Syntax/Translate.agda` formalised the translation of syntax between the QIIT version and the QIIRT version of `SC+U+Pi+Id` in both direction.  
