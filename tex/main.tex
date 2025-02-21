@@ -1152,10 +1152,9 @@ using sheaf theory.
 
 \section{Complete definitions}\label{appendix:full-def}
 
-\paragraph*{Quotient inductive-inductive-recursive types}
-We give the QIIRTs for type theories with a universe of small types, $\Pi$-types, and extensional identity types in one place below.
+\paragraph*{Type theory as a quotient inductive-inductive-recursive type}
+We give the QIIRT for type theory with a universe of small types, $\Pi$-types, and extensional identity types in one place below.
 
-\subparagraph*{Substitution calculus with a base type $\UU$}
 \begin{alignat*}{3}
   \Ctx      & : && \Set                   \\
   \Ty       & : && \Ctx \to \Set          \\
@@ -1163,65 +1162,39 @@ We give the QIIRTs for type theories with a universe of small types, $\Pi$-types
   \Tm       & : && (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Set
 \end{alignat*}
 \begin{alignat*}{5}
-  \emptyctx & : && \Ctx \\
-  \blank,\blank & : && (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Ctx
+  \emptyctx     & : \Ctx \\
+  \blank,\blank & : (\Gamma : \Ctx) \to \Ty\;\Gamma \to \Ctx
 \end{alignat*}
 \begin{alignat*}{5}
 \subTy{\blank}{\blank} & : \implicit{\Gamma, \Delta}\; && \Ty\;\Delta \to \Sub\;\Gamma\;\Delta \to \Ty\;\Gamma \\
-  \UU     & : \implicit{\Gamma}\; && \Ty\; \Gamma
+  \UU         & : \implicit{\Gamma}\; && \Ty\; \Gamma \\
+  \El         & : \implicit{\Gamma}\; && \Tm\;\Gamma\;U \to \Ty\;\Gamma \\
+  \Pi         & : \implicit{\Gamma}\; && (A : \Ty\;\Gamma) \to \Ty\;(\Gamma, A) \to \Ty\;\Gamma \\
+  \mathsf{Id} & : \implicit{\Gamma}\; && (a : \Tm\;\Gamma\;\UU) \to \Tm\;\Gamma\;(\El\,a) \to \Tm\;\Gamma\;(\El\,a) \to \Ty\;\Gamma
 \end{alignat*}
+
 \begin{alignat*}{5}
   \emptysub & : \implicit{\Gamma} && \Sub\;\Gamma\;\emptyctx \\
   \blank,\blank & : \implicit{\Gamma, \Delta, A} && (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Gamma\;(\subTy{A}{\sigma}) \to \Sub\;\Gamma\,(\Delta, A) \\
   \idS & : \implicit{\Gamma} && \Sub\;\Gamma\;\Gamma \\
   \blank;\blank & : \implicit{\Gamma, \Delta, \Theta} && \Sub\;\Gamma\;\Delta \to \Sub\;\Delta\;\Theta \to \Sub\;\Gamma\;\Theta \\
-  \pi_1 & : \implicit{\Gamma, \Delta, A}\; && \Sub\;\Gamma\;(\Delta, A) \to \Sub\;\Gamma\;\Delta \\
+  \pi_1 & : \implicit{\Gamma, \Delta, A}\; && \Sub\;\Gamma\;(\Delta, A) \to \Sub\;\Gamma\;\Delta
+\end{alignat*}
+
+
+\begin{alignat*}{5}
+  \sub{\blank}{\blank} & : \implicit{\Gamma,\Delta, A} && \Tm\;\Delta\;A \to (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Gamma\;(\subTy{A}{\sigma}) \\
   \pi_2 & : \implicit{\Gamma, \Delta, A}\; && (\sigma : \Sub\;\Gamma\;(\Delta, A)) \to \Tm\;\Gamma\;(\subTy{A}{\pi_1\;\sigma}) \\
-  \sub{\blank}{\blank} & : \implicit{\Gamma,\Delta, A} && \Tm\;\Delta\;A \to (\sigma : \Sub\;\Gamma\;\Delta) \to \Tm\;\Gamma\;(\subTy{A}{\sigma})
-\end{alignat*}
-\begin{alignat*}{3}
-  & \subTy{A}{\idS}           && \reduce A \\
-  & \subTy{A}{\sigma ; \tau}  && \reduce \subTy{\subTy{A}{\tau}}{\sigma} \\
-  & \subTy{A}{\pi_1(\sigma, t)} && \reduce \subTy{A}{\sigma} \\
-  & \subTy{A}{\pi_1(\sigma; \tau)} && \reduce \subTy{\subTy{A}{\pi_1\tau}}{\sigma} \\
-  & \subTy{\UU}{\sigma} && \reduce \UU
-\end{alignat*}
-\begin{alignat*}{5}
-  ;\text{-}\mathsf{idr}    & : \implicit{\Gamma, \Delta, \sigma}\; && {\sigma ; \idS_{\Delta}} && =^{\Sub\;\Gamma\;\Delta} && {\sigma} \\
-  ;\text{-}\mathsf{idl}    & : \implicit{\Gamma, \Delta, \sigma}\; && {\idS_{\Gamma} ; \sigma} && =^{\Sub\;\Gamma\;\Delta} && {\sigma} \\
-  ;\text{-}\mathsf{assoc} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, \gamma}\; && (\sigma ; \tau) ; \gamma && =^{\Sub\;\Gamma\;\Theta} &&  \sigma ; (\tau ; \gamma) \\
-  \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t}\; &&\sigma ; (\tau , t) && =^{\Sub\;\Gamma\;(\Theta, A)} &&  (\sigma ; \tau) , \sub{t}{\sigma} \\
-  \pi_1\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t}\; && \pi_1(\sigma , t)        && =^{\Sub\;\Gamma,\Delta} &&  \sigma \\
-  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t}\; && \pi_2(\sigma , t)        && =^{\Tm\;\Gamma\; A} &&  t \\
-  \emptyctx\eta   & : \implicit{\Gamma, \sigma}\; && \sigma                   && =^{\Sub\;\Gamma\;\emptyctx} & \emptysub \\
-  \pi\eta         & : \implicit{\Gamma, A, \sigma}\; && \sigma                   && =^{\Sub\;\Gamma\;(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma) \\
-  [\idS]         & : \implicit{\Gamma, A, t}\; && {\sub{t}{\idS}}          && =^{\Tm\;\Gamma\;A} && t \\
-  [;]            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t}\; && {\sub{t}{\sigma ; \tau}} && =^{\Tm\;\Gamma\;\subTy{A}{\sigma ; \tau}} && {\sub{(\sub{t}{\tau})}{\sigma}}
+  \lambda         &: \implicit{\Gamma, A, B} \; && \Tm\;(\Gamma, A)\;B \to \Tm\;\Gamma(\Pi\,A\,B) \\
+  \mathsf{app}    &: \implicit{\Gamma, A, B} \; && \Tm\;\Gamma\;(\Pi\;A\;B) \to \Tm\;(\Gamma, A)\;B \\
+  \mathsf{refl} & : \implicit{\Gamma, a}\;&&(t : \Tm\;\Gamma\;(\El\,a)) \to \Tm\;\Gamma\;(\mathsf{Id}\,a\,t\,t)
 \end{alignat*}
 
-\subparagraph*{Universe of small types}
-\begin{alignat*}{5}
-  \subTm{\blank}{\blank}        & : \implicit{\Gamma, \Delta, A}\; \Tm\;\Delta\;A \to (\sigma : \Sub\;\Gamma\;\Delta) \to  \Tm\;\Gamma\;(\subTy{A}{\sigma}) \\
- \subTm{t}{\idS}                & \reduce t \\
- \subTm{t}{\sigma ; \tau}       & \reduce \subTm{\subTm{t}{\tau}}{\sigma} \\
- \subTm{t}{\pi_1(\sigma, s)}    & \reduce \subTm{t}{\sigma} \\
- \subTm{t}{\pi_1(\sigma; \tau)} & \reduce \subTm{\subTm{t}{\pi_1\tau}}{\sigma} \\
- \subTm{t}{\sigma}              & \reduce \sub{t}{\sigma}, \quad \text{otherwise}
-\end{alignat*}
-%
-\begin{alignat*}{5}
-  \El       & : \implicit{\Gamma}\; && \Tm\;\Gamma\;U \to \Ty\;\Gamma
-\end{alignat*}
-%
-\begin{alignat*}{3}
-  \subTy{(\El\, u)}{\sigma} \reduce \El\,(\subTm{u}{\sigma})
-\end{alignat*}
-
-\subparagraph*{$\Pi$-types}
 \begin{alignat*}{5}
   \blank^+ & : \implicit{\Gamma, \Delta, A}\; (\sigma : \Sub\;\Gamma\;\Delta) \to \Sub\;(\Gamma, \subTy{A}{\sigma})\;(\Delta, A) \\
   \sigma^+ & \defeq (\pi_1\idS; \sigma), \pi_2\sigma
 \end{alignat*}
+
 \begin{alignat*}{5}
   \blank\uparrow\blank & : \implicit{\Gamma, \Delta}\;(\sigma : \Sub\;\Gamma\;\Delta) (A : \Ty\;\Delta) \to \Sub\;(\Gamma, \subTy{A}{\sigma})\;(\Delta, A) \\
 \idS                \uparrow A  & \reduce \idS \\
@@ -1230,33 +1203,53 @@ We give the QIIRTs for type theories with a universe of small types, $\Pi$-types
 \pi_1(\sigma; \tau) \uparrow A  & \reduce (\sigma \uparrow \subTy{A}{\pi_1 \tau}) ; (\pi_1 \tau \uparrow A) \\
 \sigma              \uparrow A  & \reduce \sigma^+,\quad  \text{otherwise}
 \end{alignat*}
+
 \begin{alignat*}{5}
-  \Pi             & : \implicit{\Gamma}\; && (A : \Ty\;\Gamma) \to \Ty\;(\Gamma, A) \to \Ty\;\Gamma \\
-  \lambda         &: \implicit{\Gamma, A, B} \; && \Tm\;(\Gamma, A)\;B \to \Tm\;\Gamma(\Pi\,A\,B) \\
-  \mathsf{app}    &: \implicit{\Gamma, A, B} \; && \Tm\;\Gamma\;(\Pi\;A\;B) \to \Tm\;(\Gamma, A)\;B
+  \subTm{\blank}{\blank}        & : \implicit{\Gamma, \Delta, A}\; \Tm\;\Delta\;A \to (\sigma : \Sub\;\Gamma\;\Delta) \to  \Tm\;\Gamma\;(\subTy{A}{\sigma}) \\
+ \subTm{t}{\idS}                & \reduce t \\
+ \subTm{t}{\sigma ; \tau}       & \reduce \subTm{\subTm{t}{\tau}}{\sigma} \\
+ \subTm{t}{\pi_1(\sigma, s)}    & \reduce \subTm{t}{\sigma} \\
+ \subTm{t}{\pi_1(\sigma; \tau)} & \reduce \subTm{\subTm{t}{\pi_1\tau}}{\sigma} \\
+ \subTm{t}{\sigma}              & \reduce \sub{t}{\sigma}, \quad \text{otherwise}
 \end{alignat*}
+
 \begin{alignat*}{3}
-  & \subTy{(\Pi\,A\,B)}{\sigma}       && {} \reduce {} && \Pi\,(\subTy{A}{\sigma})\,(\subTy{B}{\sigma\uparrow A})
+  \subTy{A}{\idS}                & \reduce A \\
+  \subTy{A}{\sigma ; \tau}       & \reduce \subTy{\subTy{A}{\tau}}{\sigma} \\
+  \subTy{A}{\pi_1(\sigma, t)}    & \reduce \subTy{A}{\sigma} \\
+  \subTy{A}{\pi_1(\sigma; \tau)} & \reduce \subTy{\subTy{A}{\pi_1\tau}}{\sigma} \\
+  \subTy{\UU}{\sigma}            & \reduce \UU \\
+  \subTy{(\El\, u)}{\sigma}      & \reduce \El\,(\subTm{u}{\sigma}) \\
+  \subTy{(\Pi\,A\,B)}{\sigma}    & \reduce \Pi\,(\subTy{A}{\sigma})\,(\subTy{B}{\sigma\uparrow A}) \\
+  \subTy{(\mathsf{Id}\;a\;t\;u)}{\sigma} & \reduce \mathsf{Id}\,(\subTm{a}{\sigma})\,(\subTm{t}{\sigma})\,(\subTm{u}{\sigma})
 \end{alignat*}
+
+
+
 \begin{alignat*}{5}
+  ;\text{-}\mathsf{idr}    & : \implicit{\Gamma, \Delta, \sigma}\; && {\sigma ; \idS_{\Delta}} && =^{\Sub\;\Gamma\;\Delta} && {\sigma} \\
+  ;\text{-}\mathsf{idl}    & : \implicit{\Gamma, \Delta, \sigma}\; && {\idS_{\Gamma} ; \sigma} && =^{\Sub\;\Gamma\;\Delta} && {\sigma} \\
+  ;\text{-}\mathsf{assoc} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, \gamma}\; && (\sigma ; \tau) ; \gamma && =^{\Sub\;\Gamma\;\Theta} &&  \sigma ; (\tau ; \gamma) \\
+  \mathsf{concat} & : \implicit{\Gamma, \Delta, \Theta, \sigma, \tau, A, t}\; &&\sigma ; (\tau , t) && =^{\Sub\;\Gamma\;(\Theta, A)} &&  (\sigma ; \tau) , \sub{t}{\sigma} \\
+  \emptyctx\eta   & : \implicit{\Gamma, \sigma}\; && \sigma                   && =^{\Sub\;\Gamma\;\emptyctx} & \emptysub \\
+  \pi\eta         & : \implicit{\Gamma, A, \sigma}\; && \sigma                   && =^{\Sub\;\Gamma\;(\Delta, A)} &&  (\pi_1 \sigma, \pi_2 \sigma) \\
+  \pi_1\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t}\; && \pi_1(\sigma , t)        && =^{\Sub\;\Gamma,\Delta} &&  \sigma
+\end{alignat*}
+
+\begin{alignat*}{5}
+  \pi_2\beta      & : \implicit{\Gamma, \Delta, \Theta, \sigma, A, t}\; && \pi_2(\sigma , t)        && =^{\Tm\;\Gamma\; A} &&  t \\
+  [\idS]         & : \implicit{\Gamma, A, t}\; && {\sub{t}{\idS}}          && =^{\Tm\;\Gamma\;A} && t \\
+  [;]            & :\implicit{\Gamma, \Delta, \Theta, \sigma, \tau, t}\; && {\sub{t}{\sigma ; \tau}} && =^{\Tm\;\Gamma\;\subTy{A}{\sigma ; \tau}} && {\sub{(\sub{t}{\tau})}{\sigma}} \\
   []\lambda       & : \implicit{\Gamma, \Delta, \sigma, A, t}\;&& \sub{(\lambda\,t)}{\sigma} && {} =^{\Tm\,\Gamma\,(\subTy{(\Pi\,A\,B)}{\sigma})} {} && \lambda (\sub{t}{\sigma \uparrow A}) \\
   \Pi\beta        & : \implicit{\Gamma, A, B, t}\; && \mathsf{app}\,(\lambda\,t)            && =^{\Tm\,(\Gamma, A)\,B} && t \\
-  \Pi\eta         & : \implicit{\Gamma, A, B, t}\; && t                                     && =^{\Tm\,\Gamma\,(\Pi\,A\,B)} && \lambda(\mathsf{app}\,t)
+  \Pi\eta         & : \implicit{\Gamma, A, B, t}\; && t                                     && =^{\Tm\,\Gamma\,(\Pi\,A\,B)} && \lambda(\mathsf{app}\,t) \\
+  []\mathsf{refl} & : \implicit{\Gamma, a, t}\;&& \sub{(\mathsf{refl}\;t)}{\sigma} && =^{\Tm\;\Gamma\;(\subTy{(\mathsf{Id}\,a\,t\,t)}{\sigma})} {} && \mathsf{refl}(\sub{t}{\sigma})
 \end{alignat*}
 
-\subparagraph*{Extensional identity types}
-
 \begin{alignat*}{5}
-  \mathsf{Id} & : \implicit{\Gamma}\; && (a : \Tm\;\Gamma\;\UU) \to \Tm\;\Gamma\;(\El\,a) \to \Tm\;\Gamma\;(\El\,a) \to \Ty\;\Gamma
-\end{alignat*}
-\begin{alignat*}{5}
-  \subTy{(\mathsf{Id}\;a\;t\;u)}{\sigma} \reduce \mathsf{Id}\,(\subTm{a}{\sigma})\,(\subTm{t}{\sigma})\,(\subTm{u}{\sigma})
-\end{alignat*}
-\begin{alignat*}{5}
-  \mathsf{refl} & : \implicit{\Gamma, a}\;&&(t : \Tm\;\Gamma\;(\El\,a)) \to \Tm\;\Gamma\;(\mathsf{Id}\,a\,t\,t) \\
-  []\mathsf{refl} & : \implicit{\Gamma, a, t}\;&& \sub{(\mathsf{refl}\;t)}{\sigma} =^{\Tm\;\Gamma\;(\subTy{(\mathsf{Id}\,a\,t\,t)}{\sigma})} \mathsf{refl}(\sub{t}{\sigma}) \\
   \mathsf{reflect} & : \implicit{\Gamma, a, t, u}\;&& \Tm\;\Gamma\;(\mathsf{Id}\,a\,t\,u) \to t =^{\Tm\;\Gamma\;(\El\,a)} u
 \end{alignat*}
+
 
 \paragraph*{Elimination principles for type theories as QIIRTs}
 
