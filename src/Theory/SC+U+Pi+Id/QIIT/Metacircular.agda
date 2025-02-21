@@ -1,5 +1,6 @@
 -- For simplicity in dealing with the universe levels in the object
--- theory, we turn on type in type in this module
+-- theory, we turn on type in type in this module.
+-- This is needed as `intp` would otherwise need to live in Setω
 {-# OPTIONS --type-in-type #-}
 
 
@@ -22,8 +23,8 @@ postulate
 
 intp : Recursor
 intp .mot = record
-    { Ctxᴹ = Set 
-    ; Tyᴹ  = λ Γᴹ _ → Γᴹ → Set
+    { Ctxᴹ = Set
+    ; Tyᴹ  = λ Γᴹ i → Γᴹ → Set (natlevel i)
     ; Subᴹ = λ Γᴹ Δᴹ → Γᴹ → Δᴹ
     ; Tmᴹ  = λ Γᴹ Aᴹ → (γ : Γᴹ) → Aᴹ γ
     }
@@ -52,7 +53,24 @@ intp .met = record
       ; [⨟]tmᴹ   = refl
       ; π₂,ᴹ    = refl
       }
-  ; univ = {! !}
+  ; univ = record
+      { Uᴹ = λ i _ → Set (natlevel i)
+      ; Elᴹ = λ aᴹ γᴹ → aᴹ γᴹ
+      ; Liftᴹ = λ aᴹ γᴹ → Level.Lift _ (aᴹ γᴹ)
+      ; cᴹ = λ aᴹ γᴹ → aᴹ γᴹ
+      ; mkᴹ = λ tᴹ γᴹ → Level.lift (tᴹ γᴹ)
+      ; unᴹ = λ tᴹ γᴹ → Level.lower (tᴹ γᴹ)
+      ; []Uᴹ = refl
+      ; []Elᴹ = λ σᴹ uᴹ → refl
+      ; []Liftᴹ = refl
+      ; []tcᴹ = λ σᴹ Aᴹ → refl
+      ; []mkᴹ = λ σᴹ tᴹ → refl
+      ; []unᴹ = λ σᴹ Aᴹ tᴹ → refl
+      ; Uβᴹ = refl
+      ; Uηᴹ = refl
+      ; Liftβᴹ = refl
+      ; Liftηᴹ = refl
+      }
   ; piTy = record
       { Πᴹ    = λ Aᴹ Bᴹ γ → (x : Aᴹ γ) → Bᴹ (γ , x)
       ; ƛᴹ_   = λ tᴹ γ x → tᴹ (γ , x)
@@ -64,9 +82,9 @@ intp .met = record
       }
   ; idTy = record
       { Idᴹ      = λ aᴹ tᴹ uᴹ γ → tᴹ γ ≡ uᴹ γ
-      ; []Idᴹ   = {! !} -- refl
+      ; []Idᴹ   = refl
       ; reflᴹ    = λ t γ → refl
-      ; []reflᴹ  = λ σᴹ tᴹ → {!   !} -- refl
+      ; []reflᴹ  = λ σᴹ tᴹ → refl
       ; reflectᴹ = funext
     }
   }

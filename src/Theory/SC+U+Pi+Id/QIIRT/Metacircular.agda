@@ -1,5 +1,6 @@
 -- For simplicity in dealing with the universe levels in the object
 -- theory, we turn on type in type in this module
+-- This is needed as `intp` would otherwise need to live in Setω
 {-# OPTIONS --type-in-type #-}
 open import Prelude
 
