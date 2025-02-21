@@ -25,14 +25,14 @@ module elim {ℓ ℓ′}(M : Eliminator {ℓ} {ℓ′}) where
   elimTy
     : (A : Ty Γ i) → Tyᴹ (elimCtx Γ) i A
   elimSub
-    : (σ : Sub Δ Γ) → Subᴹ (elimCtx Δ) (elimCtx Γ) σ
+    : (σ : Sub Γ Δ) → Subᴹ (elimCtx Γ) (elimCtx Δ) σ
   elimTm
     : (t : Tm Γ A) → Tmᴹ (elimCtx Γ) (elimTy A) t
   elimTy[]
-    : (σ : Sub Δ Γ)(A : Ty Γ i)
+    : (σ : Sub Γ Δ)(A : Ty Δ i)
     → [ elimSub σ ]ᴹ elimTy A ≡ elimTy ([ σ ] A)
   elimTm[]
-    : (σ : Sub Δ Γ){A : Ty Γ i}(t : Tm Γ A)
+    : (σ : Sub Γ Δ){A : Ty Δ i}(t : Tm Δ A)
     → tr TmᴹFamₜ (elimTy[] σ A) ([ elimSub σ ]tᴹ elimTm t) ≡ elimTm ([ σ ]t t)
   
   elimCtx ∅          = ∅ᶜᴹ

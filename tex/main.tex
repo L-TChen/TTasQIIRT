@@ -1168,7 +1168,7 @@ We give the QIIRT for type theory with a universe of small types, $\Pi$-types, a
 \begin{alignat*}{5}
 \subTy{\blank}{\blank} & : \implicit{\Gamma, \Delta}\; && \Ty\;\Delta \to \Sub\;\Gamma\;\Delta \to \Ty\;\Gamma \\
   \UU         & : \implicit{\Gamma}\; && \Ty\; \Gamma \\
-  \El         & : \implicit{\Gamma}\; && \Tm\;\Gamma\;U \to \Ty\;\Gamma \\
+  \El         & : \implicit{\Gamma}\; && \Tm\;\Gamma\;\UU \to \Ty\;\Gamma \\
   \Pi         & : \implicit{\Gamma}\; && (A : \Ty\;\Gamma) \to \Ty\;(\Gamma, A) \to \Ty\;\Gamma \\
   \mathsf{Id} & : \implicit{\Gamma}\; && (a : \Tm\;\Gamma\;\UU) \to \Tm\;\Gamma\;(\El\,a) \to \Tm\;\Gamma\;(\El\,a) \to \Ty\;\Gamma
 \end{alignat*}

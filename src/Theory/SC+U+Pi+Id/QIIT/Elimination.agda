@@ -24,7 +24,7 @@ module _ {ℓ ℓ′ : Level} (elim : Eliminator {ℓ} {ℓ′}) where
   elimTy
     : (A : Ty Γ i) → Tyᴹ (elimCtx Γ) i A
   elimSub
-    : (σ : Sub Δ Γ) → Subᴹ (elimCtx Δ) (elimCtx Γ) σ
+    : (σ : Sub Γ Δ) → Subᴹ (elimCtx Γ) (elimCtx Δ) σ
   elimTm
     : (t : Tm Γ A) → Tmᴹ (elimCtx Γ) (elimTy A) t
   

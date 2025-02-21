@@ -24,7 +24,7 @@ module _ {ℓ ℓ′ : Level} (rec : Recursor {ℓ} {ℓ′}) where
   recTy
     : (A : Ty Γ i) → Tyᴹ (recCtx Γ) i
   recSub
-    : (σ : Sub Δ Γ) → Subᴹ (recCtx Δ) (recCtx Γ)
+    : (σ : Sub Γ Δ) → Subᴹ (recCtx Γ) (recCtx Δ)
   recTm
     : (t : Tm Γ A) → Tmᴹ (recCtx Γ) (recTy A)
   
