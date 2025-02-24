@@ -62,6 +62,16 @@ interleaved mutual
     [π₁,] : A [ π₁ (σ , t) ] ≡ A [ σ ]
     [π₁∘] : A [ π₁ (τ ∘ σ) ] ≡ A [ π₁ τ ] [ σ ]
     {-# REWRITE [id] [∘] [π₁,] [π₁∘] #-}
+  
+    [id]=refl
+        : [id] {A = A} ≡ refl
+    [∘]=refl
+      : [∘] {A = A} {τ = τ} {σ = σ} ≡ refl
+    [π₁,]=refl
+      : [π₁,] {A = A} {σ = σ} {t = t} ≡ refl
+    [π₁∘]=refl
+      : [π₁∘] {A = A} {τ = τ} {σ = σ} ≡ refl
+    {-# REWRITE [id]=refl [∘]=refl [π₁,]=refl [π₁∘]=refl #-}
 
   postulate
     [id]tm : t [ idS   ]tm ≡ t
