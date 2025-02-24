@@ -1,8 +1,7 @@
 module Theory.SC.QIIRT.NbE where
 
 open import Prelude
-  renaming (_,_ to _/_)
-  hiding (_∘_)
+  renaming (_,_ to _/_) hiding (_∘_)
 open import Theory.SC.QIIRT.Syntax
 open import Theory.SC.QIIRT.Model
 open import Theory.SC.QIIRT.Elimination
@@ -21,11 +20,8 @@ data Ren : Ctx → Ctx → Set
 ⌞_⌟R : Ren Δ Γ → Sub Δ Γ
 
 data Ren where
-  ∅
-    : Ren Δ ∅
-  _,_
-    : (ρ : Ren Δ Γ) → Var Δ (A [ ⌞ ρ ⌟R ])
-    → Ren Δ (Γ , A)
+  ∅   : Ren Δ ∅
+  _,_ : (ρ : Ren Δ Γ) → Var Δ (A [ ⌞ ρ ⌟R ]) → Ren Δ (Γ , A)
 
 ⌞ ∅     ⌟R = ∅
 ⌞ σ , t ⌟R = ⌞ σ ⌟R , ⌞ t ⌟V

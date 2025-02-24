@@ -21,7 +21,7 @@ data Ren : Ctx → Ctx → Set
 ⌞_⌟R : Ren Δ Γ → Sub Δ Γ
 
 data Ren where
-  ∅ : Ren Δ ∅
+  ∅   : Ren Δ ∅
   _,_ : (ρ : Ren Δ Γ) → Var Δ (A [ ⌞ ρ ⌟R ]) → Ren Δ (Γ , A)
 
 ⌞ ∅ ⌟R = ∅
