@@ -64,7 +64,6 @@
       {Δ}{$\Delta$}1 
       {→}{$\to$}1
       {≅}{$\cong$}1
-      {σ}{$\sigma$}1
 }
 
 \input{macro.tex}
@@ -1080,16 +1079,17 @@ Quotient inductive types are simulated by postulating equations for equality con
 
 \subparagraph*{Implementing overlapping patterns via rewrite rules}
 %The mechanism of defining a function by overlapping patterns is only implemented in an outdated experimental fork of \Agda.
-To emulate a function by overlapping patterns, we declare each function clause a rewriting rule and turn on the option \texttt{-{}-local-confluence-check}  to check local confluence.
+To emulate a function by overlapping patterns, we implement each function clause as a rewriting rule, together with another rule to identify the clause as the reflexivity proof $\mathsf{refl}$ (which ensures that the named function clause is merely synonymous with \lstinline|refl|).
 For example, the first few clauses for type substitution (written $[\sigma]_{\Ty}\,A$ rather than $\subTy{A}{\sigma}$ in the formalisation) are defined as
 \begin{lstlisting}
 postulate
-  [_]_ : Sub Γ Δ → Ty Δ → Ty Γ
-  [id] : [ idS ] A ≡ A
-  []U  : [ σ ]   U ≡ U
-  {-# REWRITE [id] []U #-}
+  [_]_      : Sub Γ Δ → Ty Δ → Ty Γ
+  [id]      : [ idS ]    A ≡ A
+  {-# REWRITE [id]      #-}
+  [id]=refl : [id] {A = A} ≡ refl
+  {-# REWRITE [id]=refl #-}
 \end{lstlisting}
-where \lstinline|A| and $\sigma$ are declared as genearlised variables.
+We also turn on the option \texttt{-{}-local-confluence-check} to check local confluence globally.
 %
 Overlapping patterns is indeed one of the use cases of user-defined rewrite rules discussed by Cockx~\cite{Cockx2020}.
 The caveat, though, is that the termination checking is not imposed, so we need to check termination informally.

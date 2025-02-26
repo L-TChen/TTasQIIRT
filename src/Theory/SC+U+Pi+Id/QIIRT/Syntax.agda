@@ -211,7 +211,6 @@ interleaved mutual
     Πη
       : ƛ (app t) ≡ t
   
-{-
     [id]=refl
       : [id] {A = A} ≡ refl
     [⨟]=refl
@@ -232,7 +231,6 @@ interleaved mutual
     []Id=refl
       : []Id {Γ} {Δ} {_} {σ} {a} {t} {u} ≡ refl
     {-# REWRITE []U=refl []El=refl []Lift=refl []Π=refl []Id=refl #-}
--}
 
 data Tel (Γ : Ctx) : Set
 _⧺_ : (Γ : Ctx) (Ξ : Tel Γ) → Ctx
