@@ -1,6 +1,7 @@
-module Theory.SC+U+Pi+Id.QIIT.Syntax where
- 
 open import Prelude
+
+
+module Theory.SC+U+Pi+Id.QIIT.Syntax where
 
 -- infixl 20 _⁺
 infixr 15 [_]_ [_]tm_
@@ -109,7 +110,8 @@ interleaved mutual
     π₁,
       : π₁ (σ , t) ≡ σ
     ⨟,
-      : (σ ⨟ (τ , t)) ≡ (σ ⨟ τ , tr (Tm _) (sym [⨟]) ([ σ ]tm t))
+      : (σ ⨟ (τ , t))
+      ≡ (σ ⨟ τ , tr (Tm _) (sym [⨟]) ([ σ ]tm t))
     η∅
       : {σ : Sub Γ ∅}
       → σ ≡ ∅
@@ -118,19 +120,20 @@ interleaved mutual
       → σ ≡ (π₁ σ , π₂ σ)
   -- Equality constructors for terms
     [idS]tm
-      : tr (Tm Γ) [idS] ([ idS   ]tm t) ≡ t
+      : tr (Tm Γ) [idS] ([ idS ]tm t) ≡ t
     [⨟]tm
       : tr (Tm Γ) [⨟] ([ σ ⨟ τ ]tm t) ≡ [ σ ]tm [ τ ]tm t
     π₂,
       : {σ : Sub Γ Δ}{A : Ty Δ i}{t : Tm Γ ([ σ ] A)}
-      →  tr (λ σ → Tm Γ ([ σ ] A)) π₁, (π₂ (σ , t)) ≡ t
+      → tr (λ σ → Tm Γ ([ σ ] A)) π₁, (π₂ (σ , t)) ≡ t
 
   -- Structural rules for type formers
     []U
       : [ σ ] (U i) ≡ U i
     []El
       : (σ : Sub Γ Δ) (u : Tm Δ (U i))
-      → [ σ ] (El u) ≡ El (tr (Tm Γ) []U ([ σ ]tm u))
+      → [ σ ] (El u)
+      ≡ El (tr (Tm Γ) []U ([ σ ]tm u))
     []Lift
       : [ σ ] (Lift A) ≡ Lift ([ σ ] A)
     []Π
