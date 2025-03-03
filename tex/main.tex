@@ -692,7 +692,7 @@ For example, $\subTy{(\Pi\;A\;B)}{\idS}$ reduces to $\Pi\;A\;(\subTy{B}{\idS \up
 
 To retain the local confluence, we turn $\sigma \uparrow A$ into a simultaneously defined function:
 \begin{alignat}{3}
-  \blank\uparrow \blank & : \implicit{\Gamma, \Delta}\; (\sigma : \Sub\,\Gamma,\Delta) (A : \Ty\,\Delta) \to \Sub\,(\Gamma, \subTy{A}{\sigma})\, (\Delta, A) \label{eq:type-of-lifting} \\
+  \blank\uparrow \blank & : \implicit{\Gamma, \Delta}\; (\sigma : \Sub\,\Gamma\,\Delta) (A : \Ty\,\Delta) \to \Sub\,(\Gamma, \subTy{A}{\sigma})\, (\Delta, A) \label{eq:type-of-lifting} \\
 \idS                \uparrow A & \reduce \idS \nonumber \\
 (\sigma ; \tau)     \uparrow A & \reduce (\sigma \uparrow \subTy{\tau}{A} ) ; (\tau \uparrow A) \nonumber \\
 \pi_1(\sigma, t)    \uparrow A & \reduce \sigma \uparrow A \nonumber \\
