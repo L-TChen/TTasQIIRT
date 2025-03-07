@@ -1079,7 +1079,7 @@ Quotient inductive types are simulated by postulating equations for equality con
 
 \subparagraph*{Implementing overlapping patterns via rewrite rules}
 %The mechanism of defining a function by overlapping patterns is only implemented in an outdated experimental fork of \Agda.
-To emulate a function by overlapping patterns, we implement each function clause as a rewriting rule, together with another rule to identify the clause as the reflexivity proof $\mathsf{refl}$ (which ensures that the named function clause is merely synonymous with \lstinline|refl|).
+To emulate a function by overlapping patterns, we implement each function clause as a rewriting rule, together with another rule to identify the clause as the reflexivity proof $\mathsf{refl}$ (which ensures that the named function clause is merely a synonym for \lstinline|refl|).
 For example, the first few clauses for type substitution (written $[\sigma]_{\Ty}\,A$ rather than $\subTy{A}{\sigma}$ in the formalisation) are defined as
 \begin{lstlisting}
 postulate
@@ -1089,7 +1089,7 @@ postulate
   [id]=refl : [id] {A = A} ≡ refl
   {-# REWRITE [id]=refl #-}
 \end{lstlisting}
-We also turn on the option \texttt{-{}-local-confluence-check} to check local confluence globally.
+We also turn on the option \texttt{-{}-local-confluence-check} globally to check local confluence.
 %
 Overlapping patterns is indeed one of the use cases of user-defined rewrite rules discussed by Cockx~\cite{Cockx2020}.
 The caveat, though, is that the termination checking is not imposed, so we need to check termination informally.
