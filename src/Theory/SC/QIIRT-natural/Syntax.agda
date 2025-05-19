@@ -3,7 +3,11 @@
 -- Type theory as a quotient inductive-inductive-recursive type, inspired by the formualtion of natural models
 -- whereas the recursion part is impredicative.
 
-module Theory.SC.QIIT2.Syntax where
+
+-- See https://github.com/agda/agda/issues/5362 for the current limitation of Agda
+-- that affacts the definition of our encoding
+
+module Theory.SC.QIIRT-natural.Syntax where
 
 open import Cubical.Foundations.Prelude
   hiding (Sub)
@@ -33,6 +37,9 @@ interleaved mutual
       : (Γ : Ctx)(A : Ty Γ)
       → Ctx
       
+  π₁'
+    : Sub Γ (Δ , A)
+    → Sub Γ Δ
   tyOf   : Tm Γ → Σ[ Δ ∈ Ctx ] (Sub Γ Δ × Ty Δ)
   idS' : Sub Γ Γ
   _∘'_
@@ -41,6 +48,10 @@ interleaved mutual
   _,'_∶[_]
     : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ (_ , (σ , A))
     → Sub Γ (Δ , A)
+
+  βπ₁'
+    : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ (_ , (σ , A)))
+    → π₁' (σ ,' t ∶[ p ]) ≡ σ
       
   data Tm where
     _[_]
@@ -58,6 +69,14 @@ interleaved mutual
     βπ₂
       : (t : Tm Γ) (p : tyOf t ≡ (Δ , (σ , A)))
       → π₂ (σ ,' t ∶[ p ]) ≡ t
+      
+  tyOf (t [ σ ]) =
+    let  (Θ , (τ , A)) = tyOf t
+    in _ , (τ ∘' σ , A)
+  tyOf (π₂ {A = A} σ)  = _ , (π₁' σ , A)
+  tyOf ([idS]tm t i)   = {!!}
+  tyOf ([∘]tm   t i)   = {!!}
+  tyOf (βπ₂     t p i) = {!!}
 
   data Sub where
     ∅
@@ -82,19 +101,23 @@ interleaved mutual
     assocS
       : (δ ∘ τ) ∘ σ ≡ δ ∘ (τ ∘ σ)
     ,∘
-      : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≡ (_ , (σ , A)))
-      → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ] ∶[ {!!} ])
+      : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≡ (Θ , (σ , A)))
+      → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘' τ , t [ τ ] ∶[ (λ i → p i .fst , ((p i .snd .fst ∘' τ) , p i .snd .snd)) ])
     βπ₁
       : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ (_ , (σ , A)))
       → π₁ (σ , t ∶[ p ]) ≡ σ
     ηπ
-      : σ ≡ (π₁ σ , π₂ σ ∶[ {!!} ]) -- refl?
+      : (σ : Sub Γ (Δ , A))
+      → σ ≡ (π₁' σ , π₂ σ ∶[ refl ])
+      -- Agda is a bit annoying -- QIIT support is not fully general as constructors cannot be interleaved.
     η∅
       : σ ≡ ∅
 
   idS' = idS
   _∘'_ = _∘_
   _,'_∶[_] = _,_∶[_]
+  π₁' = π₁
+  βπ₁' = βπ₁
 
   data Ty where
     _[_]
@@ -106,30 +129,30 @@ interleaved mutual
       : U [ σ ] ≡ U
     [∘]
       : A [ τ ∘ σ ] ≡ A [ τ ] [ σ ]
-      
-  tyOf (t [ σ ]) =
-    let  (Θ , (τ , A)) = tyOf t
-    in _ , (τ ∘ σ , A)
-  tyOf (π₂ {A = A} σ)  = _ , (π₁ σ , A) -- π₁ σ , {!!} -- A [ π₁ σ ]
-  tyOf ([idS]tm t i)   = {!!}
-  tyOf ([∘]tm   t i)   = {!!}
-  tyOf (βπ₂     t p i) = {!!}
 
 π₁∘
-  : (σ : Sub Δ (Γ , A))(τ : Sub Θ Δ)
-  → π₁ (σ ∘ τ) ≡ π₁ σ ∘ τ
-π₁∘ σ τ = {!!}
+  : (τ : Sub Δ (Θ , A)) (σ : Sub Γ Δ)
+  → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
+π₁∘ τ σ =
+  π₁ (τ ∘ σ)
+    ≡⟨ cong π₁ (cong (_∘ σ) (ηπ τ)) ⟩
+  π₁ ((π₁ τ , π₂ τ ∶[ refl ]) ∘ σ)
+    ≡⟨ cong π₁ (,∘ (π₁ τ) (π₂ τ) σ refl) ⟩
+  π₁ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ refl ])
+    ≡⟨ βπ₁ (π₁ τ ∘ σ) (π₂ τ [ σ ]) refl ⟩
+  π₁ τ ∘ σ
+    ∎
 
 π₂∘
   : (τ : Sub Δ (Θ , A))(σ : Sub Γ Δ)
   → π₂ (τ ∘ σ) ≡ (π₂ τ) [ σ ]
 π₂∘ τ σ = 
   π₂ (τ ∘ σ)
-    ≡⟨ {!!} ⟩
-  π₂ ((π₁ τ , π₂ τ ∶[ {!!} ]) ∘ σ)
-    ≡⟨ {!!} ⟩
-  π₂ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ {!!} ])
-    ≡⟨ βπ₂ (π₂ τ [ σ ]) {!!} ⟩
+    ≡⟨ cong π₂ (cong (_∘ σ) (ηπ τ)) ⟩
+  π₂ ((π₁ τ , π₂ τ ∶[ refl ]) ∘ σ)
+    ≡⟨ cong π₂ (,∘ (π₁ τ) (π₂ τ) σ refl) ⟩
+  π₂ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ refl ])
+    ≡⟨ βπ₂ (π₂ τ [ σ ]) refl ⟩
   π₂ τ [ σ ]
     ∎
 
@@ -144,5 +167,5 @@ vs : Tm Γ → Tm (Γ , B)
 vs x = x [ wk ]
 -- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
 
-vz:= : (t : Tm Γ) → let (_ , (σ , A)) = tyOf t in Sub Γ (Γ , A [ σ ])
-vz:= {Γ} t = idS , t ∶[ {!!} ]
+-- vz:= : (t : Tm Γ) → let (_ , (σ , A)) = tyOf t in Sub Γ (Γ , A [ σ ])
+-- vz:= {Γ} t = idS , t ∶[ {!!} ]
