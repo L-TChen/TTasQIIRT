@@ -1,0 +1,10 @@
+name: TTasQIIRT
+
+include: 
+  l
+
+depend: 
+  cubical
+
+flags:
+  --auto-inline --cubical --exact-split

@@ -1,3 +1,5 @@
+{-# OPTIONS --cubical --exact-split #-}
+
 -- Type theory as a quotient inductive-inductive-recursive type, inspired by the formualtion of natural models
 -- whereas the recursion part is impredicative.
 
@@ -5,9 +7,12 @@
 -- See https://github.com/agda/agda/issues/5362 for the current limitation of Agda
 -- that affacts the definition of our encoding
 
-open import Prelude
-
 module Theory.SC.QIIRT-natural-wk.Syntax where
+
+open import Cubical.Foundations.Prelude
+  hiding (Sub)
+open import Cubical.Data.Sigma
+  hiding (Sub)
   
 infixl 20 _[_]
 infixr 10 _∘_

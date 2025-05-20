@@ -1,0 +1,8 @@
+name: TTasQIIRT
+include: 
+  .
+depend: 
+  standard-library
+
+flags:
+  --auto-inline --with-K --exact-split --rewriting --local-confluence-check
