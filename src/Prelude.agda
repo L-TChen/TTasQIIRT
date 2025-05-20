@@ -6,3 +6,5 @@ open import Cubical.Data.Sigma          public
   hiding (Sub)
 open import Cubical.Data.Nat            public
   using (ℕ; zero; suc; _+_)
+open import Cubical.Data.Bool            public
+  using (Bool; true; false)
