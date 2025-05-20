@@ -1,0 +1,99 @@
+We thank the reviewers for their detailed and constructive feedback.
+
+Reviewer 1:
+
+>Lack of focus on metaproperties about object type theory
+
+The interpretation into the standard model is described in Section 4.2, albeit
+very briefly due to a lack of space. But it demonstrates that our approach can
+remove noise in definitions and proofs, with the details available in the Agda
+formalisation, as stated in Section 4.2.
+
+>Practical effectiveness of the approach
+
+We didn't manage to remove all transports in the case of inductive types, as we
+acknowledge in Section 3.5. However, we still improve on the number of
+transports needed for types and introduction forms.  We concentrate on
+eliminating transports along type substitutions, which introduce overhead early
+in the formalisation. Addressing this specific source of transports hopefully
+serves as a use case of QIIRTs and a step towards a solution to the transport
+hell. Our preliminary substitution calculus NbE experiment that the reviewer
+mentions indicate that the QIIRT-based definition reduces the code size by
+approximately 20% (from 229 to 182 LoC), for this simple case.
+
+>It seems like [your GitHub repository] contains more, such as work-in-progress
+>proof of NbE. Is there a reason to exclude that from your future work?
+
+The current experiments are small in terms of code size, and thus we didn't
+think it was worthwhile to mention them in the paper. But we of course hope to
+turn them into larger projects at a later stage. Since the QIIRT definition is
+(syntactically) isomorphic to the QIIT one, and the eliminator only introduces
+additional derived equations, we expect existing meta-theoretical results based
+on QIITs to transfer with minimal changes.
+
+Reviewer 2:
+
+>Do you have any (even vague) idea of how your generalisation of IRT would fare
+>with any of the justification for induction-recursion?
+
+It seems plausible that Dybjer and Setzer's set-theoretic model ([20] in our
+paper) could be adapted to justify this generalisation. If so, it should also
+be straightforward to extend this model to also include equality constructors,
+since quotients are easy in set theory.
+
+>Can you explain how you derive your notion of eliminator?
+>In particular, what (if any) is the difference between that eliminator and
+>that for the standard QIIT?
+>And do you have a justification/intuition for why you require that your model
+>satisfies only propositionally the rules which are definitional in the QIIRT?
+
+The eliminator for a QIIRT is derived following the general QIIT schema, where
+each function clause in the recursive part of the QIIRT definition corresponds
+to an equality constructor.
+
+Since we implement some constructors as recursive functions rather than
+constructors, the associated computation rules become propositional equalities
+in the eliminator (Proposition 4.2). These propositional equalities cannot be
+stated as definitional equalities, since there is no way to talk about
+definitional equality within type theory.
+
+For the same reason, models cannot be required to satisfy definitional equalities for
+these clauses.
+
+>Can you explain why you are not able to have a notion of term-level
+>substitution defined solely as a recursive function?
+>Why you chose to have composition and other operation not be themselves
+>defined? And why substitution is defined by induction on the structure of
+>substitution, rather than on that of terms?
+
+We do not define term-level substitution recursively, as doing so does not seem
+to reduce the number of transports needed, beyond the "smart constructor"
+[–]Tm– (Section 3.3). Defining more operations recursively would increase the
+number of proof obligations such as verifying confluence.
+
+The smart constructor is defined by induction on the structure of substitution,
+because the clauses based on the substitution structure are exactly those needed
+to align with the definitional behaviour of type substitution.
+
+>Can you comment on the relation with research on explicit substitution
+>calculi? In particular, do you view any fundamental obstruction to/reason not
+>to adapt the complete rewriting system of Schäfer, Smolka and Tebbi, which
+>seems to solve your issue in section 3.5, to a typed setting?
+
+The work of Schäfer et al. employs a normalisation function into normal
+expressions (see Section 6 and Theorem 32, op. cit.). In our setting, this
+would correspond to replacing equality constructors with a normalisation
+function, similar to the QIRT definition of join lists in Section 2.2 and the
+work by Bense et al. Adapting their approach to a type theory with universes
+and inductive types seems useful but likely requires a definition that departs
+far from the typical CwF-based definition of type theory.
+
+Reviewer 3:
+
+>In your formalisation there is less transport hell, but is there any kind of
+>new hell? E.g. "implicit argument hell" [...].
+
+Indeed, some implicit arguments must be given explicitly in the QIIRT version.
+Compared to the work saved from dealing with transports explicitly, we believe
+it is a good deal, since inserting implicit arguments does not complicate the
+equational theory.

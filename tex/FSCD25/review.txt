@@ -1,0 +1,411 @@
+----------------------- REVIEW 1 ---------------------
+SUBMISSION: 16
+TITLE: Type theories as quotient inductive-recursive types
+AUTHORS: Liang-Ting Chen, Fredrik Nordvall Forsberg and Tzu-Chun Tsai
+
+----------- Overall evaluation -----------
+SCORE: -1 (weak reject)
+----- TEXT:
+Summary of the paper
+
+This paper defines the intrinsically typed syntax and elimination
+principle of type theory with pi type and a universe of small types.
+The key contribution of this paper is the application of quotient
+inductive-inductive-recursive types (QIIRTs) and overlapping patterns
+to the definitions. This removes some coercions along equalities,
+specifically those from substitutions on types.
+The authors also discuss the limitations of this approach regarding
+inductive types.
+
+Assessment of the paper
+
+I have 2 major concerns about this paper:
+1. Lack of focus on metaproperties about object type theory
+2. Practical effectiveness of the approach
+
+1. Lack of focus on metaproperties about object type theory
+One motivation of this paper is removing noise in definitions and
+proofs for type theory in type theory. The definitions given in the
+paper follow this direction. However, it is not well demonstrated
+since no metaproperties using the elimination principles are given. In
+fact, the standard model section (section 4.2) does not even describe
+an interpretation, which would be an example using the elimination
+principles (although it is not a metaproperty proof). It would be more
+interesting and convincing if some interesting examples of
+metaproperties functions or interpretations into the standard model
+were given.
+
+This is also related to the other motivation introduced at the
+beginning of the abstract: "Defining type theory in type theory is a
+long-standing benchmark for the strength and expressivity of type
+theory and proof assistant". Maybe this is the reason why the authors
+focus on the definition parts. However, this motivation is less
+convincing than the first one. A definition or encoding of type theory
+in type theory is often for other applications, not an independent
+final goal. Altenkirch and Kaposi [POPL'2016] metioned this quite
+clearly in both the future work section of their paper and the
+presentation given in POPL 2016: they wanted to explore template type
+theory. Although a similar motivation is mentioned in the beginning of
+introduction, the abstract gives the impression that the only
+motivation is the definition of type theory itself.
+
+2. Practical effectiveness of the approach
+Another concern is the limitations mentioned in the paper, i.e.,
+unavoidable coercions for the eliminations of inductive types. In
+mechanizations of type theory with inductive types (such as one from
+[Abel et. al. POPL'2017] to recent [Jang et. al. WITS'2025]), it is
+often the case that the proof size for a single inductive type
+(e.g. natural number type or intensional equality type) amounts to the
+size for pi type or is significantly larger. When coercions cannot be
+avoided in such cases, I am not sure how much this approach would help
+in removing noises in proofs for an expressive type theory.
+
+Once these concerns are resolved, this paper provides an interesting
+direction to encode intrinsic type theory in type theory and to
+extend the type definition facilities that existing proof assistants
+have. Thus, if authors can resolve the aforementioned issues by
+1. providing a clear motivation other than the definition itself and
+adding relevant examples for the motivation and 2. adding arguments
+for practical effectiveness even for more expressive type theories,
+then this paper can be accepted in the future.
+
+[Altenkirch and Kaposi POPL'2016]: Thorsten Altenkirch and Ambrus Kaposi. 2016. Type theory in type theory using quotient inductive types. In Proceedings of the 43rd Annual ACM SIGPLAN-SIGACT Symposium on Principles of Programming Languages (POPL '16). Association for Computing Machinery, New York, NY, USA, 18–29. https://doi.org/10.1145/2837614.2837638
+[Abel et. al. POPL'2017]: Andreas Abel, Joakim Öhman, and Andrea Vezzosi. 2017. Decidability of conversion for type theory in type theory. Proc. ACM Program. Lang. 2, POPL, Article 23 (January 2018), 29 pages. https://doi.org/10.1145/3158111
+[Jang et. al. WITS'2025]: Junyoung Jang, Jason Z. S. Hu, Antoine Gaulin, and Brigitte Pientka. Mctt: Building a correct-by-construction proof checker for Martin-Löf type theory. In 4th Workshop on the Implementation of Type Systems, 2025. https://hustmphrrr.github.io/asset/papers/wits25.pdf
+
+Detailed comments for authors
+
+- Section 1.
+  - page 1: "theorem statements not having to deal with impossible
+    cases"
+    I am not convinced by this advantage; one should add well-formedness
+    judgement to the theorem statement to get the equivalent statement
+    as of the statement for well-typed terms, and this rules out
+    impossible cases.
+  - page 2: "However, this workaround is computationally ill-behaved,
+    as confluence does not hold in general. Also, the presentation
+    often differs from the actual definition in type theory"
+    Your approach also uses rewriting rules to define overlapping
+    patterns, but it is not clearly explained in the paper what are the
+    main differences allowing you to avoid these issues. I guess one
+    main difference is that your rewriting rules are functional and
+    locally confluence, but this is never explained in the paper,
+    even in section 5.
+- Section 2.
+  - page 3: "However, some statements are metatheoretical and thus not
+    checked in Agda."
+    The use of "metatheoretical" is misleading here, as we already
+    have object theory (the one encoded in a type theory) and meta
+    theory (the one encoding a type theory, i.e. Agda). If it means
+    metatheoretical when the object theory is this encoding introduced
+    in this paper, please make it clear.
+  - Section 2.1.
+    - "an elimination rule which says that f is defined by its values"
+      -> "the elimination rule that says f is defined by its values"
+  - Section 2.2.
+    - page 4: "the equality constructors idl, idr and assoc"
+      -> "the equality constructors idl, idr, and assoc"
+  - Section 2.3.
+    - "a first-match semantics"
+      -> "the first-match semantics"
+    - Typo in the second clause of "+": it should use "n" instead.
+    - "Each clause of +′ is strict while clauses of + are not
+      necessarily strict."
+      -> "... while the second and fourth clauses of + are not strict"
+    - "Thus, when a function f is defined with overlapping patterns"
+      Why "Thus"? I do not see such a causal relation between the
+      exploration of an alternative pattern matching semantics and
+      its notation.
+    - "Note that in the schema of IRTs these simultaneously defined
+      functions are already not given by using elimination rules."
+      Why is this important? I guess this is a way to justify
+      the use of rewriting rules, but it is unclear at the moment.
+- Section 3.
+  - Section 3.1.
+    - "substitution extensions σ, t which substitutes the most
+      recently bound variable by the term t:"
+      "substitution extension σ, t, which substitutes ..."
+    - "which given σ : Sub Γ ∆ turns terms in ∆ to terms in Γ"
+      -> "which, given σ : Sub Γ ∆, turns terms in ∆ to terms in Γ"
+  - Section 3.2.
+    - Proposition 3.4
+      It would be helpful to give some explanation why this is not
+      provable (or statable) in Agda. This one is specifically due to
+      rewrite rule representation of QIIRTs and if there
+      were a proper support of QIIRTs or with HoTT with IIRTs this
+      will be just a part of the definition of –[–]_{Ty}.
+  - Section 3.3.
+    - page 8: "an empty universe U of small types El u."
+      Calling U as a universe is a bit weird here, as it is (as
+      stated) empty and no "samll types" are in the system.
+      The classification by Altenkirch and Kaposi sounds better for
+      this: "an uninterpreted base type U, a family over this type El".
+      In fact, Altenkirch and Kaposi [POPL'2016] also argue that U is
+      not universe even with its name and El.
+- Section 5.
+  - "(for uniqueness of identity proofs)"
+    It has not been explained why UIP is needed in this encoding.
+    It would be helpful for readers if clear explanation were given.
+  - "(to ensure that function clauses are definitional)"
+    Here, does that "function clauses" mean the function clauses
+    appearring in rewriting rules? Then, I do not think the
+    --exact-split option is helpful here.
+- Section 6.
+  - "Eremondi and Kammar [21] has ..."
+    -> "Eremondi and Kammar [21] have ..."
+----------- Questions for authors (optional) -----------
+I checked your GitHub repository, and it seems like the repository contains more, such as work-in-progress proof of NbE. Is there a reason to exclude that from your future work?
+
+
+
+----------------------- REVIEW 2 ---------------------
+SUBMISSION: 16
+TITLE: Type theories as quotient inductive-recursive types
+AUTHORS: Liang-Ting Chen, Fredrik Nordvall Forsberg and Tzu-Chun Tsai
+
+----------- Overall evaluation -----------
+SCORE: 0 (borderline paper)
+----- TEXT:
+# Paper summary
+
+This paper explores the use of extra definitional equalities to lighten a presentation of the syntax of dependent type theory. It mainly reports on an Agda formalisation, which relies on Agda's mechanism of rewrite rules, to introduce these extra definitional equalities.
+
+# Opinion
+
+The question of how to avoid the burden of heavy equality reasoning when working with intrinsically well-typed syntax is definitely worth solving, and this exploration is certainly a step in that direction.
+
+However, in its current state the work has a number of important limitations:
+- the ambient theory is not well understood, in particular as far as I can tell there is no justification for the proposed elimination;
+- the choice of how to define substitution as recursive functions is limiting, in particular term substitution does not fully compute;
+- very little meta-theory of the object theory is developed, so it is hard to judge whether the proposed extension makes working with the object theory really significantly easier.
+
+The authors themselves admit the first limitation, and see it rather as a justification to develop new type-theoretic features. While I am to some extent fine with this justification, it means the paper has little contributions on this side.
+
+Regarding the second point, in typical extrinsically typed settings, composition and even the identity substitution themselves are defined as recursive functions. This way, many equations between substitutions already hold definitionally, and I believe this would in particular be the case of the problematic equation of Section 3.5. As for term-level reduction, I am surprised it is not possible to make it compute entirely. For instance, Bense, Kaposi and Xie in *Strict syntax of type theory via alpha-normalisation* (TYPES 2024) present a notion of α-normalisation which seems to be doing this correctly.
+
+Moreover, again in the untyped setting, there is a long line of research, starting with Abadi, Cardelli, Curien and Lévy's *Explicit substitutions* (JFP 1991), about the study of confluence properties of various explicit substitution calculi. In particular, Schäfer, Smolka and Tebbi, in *Completeness and Decidability of de Bruijn Substitution Algebra in Coq* (CPP 2015), provide a confluent rewriting system for substitution calculi that is semantically complete. Again, the problematic equation of section 3.5 is true by rewriting in this setting.
+
+Altogether, while the paper reports on an experiment that is definitely interesting, I feel
+its total contribution rather thin.
+
+# Detailed comments and questions
+
+p2:
+> leading to intricate higher-dimensional equations between equations.
+
+Are QIIT not usually set-truncated? In your case, at least, you take UIP to hold. How can you end-up with higher-dimensional issues, then?
+
+p2:
+> However, this workaround is computationally ill-behaved, as confluence does not hold in general.
+
+Is this your only objection? If one were to provide a confluent way to orient the equations, (for instance, inspired by the untyped substitution calculi), would you still reject this approach? If so, why?
+
+p2:
+> the presentation often differs from the actual definition in type theory.
+
+What do you mean by this?
+
+p3:
+> We have marked such ‘informal’ proofs with the symbol
+
+Many of these proofs are confluence proofs. These have been checked by Agda's confluence
+checker, have they not?
+
+p3:
+> A = ℕ
+
+Slightly strangely phrased
+
+p3:
+> In this work, we will consider an extension of generalised IRTs, where F : A → A is also allowed.
+
+Do you have any (even vague) idea how this generalised IRT would fare with respect to either Dybjer-Setzer semantics or small induction-recursion (or any other justification for IR), independent of overlapping patterns?
+
+p3:
+> The metatheory of QIITs has been extensively studied by Altenkirch, Kaposi, and Kovács [25, 26, 30].
+
+The reference to 30 seems incorrect.
+
+p4: Join list example
+
+Do you have any other example of usage of QIRT? In my mind the example of join lists as a QIT is rather natural (it is the free monoid), but the QIRT one seems contorted, and I do not really see how reasoning about `flatten` would be any easier than working with the QIT.
+
+p4:
+> Each clause of +′ is strict while clauses of + are not necessarily strict.
+
+I believe you never introduced “strict” before, maybe use “definitional” instead.
+
+p7:
+> One possibility is to define the substitution calculus as a QIIRT, where type substitution
+is defined by recursion, and hence computes.
+
+Why not make the definitions of the substitution operations *themselves* recursive? Also, why chose to have the definition by recursion on substitutions rather than on terms (what I would have naïvely been expecting from the extrinsic precedent)?
+
+p7:
+> Termination is clear, since all recursive calls are on structurally smaller arguments [1].
+
+The citation [1] is a bit of a stretch: is the notion of “structurally smaller” still a reasonable one for a QII(R)T?
+
+p8:
+> an empty universe U of small types El u.
+
+I am not sure I understand this sentence, mostly what the “El u” part is supposed to mean.
+
+p9:
+> The remaining ‘default’ cases reduce to the constructor t [σ].
+
+Why can't you make term-level substitution fully defined?
+
+p10:
+> Equation 13
+
+I believe some τ[A] should be A[τ]
+
+p11:
+> (app t) [σ ↑ A]
+
+Because only the “generic” application exists, I guess there is no general equation for `(app t)[σ]` for a general σ (I guess the best would be `t[π2 σ] $ (π1 σ)`?) Can this latter equation be proven? Is this an issue? I guess this is part of the issue to have term substitution “compute fully”?
+
+p12:
+> and simultaneously defined functions are also interpreted by corresponding functions, e.g.,
+
+This phrasing confused me at first, regarding whether you also require methods for the simultaneously-defined functions or whether these are “automatic” as in standard IR.
+
+p12:
+> subject to the identities corresponding to equality constructors and function clauses, e.g.,
+
+So as far as I understand you require the “model” to be less strict than the initial object? Is this something reasonable to expect? Apart from removing some transports, is there any difference between the eliminator for your QIIRT and that for the corresponding QIIT? Or are the two essentially initial for the same class of models?
+
+p14:
+> are derivable in the QIIT definition.
+
+Propositionally, I guess?
+
+
+p14 (Theorem 4.4):
+> ≃
+
+You have not defined this, and this is crucial! Is this simply bijection of the types? Could the theorem be "promoted" to say something more structured, eg to say that the QIIRT is initial in some respect and/or that it is a strictification of the QIIT in a certain sense?
+
+p14:
+> together with another rewrite to identify the witness as the reflexivity proof refl.
+
+So you are enforcing a bit of definitional UIP by hand? Could you have used a `Prop`-valued equality directly instead?
+
+p15:
+> Eremondi and Kammar [21] has recently
+
+have?
+----------- Questions for authors (optional) -----------
+- Do you have any (even vague) idea of how your generalisation of IRT would fare with any of the justification for induction-recursion?
+
+- Can you explain how you derive your notion of eliminator? In particular, what (if any) is the difference between that eliminator and that for the standard QIIT? And do you have a justification/intuition for why you require that your model satisfies only propositionally the rules which are definitional in the QIIRT?
+
+- Can you explain why you are not able to have a notion of term-level substitution defined solely as a recursive function? Why you chose to have composition and other operation not be themselves defined? And why substitution is defined by induction on the structure of substitution, rather than on that of terms?
+
+- Can you comment on the relation with research on explicit substitution calculi? In particular, do you view any fundamental obstruction to/reason not to adapt the complete rewriting system of Schäfer, Smolka and Tebbi, which seems to solve your issue in section 3.5, to a typed setting?
+
+
+
+----------------------- REVIEW 3 ---------------------
+SUBMISSION: 16
+TITLE: Type theories as quotient inductive-recursive types
+AUTHORS: Liang-Ting Chen, Fredrik Nordvall Forsberg and Tzu-Chun Tsai
+
+----------- Overall evaluation -----------
+SCORE: 2 (accept)
+----- TEXT:
+This paper uses the not yet formally defined notion of
+quotient-inductive-inductive-recursive types (QIIRTs) to formalise the
+intrinsic syntax of type theory. It is known that Agda's pattern
+matching mechanism allows some IIRTs which are not described by any
+syntactic scheme and for which there is no formal semantics. Instead
+of using such mechanisms, the paper simply adds QIIRTs via rewrite
+rules and uses the theory of overlapping patterns developed by Cockx
+to add definitional substitution rules (like []U) and some invariants
+(like [;]) at the same time. The technique feels a bit ad-hoc at some
+points, but as this is only the beginning of the exploration of the
+notion of QIIRT, it is definitely a valid approach; it is strengthened
+by the impressive formalisation which comes with the paper. The main
+motivation of the paper is to avoid the "transport hell" issue of the
+QIIT approach, and it certainly takes some steps in this
+direction. I.e. in the syntax of type theory, there are no
+transports. However when defining the notion of model, transports
+still appear (but these disappear in most (strict) models such as the
+standard model). Also, when extending the syntax with the eliminator
+of Bool, there is again a transport.
+
+I like the approach of the paper, the paper is well-written, most of
+it is formalised, and the non-formalised parts seem correct (some of
+the minor mistakes detailed below). Because we don't know what a QIIRT
+is formally, it is not completely clear what exactly we have to prove
+informally (e.g. is it enough to prove things like Prop.3.4 to make
+the QIIRT well-defined), but the approach of the paper is
+plausible. It should be possible to use the Agda development to
+formalise more arguments about the syntax of type theory. I recommend
+acceptance.
+
+Comments:
+
+A good showcase of the technology would be the definition of some
+syntactic models (e.g. Bernardy's parametricity translation which
+appears in [3]) because mapping into a strict model should be
+straightforward.
+
+You didn't say anything about the metatheory using QIITs. As QITs
+imply function extensionality, you probably need some kind of
+observational type theory to make sure that everything still computes.
+
+Two more references:
+- Your approach of making just enough equations definitional to make
+  everything typecheck without transports reminds me of Escardo's
+  approach, maybe it is worth thinking about a comparison:
+  https://lists.chalmers.se/pipermail/agda/2014/006525.html
+- There is the McBride [36] approach of making indexing of types/terms
+  metatheoretic, and thus removing transports; the extreme variant of
+  this is the Kaposi-Kovács-Kraus: Shallow embedding of type theory is
+  morally correct (MPC 2019) paper where they make everything
+  metatheoretic, that is, they treat the standard model as if it was
+  the syntax, and they prove (externally to Agda) that whatever you do
+  in the standard model, could have been done in the syntax.
+
+Small comments, typos:
+
+p.2. "typical workaround in practice [26,28]" -- in these citations
+     there is no usage of rewrite rules. You could cite
+     Kaposi-Kovács-Kraus: Shallow embedding of type theory is morally
+     correct (MPC 2019) which explains how rewrite rules can be used
+     to avoid transport hell.
+
+p.3. "extensively studied by Altenkirch, Kaposi and Kovács
+     [25,26,30]." [30] is not about QIITs but elaboration. You
+     probably want to cite Kaposi-Kovács's Large and Infinitary
+     Quotient Inductive-Inductive Types with (LICS 2020).
+
+p.8. [id]_T, [;]_T should be [id]_Ty, [;]_Ty
+
+p.8. "The type substitution (El u)[σ]" should be "The type
+     substitution (El u)[σ]_Ty"
+
+p.9. the rules defining _[_]_Tm feel a bit ad-hoc. You have a
+     computation rule for t[π₁(σ,s)], but not for e.g. t[π₁(π₁(σ,s))].
+
+p.9. Prop 3.9. the equation "t[σ]_Tm = t[τ]_Tm" should be over c.
+
+p.10. in (13), "τ[A]_Ty" should be "A[τ]_Ty" and similarly for
+      "π₁ ⊤[A]_Ty"
+
+p.20. A.2. _[_]ᴹ appears twice (once in the substitution calculus
+      where it belongs, and then again at the universe)
+
+p.23. Prop 3.8. Is this formalised? I don't think that for the
+      remaining cases t[σ]_Tm is eequal to t[σ] strictly, i.e. it is
+      not strict for t[π₁(σ;τ)].
+
+p.24. Prop 3.11 [σ]A should be A[σ] (twice), in the last term π₁ τ and
+      σ are swapped.
+----------- Questions for authors (optional) -----------
+In your formalisation there is less transport hell, but is there any
+kind of new hell? E.g. "implicit argument hell" which forces one to
+make every argument explicit because Agda's unification is not very
+powerful when using functions as opposed to constructors.
