@@ -1,3 +1,6 @@
+-- Beyond strict positivity
+--
+
 open import Prelude
 
 module Theory.SC+Tarski+MetaPi.QIIRT.Syntax where
@@ -7,15 +10,14 @@ interleaved mutual
   data Ty : Ctx → Set
   data Tm : (Γ : Ctx) → Ty Γ → Set
   data Sub : (Γ Δ : Ctx) → Set
-  data UU  : Set
-  T : UU → Set
+  data UU  : Ctx → Set
+  T : {Γ : Ctx} → UU Γ → Set
 
   variable
     Γ Δ Θ Ξ : Ctx
     A B C   : Ty Γ
     t u v   : Tm Γ A
     σ τ γ   : Sub Γ Δ
-
 
   data Ctx where
     ∅
@@ -28,9 +30,6 @@ interleaved mutual
   _∘'_
     : Sub Δ Ξ → Sub Γ Δ
     → Sub Γ Ξ
-  π₁'
-    : Sub Γ (Δ , A)
-    → Sub Γ Δ
 
   data Ty where
     _[_]
@@ -38,11 +37,20 @@ interleaved mutual
       → Ty Γ
     U
       : Ty Γ
+    El
+      : Tm Γ U → Ty Γ
+    Π̂
+      : (`A : UU Γ) → (T `A → Ty Γ)
+      → Ty Γ
     [id]T
       : A [ idS' ] ≡ A
     [][]T
-      : A [ τ ] [ σ ] ≡ A [ τ ∘' σ ]
+      : (σ : Sub Γ Δ) (τ : Sub Δ Ξ) (A : Ty Ξ)
+      → A [ τ ] [ σ ] ≡ A [ τ ∘' σ ]
       
+  π₁'
+    : Sub Γ (Δ , A)
+    → Sub Γ Δ
   π₂'
     : (σ : Sub Γ (Δ , A))
     → Tm Γ (A [ π₁' σ ])
@@ -71,7 +79,7 @@ interleaved mutual
       : (γ ∘ τ) ∘ σ ≡ γ ∘ (τ ∘ σ) 
     ,∘
       : (τ : Sub Δ Ξ) (σ : Sub Γ Δ) {A : Ty Ξ} {t : Tm Δ (A [ τ ])}
-      → (τ , t) ∘ σ ≡ (τ ∘ σ , {!!})
+      → (τ , t) ∘ σ ≡ (τ ∘' σ , {!!})
     π₁β
       : π₁ (σ , t) ≡ σ
     πη
@@ -90,19 +98,23 @@ interleaved mutual
       : Tm Δ A → (σ : Sub Γ Δ)
       → Tm Γ (A [ σ ])
     π₂β
-      : π₂ (σ , t) ≡ {!t!} -- t
-      
-  data UU where
-    `Bool `ℕ : UU
-    Π        : (`A : UU) → (T `A → UU) → UU
-    μ        : Tm Γ U → UU
+      : π₂ (σ , t) ≡ {!t!} -- transport leads to a non-strictly positive definition.
 
-  T `Bool         = Bool
-  T `ℕ            = ℕ
-  T (Π `A `B)     = (x : T `A) → T (`B x)
-  T (μ {Γ = Γ} t) = ?
+  π₁'  = π₁
+  π₂'  = π₂
+--  _,'_ = _,_
+
+  data UU where
+    `⊥ `⊤ `Bool `ℕ : UU Γ
+    Π : (`A : UU Γ) → (T `A → UU Γ) → UU Γ
+    μ : (u : Tm Γ U) → UU Γ
+
+  T `⊥        = ⊥
+  T `⊤        = Unit
+  T `Bool     = Bool
+  T `ℕ        = ℕ
+  T (Π `A `B) = (x : T `A) → T (`B x)
+  T (μ t)     = Tm _ (El t)
 
   idS' = idS
   _∘'_ = _∘_
-  π₁'  = π₁
-  π₂'  = π₂
