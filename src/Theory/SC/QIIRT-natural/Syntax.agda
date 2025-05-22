@@ -88,7 +88,8 @@ interleaved mutual
   tyOf ([∘]tm {τ = τ} {σ = σ} t i)   =
     let (Δ , (δ , A)) = tyOf t in
     Δ , (assocS' σ τ δ i , A)
-  tyOf (βπ₂     t p i) = {!!}
+  tyOf (βπ₂ {Δ = Δ} {σ = σ} t p i) =
+    p (~ i) .fst , ({! compPathP (βπ₁' σ t p) (λ j → p (~ j) .snd .fst) i  !} , p (~ i) .snd .snd)
 
   data Sub where
     ∅
