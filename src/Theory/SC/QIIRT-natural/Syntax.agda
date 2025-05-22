@@ -25,6 +25,9 @@ interleaved mutual
       t u   : Tm Γ
       σ τ δ : Sub Γ Δ
   
+  tyOf
+    : Tm Γ → Σ[ Δ ∈ Ctx ] (Sub Γ Δ × Ty Δ)
+    
   data Ctx where
     ∅
       : Ctx
@@ -35,11 +38,14 @@ interleaved mutual
   π₁'
     : Sub Γ (Δ , A)
     → Sub Γ Δ
-  tyOf   : Tm Γ → Σ[ Δ ∈ Ctx ] (Sub Γ Δ × Ty Δ)
-  idS' : Sub Γ Γ
+
+  idS'
+    : Sub Γ Γ
+
   _∘'_
     : Sub Δ Θ → Sub Γ Δ
     → Sub Γ Θ
+
   _,'_∶[_]
     : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ (_ , (σ , A))
     → Sub Γ (Δ , A)
@@ -60,17 +66,28 @@ interleaved mutual
       → t [ idS' ] ≡ t
     [∘]tm
       : (t : Tm Γ)
-      → t [ σ ] [ τ ] ≡ t [ σ ∘' τ ]
+      → t [ τ ] [ σ ] ≡ t [ τ ∘' σ ]
     βπ₂
       : (t : Tm Γ) (p : tyOf t ≡ (Δ , (σ , A)))
       → π₂ (σ ,' t ∶[ p ]) ≡ t
+
+  _∘idS'
+    : (σ : Sub Γ Δ)
+    → σ ∘' idS' ≡ σ
+  assocS'
+    : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (δ : Sub Θ Ξ)
+    → (δ ∘' τ) ∘' σ ≡ δ ∘' (τ ∘' σ)
       
   tyOf (t [ σ ]) =
     let  (Θ , (τ , A)) = tyOf t
     in _ , (τ ∘' σ , A)
   tyOf (π₂ {A = A} σ)  = _ , (π₁' σ , A)
-  tyOf ([idS]tm t i)   = {!!}
-  tyOf ([∘]tm   t i)   = {!!}
+  tyOf ([idS]tm t i)   =
+    let (Δ , (σ , A)) = tyOf t in
+    Δ , ((σ ∘idS') i , A)
+  tyOf ([∘]tm {τ = τ} {σ = σ} t i)   =
+    let (Δ , (δ , A)) = tyOf t in
+    Δ , (assocS' σ τ δ i , A)
   tyOf (βπ₂     t p i) = {!!}
 
   data Sub where
@@ -94,7 +111,8 @@ interleaved mutual
       : (σ : Sub Γ Δ)
       → σ ∘ idS ≡ σ
     assocS
-      : (δ ∘ τ) ∘ σ ≡ δ ∘ (τ ∘ σ)
+      : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (δ : Sub Θ Ξ)
+      → (δ ∘ τ) ∘ σ ≡ δ ∘ (τ ∘ σ)
     ,∘
       : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≡ (Θ , (σ , A)))
       → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘' τ , t [ τ ] ∶[ (λ i → p i .fst , ((p i .snd .fst ∘' τ) , p i .snd .snd)) ])
@@ -113,6 +131,8 @@ interleaved mutual
   _,'_∶[_] = _,_∶[_]
   π₁' = π₁
   βπ₁' = βπ₁
+  _∘idS' = _∘idS
+  assocS' = assocS
 
   data Ty where
     _[_]
