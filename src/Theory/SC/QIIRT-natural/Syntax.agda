@@ -74,6 +74,7 @@ interleaved mutual
       → t [ τ ] [ σ ] ≡ t [ τ ∘' σ ]
     βπ₂
       : (t : Tm Γ) (p₀ : tyOf₀ t ≡ Δ) → (p₁ : PathP (λ i → Sub Γ (p₀ i)) (tyOf₁ t) σ) → (p₂ : PathP (λ i → Ty (p₀ i)) (tyOf₂ t) A)
+      → PathP (λ i → Sub Γ (p₀ (~ i))) (π₁' (σ ,' t ∶[ p₀ , p₁ , p₂ ])) (tyOf₁ t)
       → π₂ (σ ,' t ∶[ p₀ , p₁ , p₂ ]) ≡ t
 
   _∘idS'
@@ -87,44 +88,20 @@ interleaved mutual
   tyOf₀ (π₂ {Δ = Δ} {A = A} σ)  = Δ
   tyOf₀ ([idS]tm t i)   = tyOf₀ t
   tyOf₀ ([∘]tm {τ = τ} {σ = σ} t i) = tyOf₀ t
-  tyOf₀ {Γ = Γ} (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p₀ p₁ p₂ i) = p₀ (~ i)
+  tyOf₀ {Γ = Γ} (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p₀ p₁ p₂ q i) = p₀ (~ i)
 
 
   tyOf₁ (t [ σ ]) = tyOf₁ t ∘' σ
   tyOf₁ (π₂ {A = A} σ)  = π₁' σ
   tyOf₁ ([idS]tm t i)   = (tyOf₁ t ∘idS') i
   tyOf₁ ([∘]tm {τ = τ} {σ = σ} t i) = assocS' σ τ (tyOf₁ t) i
-  tyOf₁ {Γ = Γ} (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p₀ p₁ p₂ i) =
-    subst (λ w → PathP (λ j → Sub Γ (p₀ (~ j))) w (tyOf₁ t)) (sym (βπ₁' σ t p₀ p₁ p₂)) (λ i → p₁ (~ i)) i
---   foo (βπ₁' σ t p₀ p₁ p₂) (λ i → p₁ (~ i)) i
-   where
-    foo : {A : I → Set}{x y : A i0}{z : A i1} → x ≡ y → PathP A y z → PathP A x z
-    foo {A} {x} {y} {z} p q = subst (λ w → PathP A w z) (sym p) q
-
+  tyOf₁ {Γ = Γ} (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p₀ p₁ p₂ q i) = q i
 
   tyOf₂ (t [ σ ]) = tyOf₂ t
   tyOf₂ (π₂ {A = A} σ)  = A
   tyOf₂ ([idS]tm t i)   = tyOf₂ t
   tyOf₂ ([∘]tm {τ = τ} {σ = σ} t i)   = tyOf₂ t
-  tyOf₂ {Γ = Γ} (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p₀ p₁ p₂ i) = p₂ (~ i)
-
-
-
-{-
-J {_} {Σ Ctx (λ Δ → Sub Γ Δ × Ty Δ)} {tyOf t} (λ (Δ , (σ , A)) p → (Δ , ((π₁' (σ ,' t ∶[ p ])) , A)) ≡ tyOf t) (λ j → tyOf t .fst , (βπ₁' (tyOf t .snd .fst) t refl j , tyOf t .snd .snd)) p i
-
-{-sym p i .fst , (foo i , sym p i .snd .snd)
-   where
-    foo : PathP (λ i → Sub Γ (p (~ i) .fst)) (π₁' (σ ,' t ∶[ p ])) (tyOf t .snd .fst)
-    foo = {!compPathP'!}
--}
--- (cong (λ x → x. snd .fst) (sym p))
-
---
-
---  tyOf (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p i) =
---   ((λ j → Δ , (βπ₁' σ t p j , A)) ∙ sym p) i
--}
+  tyOf₂ {Γ = Γ} (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p₀ p₁ p₂ q i) = p₂ (~ i)
 
   data Sub where
     ∅
@@ -176,10 +153,20 @@ J {_} {Σ Ctx (λ Δ → Sub Γ Δ × Ty Δ)} {tyOf t} (λ (Δ , (σ , A)) p →
       → Ty Γ
     U
       : Ty Γ
+    El : (t : Tm Γ) → tyOf₂ t ≡ U → Ty Γ
     U[]
       : U [ σ ] ≡ U
     [∘]
       : A [ τ ∘ σ ] ≡ A [ τ ] [ σ ]
+
+⟨βπ₂⟩
+      : (t : Tm Γ) (p₀ : tyOf₀ t ≡ Δ) → (p₁ : PathP (λ i → Sub Γ (p₀ i)) (tyOf₁ t) σ) → (p₂ : PathP (λ i → Ty (p₀ i)) (tyOf₂ t) A)
+      → π₂ (σ ,' t ∶[ p₀ , p₁ , p₂ ]) ≡ t
+⟨βπ₂⟩ {Γ = Γ} {σ = σ} t p₀ p₁ p₂ =
+ βπ₂ t p₀ p₁ p₂ (subst (λ w → PathP (λ j → Sub Γ (p₀ (~ j))) w (tyOf₁ t)) (sym (βπ₁' σ t p₀ p₁ p₂)) (λ i → p₁ (~ i)))
+
+tyOf : (t : Tm Γ) → Ty Γ
+tyOf t = tyOf₂ t [ tyOf₁ t ]
 
 π₁∘
   : (τ : Sub Δ (Θ , A)) (σ : Sub Γ Δ)
@@ -203,7 +190,7 @@ J {_} {Σ Ctx (λ Δ → Sub Γ Δ × Ty Δ)} {tyOf t} (λ (Δ , (σ , A)) p →
   π₂ ((π₁ τ , π₂ τ ∶[ refl , refl , refl ]) ∘ σ)
     ≡⟨ cong π₂ (,∘ (π₁ τ) (π₂ τ) σ refl refl refl) ⟩
   π₂ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ refl , refl , refl ])
-    ≡⟨ βπ₂ (π₂ τ [ σ ]) refl refl refl ⟩
+    ≡⟨ ⟨βπ₂⟩ (π₂ τ [ σ ]) refl refl refl ⟩
   π₂ τ [ σ ]
     ∎
 
