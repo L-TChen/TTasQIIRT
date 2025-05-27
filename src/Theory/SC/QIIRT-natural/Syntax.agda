@@ -24,17 +24,17 @@ interleaved mutual
       A B C : Ty Γ
       t u   : Tm Γ
       σ τ δ : Sub Γ Δ
-  
+
   tyOf
     : Tm Γ → Σ[ Δ ∈ Ctx ] (Sub Γ Δ × Ty Δ)
-    
+
   data Ctx where
     ∅
       : Ctx
     _,_
       : (Γ : Ctx)(A : Ty Γ)
       → Ctx
-      
+
   π₁'
     : Sub Γ (Δ , A)
     → Sub Γ Δ
@@ -68,7 +68,7 @@ interleaved mutual
       : (t : Tm Γ)
       → t [ τ ] [ σ ] ≡ t [ τ ∘' σ ]
     βπ₂
-      : (t : Tm Γ) (p : tyOf t ≡ (Δ , (σ , A)))
+      : (t : Tm Γ) (p : tyOf t ≡ (Δ , (σ , A))) (q : (Δ , (π₁' (σ ,' t ∶[ p ]) , A)) ≡ tyOf t)
       → π₂ (σ ,' t ∶[ p ]) ≡ t
 
   _∘idS'
@@ -80,7 +80,7 @@ interleaved mutual
       
   tyOf (t [ σ ]) =
     let  (Θ , (τ , A)) = tyOf t
-    in _ , (τ ∘' σ , A)
+    in Θ , (τ ∘' σ , A)
   tyOf (π₂ {A = A} σ)  = _ , (π₁' σ , A)
   tyOf ([idS]tm t i)   =
     let (Δ , (σ , A)) = tyOf t in
@@ -88,8 +88,7 @@ interleaved mutual
   tyOf ([∘]tm {τ = τ} {σ = σ} t i)   =
     let (Δ , (δ , A)) = tyOf t in
     Δ , (assocS' σ τ δ i , A)
-  tyOf (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p i) =
-    ((λ j → Δ , (βπ₁' σ t p j , A)) ∙ sym p) i
+  tyOf {Γ = Γ} (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p q i) = q i
 
   data Sub where
     ∅
@@ -146,6 +145,9 @@ interleaved mutual
     [∘]
       : A [ τ ∘ σ ] ≡ A [ τ ] [ σ ]
 
+⟨βπ₂⟩ : (t : Tm Γ) (p : tyOf t ≡ (Δ , (σ , A))) → π₂ (σ , t ∶[ p ]) ≡ t
+⟨βπ₂⟩ {Δ = Δ} {σ} {A} t p = βπ₂ t p (((λ j → Δ , (βπ₁' σ t p j , A)) ∙ sym p))
+
 π₁∘
   : (τ : Sub Δ (Θ , A)) (σ : Sub Γ Δ)
   → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
@@ -162,26 +164,26 @@ interleaved mutual
 π₂∘
   : (τ : Sub Δ (Θ , A))(σ : Sub Γ Δ)
   → π₂ (τ ∘ σ) ≡ (π₂ τ) [ σ ]
-π₂∘ τ σ = 
+π₂∘ {Θ = Θ} {A} τ σ = 
   π₂ (τ ∘ σ)
     ≡⟨ cong π₂ (cong (_∘ σ) (ηπ τ)) ⟩
   π₂ ((π₁ τ , π₂ τ ∶[ refl ]) ∘ σ)
     ≡⟨ cong π₂ (,∘ (π₁ τ) (π₂ τ) σ refl) ⟩
   π₂ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ refl ])
-    ≡⟨ βπ₂ (π₂ τ [ σ ]) refl ⟩
+    ≡⟨ ⟨βπ₂⟩ (π₂ τ [ σ ]) refl ⟩
   π₂ τ [ σ ]
     ∎
 
--- syntax abbreviations
-wk : Sub (Δ , A) Δ
-wk = π₁ idS
+-- -- syntax abbreviations
+-- wk : Sub (Δ , A) Δ
+-- wk = π₁ idS
 
-vz : Tm (Γ , A)
-vz = π₂ idS
+-- vz : Tm (Γ , A)
+-- vz = π₂ idS
 
-vs : Tm Γ → Tm (Γ , B)
-vs x = x [ wk ]
--- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
+-- vs : Tm Γ → Tm (Γ , B)
+-- vs x = x [ wk ]
+-- -- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
 
--- vz:= : (t : Tm Γ) → let (_ , (σ , A)) = tyOf t in Sub Γ (Γ , A [ σ ])
--- vz:= {Γ} t = idS , t ∶[ {!!} ]
+-- -- vz:= : (t : Tm Γ) → let (_ , (σ , A)) = tyOf t in Sub Γ (Γ , A [ σ ])
+-- -- vz:= {Γ} t = idS , t ∶[ {!!} ]
