@@ -11,7 +11,7 @@ module Theory.SC.QIIRT-natural.Syntax where
   
 infixl 20 _[_]
 infixr 10 _∘_
-infixl 4 _,_ _,_∶[_]
+infixl 4 _,_ _,_∶[_,_,_]
 
 interleaved mutual
   data Ctx : Set
@@ -24,10 +24,15 @@ interleaved mutual
       A B C : Ty Γ
       t u   : Tm Γ
       σ τ δ : Sub Γ Δ
-  
-  tyOf
-    : Tm Γ → Σ[ Δ ∈ Ctx ] (Sub Γ Δ × Ty Δ)
-    
+
+  tyOf₀
+    : Tm Γ → Ctx
+  tyOf₁
+    : (t : Tm Γ) → Sub Γ (tyOf₀ t)
+  tyOf₂
+    : (t : Tm Γ) → Ty (tyOf₀ t)
+
+
   data Ctx where
     ∅
       : Ctx
@@ -46,14 +51,14 @@ interleaved mutual
     : Sub Δ Θ → Sub Γ Δ
     → Sub Γ Θ
 
-  _,'_∶[_]
-    : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ (_ , (σ , A))
+  _,'_∶[_,_,_]
+    : (σ : Sub Γ Δ) (t : Tm Γ) → (p : tyOf₀ t ≡ Δ) → PathP (λ i → Sub Γ (p i)) (tyOf₁ t) σ → PathP (λ i → Ty (p i)) (tyOf₂ t) A
     → Sub Γ (Δ , A)
 
   βπ₁'
-    : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ (_ , (σ , A)))
-    → π₁' (σ ,' t ∶[ p ]) ≡ σ
-      
+    : (σ : Sub Γ Δ) (t : Tm Γ) → (p₀ : tyOf₀ t ≡ Δ) → (p₁ : PathP (λ i → Sub Γ (p₀ i)) (tyOf₁ t) σ) → (p₂ : PathP (λ i → Ty (p₀ i)) (tyOf₂ t) A)
+    → π₁' (σ ,' t ∶[ p₀ , p₁ , p₂ ]) ≡ σ
+
   data Tm where
     _[_]
       : (t : Tm Δ) (σ : Sub Γ Δ)
@@ -68,8 +73,8 @@ interleaved mutual
       : (t : Tm Γ)
       → t [ τ ] [ σ ] ≡ t [ τ ∘' σ ]
     βπ₂
-      : (t : Tm Γ) (p : tyOf t ≡ (Δ , (σ , A)))
-      → π₂ (σ ,' t ∶[ p ]) ≡ t
+      : (t : Tm Γ) (p₀ : tyOf₀ t ≡ Δ) → (p₁ : PathP (λ i → Sub Γ (p₀ i)) (tyOf₁ t) σ) → (p₂ : PathP (λ i → Ty (p₀ i)) (tyOf₂ t) A)
+      → π₂ (σ ,' t ∶[ p₀ , p₁ , p₂ ]) ≡ t
 
   _∘idS'
     : (σ : Sub Γ Δ)
@@ -77,25 +82,55 @@ interleaved mutual
   assocS'
     : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (δ : Sub Θ Ξ)
     → (δ ∘' τ) ∘' σ ≡ δ ∘' (τ ∘' σ)
-      
-  tyOf (t [ σ ]) =
-    let  (Θ , (τ , A)) = tyOf t
-    in _ , (τ ∘' σ , A)
-  tyOf (π₂ {A = A} σ)  = _ , (π₁' σ , A)
-  tyOf ([idS]tm t i)   =
-    let (Δ , (σ , A)) = tyOf t in
-    Δ , ((σ ∘idS') i , A)
-  tyOf ([∘]tm {τ = τ} {σ = σ} t i)   =
-    let (Δ , (δ , A)) = tyOf t in
-    Δ , (assocS' σ τ δ i , A)
-  tyOf (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p i) =
-    ((λ j → Δ , (βπ₁' σ t p j , A)) ∙ sym p) i
+
+  tyOf₀ (t [ σ ]) = tyOf₀ t
+  tyOf₀ (π₂ {Δ = Δ} {A = A} σ)  = Δ
+  tyOf₀ ([idS]tm t i)   = tyOf₀ t
+  tyOf₀ ([∘]tm {τ = τ} {σ = σ} t i) = tyOf₀ t
+  tyOf₀ {Γ = Γ} (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p₀ p₁ p₂ i) = p₀ (~ i)
+
+
+  tyOf₁ (t [ σ ]) = tyOf₁ t ∘' σ
+  tyOf₁ (π₂ {A = A} σ)  = π₁' σ
+  tyOf₁ ([idS]tm t i)   = (tyOf₁ t ∘idS') i
+  tyOf₁ ([∘]tm {τ = τ} {σ = σ} t i) = assocS' σ τ (tyOf₁ t) i
+  tyOf₁ {Γ = Γ} (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p₀ p₁ p₂ i) =
+    subst (λ w → PathP (λ j → Sub Γ (p₀ (~ j))) w (tyOf₁ t)) (sym (βπ₁' σ t p₀ p₁ p₂)) (λ i → p₁ (~ i)) i
+--   foo (βπ₁' σ t p₀ p₁ p₂) (λ i → p₁ (~ i)) i
+   where
+    foo : {A : I → Set}{x y : A i0}{z : A i1} → x ≡ y → PathP A y z → PathP A x z
+    foo {A} {x} {y} {z} p q = subst (λ w → PathP A w z) (sym p) q
+
+
+  tyOf₂ (t [ σ ]) = tyOf₂ t
+  tyOf₂ (π₂ {A = A} σ)  = A
+  tyOf₂ ([idS]tm t i)   = tyOf₂ t
+  tyOf₂ ([∘]tm {τ = τ} {σ = σ} t i)   = tyOf₂ t
+  tyOf₂ {Γ = Γ} (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p₀ p₁ p₂ i) = p₂ (~ i)
+
+
+
+{-
+J {_} {Σ Ctx (λ Δ → Sub Γ Δ × Ty Δ)} {tyOf t} (λ (Δ , (σ , A)) p → (Δ , ((π₁' (σ ,' t ∶[ p ])) , A)) ≡ tyOf t) (λ j → tyOf t .fst , (βπ₁' (tyOf t .snd .fst) t refl j , tyOf t .snd .snd)) p i
+
+{-sym p i .fst , (foo i , sym p i .snd .snd)
+   where
+    foo : PathP (λ i → Sub Γ (p (~ i) .fst)) (π₁' (σ ,' t ∶[ p ])) (tyOf t .snd .fst)
+    foo = {!compPathP'!}
+-}
+-- (cong (λ x → x. snd .fst) (sym p))
+
+--
+
+--  tyOf (βπ₂ {Δ = Δ} {σ = σ} {A = A} t p i) =
+--   ((λ j → Δ , (βπ₁' σ t p j , A)) ∙ sym p) i
+-}
 
   data Sub where
     ∅
       : Sub Γ ∅
-    _,_∶[_]
-      : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ (_ , (σ , A))
+    _,_∶[_,_,_]
+      : (σ : Sub Γ Δ) (t : Tm Γ) → (p₀ : tyOf₀ t ≡ Δ) → (p₁ : PathP (λ i → Sub Γ (p₀ i)) (tyOf₁ t) σ) → (p₂ : PathP (λ i → Ty (p₀ i)) (tyOf₂ t) A)
       → Sub Γ (Δ , A)
     idS
       : Sub Γ Γ
@@ -115,21 +150,21 @@ interleaved mutual
       : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (δ : Sub Θ Ξ)
       → (δ ∘ τ) ∘ σ ≡ δ ∘ (τ ∘ σ)
     ,∘
-      : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≡ (Θ , (σ , A)))
-      → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘' τ , t [ τ ] ∶[ (λ i → p i .fst , ((p i .snd .fst ∘' τ) , p i .snd .snd)) ])
+      : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p₀ : tyOf₀ t ≡ Θ) → (p₁ : PathP (λ i → Sub Δ (p₀ i)) (tyOf₁ t) σ) → (p₂ : PathP (λ i → Ty (p₀ i)) (tyOf₂ t) A)
+      → (σ , t ∶[ p₀ , p₁ , p₂ ]) ∘ τ ≡ ((σ ∘' τ) , t [ τ ] ∶[ p₀ , (λ i → p₁ i ∘' τ) , p₂ ])
     βπ₁
-      : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ (_ , (σ , A)))
-      → π₁ (σ , t ∶[ p ]) ≡ σ
+      : (σ : Sub Γ Δ) (t : Tm Γ) (p₀ : tyOf₀ t ≡ Δ) → (p₁ : PathP (λ i → Sub Γ (p₀ i)) (tyOf₁ t) σ) → (p₂ : PathP (λ i → Ty (p₀ i)) (tyOf₂ t) A)
+      → π₁ (σ , t ∶[ p₀ , p₁ , p₂ ]) ≡ σ
     ηπ
       : (σ : Sub Γ (Δ , A))
-      → σ ≡ (π₁' σ , π₂ σ ∶[ refl ])
+      → σ ≡ (π₁' σ , π₂ σ ∶[ refl , refl , refl ])
       -- Agda is a bit annoying -- QIIT support is not fully general as constructors cannot be interleaved.
     η∅
       : σ ≡ ∅
 
   idS' = idS
   _∘'_ = _∘_
-  _,'_∶[_] = _,_∶[_]
+  _,'_∶[_,_,_] = _,_∶[_,_,_]
   π₁' = π₁
   βπ₁' = βπ₁
   _∘idS' = _∘idS
@@ -152,23 +187,23 @@ interleaved mutual
 π₁∘ τ σ =
   π₁ (τ ∘ σ)
     ≡⟨ cong π₁ (cong (_∘ σ) (ηπ τ)) ⟩
-  π₁ ((π₁ τ , π₂ τ ∶[ refl ]) ∘ σ)
-    ≡⟨ cong π₁ (,∘ (π₁ τ) (π₂ τ) σ refl) ⟩
-  π₁ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ refl ])
-    ≡⟨ βπ₁ (π₁ τ ∘ σ) (π₂ τ [ σ ]) refl ⟩
+  π₁ ((π₁ τ , π₂ τ ∶[ refl , refl , refl ]) ∘ σ)
+    ≡⟨ cong π₁ (,∘ (π₁ τ) (π₂ τ) σ refl refl refl) ⟩
+  π₁ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ refl , refl , refl ])
+    ≡⟨ βπ₁ (π₁ τ ∘ σ) (π₂ τ [ σ ]) refl refl refl ⟩
   π₁ τ ∘ σ
     ∎
 
 π₂∘
   : (τ : Sub Δ (Θ , A))(σ : Sub Γ Δ)
   → π₂ (τ ∘ σ) ≡ (π₂ τ) [ σ ]
-π₂∘ τ σ = 
+π₂∘ τ σ =
   π₂ (τ ∘ σ)
     ≡⟨ cong π₂ (cong (_∘ σ) (ηπ τ)) ⟩
-  π₂ ((π₁ τ , π₂ τ ∶[ refl ]) ∘ σ)
-    ≡⟨ cong π₂ (,∘ (π₁ τ) (π₂ τ) σ refl) ⟩
-  π₂ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ refl ])
-    ≡⟨ βπ₂ (π₂ τ [ σ ]) refl ⟩
+  π₂ ((π₁ τ , π₂ τ ∶[ refl , refl , refl ]) ∘ σ)
+    ≡⟨ cong π₂ (,∘ (π₁ τ) (π₂ τ) σ refl refl refl) ⟩
+  π₂ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ refl , refl , refl ])
+    ≡⟨ βπ₂ (π₂ τ [ σ ]) refl refl refl ⟩
   π₂ τ [ σ ]
     ∎
 
