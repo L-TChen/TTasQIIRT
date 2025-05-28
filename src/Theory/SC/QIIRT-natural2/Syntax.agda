@@ -148,21 +148,37 @@ module Foo where
   -- The type of Booleans
   𝔹
     : Ty Γ
+  𝔹[]
+    : 𝔹 [ σ ]T ≡ 𝔹
+  𝔹[]₂
+    : tyOf (π₂ idS) ≡ 𝔹 [ τ ]T
+
+
   tt ff
     : Tm Γ
   tyOftt : tyOf {Γ} tt ≡ 𝔹 [ idS ]T -- definitional or not
   tyOfff : tyOf {Γ} ff ≡ 𝔹 [ idS ]T -- definitional or not
 
+  _↑𝔹
+    : (σ : Sub Γ Δ)
+    → Sub (Γ , 𝔹) (Δ , 𝔹)
+  σ ↑𝔹 = (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ {τ = σ ∘ π₁ idS} ]
+
+
   elim𝔹
     : (P : Ty (Γ , 𝔹)) (t u : Tm Γ)
     → tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T)
     → tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T)
-    → (b : Tm Γ) → tyOf b ≡ 𝔹
+    → (b : Tm Γ) → tyOf b ≡ 𝔹 [ idS ]T
     → Tm Γ
   elim𝔹[]
-    : (P : Ty (Γ , 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹)
+    : (P : Ty (Γ , 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
+    → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
+    → (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ tyOfff ] ]T)
+    → (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
+    → (P [ idS , b ∶[ pb ] ]T [ σ ]T) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T)
     → (elim𝔹 P t u pt pu b pb) [ σ ]t
-    ≡ elim𝔹 (P [ {!!} ]T) (t [ σ ]t) (u [ σ ]t) {!!} {!!} (b [ σ ]t) {!!}
+    ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) pt₂ pu₂ (b [ σ ]t) pb₂
 
   -- the following is the actual constructors in Agda
   data Ty where
@@ -188,8 +204,12 @@ module Foo where
       → Ty Γ
     Π[]'
       : (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
-  𝔹'
-    : Ty Γ
+    𝔹'
+      : Ty Γ
+    𝔹[]'
+      : 𝔹 [ σ ]T ≡ 𝔹
+    𝔹[]₂'
+      : tyOf (π₂ idS) ≡ 𝔹 [ τ ]
 
   data Sub where
     ∅
@@ -263,12 +283,16 @@ module Foo where
       : (P : Ty (Γ , 𝔹)) (t u : Tm Γ)
       → tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T)
       → tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T)
-      → (b : Tm Γ) → tyOf b ≡ 𝔹
+      → (b : Tm Γ) → tyOf b ≡ 𝔹 [ idS ]T
       → Tm Γ
     elim𝔹[]'
-      : (P : Ty (Γ , 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹)
+      : (P : Ty (Γ , 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
+      → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
+      → (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ tyOfff ] ]T)
+      → (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
+      → P [ idS , b ∶[ pb ] ] [ σ ] ≡ P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ] [ idS , b [ σ ] ∶[ pb₂ ] ]
       → (elim𝔹 P t u pt pu b pb) [ σ ]t
-      ≡ elim𝔹 (P [ ? ]T) (t [ σ ]t) (u [ σ ]t) {!!} {!!} (b [ σ ]t) {!!}
+      ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) pt₂ pu₂ (b [ σ ]t) pb₂
 
   _[_]T = _[_]
   _[_]t = _[_]
@@ -279,6 +303,8 @@ module Foo where
   Π = Π'
   Π[] = Π[]'
   𝔹 = 𝔹'
+  𝔹[] = 𝔹[]'
+  𝔹[]₂ = 𝔹[]₂'
   ∅S = ∅
   _,_∶[_] = _,_∶[_]'
   idS = idS'
@@ -305,8 +331,7 @@ module Foo where
   tt = tt'
   ff = ff'
   elim𝔹 = elim𝔹'
-  elim𝔹[] = {!!} -- elim𝔹[]'
-
+  elim𝔹[] = elim𝔹[]'
 
   tyOf (t [ σ ]) = tyOf t [ σ ]T
   tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ σ ]T
@@ -319,10 +344,16 @@ module Foo where
     Π[] {A = A} {B = tyOf t} {σ = σ} i
   tyOf (Πβ' t i) = tyOf t
   tyOf (Πη' t p i) = p (~ i)
+  tyOf tt' = 𝔹
+  tyOf ff' = 𝔹
+  tyOf (elim𝔹' P u t pu pt b pb) = P [ idS , b ∶[ pb ] ]T
+  tyOf (elim𝔹[]' P u t pu pt b pb pt₂ pu₂ pb₂ q i) = q i
 
   tyOfπ₂ {Γ} {Δ} {A} σ = refl
   tyOfπ₂idS {A = A} {σ = σ} = [∘]T A (π₁ idS) σ
   tyOfabs = refl
+  tyOftt = [idS]T
+  tyOfff = [idS]T
 
   ⟨,∘⟩
     : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≡ A [ σ ]T)
@@ -333,6 +364,12 @@ module Foo where
     : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ A [ σ ]T)
     → π₂ (σ , t ∶[ p ]) ≡ t
   ⟨βπ₂⟩ {A = A} σ t p = βπ₂ σ t p (cong (A [_]) (βπ₁ σ t p) ∙ sym p)
+
+  ⟨elim𝔹[]⟩
+    : (P : Ty (Γ , 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
+    → (elim𝔹 P t u pt pu b pb) [ σ ]t
+    ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) {!!} {!!} (b [ σ ]t) (cong _[ σ ]T pb ∙ ([∘]T 𝔹 σ idS ∙ 𝔹[]) ∙ sym 𝔹[])
+  ⟨elim𝔹[]⟩ P t u pt pu b pb = elim𝔹[] P t u pt pu b pb _ _ _ {!!}
 
 open Foo public
   hiding (_∘_; π₁; π₂; ,∘; βπ₂; ηπ; _[_]T; _[_]t)
