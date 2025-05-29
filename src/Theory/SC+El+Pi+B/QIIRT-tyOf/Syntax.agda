@@ -474,6 +474,41 @@ module Foo where
       ≡⟨ βπ₁ (π₁ τ ∘ σ) (π₂ τ [ σ ]) (cong (_[ σ ]) (λ _ → tyOf (π₂ τ)) ∙ [∘]T _ σ (π₁ τ)) ⟩
     π₁ τ ∘ σ
       ∎
+      
+  π₂∘
+    : (τ : Sub Δ (Θ , A))(σ : Sub Γ Δ)
+    → π₂ (τ ∘ σ) ≡ (π₂ τ) [ σ ]
+  π₂∘ {Θ = Θ} {A} τ σ = 
+    π₂ (τ ∘ σ)
+      ≡⟨ cong π₂ (cong (_∘ σ) (ηπ τ)) ⟩
+    π₂ ((π₁ τ , π₂ τ ∶[ refl ]) ∘ σ)
+      ≡⟨ cong π₂ (⟨,∘⟩ (π₁ τ) (π₂ τ) σ refl) ⟩
+    π₂ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ _ ])
+      ≡⟨ ⟨βπ₂⟩ (π₁ τ ∘ σ) (π₂ τ [ σ ]) _ ⟩
+    π₂ τ [ σ ]
+      ∎
+
+  π₁idS
+    : (σ : Sub Γ (Δ , A))
+    → π₁ σ ≡ π₁ idS ∘ σ
+  π₁idS σ = 
+    π₁ σ
+      ≡⟨ cong π₁ (sym (idS∘ σ)) ⟩
+    π₁ (idS ∘ σ)
+      ≡⟨ π₁∘ _ σ ⟩
+    π₁ idS ∘ σ
+      ∎
+
+  π₂idS
+    : (σ : Sub Γ (Δ , A))
+    → π₂ σ ≡ π₂ idS [ σ ]t
+  π₂idS σ = 
+    π₂ σ
+      ≡⟨ cong π₂ (sym (idS∘ σ)) ⟩
+    π₂ (idS ∘ σ)
+      ≡⟨ π₂∘ _ _ ⟩
+    π₂ idS [ σ ]t
+      ∎
 
   wk∘
     : (σ : Sub Γ (Δ , A))
@@ -509,22 +544,54 @@ module Foo where
       ≡⟨ βπ₁ _ _ _ ⟩
     σ ∘ wk
       ∎
-  
+
   ⟨_∶[_]⟩𝔹 : (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
     → Sub Γ (Γ , 𝔹)
   ⟨ b ∶[ pb ]⟩𝔹 = idS , b ∶[ pb ]
 
-{- TODO
+  wk∘⟨⟩
+    : (b : Tm Γ) (pb : tyOf b ≡ (𝔹 [ idS ]T))
+    → wk ∘ ⟨ b ∶[ pb ]⟩𝔹 ≡ idS
+  wk∘⟨⟩ b pb =
+    wk ∘ ⟨ b ∶[ pb ]⟩𝔹
+      ≡⟨ sym (π₁idS _)  ⟩
+    π₁ (idS , b ∶[ pb ])
+      ≡⟨ βπ₁ _ _ _ ⟩
+    idS
+      ∎
+
+  vz[⟨b⟩]
+    : (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
+    → π₂ idS [ ⟨ b ∶[ pb ]⟩𝔹 ]t ≡ b
+  vz[⟨b⟩] b pb =
+    π₂ idS [ ⟨ b ∶[ pb ]⟩𝔹 ]t
+      ≡⟨ refl ⟩
+    π₂ idS [ idS , b ∶[ pb ] ]t
+      ≡⟨ sym (π₂idS ⟨ b ∶[ pb ]⟩𝔹) ⟩
+    π₂ ⟨ b ∶[ _ ]⟩𝔹
+      ≡⟨ βπ₂ _ _ _ (cong (𝔹 [_]) (βπ₁ _ _ _) ∙ sym pb) ⟩
+    b
+      ∎
+
+{-
   ⟨⟩∘=↑∘[]
     : (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T) (pb' : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
     → ⟨ b ∶[ pb ]⟩𝔹 ∘ σ ≡ (σ ↑𝔹) ∘ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹
   ⟨⟩∘=↑∘[] {Δ} {Γ} {σ} b pb pb' =
     ⟨ b ∶[ pb ]⟩𝔹 ∘ σ 
-      ≡⟨ ,∘ idS b σ pb {!pb'!} ⟩
-    {!!}
-      ≡⟨ {!σ!} ⟩
-    (σ ∘ wk , π₂ idS ∶[ _ ]) ∘ (idS , b [ σ ]t ∶[ _ ])
-      ≡⟨ refl ⟩
+      ≡⟨ ,∘ idS b σ pb _ ⟩
+    idS ∘ σ , b [ σ ]t ∶[ _ ]
+      ≡[ i ]⟨ (idS∘ σ) i , b [ σ ]t ∶[ pb' ∙ 𝔹[σ]≡𝔹[τ] ] ⟩
+    σ , b [ σ ]t ∶[ _ ]
+      ≡[ i ]⟨ (σ ∘idS) (~ i) , b [ σ ]t ∶[ pb' ∙ 𝔹[σ]≡𝔹[τ] ] ⟩
+    σ ∘ idS , b [ σ ]t ∶[ pb' ∙ 𝔹[σ]≡𝔹[τ] ] 
+      ≡[ i ]⟨ σ ∘ wk∘⟨⟩ (b [ σ ]) pb' (~ i) , vz[⟨b⟩] (b [ σ ]) pb' (~ i) ∶[ {!!} ] ⟩
+            -- [TODO]: derivable from K?
+    σ ∘ (π₁ idS ∘ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹) , π₂ idS [ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹 ]t ∶[ _ ]
+      ≡[ i ]⟨ assocS ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹 (π₁ idS) σ (~ i) , π₂ idS [ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹 ] ∶[ {!!} ] ⟩
+            -- [TODO]: derivable from K?
+    (σ ∘ π₁ idS) ∘ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹 , π₂ idS [ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹 ]t ∶[ [∘]T _ _ _ ∙ 𝔹[σ]≡𝔹[τ] ]
+      ≡⟨ sym (,∘ _ _ _ _ _) ⟩
     (σ ↑𝔹) ∘ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹
       ∎
 
@@ -552,16 +619,18 @@ module Foo where
     P [ ⟨ tt ∶[ tyOftt ]⟩𝔹 ]T [ σ ]T
       ≡⟨ [⟨⟩∘]=[↑∘[]] {σ = σ} {A = P} tt tyOftt 𝔹[σ]≡𝔹[τ] ⟩
     P [ σ ↑𝔹 ]T [ ⟨ tt [ σ ]t ∶[ _ ]⟩𝔹 ]T
-      ≡⟨ {!!} ⟩
-    P [ σ ↑𝔹 ]T [ ⟨ tt ∶[ _ ]⟩𝔹 ]T
+      ≡⟨ cong (P [ σ ↑𝔹 ]T [_]T) {!!} ⟩
+            -- [TODO]: derivable from K?
+    P [ σ ↑𝔹 ]T [ ⟨ tt ∶[ tyOfff ]⟩𝔹 ]T
       ∎)
     (tyOf u [ σ ]T
       ≡⟨ cong (_[ σ ]T) pu ⟩
     P [ ⟨ ff ∶[ tyOfff ]⟩𝔹 ]T [ σ ]T
       ≡⟨ [⟨⟩∘]=[↑∘[]] {σ = σ} {P} ff tyOfff 𝔹[σ]≡𝔹[τ] ⟩
     P [ σ ↑𝔹 ]T [ ⟨ ff [ σ ]t ∶[ _ ]⟩𝔹 ]T
-      ≡⟨ {!!} ⟩
-    P [ σ ↑𝔹 ]T [ ⟨ ff ∶[ _ ]⟩𝔹 ]T
+      ≡⟨ cong (P [ σ ↑𝔹 ]T [_]T) {!!} ⟩
+            -- [TODO]: derivable from K?
+    P [ σ ↑𝔹 ]T [ ⟨ ff ∶[ tyOfff ]⟩𝔹 ]T
       ∎)
     _ ([⟨⟩∘]=[↑∘[]] b pb
         (tyOf b [ σ ]T
@@ -571,10 +640,10 @@ module Foo where
         𝔹 [ σ ]T
           ≡⟨ 𝔹[σ]≡𝔹[τ] ⟩
         𝔹 [ idS ]T ∎))
--}
 
---  𝔹[]₂′=𝔹[]₂ : 𝔹[]₂ {τ = τ} ≡ 𝔹[]₂′
---  𝔹[]₂′=𝔹[]₂ = {!!} -- derivable from K
+  𝔹[]₂′=𝔹[]₂ : 𝔹[]₂ {τ = τ} ≡ 𝔹[]₂′
+  𝔹[]₂′=𝔹[]₂ = {!!} -- derivable from K
+-}
 
   El[]₂-sanity-check
     : {σ : Sub Γ Δ}(u : Tm Δ) (pu : tyOf u ≡ U)(pu' : tyOf (u [ σ ]t) ≡ U)
@@ -602,18 +671,6 @@ open Foo public
   ; ηπ' to ηπ
   )
 
-π₂∘
-  : (τ : Sub Δ (Θ , A))(σ : Sub Γ Δ)
-  → π₂ (τ ∘ σ) ≡ (π₂ τ) [ σ ]
-π₂∘ {Θ = Θ} {A} τ σ = 
-  π₂ (τ ∘ σ)
-    ≡⟨ cong π₂ (cong (_∘ σ) (ηπ τ)) ⟩
-  π₂ ((π₁ τ , π₂ τ ∶[ refl ]) ∘ σ)
-    ≡⟨ cong π₂ (,∘ (π₁ τ) (π₂ τ) σ refl) ⟩
-  π₂ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ _ ])
-    ≡⟨ βπ₂ (π₁ τ ∘ σ) (π₂ τ [ σ ]) _ ⟩
-  π₂ τ [ σ ]
-    ∎
 
 -- syntax abbreviations
 vz : Tm (Γ , A)
