@@ -186,14 +186,18 @@ module Foo where
     El𝕓
       : El {Γ} (𝕓) tyOf𝕓 ≡ 𝔹
 
+--    El[]₂
+--      : (u : Tm Γ) (pu : tyOf u ≡ U)
+--      → tyOf (π₂ {Γ , El u pu} idS) ≡ El u pu [ π₁ idS ]T
+
     El[]₂
-      : (u : Tm Γ) (pu : tyOf u ≡ U)
-      → tyOf (π₂ {Γ , El u pu} idS) ≡ El {!!} {!!} [ {!!} ]T
+      : (u : Tm Δ) (pu : tyOf u ≡ U)(pu' : tyOf (u [ σ ]t) ≡ U)
+      → tyOf (π₂ {Γ , El (u [ σ ]t) pu'} idS) ≡ El u pu [ σ ∘ π₁ idS ]T
 
     _↑El
       : (σ : Sub Γ Δ) {u : Tm Δ} {pu : tyOf u ≡ U} {pu' : tyOf (u [ σ ]t) ≡ U}
       → Sub (Γ , El (u [ σ ]t) pu') (Δ , El u pu)
-    (σ ↑El) {u} {pu} {pu'} = σ ∘ π₁ idS , π₂ idS ∶[ {!El[]₂ ? ?!} ]
+    (σ ↑El) {u} {pu} {pu'} = σ ∘ π₁ idS , π₂ idS ∶[ El[]₂ u pu pu' ]
 
     π
       : (a : Tm Γ) (pa : tyOf a ≡ U)
@@ -204,10 +208,17 @@ module Foo where
       : (a : Tm Γ) (pa : tyOf a ≡ U)
       → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
       → (pa' : tyOf (a [ σ ]t) ≡ U)
-      → (π a pa b pb) [ σ ]t ≡ π (a [ σ ]t) pa' (b [ σ ↑El ]t) {!!}
+      → (pb' : tyOf (b [ σ ↑El ]t) ≡ U)
+      → (π a pa b pb) [ σ ]t ≡ π (a [ σ ]t) pa' (b [ σ ↑El ]t) pb'
+
     tyOfπ
       : (a : Tm Γ) (pa : tyOf a ≡ U) (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
-      → tyOf (π a pa b pb) ≡ Π (El a pa) (El b pb)
+      → tyOf (π a pa b pb) ≡ U
+
+    Elπ
+      : (a : Tm Γ) (pa : tyOf a ≡ U)
+      → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
+      → El (π a pa b pb) (tyOfπ a pa b pb) ≡ Π (El a pa) (El b pb)
 
     -- the following is the actual constructors in Agda
     data Ctx where
@@ -232,6 +243,9 @@ module Foo where
       El[]'
         : (τ : Sub Γ Δ) (u : Tm Δ) (p : tyOf u ≡ U) (q : tyOf (u [ τ ]t) ≡ U)
         → (El u p) [ τ ]T ≡ El (u [ τ ]t) q
+      El[]₂'
+        : (u : Tm Δ) (pu : tyOf u ≡ U)(pu' : tyOf (u [ σ ]t) ≡ U)
+        → tyOf (π₂ {Γ , El (u [ σ ]t) pu'} idS) ≡ El u pu [ σ ∘ π₁ idS ]T
       Π'
         : (A : Ty Γ) (B : Ty (Γ , A))
         → Ty Γ
@@ -247,7 +261,12 @@ module Foo where
         : El {Γ} 𝕓 tyOf𝕓 ≡ 𝔹
       tyOfπ'
         : (a : Tm Γ) (pa : tyOf a ≡ U) (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
-        → tyOf (π a pa b pb) ≡ Π (El a pa) (El b pb)
+        → tyOf (π a pa b pb) ≡ U
+      Elπ'
+        : (a : Tm Γ) (pa : tyOf a ≡ U)
+        → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
+        → El (π a pa b pb) (tyOfπ a pa b pb) ≡ Π (El a pa) (El b pb)
+      Ty-is-set : isSet (Ty Γ)
 
     data Sub where
       ∅S'
@@ -339,6 +358,12 @@ module Foo where
         : (a : Tm Γ) (pa : tyOf a ≡ U)
         → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
         → Tm Γ
+      π[]'
+        : (a : Tm Γ) (pa : tyOf a ≡ U)
+        → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
+        → (pa' : tyOf (a [ σ ]t) ≡ U)
+        → (pb' : tyOf (b [ σ ↑El ]t) ≡ U)
+        → (π a pa b pb) [ σ ]t ≡ π (a [ σ ]t) pa' (b [ σ ↑El ]t) pb'
 
     ∅ = ∅'
     _,_ = _,'_
@@ -348,6 +373,7 @@ module Foo where
     U[] = U[]'
     El = El'
     El[] = El[]'
+    El[]₂ = El[]₂'
     Π = Π'
     Π[] = Π[]'
     𝔹 = 𝔹'
@@ -385,6 +411,8 @@ module Foo where
     El𝕓 = El𝕓'
     tyOfπ = tyOfπ'
     π = π'
+    Elπ = Elπ'
+    π[] = π[]'
 
     tyOf (t [ σ ]) = tyOf t [ σ ]T
     tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ σ ]T
@@ -404,6 +432,7 @@ module Foo where
     tyOf 𝕓' = U
     tyOf (𝕓[]' {σ = σ} i) = U[] {σ = σ} i
     tyOf (π' a pa b pb) = U
+    tyOf (π[]' {σ = σ} a pa b pb pa' pb' i) = U[] {σ = σ} i
 
     -- equaitons derivable from the computational behaviour of `tyOf
     tyOfπ₂ {Γ} {Δ} {A} σ = refl
@@ -521,6 +550,19 @@ module Foo where
 
 --  𝔹[]₂′=𝔹[]₂ : 𝔹[]₂ {τ = τ} ≡ 𝔹[]₂′
 --  𝔹[]₂′=𝔹[]₂ = {!!} -- derivable from K
+
+  El[]₂-sanity-check
+    : {σ : Sub Γ Δ}(u : Tm Δ) (pu : tyOf u ≡ U)(pu' : tyOf (u [ σ ]t) ≡ U)
+    → tyOf (π₂ {Γ , El (u [ σ ]t) pu'} idS) ≡ El u pu [ σ ∘ π₁ idS ]T
+  El[]₂-sanity-check {Δ = Δ} {σ = σ} u pu pu' =
+    El (u [ σ ]t) pu' [ π₁ idS ]T
+      ≡⟨ El[] (π₁ idS) (u [ σ ]t) pu' (cong _[ π₁ {A = El (u [ σ ]t) pu'} idS ] pu' ∙ U[])  ⟩
+    El (u [ σ ]t [ π₁ idS ]t) _
+      ≡⟨ cong₂ El ([∘]t u (π₁ idS) σ) (isProp→PathP (λ _ → Ty-is-set _ _) _ _) ⟩
+    El (u [ σ ∘ π₁ idS ]t) _
+      ≡⟨ sym (El[] (σ ∘ π₁ idS) u pu (cong _[ σ ∘ π₁ {A = El (u [ σ ]t) pu'} idS ]T pu ∙ U[])) ⟩
+    El u pu [ σ ∘ π₁ idS ]T
+      ∎
 
 open Foo public
   hiding (_∘_; π₁; π₂; ,∘; βπ₂; ηπ; _[_]T; _[_]t)
