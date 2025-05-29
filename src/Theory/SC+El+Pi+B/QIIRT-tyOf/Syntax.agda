@@ -8,27 +8,26 @@
 open import Prelude
   hiding (tt; _,_)
 
-module Theory.SC.QIIRT-natural2.Syntax where
+module Theory.SC+El+Pi+B.QIIRT-tyOf.Syntax where
   
 module Foo where
   module _ where -- delimit the scope of forward declarations
-    infixl 8 _[_] _[_]T _[_]t
+    infixl 8  _[_] _[_]T _[_]t
     infixr 10 _∘_
-    infixl 4 _,_ _,_∶[_]
+    infixl 4  _,_ _,_∶[_]
 
     data Ctx : Set
     data Sub : (Γ Δ : Ctx) → Set
     data Ty  : Ctx → Set
     data Tm  : (Γ : Ctx) → Set
+    tyOf
+      : ∀ {Γ} → Tm Γ → Ty Γ
 
     variable
         Γ Δ Θ Ξ : Ctx
         A B C : Ty Γ
         t u   : Tm Γ
         σ τ δ : Sub Γ Δ
-
-    tyOf
-      : Tm Γ → Ty Γ
 
     -- Substitution calculus
     ∅
@@ -154,6 +153,10 @@ module Foo where
       : tyOf (π₂ {Γ , 𝔹} idS) ≡ 𝔹 [ τ ]T
     tt ff
       : Tm Γ
+    tt[]
+      : tt [ σ ]t ≡ tt
+    ff[]
+      : ff [ σ ]t ≡ ff
     tyOftt : tyOf {Γ} tt ≡ 𝔹 [ idS ]T -- definitional or not
     tyOfff : tyOf {Γ} ff ≡ 𝔹 [ idS ]T -- definitional or not
 
@@ -185,10 +188,6 @@ module Foo where
       : tyOf {Γ} 𝕓 ≡ U
     El𝕓
       : El {Γ} (𝕓) tyOf𝕓 ≡ 𝔹
-
---    El[]₂
---      : (u : Tm Γ) (pu : tyOf u ≡ U)
---      → tyOf (π₂ {Γ , El u pu} idS) ≡ El u pu [ π₁ idS ]T
 
     El[]₂
       : (u : Tm Δ) (pu : tyOf u ≡ U)(pu' : tyOf (u [ σ ]t) ≡ U)
@@ -336,6 +335,10 @@ module Foo where
         → abs (app t p) ≡ t
       tt' ff'
         : Tm Γ
+      tt[]'
+        : tt [ σ ]t ≡ tt
+      ff[]'
+        : ff [ σ ]t ≡ ff
       elim𝔹'
         : (P : Ty (Γ , 𝔹)) (t u : Tm Γ)
         → tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T)
@@ -404,6 +407,8 @@ module Foo where
     Πη = Πη'
     tt = tt'
     ff = ff'
+    tt[] = tt[]'
+    ff[] = ff[]'
     elim𝔹 = elim𝔹'
     elim𝔹[] = elim𝔹[]'
     𝕓 = 𝕓'
@@ -427,6 +432,8 @@ module Foo where
     tyOf (Πη' t p i) = p (~ i)
     tyOf tt' = 𝔹
     tyOf ff' = 𝔹
+    tyOf (tt[]' {σ = σ} i) = 𝔹[] {σ = σ} i
+    tyOf (ff[]' {σ = σ} i) = 𝔹[] {σ = σ} i
     tyOf (elim𝔹' P u t pu pt b pb) = P [ idS , b ∶[ pb ] ]T
     tyOf (elim𝔹[]' P u t pu pt b pb pt₂ pu₂ pb₂ q i) = q i
     tyOf 𝕓' = U
@@ -440,7 +447,7 @@ module Foo where
     tyOfabs = refl
     tyOftt = [idS]T
     tyOfff = [idS]T
-    tyOf𝕓 = refl
+    tyOf𝕓  = refl
  
   wk : Sub (Γ , A) Γ
   wk = π₁ idS
@@ -503,49 +510,66 @@ module Foo where
     σ ∘ wk
       ∎
   
+  ⟨_∶[_]⟩𝔹 : (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
+    → Sub Γ (Γ , 𝔹)
+  ⟨ b ∶[ pb ]⟩𝔹 = idS , b ∶[ pb ]
+
   ⟨⟩∘=↑∘[]
     : (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T) (pb' : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
-    → (idS , b ∶[ pb ]) ∘ σ ≡ (σ ↑𝔹) ∘ (idS , b [ σ ]t ∶[ pb' ])
+    → ⟨ b ∶[ pb ]⟩𝔹 ∘ σ ≡ (σ ↑𝔹) ∘ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹
   ⟨⟩∘=↑∘[] {Δ} {Γ} {σ} b pb pb' =
-    (idS , b ∶[ pb ]) ∘ σ 
-      ≡⟨ ,∘ idS b σ pb {!!} ⟩
-    idS ∘ σ , b [ σ ] ∶[ {!!} ]
+    ⟨ b ∶[ pb ]⟩𝔹 ∘ σ 
+      ≡⟨ ,∘ idS b σ pb {!pb'!} ⟩
+    {!!}
       ≡⟨ {!σ!} ⟩
-    (σ ∘ wk , π₂ idS ∶[ _ ]) ∘ (idS , b [ σ ]t ∶[ pb' ])
+    (σ ∘ wk , π₂ idS ∶[ _ ]) ∘ (idS , b [ σ ]t ∶[ _ ])
       ≡⟨ refl ⟩
-    (σ ↑𝔹) ∘ (idS , b [ σ ]t ∶[ pb' ])
+    (σ ↑𝔹) ∘ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹
       ∎
-
---    A [ idS , b ∶[ pb ] ]T [ σ ]T
---      ≡⟨ [∘]T A σ _ ⟩
---    A [ (idS , b ∶[ pb ]) ∘ σ ]T
---      ≡⟨ cong (A [_]) (⟨,∘⟩ idS b σ pb) ⟩
---    A [ idS ∘ σ , b [ σ ] ∶[ cong (_[ σ ]) pb ∙ [∘]T 𝔹 σ idS ] ]T
---      ≡⟨ {!!} ⟩
---    A [ (σ ∘ wk , π₂ idS ∶[ 𝔹[]₂ {τ = σ ∘ π₁ idS} ]) ∘ (idS , b [ σ ]t ∶[ cong _[ σ ]T pb ∙ [∘]T 𝔹 σ idS ∙ 𝔹[] ∙ sym 𝔹[] ]) ]T
---      ≡⟨ sym ([∘]T A _ (σ ↑𝔹)) ⟩
---    A [ σ ↑𝔹 ]T [ idS , b [ σ ]t ∶[ cong _[ σ ]T pb ∙ [∘]T 𝔹 σ idS ∙ 𝔹[] ∙ sym 𝔹[]  ] ]T
---      ∎
 
   [⟨⟩∘]=[↑∘[]]
     : (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T) (pb' : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
-    → A [ idS , b ∶[ pb ] ]T [ σ ]T
-    ≡ A [ σ ↑𝔹 ]T [ idS , b [ σ ]t ∶[ pb'  ] ]T
+    → A [ ⟨ b ∶[ pb ]⟩𝔹 ]T [ σ ]T
+    ≡ A [ σ ↑𝔹 ]T [ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹 ]T
   [⟨⟩∘]=[↑∘[]] {Δ} {Γ} {σ} {A} b pb pb' = 
-    A [ idS , b ∶[ pb ] ]T [ σ ]T
+    A [ ⟨ b ∶[ pb ]⟩𝔹 ]T [ σ ]T
       ≡⟨ [∘]T _ _ _ ⟩
-    A [ (idS , b ∶[ pb ]) ∘ σ ]T
+    A [ ⟨ b ∶[ pb ]⟩𝔹 ∘ σ ]T
       ≡⟨ cong (A [_]) (⟨⟩∘=↑∘[] b pb pb') ⟩
-    A [ σ ↑𝔹 ∘ (idS , b [ σ ]t ∶[ pb' ]) ]T
+    A [ σ ↑𝔹 ∘ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹 ]T
       ≡⟨ sym ([∘]T _ _ _) ⟩
-    A [ σ ↑𝔹 ]T [ idS , b [ σ ]t ∶[ pb' ] ]T
+    A [ σ ↑𝔹 ]T [ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹 ]T
       ∎
 
   ⟨elim𝔹[]⟩
     : (P : Ty (Γ , 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
     → (elim𝔹 P t u pt pu b pb) [ σ ]t
-    ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) {!!} {!!} (b [ σ ]t) {!!}
-  ⟨elim𝔹[]⟩ P t u pt pu b pb = elim𝔹[] P t u pt pu b pb _ _ _ ([⟨⟩∘]=[↑∘[]] b pb {!!})
+    ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) _ _ (b [ σ ]t) _
+  ⟨elim𝔹[]⟩ {σ = σ} P t u pt pu b pb = elim𝔹[] P t u pt pu b pb
+    (tyOf t [ σ ]T
+      ≡⟨ cong (_[ σ ]T) pt ⟩
+    P [ ⟨ tt ∶[ tyOftt ]⟩𝔹 ]T [ σ ]T
+      ≡⟨ [⟨⟩∘]=[↑∘[]] {σ = σ} {A = P} tt tyOftt 𝔹[σ]≡𝔹[τ] ⟩
+    P [ σ ↑𝔹 ]T [ ⟨ tt [ σ ]t ∶[ _ ]⟩𝔹 ]T
+      ≡⟨ {!!} ⟩
+    P [ σ ↑𝔹 ]T [ ⟨ tt ∶[ _ ]⟩𝔹 ]T
+      ∎)
+    (tyOf u [ σ ]T
+      ≡⟨ cong (_[ σ ]T) pu ⟩
+    P [ ⟨ ff ∶[ tyOfff ]⟩𝔹 ]T [ σ ]T
+      ≡⟨ [⟨⟩∘]=[↑∘[]] {σ = σ} {P} ff tyOfff 𝔹[σ]≡𝔹[τ] ⟩
+    P [ σ ↑𝔹 ]T [ ⟨ ff [ σ ]t ∶[ _ ]⟩𝔹 ]T
+      ≡⟨ {!!} ⟩
+    P [ σ ↑𝔹 ]T [ ⟨ ff ∶[ _ ]⟩𝔹 ]T
+      ∎)
+    _ ([⟨⟩∘]=[↑∘[]] b pb
+        (tyOf b [ σ ]T
+          ≡⟨ cong (_[ σ ]T) pb ⟩
+        𝔹 [ idS ]T [ σ ]T
+          ≡⟨ cong (_[ σ ]T) (sym [idS]T) ⟩
+        𝔹 [ σ ]T
+          ≡⟨ 𝔹[σ]≡𝔹[τ] ⟩
+        𝔹 [ idS ]T ∎))
 
 
 --  𝔹[]₂′=𝔹[]₂ : 𝔹[]₂ {τ = τ} ≡ 𝔹[]₂′
@@ -565,28 +589,17 @@ module Foo where
       ∎
 
 open Foo public
-  hiding (_∘_; π₁; π₂; ,∘; βπ₂; ηπ; _[_]T; _[_]t)
+  hiding (_,_; _∘_; idS; π₁; π₂; ,∘; βπ₂; ηπ; _[_]T; _[_]t)
   renaming
-  ( _∘'_ to _∘_
+  ( _,'_ to _,_
+  ; _∘'_ to _∘_
   ; π₁' to π₁
   ; π₂' to π₂
+  ; idS' to idS
   ; ⟨,∘⟩ to ,∘
   ; ⟨βπ₂⟩ to βπ₂
   ; ηπ' to ηπ
   )
-
--- -- π₁∘
--- --   : (τ : Sub Δ (Θ , A)) (σ : Sub Γ Δ)
--- --   → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
--- -- π₁∘ τ σ =
--- --   π₁ (τ ∘ σ)
--- --     ≡⟨ cong π₁ (cong (_∘ σ) (ηπ τ)) ⟩
--- --   π₁ ((π₁ τ , π₂ τ ∶[ refl ]) ∘ σ)
--- --     ≡⟨ cong π₁ (,∘ (π₁ τ) (π₂ τ) σ refl) ⟩
--- --   π₁ (π₁ τ ∘ σ , π₂ τ [ σ ] ∶[ cong (_[ σ ]) (λ _ → tyOf (π₂ τ)) ∙ [∘]T _ σ (π₁ τ) ])
--- --     ≡⟨ βπ₁ (π₁ τ ∘ σ) (π₂ τ [ σ ]) (cong (_[ σ ]) (λ _ → tyOf (π₂ τ)) ∙ [∘]T _ σ (π₁ τ)) ⟩
--- --   π₁ τ ∘ σ
--- --     ∎
 
 π₂∘
   : (τ : Sub Δ (Θ , A))(σ : Sub Γ Δ)
@@ -601,13 +614,13 @@ open Foo public
   π₂ τ [ σ ]
     ∎
 
--- -- syntax abbreviations
--- vz : Tm (Γ , A)
--- vz = π₂ idS
+-- syntax abbreviations
+vz : Tm (Γ , A)
+vz = π₂ idS
 
--- vs : Tm Γ → Tm (Γ , B)
--- vs x = x [ wk ]
--- -- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
+vs : Tm Γ → Tm (Γ , B)
+vs x = x [ wk ]
+-- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
 
 -- -- vz:= : (t : Tm Γ) → let (_ , (σ , A)) = tyOf t in Sub Γ (Γ , A [ σ ])
 -- -- vz:= {Γ} t = idS , t ∶[ {!!} ]
