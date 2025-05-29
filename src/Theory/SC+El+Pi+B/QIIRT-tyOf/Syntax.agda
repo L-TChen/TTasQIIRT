@@ -6,7 +6,7 @@
 -- that affacts the definition of our encoding
 
 open import Prelude
-  hiding (tt; _,_)
+  hiding (_,_)
 
 module Theory.SC+El+Pi+B.QIIRT-tyOf.Syntax where
   
@@ -514,6 +514,7 @@ module Foo where
     → Sub Γ (Γ , 𝔹)
   ⟨ b ∶[ pb ]⟩𝔹 = idS , b ∶[ pb ]
 
+{- TODO
   ⟨⟩∘=↑∘[]
     : (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T) (pb' : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
     → ⟨ b ∶[ pb ]⟩𝔹 ∘ σ ≡ (σ ↑𝔹) ∘ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹
@@ -570,7 +571,7 @@ module Foo where
         𝔹 [ σ ]T
           ≡⟨ 𝔹[σ]≡𝔹[τ] ⟩
         𝔹 [ idS ]T ∎))
-
+-}
 
 --  𝔹[]₂′=𝔹[]₂ : 𝔹[]₂ {τ = τ} ≡ 𝔹[]₂′
 --  𝔹[]₂′=𝔹[]₂ = {!!} -- derivable from K
