@@ -59,11 +59,11 @@ module Foo where
       : Sub Γ (Δ , A)
       → Tm Γ
 
-    tyOfπ₂ -- should be definitional after the datatype declaration
+    tyOfπ₂ -- definitional after the datatype declaration
       : (σ : Sub Γ (Δ , A))
       → tyOf (π₂ σ) ≡ A [ π₁ σ ]T
     tyOfπ₂idS
-      : tyOf (π₂ idS) ≡ A [ σ ∘ π₁ idS ]T
+      : tyOf (π₂ {A = A [ σ ]T} idS) ≡ A [ σ ∘ π₁ idS ]T
 
     _↑_
       : (σ : Sub Γ Δ) (A : Ty Δ)
@@ -108,7 +108,7 @@ module Foo where
       : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
       → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
 
-    -- Empty universe
+    -- Universe
     U
       : Ty Γ
     U[]
@@ -157,8 +157,8 @@ module Foo where
       : tt [ σ ]t ≡ tt
     ff[]
       : ff [ σ ]t ≡ ff
-    tyOftt : tyOf {Γ} tt ≡ 𝔹 [ idS ]T -- definitional or not
-    tyOfff : tyOf {Γ} ff ≡ 𝔹 [ idS ]T -- definitional or not
+    tyOftt : tyOf {Γ} tt ≡ 𝔹 [ idS ]T -- definitional later
+    tyOfff : tyOf {Γ} ff ≡ 𝔹 [ idS ]T -- definitional later
 
     _↑𝔹
       : (σ : Sub Γ Δ)
@@ -202,24 +202,21 @@ module Foo where
       : (a : Tm Γ) (pa : tyOf a ≡ U)
       → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
       → Tm Γ
-
     π[]
       : (a : Tm Γ) (pa : tyOf a ≡ U)
       → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
       → (pa' : tyOf (a [ σ ]t) ≡ U)
       → (pb' : tyOf (b [ σ ↑El ]t) ≡ U)
       → (π a pa b pb) [ σ ]t ≡ π (a [ σ ]t) pa' (b [ σ ↑El ]t) pb'
-
     tyOfπ
       : (a : Tm Γ) (pa : tyOf a ≡ U) (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
       → tyOf (π a pa b pb) ≡ U
-
     Elπ
       : (a : Tm Γ) (pa : tyOf a ≡ U)
       → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
       → El (π a pa b pb) (tyOfπ a pa b pb) ≡ Π (El a pa) (El b pb)
 
-    -- the following is the actual constructors in Agda
+    -- the following are the actual constructors in Agda
     data Ctx where
       ∅' : Ctx 
       _,'_ : (Γ : Ctx) (A : Ty Γ) → Ctx
@@ -368,56 +365,56 @@ module Foo where
         → (pb' : tyOf (b [ σ ↑El ]t) ≡ U)
         → (π a pa b pb) [ σ ]t ≡ π (a [ σ ]t) pa' (b [ σ ↑El ]t) pb'
 
-    ∅ = ∅'
-    _,_ = _,'_
-    _[_]T = _[_]
-    _[_]t = _[_]
-    U = U'
-    U[] = U[]'
-    El = El'
-    El[] = El[]'
-    El[]₂ = El[]₂'
-    Π = Π'
-    Π[] = Π[]'
-    𝔹 = 𝔹'
-    𝔹[] = 𝔹[]'
-    𝔹[]₂ = 𝔹[]₂'
-    ∅S = ∅S'
+    ∅       = ∅'
+    _,_     = _,'_
+    _[_]T   = _[_]
+    _[_]t   = _[_]
+    U       = U'
+    U[]     = U[]'
+    El      = El'
+    El[]    = El[]'
+    El[]₂   = El[]₂'
+    Π       = Π'
+    Π[]     = Π[]'
+    𝔹       = 𝔹'
+    𝔹[]     = 𝔹[]'
+    𝔹[]₂    = 𝔹[]₂'
+    ∅S      = ∅S'
     _,_∶[_] = _,_∶[_]'
-    idS = idS'
-    _∘_ = _∘'_
-    π₁  = π₁'
-    π₂  = π₂'
-    [idS]T = [idS]T'
-    [∘]T = [∘]T'
-    βπ₁ = βπ₁'
-    βπ₂ = βπ₂'
-    idS∘_ = idS∘'_
-    _∘idS = _∘idS'
-    assocS = assocS'
-    ,∘ = ,∘'
-    η∅ = η∅'
-    ηπ = ηπ'
-    [idS]t = [idS]t'
-    [∘]t  = [∘]t'
-    abs = abs'
-    app = app'
-    abs[] = abs[]'
-    Πβ = Πβ'
-    Πη = Πη'
-    tt = tt'
-    ff = ff'
-    tt[] = tt[]'
-    ff[] = ff[]'
-    elim𝔹 = elim𝔹'
+    idS     = idS'
+    _∘_     = _∘'_
+    π₁      = π₁'
+    π₂      = π₂'
+    [idS]T  = [idS]T'
+    [∘]T    = [∘]T'
+    βπ₁     = βπ₁'
+    βπ₂     = βπ₂'
+    idS∘_   = idS∘'_
+    _∘idS   = _∘idS'
+    assocS  = assocS'
+    ,∘      = ,∘'
+    η∅      = η∅'
+    ηπ      = ηπ'
+    [idS]t  = [idS]t'
+    [∘]t    = [∘]t'
+    abs     = abs'
+    app     = app'
+    abs[]   = abs[]'
+    Πβ      = Πβ'
+    Πη      = Πη'
+    tt      = tt'
+    ff      = ff'
+    tt[]    = tt[]'
+    ff[]    = ff[]'
+    elim𝔹   = elim𝔹'
     elim𝔹[] = elim𝔹[]'
-    𝕓 = 𝕓'
-    𝕓[] = 𝕓[]'
-    El𝕓 = El𝕓'
-    tyOfπ = tyOfπ'
-    π = π'
-    Elπ = Elπ'
-    π[] = π[]'
+    𝕓       = 𝕓'
+    𝕓[]     = 𝕓[]'
+    El𝕓     = El𝕓'
+    tyOfπ   = tyOfπ'
+    π       = π'
+    Elπ     = Elπ'
+    π[]     = π[]'
 
     tyOf (t [ σ ]) = tyOf t [ σ ]T
     tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ σ ]T
@@ -442,12 +439,12 @@ module Foo where
     tyOf (π[]' {σ = σ} a pa b pb pa' pb' i) = U[] {σ = σ} i
 
     -- equaitons derivable from the computational behaviour of `tyOf
-    tyOfπ₂ {Γ} {Δ} {A} σ = refl
+    tyOfπ₂ σ = refl
     tyOfπ₂idS {A = A} {σ = σ} = [∘]T A (π₁ idS) σ
     tyOfabs = refl
-    tyOftt = [idS]T
-    tyOfff = [idS]T
-    tyOf𝕓  = refl
+    tyOftt  = [idS]T
+    tyOfff  = [idS]T
+    tyOf𝕓   = refl
  
   wk : Sub (Γ , A) Γ
   wk = π₁ idS
@@ -544,7 +541,6 @@ module Foo where
       ≡⟨ βπ₁ _ _ _ ⟩
     σ ∘ wk
       ∎
-
   ⟨_∶[_]⟩𝔹 : (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
     → Sub Γ (Γ , 𝔹)
   ⟨ b ∶[ pb ]⟩𝔹 = idS , b ∶[ pb ]
@@ -659,16 +655,107 @@ module Foo where
       ∎
 
 open Foo public
-  hiding (_,_; _∘_; idS; π₁; π₂; ,∘; βπ₂; ηπ; _[_]T; _[_]t)
+  hiding
+  ( ∅
+  ; _,_
+  ; _[_]T
+  ; _[_]t
+  ; U
+  ; U[]
+  ; El
+  ; El[]
+  ; El[]₂
+  ; Π
+  ; Π[]
+  ; 𝔹
+  ; 𝔹[]
+  ; 𝔹[]₂
+  ; ∅S
+  ; _,_∶[_]
+  ; idS
+  ; _∘_
+  ; π₁
+  ; π₂
+  ; [idS]T
+  ; [∘]T
+  ; βπ₁
+  ; βπ₂
+  ; idS∘_
+  ; _∘idS
+  ; assocS
+  ; ,∘
+  ; η∅
+  ; ηπ
+  ; [idS]t
+  ; [∘]t
+  ; abs
+  ; app
+  ; abs[]
+  ; Πβ
+  ; Πη
+  ; tt
+  ; ff
+  ; tt[]
+  ; ff[]
+  ; elim𝔹
+  ; elim𝔹[]
+  ; 𝕓
+  ; 𝕓[]
+  ; El𝕓
+  ; tyOfπ
+  ; π
+  ; Elπ
+  ; π[]
+  )
   renaming
-  ( _,'_ to _,_
-  ; _∘'_ to _∘_
-  ; π₁' to π₁
-  ; π₂' to π₂
+  ( ∅' to ∅
+  ; _,'_ to _,_
+  ; U' to U
+  ; U[]' to U[]
+  ; El' to El
+  ; El[]' to El[]
+  ; El[]₂' to El[]₂
+  ; Π' to Π
+  ; Π[]' to Π[]
+  ; 𝔹' to 𝔹
+  ; 𝔹[]' to 𝔹[]
+  ; 𝔹[]₂' to 𝔹[]₂
+  ; ∅S' to ∅S
+  ; _,_∶[_]' to _,_∶[_]
   ; idS' to idS
-  ; ⟨,∘⟩ to ,∘
-  ; ⟨βπ₂⟩ to βπ₂
+  ; _∘'_ to _∘_
+  ; π₁'  to π₁
+  ; π₂'  to π₂
+  ; [idS]T' to [idS]T
+  ; [∘]T' to [∘]T
+  ; βπ₁' to βπ₁
+  ; βπ₂' to βπ₂
+  ; idS∘'_ to idS∘_
+  ; _∘idS' to _∘idS
+  ; assocS' to assocS
+  ; ,∘' to ,∘
+  ; η∅' to η∅
   ; ηπ' to ηπ
+  ; [idS]t' to [idS]t
+  ; [∘]t'  to [∘]t
+  ; abs' to abs
+  ; app' to app
+  ; abs[]' to abs[]
+  ; Πβ' to Πβ
+  ; Πη' to Πη
+  ; tt' to tt
+  ; ff' to ff
+  ; tt[]' to tt[]
+  ; ff[]' to ff[]
+  ; elim𝔹' to elim𝔹
+  ; elim𝔹[]' to elim𝔹[]
+  ; 𝕓' to 𝕓
+  ; 𝕓[]' to 𝕓[]
+  ; El𝕓' to El𝕓
+  ; tyOfπ' to tyOfπ
+  ; π' to π
+  ; Elπ' to Elπ
+  ; π[]' to π[]
   )
 
 
