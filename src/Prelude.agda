@@ -12,8 +12,7 @@ open import Cubical.Data.Nat            public
 open import Cubical.Data.Bool           public
   using (Bool; true; false)
 open import Agda.Builtin.Equality public
-  renaming (_≡_ to _≣_)
-open import Agda.Builtin.Equality.Rewrite public
+  renaming (_≡_ to _≣_; refl to reflId)
 
 {-
 infix 4 _≣_ _≡≡_
@@ -33,14 +32,26 @@ syntax ∃ A (λ x → P) = ∃ x ∶ A , P
 PathToId
   : ∀ {ℓ} {A : Set ℓ} {x y : A}
   → x ≡ y → x ≣ y
-PathToId {ℓ} {A} {x} {y} p = J (λ y p → x ≣ y) refl p
+PathToId {ℓ} {A} {x} {y} p = J (λ y p → x ≣ y) reflId p
 
 IdToPath
   : ∀ {ℓ} {A : Set ℓ} {x y : A}
   → x ≣ y → x ≡ y
-IdToPath {_} {A} {x} {y} refl i = x
+IdToPath {_} {A} {x} {y} reflId i = x
 
 J≣
-  : ∀ {ℓ ℓ'} {A : Set ℓ} {x y : A} (P : ∀ y → x ≣ y → Set ℓ') (d : P x refl) (p : x ≣ y)
+  : ∀ {ℓ ℓ'} {A : Set ℓ} {x y : A} (P : ∀ y → x ≣ y → Set ℓ') (d : P x reflId) (p : x ≣ y)
   → P y p
-J≣ P d refl = d
+J≣ P d reflId = d
+
+congId
+  : {ℓ : Level} {A : Type ℓ} {ℓ' : Level}
+    {B : Type ℓ'} {x y : A} (f : A → B) (p : x ≣ y)
+  → (f x) ≣ (f y)
+congId f reflId = reflId
+
+trans
+  : ∀ {ℓ} {A : Set ℓ} {x y z : A}
+  → x ≣ y → y ≣ z
+  → x ≣ z
+trans reflId reflId = reflId

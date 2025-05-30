@@ -22,9 +22,8 @@ module Foo where
     data Ty  : Ctx → Set
     data Tm  : (Γ : Ctx) → Set
 
-    postulate
-      tyOf
-        : ∀ {Γ} → Tm Γ → Ty Γ
+    tyOf
+      : ∀ {Γ} → Tm Γ → Ty Γ
 
     variable
         Γ Δ Θ Ξ : Ctx
@@ -61,11 +60,8 @@ module Foo where
       : Sub Γ (Δ , A)
       → Tm Γ
 
-    postulate
-      tyOfπ₂ -- should be definitional after the datatype declaration
-        : (σ : Sub Γ (Δ , A))
-        → tyOf (π₂ σ) ≣ A [ π₁ σ ]T
-      {-# REWRITE tyOfπ₂ #-}
+    tyOfπ₂ -- should be definitional after the datatype declaration
+      : tyOf (π₂ {A = A} σ) ≣ A [ π₁ σ ]T
     tyOfπ₂idS
       : tyOf (π₂ idS) ≣ A [ σ ∘ π₁ idS ]T
     
@@ -89,7 +85,7 @@ module Foo where
       → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
     ηπ
       : (σ : Sub Γ (Δ , A))
-      → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
+      → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ ])
     η∅
       : (σ : Sub Γ ∅)
       → σ ≡ ∅S
@@ -98,7 +94,7 @@ module Foo where
       → π₁ (σ , t ∶[ p ]) ≡ σ
     βπ₂
       : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≣ A [ σ ]T)
-      → (q : tyOf t ≣ A [ π₁ (σ , t ∶[ p ]) ]T)
+      → (q : A [ π₁ (σ , t ∶[ p ]) ]T ≣ tyOf t)
       → π₂ (σ , t ∶[ p ]) ≡ t
     [idS]T
       : A ≡ A [ idS ]T
@@ -124,136 +120,135 @@ module Foo where
       : (τ : Sub Γ Δ) (u : Tm Δ) (p : tyOf u ≣ U) (q : tyOf (u [ τ ]t) ≣ U)
       → (El u p) [ τ ]T ≡ El (u [ τ ]t) q
 
---     -- the following is the actual constructors in Agda
---     data Ctx where
---       ∅' : Ctx 
---       _,'_ : (Γ : Ctx) (A : Ty Γ) → Ctx
-      
---     data Ty where
---       _[_] : (A : Ty Δ) (σ : Sub Γ Δ)
---         → Ty Γ
---       [idS]T'
---         : A ≡ A [ idS ]
---       [∘]T'
---         : (A : Ty Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
---         → A [ τ ]T [ σ ]T ≡ A [ τ ∘ σ ]T
---       U'
---         : Ty Γ
---       U[]'
---         : U [ σ ]T ≡ U
---       El'
---         : (u : Tm Γ) (p : tyOf u ≣ U)
---         → Ty Γ
---       El[]'
---         : (τ : Sub Γ Δ) (u : Tm Δ) (p : tyOf u ≣ U) (q : tyOf (u [ τ ]t) ≣ U)
---         → (El u p) [ τ ]T ≡ El (u [ τ ]t) q
---       El[]₂'
---         : (u : Tm Δ) (pu : tyOf u ≣ U)(pu' : tyOf (u [ σ ]t) ≣ U)
---         → tyOf (π₂ {Γ , El (u [ σ ]t) pu'} idS) ≡ El u pu [ σ ∘ π₁ idS ]T
---       Ty-is-set : isSet (Ty Γ)
+    -- the following is the actual constructors in Agda
+    data Ctx where
+      ∅' : Ctx 
+      _,'_ : (Γ : Ctx) (A : Ty Γ) → Ctx
+   
+    data Ty where
+      _[_] : (A : Ty Δ) (σ : Sub Γ Δ)
+        → Ty Γ
+      [idS]T'
+        : A ≡ A [ idS ]
+      [∘]T'
+        : (A : Ty Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
+        → A [ τ ]T [ σ ]T ≡ A [ τ ∘ σ ]T
+      U'
+        : Ty Γ
+      U[]'
+        : U [ σ ]T ≡ U
+      El'
+        : (u : Tm Γ) (p : tyOf u ≣ U)
+        → Ty Γ
+      El[]'
+        : (τ : Sub Γ Δ) (u : Tm Δ) (p : tyOf u ≣ U) (q : tyOf (u [ τ ]t) ≣ U)
+        → (El u p) [ τ ]T ≡ El (u [ τ ]t) q
+      El[]₂'
+        : (u : Tm Δ) (pu : tyOf u ≣ U)(pu' : tyOf (u [ σ ]t) ≣ U)
+        → tyOf (π₂ {Γ , El (u [ σ ]t) pu'} idS) ≡ El u pu [ σ ∘ π₁ idS ]T
+      Ty-is-set : isSet (Ty Γ)
 
---     data Sub where
---       ∅S'
---         : Sub Γ ∅
---       _,_∶[_]'
---         : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≣ A [ σ ]T
---         → Sub Γ (Δ , A)
---       idS' : Sub Γ Γ
---       _∘'_
---         : Sub Δ Θ → Sub Γ Δ
---         → Sub Γ Θ
---       π₁'
---         : Sub Γ (Δ , A)
---         → Sub Γ Δ
---       βπ₁'
---         : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≣ A [ σ ]T)
---         → π₁ (σ , t ∶[ p ]) ≡ σ
---       idS∘'_
---         : (σ : Sub Γ Δ)
---         → idS ∘ σ ≡ σ
---       _∘idS'
---         : (σ : Sub Γ Δ)
---         → σ ∘ idS ≡ σ
---       assocS'
---         : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (γ : Sub Θ Ξ)
---         → (γ ∘ τ) ∘ σ ≡ γ ∘ (τ ∘ σ)
---       ,∘'
---         : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≣ A [ σ ]T)
---           (q : tyOf (t [ τ ]t) ≣ A [ σ ∘ τ ]T)
---         → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
---       η∅'
---         : (σ : Sub Γ ∅)
---         → σ ≡ ∅S
---       ηπ'
---         : (σ : Sub Γ (Δ , A))
---         → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
---     data Tm where
---       _[_] : (A : Tm Δ)(σ : Sub Γ Δ)
---         → Tm Γ
---       π₂'
---         : Sub Γ (Δ , A)
---         → Tm Γ
---       βπ₂'
---         : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≣ A [ σ ]T)
---         → (q : tyOf t ≣ A [ π₁ (σ , t ∶[ p ]) ]T)
---         → π₂ (σ , t ∶[ p ]) ≡ t
---       [idS]t'
---         : (t : Tm Γ)
---         → t ≡ t [ idS ]t
---       [∘]t'
---         : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
---         → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
+    data Sub where
+      ∅S'
+        : Sub Γ ∅
+      _,_∶[_]'
+        : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≣ A [ σ ]T
+        → Sub Γ (Δ , A)
+      idS' : Sub Γ Γ
+      _∘'_
+        : Sub Δ Θ → Sub Γ Δ
+        → Sub Γ Θ
+      π₁'
+        : Sub Γ (Δ , A)
+        → Sub Γ Δ
+      βπ₁'
+        : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≣ A [ σ ]T)
+        → π₁ (σ , t ∶[ p ]) ≡ σ
+      idS∘'_
+        : (σ : Sub Γ Δ)
+        → idS ∘ σ ≡ σ
+      _∘idS'
+        : (σ : Sub Γ Δ)
+        → σ ∘ idS ≡ σ
+      assocS'
+        : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (γ : Sub Θ Ξ)
+        → (γ ∘ τ) ∘ σ ≡ γ ∘ (τ ∘ σ)
+      ,∘'
+        : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≣ A [ σ ]T)
+          (q : tyOf (t [ τ ]t) ≣ A [ σ ∘ τ ]T)
+        → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
+      η∅'
+        : (σ : Sub Γ ∅)
+        → σ ≡ ∅S
+      ηπ'
+        : (σ : Sub Γ (Δ , A))
+        → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ ])
+    data Tm where
+      _[_] : (A : Tm Δ)(σ : Sub Γ Δ)
+        → Tm Γ
+      π₂'
+        : Sub Γ (Δ , A)
+        → Tm Γ
+      βπ₂'
+        : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≣ A [ σ ]T)
+        → (q : A [ π₁ (σ , t ∶[ p ]) ]T ≣ tyOf t)
+        → π₂ (σ , t ∶[ p ]) ≡ t
+      [idS]t'
+        : (t : Tm Γ)
+        → t ≡ t [ idS ]t
+      [∘]t'
+        : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
+        → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
 
---     ∅ = ∅'
---     _,_ = _,'_
---     _[_]T = _[_]
---     _[_]t = _[_]
---     U = U'
---     U[] = U[]'
---     El = El'
---     El[] = El[]'
---     El[]₂ = El[]₂'
---     ∅S = ∅S'
---     _,_∶[_] = _,_∶[_]'
---     idS = idS'
---     _∘_ = _∘'_
---     π₁  = π₁'
---     π₂  = π₂'
---     [idS]T = [idS]T'
---     [∘]T = [∘]T'
---     βπ₁ = βπ₁'
---     βπ₂ = βπ₂'
---     idS∘_ = idS∘'_
---     _∘idS = _∘idS'
---     assocS = assocS'
---     ,∘ = ,∘'
---     η∅ = η∅'
---     ηπ = ηπ'
---     [idS]t = [idS]t'
---     [∘]t  = [∘]t'
+    ∅ = ∅'
+    _,_ = _,'_
+    _[_]T = _[_]
+    _[_]t = _[_]
+    U = U'
+    U[] = U[]'
+    El = El'
+    El[] = El[]'
+    ∅S = ∅S'
+    _,_∶[_] = _,_∶[_]'
+    idS = idS'
+    _∘_ = _∘'_
+    π₁  = π₁'
+    π₂  = π₂'
+    [idS]T = [idS]T'
+    [∘]T = [∘]T'
+    βπ₁ = βπ₁'
+    βπ₂ = βπ₂'
+    idS∘_ = idS∘'_
+    _∘idS = _∘idS'
+    assocS = assocS'
+    ,∘ = ,∘'
+    η∅ = η∅'
+    ηπ = ηπ'
+    [idS]t = [idS]t'
+    [∘]t  = [∘]t'
 
--- -- --    tyOf (t [ σ ]) = tyOf t [ σ ]T
--- -- --    tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ σ ]T
--- -- --    tyOf (βπ₂' σ t p q i)   = {!p!} -- q i
--- -- --    tyOf ([idS]t' t i)      = [idS]T {A = tyOf t} i
--- -- --    tyOf ([∘]t' t σ τ i)    = [∘]T (tyOf t) σ τ i
+    tyOf (t [ σ ]) = tyOf t [ σ ]T
+    tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ σ ]T
+    tyOf (βπ₂' σ t p q i)   = IdToPath q i
+    tyOf ([idS]t' t i)      = [idS]T {A = tyOf t} i
+    tyOf ([∘]t' t σ τ i)    = [∘]T (tyOf t) σ τ i
 
 -- --     -- equaitons derivable from the computational behaviour of `tyOf
--- --     -- tyOfπ₂ {Γ} {Δ} {A} σ = refl
-    tyOfπ₂idS {A = A} {σ = σ} = {!!} -- [∘]T A (π₁ idS) σ
+    tyOfπ₂ {Γ} {Δ} {A} = reflId
+    tyOfπ₂idS {A = A} {σ = σ} = PathToId ([∘]T _ _ _) -- [∘]T A (π₁ idS) σ
  
 -- --   wk : Sub (Γ , A) Γ
 -- --   wk = π₁ idS
   
     ⟨,∘⟩
       : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≣ A [ σ ]T)
-      → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ {!!} ]) -- (σ ∘ τ , t [ τ ]t ∶[ cong _[ τ ] p ∙ [∘]T A τ σ ])
-    ⟨,∘⟩ σ t τ p = ,∘ σ t τ p {!!} -- ,∘ σ t τ p {!p!} -- ,∘ σ t τ p _
+      → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ trans (congId _[ τ ] p) (PathToId ([∘]T _ _ _))   ]) -- (σ ∘ τ , t [ τ ]t ∶[ cong _[ τ ] p ∙ [∘]T A τ σ ])
+    ⟨,∘⟩ σ t τ p = ,∘ σ t τ p _
 
--- --   ⟨βπ₂⟩
--- --     : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≣ A [ σ ]T)
--- --     → π₂ (σ , t ∶[ p ]) ≡ t 
--- --   ⟨βπ₂⟩ {A = A} σ t p = {!p!} -- βπ₂ σ t _ (cong (A [_]) (βπ₁ σ t p) ∙ sym p)
+    ⟨βπ₂⟩
+      : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≣ A [ σ ]T)
+      → π₂ (σ , t ∶[ p ]) ≡ t 
+    ⟨βπ₂⟩ {A = A} σ t p = {!!} -- βπ₂ σ t _ (cong (A [_]) (βπ₁ σ t p) ∙ sym p)
 
 -- --   π₁∘
 -- --     : (τ : Sub Δ (Θ , A)) (σ : Sub Γ Δ)
