@@ -54,10 +54,10 @@ module _ {ℓ ℓ' ℓ'' ℓ'''}
     tyOfπ₂ᴹ
       -- : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
       : tyOfᴬ (π₂ᴹ σᴹ) ≡ Aᴹ [ π₁ᴹ σᴹ ]Tᴹ
-    idSᴹ∘ᴹ_
+    idS∘ᴹ_
       : (σᴹ : Subᴬ Γᴹ Δᴹ)
       → idSᴹ ∘ᴹ σᴹ ≡ σᴹ
-    _∘ᴹidSᴹ
+    _∘idSᴹ
       : (σᴹ : Subᴬ Γᴹ Δᴹ)
       → σᴹ ∘ᴹ idSᴹ ≡ σᴹ
     assocSᴹ
@@ -80,15 +80,15 @@ module _ {ℓ ℓ' ℓ'' ℓ'''}
       : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
       → (q : Aᴹ [ π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ]Tᴹ ≡  tyOfᴬ tᴹ)
       → π₂ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ tᴹ
-    [idSᴹ]Tᴹ
+    [idS]Tᴹ
       : Aᴹ ≡ Aᴹ [ idSᴹ ]Tᴹ
-    [∘ᴹ]Tᴹ
+    [∘]Tᴹ
       : (Aᴹ : Tyᴬ Θᴹ) (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ)
       → Aᴹ [ τᴹ ]Tᴹ [ σᴹ ]Tᴹ ≡ Aᴹ [ τᴹ ∘ᴹ σᴹ ]Tᴹ
-    [idSᴹ]tᴹ
+    [idS]tᴹ
       : (tᴹ : Tmᴬ Γᴹ)
       → tᴹ ≡ tᴹ [ idSᴹ ]tᴹ
-    [∘ᴹ]tᴹ
+    [∘]tᴹ
       : (tᴹ : Tmᴬ Θᴹ) (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ)
       → tᴹ [ τᴹ ]tᴹ [ σᴹ ]tᴹ ≡ tᴹ [ τᴹ ∘ᴹ σᴹ ]tᴹ
     Uᴹ
@@ -112,9 +112,9 @@ module _ {ℓ ℓ' ℓ'' ℓ'''}
        : (uᴹ : Tmᴬ Γᴹ) (p : tyOfᴬ uᴹ ≡ Uᴹ)
        → Tyᴬ Γᴹ
      El[]ᴹ
-       : (τᴹ : Subᴬ Γᴹ Δᴹ) (uᴹ : Tmᴬ Δᴹ) (p : tyOfᴬ uᴹ ≡ Uᴹ) (q : tyOfᴬ (uᴹ [ τᴹ ]tᴹ) ≡ Uᴹ)
-       → (Elᴹ uᴹ p) [ τᴹ ]Tᴹ ≡ Elᴹ (uᴹ [ τᴹ ]tᴹ) q
-  
+       : (τᴹ : Subᴬ Γᴹ Δᴹ) (uᴹ : Tmᴬ Δᴹ) (p : tyOfᴬ uᴹ ≡ Uᴹ) -- (q : tyOfᴬ (uᴹ [ τᴹ ]tᴹ) ≡ Uᴹ)
+       → (Elᴹ uᴹ p) [ τᴹ ]Tᴹ ≡ Elᴹ (uᴹ [ τᴹ ]tᴹ) (tyOf[]ᴹ {tᴹ = uᴹ} {σᴹ = τᴹ} ∙ cong (λ z → z [ τᴹ ]Tᴹ) p ∙ U[]ᴹ {σᴹ = τᴹ} )
+
  record Piᴹ (C : SCᴹ): Set (ℓ ⊔ ℓ' ⊔ ℓ'' ⊔ ℓ''') where
    open SCᴹ C
 
@@ -245,21 +245,53 @@ module _ {ℓ ℓ' ℓ'' ℓ'''}
           (Tmᴬ : Ctxᴬ → Set ℓ''')
           (tyOfᴬ : {Γᴬ : Ctxᴬ} → Tmᴬ Γᴬ → Tyᴬ Γᴬ)
           (SCᵐ : SCᴹ Ctxᴬ Tyᴬ Subᴬ Tmᴬ tyOfᴬ)
+          (Boolᵐ : Boolᴹ Ctxᴬ Tyᴬ Subᴬ Tmᴬ tyOfᴬ SCᵐ)
+          (Univᵐ : Univᴹ Ctxᴬ Tyᴬ Subᴬ Tmᴬ tyOfᴬ SCᵐ)
+          (Piᵐ : Piᴹ Ctxᴬ Tyᴬ Subᴬ Tmᴬ tyOfᴬ SCᵐ)
    where
 
    open SCᴹ SCᵐ
+   open Boolᴹ Boolᵐ
+   open Univᴹ Univᵐ
+   open Piᴹ Piᵐ
 
    recCtx  : Ctx → Ctxᴬ
    recTy   : {Γ : Ctx} → Ty Γ → Tyᴬ (recCtx Γ)
    recTm   : {Γ : Ctx} → Tm Γ → Tmᴬ (recCtx Γ)
    recSub  : {Γ Δ : Ctx} → Sub Γ Δ → Subᴬ (recCtx Γ) (recCtx Δ)
-   recTyOf : {Γ : Ctx} → (t : Tm Γ) → tyOfᴬ (recTm t) ≡ recTy (tyOf t)
+   recTyOf : {Γ : Ctx}{A : Ty Γ} → (t : Tm Γ) → tyOf t ≡ A → tyOfᴬ (recTm t) ≡ recTy A
+
 
    recCtx ∅ = ∅ᴹ
    recCtx (Γ , A) = recCtx Γ ,ᴹ recTy A
 
+   recTm⟨π₂idS⟩≡π₂ᴹidSᴹ : recTm (π₂ {A = A} idS) ≡ π₂ᴹ idSᴹ
+   recTm⟨t[σ]⟩=recTmt[recSubσ]tᴹ : recTm (t [ σ ]) ≡ recTm t [ recSub σ ]tᴹ
+
+   recTy (A [ σ ]) = recTy A [ recSub σ ]Tᴹ
+   recTy 𝔹 = 𝔹ᴹ
+   recTy U = Uᴹ
+   recTy (El u p) = Elᴹ (recTm u) (recTyOf u p)
+   recTy (Π A B) = Πᴹ (recTy A) (recTy B)
+   recTy ([idS]T {A = A} i) = [idS]Tᴹ {Aᴹ = recTy A} i
+   recTy ([∘]T A σ τ i) = [∘]Tᴹ (recTy A) (recSub σ) (recSub τ) i
+   recTy (U[] {σ = σ} i) = U[]ᴹ {σᴹ = recSub σ} i
+   recTy (El[] τ u p q i) = {!El[]ᴹ (recSub τ) (recTm u) (recTyOf u p) i!}
+    where
+     foo : (tyOf[]ᴹ ∙ cong (λ z → z [ recSub τ ]Tᴹ) (recTyOf u p) ∙ U[]ᴹ) ≡ {!recTyOf (u Foo.[ τ ]t) q!}
+     foo = {!!}
+   -- (El[]ᴹ (recSub τ) (recTm u) (recTyOf u p) {!(cong tyOfᴬ (recTm⟨t[σ]⟩=recTmt[recSubσ]tᴹ {t = u} {σ = τ})) ∙ recTyOf (u [ τ ]) q!}) i
+   recTy (El[]₂ u pu pu' i) = {!!}
+   recTy (Π[] i) = {!!}
+   recTy (𝔹[] {σ = σ} i) = 𝔹[]ᴹ {σᴹ = recSub σ} i
+   recTy (𝔹[]₂ {Γ = Γ} {Δ} {τ = τ} i) = {!!} -- ({!cong tyOfᴬ (recTm⟨π₂idS⟩≡π₂ᴹidSᴹ {{!Γ!}} {A = 𝔹})!} ∙ 𝔹[]₂ᴹ {τᴹ = recSub τ}) i
+   recTy (El𝕓 i) = {!!}
+   recTy (tyOfπ a pa b pb i) = {!!}
+   recTy (Elπ a pa b pb i) = {!!}
+   recTy (Ty-is-set A A₁ x y i i₁) = {!!}
+
    recSub ∅S             = ∅Sᴹ
-   recSub (σ , t ∶[ p ]) = recSub σ ,ᴹ recTm t ∶[ {!!} ]
+   recSub (σ , t ∶[ p ]) = recSub σ ,ᴹ recTm t ∶[ recTyOf t p ]
    recSub idS            = idSᴹ
    recSub (τ ∘ σ)        = recSub τ ∘ᴹ recSub σ
    recSub (π₁ σ)         = π₁ᴹ (recSub σ)
@@ -271,23 +303,6 @@ module _ {ℓ ℓ' ℓ'' ℓ'''}
    recSub (η∅ σ i) = {!!}
    recSub (ηπ σ i) = {!!}
 
-   recTy (A [ σ ]) = recTy A [ recSub σ ]Tᴹ
-   recTy 𝔹 = {!𝔹ᴹ!}
-   recTy U = Uᴹ
-   recTy (El u p) = {!Elᴹ!}
-   recTy (Π A B) = {!!}
-   recTy ([idS]T i) = {!!}
-   recTy ([∘]T A σ τ i) = {!!}
-   recTy (U[] i) = {!!}
-   recTy (El[] τ u p q i) = {!!}
-   recTy (El[]₂ u pu pu' i) = {!!}
-   recTy (Π[] i) = {!!}
-   recTy (𝔹[] i) = {!!}
-   recTy (𝔹[]₂ i) = {!!}
-   recTy (El𝕓 i) = {!!}
-   recTy (tyOfπ a pa b pb i) = {!!}
-   recTy (Elπ a pa b pb i) = {!!}
-   recTy (Ty-is-set A A₁ x y i i₁) = {!!}
 
    recTm (t [ σ ]) = recTm t [ recSub σ ]tᴹ
    recTm (π₂ σ)    = π₂ᴹ (recSub σ)
@@ -310,4 +325,7 @@ module _ {ℓ ℓ' ℓ'' ℓ'''}
    recTm (𝕓[] i) = {!!}
    recTm (π[] t pa t₁ pb pa' pb' i) = {!!}
 
-   recTyOf t = {!!}
+   recTm⟨π₂idS⟩≡π₂ᴹidSᴹ = refl
+   recTm⟨t[σ]⟩=recTmt[recSubσ]tᴹ = refl
+
+   recTyOf t p = {!!}
