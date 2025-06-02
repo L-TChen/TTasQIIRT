@@ -11,3 +11,8 @@ open import Cubical.Data.Nat            public
   using (ℕ; zero; suc; _+_)
 open import Cubical.Data.Bool           public
   using (Bool; true; false)
+
+open import Agda.Primitive              public
+
+variable
+  ℓ ℓ' ℓ'' ℓ''' ℓ'''' ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level

@@ -67,7 +67,7 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 ⟦ Ty-is-set A B x y i j ⟧T γ = {!!}
 
 
-⟦ ∅S ⟧S γ = ⋆
+⟦ ∅ ⟧S γ = ⋆
 ⟦ σ , t ∶[ p ] ⟧S γ = (⟦ σ ⟧S γ) , ⟦ t , p ⟧p (⟦ t ⟧t γ)
 ⟦ idS ⟧S γ = γ
 ⟦ σ ∘ τ ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ)
