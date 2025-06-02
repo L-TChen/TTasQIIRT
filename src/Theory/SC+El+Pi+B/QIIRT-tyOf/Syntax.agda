@@ -220,7 +220,41 @@ module Foo where
     data Ctx where
       ∅' : Ctx 
       _,'_ : (Γ : Ctx) (A : Ty Γ) → Ctx
-      
+    data Sub where
+      ∅S'
+        : Sub Γ ∅
+      _,_∶[_]'
+        : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ A [ σ ]T
+        → Sub Γ (Δ , A)
+      idS' : Sub Γ Γ
+      _∘'_
+        : Sub Δ Θ → Sub Γ Δ
+        → Sub Γ Θ
+      π₁'
+        : Sub Γ (Δ , A)
+        → Sub Γ Δ
+      βπ₁'
+        : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ A [ σ ]T)
+        → π₁ (σ , t ∶[ p ]) ≡ σ
+      idS∘'_
+        : (σ : Sub Γ Δ)
+        → idS ∘ σ ≡ σ
+      _∘idS'
+        : (σ : Sub Γ Δ)
+        → σ ∘ idS ≡ σ
+      assocS'
+        : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (γ : Sub Θ Ξ)
+        → (γ ∘ τ) ∘ σ ≡ γ ∘ (τ ∘ σ)
+      ,∘'
+        : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≡ A [ σ ]T)
+          (q : tyOf (t [ τ ]t) ≡ A [ σ ∘ τ ]T)
+        → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
+      η∅'
+        : (σ : Sub Γ ∅)
+        → σ ≡ ∅S
+      ηπ'
+        : (σ : Sub Γ (Δ , A))
+        → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
     data Ty where
       _[_] : (A : Ty Δ) (σ : Sub Γ Δ)
         → Ty Γ
@@ -264,41 +298,6 @@ module Foo where
         → El (π a pa b pb) (tyOfπ a pa b pb) ≡ Π (El a pa) (El b pb)
       Ty-is-set : isSet (Ty Γ)
 
-    data Sub where
-      ∅S'
-        : Sub Γ ∅
-      _,_∶[_]'
-        : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ A [ σ ]T
-        → Sub Γ (Δ , A)
-      idS' : Sub Γ Γ
-      _∘'_
-        : Sub Δ Θ → Sub Γ Δ
-        → Sub Γ Θ
-      π₁'
-        : Sub Γ (Δ , A)
-        → Sub Γ Δ
-      βπ₁'
-        : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ A [ σ ]T)
-        → π₁ (σ , t ∶[ p ]) ≡ σ
-      idS∘'_
-        : (σ : Sub Γ Δ)
-        → idS ∘ σ ≡ σ
-      _∘idS'
-        : (σ : Sub Γ Δ)
-        → σ ∘ idS ≡ σ
-      assocS'
-        : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (γ : Sub Θ Ξ)
-        → (γ ∘ τ) ∘ σ ≡ γ ∘ (τ ∘ σ)
-      ,∘'
-        : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≡ A [ σ ]T)
-          (q : tyOf (t [ τ ]t) ≡ A [ σ ∘ τ ]T)
-        → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
-      η∅'
-        : (σ : Sub Γ ∅)
-        → σ ≡ ∅S
-      ηπ'
-        : (σ : Sub Γ (Δ , A))
-        → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
     data Tm where
       _[_] : (A : Tm Δ)(σ : Sub Γ Δ)
         → Tm Γ
