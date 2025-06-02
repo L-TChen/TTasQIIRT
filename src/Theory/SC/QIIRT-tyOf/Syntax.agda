@@ -25,9 +25,9 @@ module Foo where
 
     variable
         Γ Δ Θ Ξ : Ctx
-        A B C : Ty Γ
-        t u   : Tm Γ
-        σ τ δ : Sub Γ Δ
+        A B C D : Ty Γ
+        t u     : Tm Γ
+        σ τ δ γ : Sub Γ Δ
 
     -- Substitution calculus
     ∅

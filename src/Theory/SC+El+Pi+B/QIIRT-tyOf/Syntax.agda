@@ -25,9 +25,9 @@ module Foo where
 
     variable
         Γ Δ Θ Ξ : Ctx
-        A B C : Ty Γ
+        A B C D : Ty Γ
         t u   : Tm Γ
-        σ τ δ : Sub Γ Δ
+        σ τ γ δ : Sub Γ Δ
 
     -- Substitution calculus
     ∅
@@ -723,7 +723,7 @@ open Foo public
   ; idS' to idS
   ; _∘'_ to _∘_
   ; π₁'  to π₁
-  ; π₂'  to π₂
+  ; π₂'  to π₂ 
   ; [idS]T' to [idS]T
   ; [∘]T' to [∘]T
   ; βπ₁' to βπ₁

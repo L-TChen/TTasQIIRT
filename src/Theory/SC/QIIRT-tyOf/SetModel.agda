@@ -37,7 +37,7 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 ⟦_⟧S : (σ : Sub Γ Δ) → ⟦ Γ ⟧C → ⟦ Δ ⟧C
 
 ⟦_,_⟧p : {Γ : Ctx}(t : Tm Γ){A : Ty Γ} → tyOf t ≡ A → {γ : ⟦ Γ ⟧C} → ⟦ tyOf t ⟧T γ → ⟦ A ⟧T γ
-⟦ t , p ⟧p {γ = γ} = subst (λ z → ⟦ z ⟧T γ) p
+⟦ t , p ⟧p {γ = γ} = transp (λ i → ⟦ p i ⟧T γ) i0
 
 ⟦ ∅ ⟧C = Unit
 ⟦ Γ , A ⟧C = Σ[ γ ∈ ⟦ Γ ⟧C ] (⟦ A ⟧T γ)
@@ -68,12 +68,21 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 
 ⟦ t [ σ ] ⟧t γ = ⟦ t ⟧t (⟦ σ ⟧S γ)
 ⟦ π₂ σ ⟧t γ = ⟦ σ ⟧S γ .snd
-⟦ βπ₂ {A = A} σ t p q i ⟧t γ = {!(subst-filler (λ z → ⟦ z ⟧T γ) q (⟦ t ⟧t γ) i)!}
- where -- subst {x = p (~ i)} {q i} (λ z → ⟦ z ⟧T γ) foo (subst-filler (λ z → ⟦ z ⟧T γ) p (⟦ t ⟧t γ) (~ i))
+⟦ βπ₂ {A = A} σ t p q i ⟧t γ = {! ⟦ t ⟧t γ !}
+-- transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ) : ⟦ q i ⟧T γ
+-- ⟦ t ⟧t γ :  ⟦ q i ⟧T γ
+{-
   bar : PathP (λ i → ⟦ q i ⟧T γ) (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ)) (⟦ t ⟧t γ)
   bar = {!subst (λ z → PathP z (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ)) (⟦ t ⟧t γ)) ? ?!}
   foo : sym p i ≡ q i
   foo = {!sym p i!}
+-}
+  where -- subst {x = p (~ i)} {q i} (λ z → ⟦ z ⟧T γ) foo (subst-filler (λ z → ⟦ z ⟧T γ) p (⟦ t ⟧t γ) (~ i))
+    foo : PathP (λ i → ⟦ p i ⟧T γ)
+      (⟦ t ⟧t γ)
+      (transp (λ j → ⟦ p j ⟧T γ) i0 (⟦ t ⟧t γ))
+    foo = transport-filler (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ)
+
 -- subst {x = p (~ i)} {q i} (λ z → ⟦ z ⟧T γ)  {!(isProp→PathP (λ i → Ty-is-set (A [ βπ₁' σ t p (~ i) ])  (tyOf t)) (sym p) q)!} (subst-filler (λ z → ⟦ z ⟧T γ) p (⟦ t ⟧t γ) (~ i))
 ⟦ [idS]t t i ⟧t γ   = ⟦ t ⟧t γ
 ⟦ [∘]t t σ τ i ⟧t γ = ⟦ t ⟧t (⟦ τ ⟧S (⟦ σ ⟧S γ))

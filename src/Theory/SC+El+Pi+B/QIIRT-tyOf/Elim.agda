@@ -53,83 +53,116 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       _,ᴹ_∶[_,_]
         : (σᴹ : Subᴬ Γᴹ Δᴹ σ) {Aᴹ : Tyᴬ Δᴹ A} (tᴹ : Tmᴬ Γᴹ t)
         → (p : tyOf t ≡ A [ σ ])
-        → tyOfᴬ tᴹ ≡ {!Aᴹ [ σᴹ ]Tᴹ!} -- Aᴹ [ σᴹ ]Tᴹ
-        → Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) (σ , t ∶[ {!p!} ])
---       idSᴹ
---         : Subᴬ Γᴹ Γᴹ
---       _∘ᴹ_
---         : Subᴬ Δᴹ Θᴹ → Subᴬ Γᴹ Δᴹ
---         → Subᴬ Γᴹ Θᴹ
---       π₁ᴹ
---         : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ)
---         → Subᴬ Γᴹ Δᴹ
---       π₂ᴹ
---         : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ)
---         → Tmᴬ Γᴹ
---       tyOfπ₂ᴹ
---         : tyOfᴬ (π₂ᴹ σᴹ) ≡ Aᴹ [ π₁ᴹ σᴹ ]Tᴹ
---       idS∘ᴹ_
---         : (σᴹ : Subᴬ Γᴹ Δᴹ)
---         → idSᴹ ∘ᴹ σᴹ ≡ σᴹ
---       _∘idSᴹ
---         : (σᴹ : Subᴬ Γᴹ Δᴹ)
---         → σᴹ ∘ᴹ idSᴹ ≡ σᴹ
---       assocSᴹ
---         : (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ) (γᴹ : Subᴬ Θᴹ Ξᴹ)
---         → (γᴹ ∘ᴹ τᴹ) ∘ᴹ σᴹ ≡ γᴹ ∘ᴹ (τᴹ ∘ᴹ σᴹ)
---       ,∘ᴹ
---         : (σᴹ : Subᴬ Δᴹ Θᴹ) (tᴹ : Tmᴬ Δᴹ) (τᴹ : Subᴬ Γᴹ Δᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
---           (q : tyOfᴬ (tᴹ [ τᴹ ]tᴹ) ≡ Aᴹ [ σᴹ ∘ᴹ τᴹ ]Tᴹ)
---         → (σᴹ ,ᴹ tᴹ ∶[ p ]) ∘ᴹ τᴹ ≡ ((σᴹ ∘ᴹ τᴹ) ,ᴹ tᴹ [ τᴹ ]tᴹ ∶[ q ])
---       ηπᴹ
---         : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
---         → σᴹ ≡ (π₁ᴹ σᴹ ,ᴹ π₂ᴹ σᴹ ∶[ tyOfπ₂ᴹ ])
---       η∅ᴹ
---         : (σᴹ : Subᴬ Γᴹ ∅ᴹ)
---         → σᴹ ≡ ∅Sᴹ
---       βπ₁ᴹ
---         : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
---         → π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ σᴹ
---       βπ₂ᴹ
---         : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
---         → (q : Aᴹ [ π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ]Tᴹ ≡  tyOfᴬ tᴹ)
---         → π₂ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ tᴹ
---       [idS]Tᴹ
---         : Aᴹ ≡ Aᴹ [ idSᴹ ]Tᴹ
---       [∘]Tᴹ
---         : (Aᴹ : Tyᴬ Θᴹ) (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ)
---         → Aᴹ [ τᴹ ]Tᴹ [ σᴹ ]Tᴹ ≡ Aᴹ [ τᴹ ∘ᴹ σᴹ ]Tᴹ
---       [idS]tᴹ
---         : (tᴹ : Tmᴬ Γᴹ)
---         → tᴹ ≡ tᴹ [ idSᴹ ]tᴹ
---       [∘]tᴹ
---         : (tᴹ : Tmᴬ Θᴹ) (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ)
---         → tᴹ [ τᴹ ]tᴹ [ σᴹ ]tᴹ ≡ tᴹ [ τᴹ ∘ᴹ σᴹ ]tᴹ
---       Uᴹ
---         : Tyᴬ Γᴹ
---       U[]ᴹ
---         : Uᴹ [ σᴹ ]Tᴹ ≡ Uᴹ
+        → tyOfᴬ tᴹ ≡[ i ⊢ Tyᴬ Γᴹ (p i) ] (Aᴹ [ σᴹ ]Tᴹ)
+        → Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) (σ , t ∶[ p ])
+      idSᴹ
+        : Subᴬ Γᴹ Γᴹ idS
+      _∘ᴹ_
+        : Subᴬ Δᴹ Θᴹ τ → Subᴬ Γᴹ Δᴹ σ
+        → Subᴬ Γᴹ Θᴹ (τ ∘ σ)
+      π₁ᴹ
+        : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) σ
+        → Subᴬ Γᴹ Δᴹ (π₁ σ)
+      π₂ᴹ
+        : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) σ
+        → Tmᴬ Γᴹ (π₂ σ)
+      tyOfπ₂ᴹ
+        : tyOfᴬ (π₂ᴹ σᴹ) ≡ Aᴹ [ π₁ᴹ σᴹ ]Tᴹ
+      idS∘ᴹ_
+        : (σᴹ : Subᴬ Γᴹ Δᴹ σ)
+        → idSᴹ ∘ᴹ σᴹ
+        ≡[ i ⊢ Subᴬ Γᴹ Δᴹ ((idS∘ σ) i) ] σᴹ
+        -- [TODO] Justify the usage of transport in the eliminator
+      _∘idSᴹ
+        : (σᴹ : Subᴬ Γᴹ Δᴹ σ)
+        → σᴹ ∘ᴹ idSᴹ
+        ≡[ i ⊢ Subᴬ Γᴹ Δᴹ ((σ ∘idS) i) ] σᴹ
+      assocSᴹ
+        : (σᴹ : Subᴬ Γᴹ Δᴹ σ) (τᴹ : Subᴬ Δᴹ Θᴹ τ) (γᴹ : Subᴬ Θᴹ Ξᴹ γ)
+        → (γᴹ ∘ᴹ τᴹ) ∘ᴹ σᴹ
+        ≡[ i ⊢ Subᴬ Γᴹ Ξᴹ (assocS σ τ γ i) ]
+           γᴹ ∘ᴹ (τᴹ ∘ᴹ σᴹ)
+      ,∘ᴹ
+        : (σᴹ : Subᴬ Δᴹ Θᴹ σ) (tᴹ : Tmᴬ Δᴹ t) (τᴹ : Subᴬ Γᴹ Δᴹ τ)
+          (p : tyOf t ≡ A [ σ ]) (pᴹ : tyOfᴬ tᴹ ≡[ i ⊢ Tyᴬ Δᴹ (p i) ] Aᴹ [ σᴹ ]Tᴹ)
+          (q : tyOf (t [ τ ]) ≡ A [ σ ∘ τ ]) (qᴹ : tyOfᴬ (tᴹ [ τᴹ ]tᴹ) ≡[ i ⊢ Tyᴬ Γᴹ (q i) ] (Aᴹ [ σᴹ ∘ᴹ τᴹ ]Tᴹ))
+        → (σᴹ ,ᴹ tᴹ ∶[ p , pᴹ ]) ∘ᴹ τᴹ
+        ≡[ i ⊢ Subᴬ Γᴹ (Θᴹ ,ᴹ Aᴹ) (,∘ σ t τ p q i) ]
+          ((σᴹ ∘ᴹ τᴹ) ,ᴹ tᴹ [ τᴹ ]tᴹ ∶[ q , qᴹ ])
+      ηπᴹ
+        : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) σ)
+        → σᴹ
+        ≡[ i ⊢ Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) (ηπ σ i) ]
+          (π₁ᴹ σᴹ ,ᴹ π₂ᴹ σᴹ ∶[ refl , tyOfπ₂ᴹ ])
+      η∅ᴹ
+        : (σᴹ : Subᴬ Γᴹ ∅ᴹ σ)
+        → σᴹ ≡[ i ⊢ Subᴬ Γᴹ ∅ᴹ (η∅ σ i) ] ∅Sᴹ
+      βπ₁ᴹ
+        : (σᴹ : Subᴬ Γᴹ Δᴹ σ) (tᴹ : Tmᴬ Γᴹ t)
+        → (p : tyOf t ≡ A [ σ ]) (pᴹ : tyOfᴬ tᴹ ≡[ i ⊢ Tyᴬ Γᴹ (p i) ] Aᴹ [ σᴹ ]Tᴹ)
+        → π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p , pᴹ ])
+        ≡[ i ⊢ Subᴬ Γᴹ Δᴹ (βπ₁ σ t p i) ]
+          σᴹ
+      βπ₂ᴹ
+        : (σᴹ : Subᴬ Γᴹ Δᴹ σ) (tᴹ : Tmᴬ Γᴹ t)
+        → (p : tyOf t ≡ A [ σ ]) (pᴹ : tyOfᴬ tᴹ ≡[ i ⊢ Tyᴬ Γᴹ (p i) ] Aᴹ [ σᴹ ]Tᴹ)
+        → (q : A [ π₁ (σ , t ∶[ p ]) ] ≡ tyOf t)
+          (qᴹ : Aᴹ [ π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p , pᴹ ]) ]Tᴹ ≡[ i ⊢ Tyᴬ Γᴹ (q i) ] tyOfᴬ tᴹ)
+        → π₂ᴹ (σᴹ ,ᴹ tᴹ ∶[ p , pᴹ ])
+        ≡[ i ⊢ Tmᴬ Γᴹ (βπ₂ σ t p q i) ]
+          tᴹ
+      [idS]Tᴹ
+        : (Aᴹ : Tyᴬ Γᴹ A)
+        → Aᴹ
+        ≡[ i ⊢ Tyᴬ Γᴹ ([idS]T {Γ} {A} i) ]
+          Aᴹ [ idSᴹ ]Tᴹ
+      [∘]Tᴹ
+        : (Aᴹ : Tyᴬ Θᴹ A) (σᴹ : Subᴬ Γᴹ Δᴹ σ) (τᴹ : Subᴬ Δᴹ Θᴹ τ)
+        → Aᴹ [ τᴹ ]Tᴹ [ σᴹ ]Tᴹ
+        ≡[ i ⊢ Tyᴬ Γᴹ ([∘]T A σ τ i) ]
+          Aᴹ [ τᴹ ∘ᴹ σᴹ ]Tᴹ
+      [idS]tᴹ
+        : (tᴹ : Tmᴬ Γᴹ t)
+        → tᴹ
+        ≡[ i ⊢ Tmᴬ Γᴹ ([idS]t t i) ]
+          tᴹ [ idSᴹ ]tᴹ
+      [∘]tᴹ
+        : (tᴹ : Tmᴬ Θᴹ t) (σᴹ : Subᴬ Γᴹ Δᴹ σ) (τᴹ : Subᴬ Δᴹ Θᴹ τ)
+        → tᴹ [ τᴹ ]tᴹ [ σᴹ ]tᴹ
+        ≡[ i ⊢ Tmᴬ Γᴹ ([∘]t t σ τ i) ]
+          tᴹ [ τᴹ ∘ᴹ σᴹ ]tᴹ
+      Uᴹ
+        : Tyᴬ Γᴹ A
+      U[]ᴹ
+        : {Γᴹ : Ctxᴬ Γ} {Δᴹ : Ctxᴬ Δ} {σᴹ : Subᴬ Γᴹ Δᴹ σ}
+        → Uᴹ [ σᴹ ]Tᴹ
+        ≡[ i ⊢ Tyᴬ Γᴹ (U[] {σ = σ} i) ]
+          Uᴹ
+     --  tyOfπ₂idSᴹ
+     --    : tyOfᴬ (π₂ᴹ {Aᴹ = Aᴹ [ σᴹ ]Tᴹ} idSᴹ) ≡ Aᴹ [ σᴹ ∘ᴹ π₁ᴹ idSᴹ ]Tᴹ
+     -- [TODO] Do we need derived equations in recursor/eliminator?
+     -- Derived equations are used to make the definition strictly positivie, not an issue for records.
+     -- So, delete this for now to see if need it in an recorsor
 
---     --  tyOfπ₂idSᴹ
---     --    : tyOfᴬ (π₂ᴹ {Aᴹ = Aᴹ [ σᴹ ]Tᴹ} idSᴹ) ≡ Aᴹ [ σᴹ ∘ᴹ π₁ᴹ idSᴹ ]Tᴹ
---     -- [TODO] Do we need derived equations in recursor/eliminator?
---     -- Derived equations are used to make the definition strictly positivie, not an issue for records.
---     -- So, delete this for now to see if need it in an recorsor
+    tyOfπ₂idSᴹ
+      : {Δᴹ : Ctxᴬ Δ} {Aᴹ : Tyᴬ Δᴹ A} {σᴹ : Subᴬ Γᴹ Δᴹ σ}
+      → tyOfᴬ (π₂ᴹ idSᴹ)
+      ≡[ i ⊢ Tyᴬ (Γᴹ ,ᴹ (Aᴹ [ σᴹ ]Tᴹ)) (tyOfπ₂idS i) ]
+        (Aᴹ [ σᴹ ∘ᴹ π₁ᴹ idSᴹ ]Tᴹ)
+    tyOfπ₂idSᴹ {Aᴹ = Aᴹ} {σᴹ = σᴹ} = {!!}
+    {-
+      tyOfᴬ (π₂ᴹ idSᴹ)
+        ≡⟨ tyOfπ₂ᴹ ⟩
+      (Aᴹ [ σᴹ ]Tᴹ) [ π₁ᴹ idSᴹ ]Tᴹ
+        ≡⟨ [∘]Tᴹ _ _ _ ⟩
+      Aᴹ [ σᴹ ∘ᴹ π₁ᴹ idSᴹ ]Tᴹ
+         ∎
+    -}
 
---     tyOfπ₂idSᴹ
---       : tyOfᴬ (π₂ᴹ idSᴹ) ≡ Aᴹ [ σᴹ ∘ᴹ π₁ᴹ idSᴹ ]Tᴹ
---     tyOfπ₂idSᴹ {Aᴹ = Aᴹ} {σᴹ = σᴹ} = 
---       tyOfᴬ (π₂ᴹ idSᴹ)
---         ≡⟨ tyOfπ₂ᴹ ⟩
---       (Aᴹ [ σᴹ ]Tᴹ) [ π₁ᴹ idSᴹ ]Tᴹ
---         ≡⟨ [∘]Tᴹ _ _ _ ⟩
---       Aᴹ [ σᴹ ∘ᴹ π₁ᴹ idSᴹ ]Tᴹ
---         ∎
-
---     _↑ᴹ_
---       : (σᴹ : Subᴬ Γᴹ Δᴹ) (A : Tyᴬ Δᴹ)
---       → Subᴬ (Γᴹ ,ᴹ (Aᴹ [ σᴹ ]Tᴹ)) (Δᴹ ,ᴹ Aᴹ)
---     σᴹ ↑ᴹ Aᴹ = (σᴹ ∘ᴹ π₁ᴹ idSᴹ) ,ᴹ π₂ᴹ idSᴹ ∶[ tyOfπ₂idSᴹ ]
+    _↑ᴹ_
+      : (σᴹ : Subᴬ Γᴹ Δᴹ σ) (Aᴹ : Tyᴬ Δᴹ A)
+      → Subᴬ (Γᴹ ,ᴹ (Aᴹ [ σᴹ ]Tᴹ)) (Δᴹ ,ᴹ Aᴹ) (σ ↑ A)
+    σᴹ ↑ᴹ Aᴹ = (σᴹ ∘ᴹ π₁ᴹ idSᴹ) ,ᴹ π₂ᴹ idSᴹ ∶[ tyOfπ₂idS , tyOfπ₂idSᴹ ]
 
 --   record Univᴹ (C : SCᴹ): Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
 --     open SCᴹ C
