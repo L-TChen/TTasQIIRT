@@ -51,21 +51,26 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 ⟦ [∘]T A σ τ i ⟧T γ = ⟦ A ⟧T (⟦ τ ⟧S (⟦ σ ⟧S γ))
 ⟦ U[] i ⟧T γ = UU
 ⟦ El[] τ u p q i ⟧T γ = T (transp (λ j → foo i j) i0 (⟦ u ⟧t (⟦ τ ⟧S γ)))
- where
-  foo : cong (λ z → ⟦ z ⟧T (⟦ τ ⟧S γ)) p ≡ cong (λ z → ⟦ z ⟧T γ) q
-  foo = UIP (cong (λ z → ⟦ z ⟧T (⟦ τ ⟧S γ)) p) (cong (λ z → ⟦ z ⟧T γ) q)
+  where
+    foo : cong (λ z → ⟦ z ⟧T (⟦ τ ⟧S γ)) p ≡ cong (λ z → ⟦ z ⟧T γ) q
+    foo = UIP (cong (λ z → ⟦ z ⟧T (⟦ τ ⟧S γ)) p) (cong (λ z → ⟦ z ⟧T γ) q)
 ⟦ El[]₂ {σ = σ} u pu pu' i ⟧T (γ , x) = T (transp (λ k → foo i k) i0 (⟦ u ⟧t (⟦ σ ⟧S γ)))
   where
-   foo : (λ i₁ → ⟦ pu' i₁ ⟧T γ) ≡ (λ i₁ → ⟦ pu i₁ ⟧T (⟦ σ ⟧S γ))
-   foo = UIP _ _
+    foo : (λ i₁ → ⟦ pu' i₁ ⟧T γ) ≡ (λ i₁ → ⟦ pu i₁ ⟧T (⟦ σ ⟧S γ))
+    foo = UIP _ _
 ⟦ Π[] {A = A} {B} {σ = σ} i ⟧T γ = (x : ⟦ A ⟧T (⟦ σ ⟧S γ)) → ⟦ B ⟧T (⟦ σ ⟧S γ , transportRefl x (~ i))
 ⟦ 𝔹[] i ⟧T γ  = Bool
 ⟦ 𝔹[]₂ i ⟧T γ = Bool
 ⟦ El𝕓 i ⟧T γ  = Bool
 ⟦ tyOfπ a pa b pb i ⟧T γ = UU
 ⟦ Elπ a pa b pb i ⟧T γ = (x : T (transp (λ i₁ → ⟦ pa i₁ ⟧T γ) i0 (⟦ a ⟧t γ))) → T (transp (λ i₁ → ⟦ pb i₁ ⟧T (γ , x)) i0 (⟦ b ⟧t (γ , x)))
-⟦ Ty-is-set A B x y i j ⟧T γ = {!!}
-
+⟦ Ty-is-set A B x y i j ⟧T γ = -- Following directly from the assumption UIP
+  isSet→SquareP (λ _ _ → λ X Y → UIP)
+    (λ i → ⟦ x i ⟧T γ)
+    (λ i → ⟦ y i ⟧T γ)
+    refl
+    refl
+    i j
 
 ⟦ ∅ ⟧S γ = ⋆
 ⟦ σ , t ∶[ p ] ⟧S γ = (⟦ σ ⟧S γ) , ⟦ t , p ⟧p (⟦ t ⟧t γ)
@@ -85,13 +90,20 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 
 ⟦ t [ σ ] ⟧t γ = ⟦ t ⟧t (⟦ σ ⟧S γ)
 ⟦ π₂ σ ⟧t γ = ⟦ σ ⟧S γ .snd
-⟦ βπ₂ {A = A} σ t p q i ⟧t γ = {!(subst-filler (λ z → ⟦ z ⟧T γ) q (⟦ t ⟧t γ) i)!}
- where -- subst {x = p (~ i)} {q i} (λ z → ⟦ z ⟧T γ) foo (subst-filler (λ z → ⟦ z ⟧T γ) p (⟦ t ⟧t γ) (~ i))
-  bar : PathP (λ i → ⟦ q i ⟧T γ) (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ)) (⟦ t ⟧t γ)
-  bar = {!subst (λ z → PathP z (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ)) (⟦ t ⟧t γ)) ? ?!}
-  foo : sym p i ≡ q i
-  foo = {!sym p i!}
--- subst {x = p (~ i)} {q i} (λ z → ⟦ z ⟧T γ)  {!(isProp→PathP (λ i → Ty-is-set (A [ βπ₁' σ t p (~ i) ])  (tyOf t)) (sym p) q)!} (subst-filler (λ z → ⟦ z ⟧T γ) p (⟦ t ⟧t γ) (~ i))
+⟦ βπ₂ {A = A} σ t p q i ⟧t γ = goal i
+  where
+   baz
+     : transport (λ j → ⟦ q j ⟧T γ)     (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ))
+     ≡ transport (λ j → ⟦ p (~ j) ⟧T γ) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ))
+   baz j = transport (UIP (λ j → ⟦ q j ⟧T γ) (λ j → ⟦ p (~ j) ⟧T γ) j) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ))
+   goal'
+     : transport (λ i → ⟦ q i ⟧T γ) (transport (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ))
+     ≡ ⟦ t ⟧t γ
+   goal' = baz ∙ fromPathP (λ i → transport-filler (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ) (~ i))
+
+   goal : PathP (λ i → ⟦ q i ⟧T γ) (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ)) (⟦ t ⟧t γ)
+   goal = toPathP goal'
+
 ⟦ [idS]t t i ⟧t γ   = ⟦ t ⟧t γ
 ⟦ [∘]t t σ τ i ⟧t γ = ⟦ t ⟧t (⟦ τ ⟧S (⟦ σ ⟧S γ))
 ⟦ app t p ⟧t (γ , a) = ⟦ t , p ⟧p (⟦ t ⟧t γ) a

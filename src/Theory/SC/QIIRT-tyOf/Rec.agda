@@ -1,0 +1,193 @@
+module Theory.SC.QIIRT-tyOf.Rec where
+
+open import Prelude
+
+open import Theory.SC.QIIRT-tyOf.Syntax
+
+record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄)) where
+  field
+    Ctxᴬ : Set ℓ₁
+    Tyᴬ : Ctxᴬ → Set ℓ₂
+    Subᴬ : Ctxᴬ → Ctxᴬ → Set ℓ₃
+    Tmᴬ : Ctxᴬ → Set ℓ₄
+    tyOfᴬ : {Γᴹ : Ctxᴬ} → Tmᴬ Γᴹ → Tyᴬ Γᴹ
+
+    Tyᴬ-is-set : {Γᴹ : Ctxᴬ} → isSet (Tyᴬ Γᴹ)
+
+  variable
+    Γᴹ Δᴹ Θᴹ Ξᴹ : Ctxᴬ
+    Aᴹ Bᴹ Cᴹ Dᴹ : Tyᴬ Γᴹ
+    σᴹ τᴹ γᴹ    : Subᴬ Γᴹ Δᴹ
+    tᴹ uᴹ vᴹ    : Tmᴬ Γᴹ
+
+-- Recursor
+
+module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
+  open Motive mot
+
+  record SCᴹ : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
+    field
+      ∅ᴹ
+        : Ctxᴬ
+      _,ᴹ_
+        : (Γᴹ : Ctxᴬ)(Aᴹ : Tyᴬ Γᴹ)
+        → Ctxᴬ
+      _[_]Tᴹ
+        : (Aᴹ : Tyᴬ Δᴹ)(σᴹ : Subᴬ Γᴹ Δᴹ)
+        → Tyᴬ Γᴹ
+      _[_]tᴹ
+        : (tᴹ : Tmᴬ Δᴹ)(σᴹ : Subᴬ Γᴹ Δᴹ)
+        → Tmᴬ Γᴹ
+      tyOf[]ᴹ
+        : tyOfᴬ (tᴹ [ σᴹ ]tᴹ) ≡ (tyOfᴬ tᴹ) [ σᴹ ]Tᴹ
+      ∅Sᴹ
+        : Subᴬ Γᴹ ∅ᴹ
+      _,ᴹ_∶[_]
+        : (σ : Subᴬ Γᴹ Δᴹ) (t : Tmᴬ Γᴹ) → tyOfᴬ tᴹ ≡ Aᴹ [ σ ]Tᴹ
+        → Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ)
+      idSᴹ
+        : Subᴬ Γᴹ Γᴹ
+      _∘ᴹ_
+        : Subᴬ Δᴹ Θᴹ → Subᴬ Γᴹ Δᴹ
+        → Subᴬ Γᴹ Θᴹ
+      π₁ᴹ
+        : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ)
+        → Subᴬ Γᴹ Δᴹ
+      π₂ᴹ
+        : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ)
+        → Tmᴬ Γᴹ
+      tyOfπ₂ᴹ
+        : (Aᴹ : Tyᴬ Δᴹ) (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
+        → tyOfᴬ (π₂ᴹ {Aᴹ = Aᴹ} σᴹ) ≡ Aᴹ [ π₁ᴹ σᴹ ]Tᴹ
+      idS∘ᴹ_
+        : (σᴹ : Subᴬ Γᴹ Δᴹ)
+        → idSᴹ ∘ᴹ σᴹ ≡ σᴹ
+      _∘idSᴹ
+        : (σᴹ : Subᴬ Γᴹ Δᴹ)
+        → σᴹ ∘ᴹ idSᴹ ≡ σᴹ
+      assocSᴹ
+        : (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ) (γᴹ : Subᴬ Θᴹ Ξᴹ)
+        → (γᴹ ∘ᴹ τᴹ) ∘ᴹ σᴹ ≡ γᴹ ∘ᴹ (τᴹ ∘ᴹ σᴹ)
+      ,∘ᴹ
+        : (σᴹ : Subᴬ Δᴹ Θᴹ) (tᴹ : Tmᴬ Δᴹ) (τᴹ : Subᴬ Γᴹ Δᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
+          (q : tyOfᴬ (tᴹ [ τᴹ ]tᴹ) ≡ Aᴹ [ σᴹ ∘ᴹ τᴹ ]Tᴹ)
+        → (σᴹ ,ᴹ tᴹ ∶[ p ]) ∘ᴹ τᴹ ≡ ((σᴹ ∘ᴹ τᴹ) ,ᴹ tᴹ [ τᴹ ]tᴹ ∶[ q ])
+      ηπᴹ
+        : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
+        → σᴹ ≡ (π₁ᴹ σᴹ ,ᴹ π₂ᴹ σᴹ ∶[ tyOfπ₂ᴹ _ _ ])
+      η∅ᴹ
+        : (σᴹ : Subᴬ Γᴹ ∅ᴹ)
+        → σᴹ ≡ ∅Sᴹ
+      βπ₁ᴹ
+        : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
+        → π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ σᴹ
+      βπ₂ᴹ
+        : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
+        → (q : Aᴹ [ π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ]Tᴹ ≡  tyOfᴬ tᴹ)
+        → π₂ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ tᴹ
+      [idS]Tᴹ
+        : Aᴹ ≡ Aᴹ [ idSᴹ ]Tᴹ
+      [∘]Tᴹ
+        : (Aᴹ : Tyᴬ Θᴹ) (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ)
+        → Aᴹ [ τᴹ ]Tᴹ [ σᴹ ]Tᴹ ≡ Aᴹ [ τᴹ ∘ᴹ σᴹ ]Tᴹ
+      [idS]tᴹ
+        : (tᴹ : Tmᴬ Γᴹ)
+        → tᴹ ≡ tᴹ [ idSᴹ ]tᴹ
+      [∘]tᴹ
+        : (tᴹ : Tmᴬ Θᴹ) (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ)
+        → tᴹ [ τᴹ ]tᴹ [ σᴹ ]tᴹ ≡ tᴹ [ τᴹ ∘ᴹ σᴹ ]tᴹ
+      Uᴹ
+        : Tyᴬ Γᴹ
+      U[]ᴹ
+        : Uᴹ [ σᴹ ]Tᴹ ≡ Uᴹ
+
+module _
+  (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) (SCᵐ : SCᴹ mot) where
+
+  open Motive mot
+  open SCᴹ SCᵐ
+
+  recCtx  : Ctx → Ctxᴬ
+  {-# TERMINATING #-}
+  recTy   : {Γ : Ctx} → Ty Γ → Tyᴬ (recCtx Γ)
+  recTm   : {Γ : Ctx} → Tm Γ → Tmᴬ (recCtx Γ)
+  recSub  : {Γ Δ : Ctx} → Sub Γ Δ → Subᴬ (recCtx Γ) (recCtx Δ)
+  recTyOf : {Γ : Ctx}{A : Ty Γ} → (t : Tm Γ) → tyOf t ≡ A → tyOfᴬ (recTm t) ≡ recTy A
+
+  recCtx ∅ = ∅ᴹ
+  recCtx (Γ , A) = recCtx Γ ,ᴹ recTy A
+
+  recTm⟨π₂idS⟩≡π₂ᴹidSᴹ : recTm (π₂ {A = A} idS) ≡ π₂ᴹ idSᴹ
+  recTm⟨t[σ]⟩=recTmt[recSubσ]tᴹ : recTm (t [ σ ]) ≡ recTm t [ recSub σ ]tᴹ
+
+  recTy (A [ σ ]) = recTy A [ recSub σ ]Tᴹ
+  recTy U = Uᴹ
+  recTy ([idS]T {A = A} i) = [idS]Tᴹ {Aᴹ = recTy A} i
+  recTy ([∘]T A σ τ i) = [∘]Tᴹ (recTy A) (recSub σ) (recSub τ) i
+  recTy (U[] {σ = σ} i) = U[]ᴹ {σᴹ = recSub σ} i
+  recTy (Ty-is-set A B x y i j) =
+    isSet→SquareP (λ _ _ → Tyᴬ-is-set) (λ i → recTy (x i)) (λ i → recTy (y i)) refl refl i j
+
+  recSub ∅S             = ∅Sᴹ
+  recSub (σ , t ∶[ p ]) = recSub σ ,ᴹ recTm t ∶[ recTyOf t p ]
+  recSub idS            = idSᴹ
+  recSub (τ ∘ σ)        = recSub τ ∘ᴹ recSub σ
+  recSub (π₁ σ)         = π₁ᴹ (recSub σ)
+  recSub (βπ₁ σ t p i)  = βπ₁ᴹ (recSub σ) (recTm t) (recTyOf t p) i
+  recSub ((idS∘ σ) i)   = (idS∘ᴹ recSub σ) i
+  recSub ((σ ∘idS) i)   = (recSub σ ∘idSᴹ) i
+  recSub (assocS σ τ γ i) = assocSᴹ (recSub σ) (recSub τ) (recSub γ) i
+  recSub (η∅ σ i) = η∅ᴹ (recSub σ) i
+  recSub (ηπ {Γ} {Δ} {A} σ i) = {! ηπᴹ {Aᴹ = recTy A} (recSub σ) i  !}
+  -- recSub (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
+  -- ≡ recSub (π₁ σ) ,ᴹ recTm (π₂ σ) ∶[ recTyOf (π₂ σ) (tyOfπ₂ σ) ]
+  -- ≡ π₁ᴹ (recSub σ) ,ᴹ π₂ᴹ (recSub σ) ∶[ recTyOf (π₂ σ) (tyOfπ₂ σ) ] -- Use the UIP assumption here and forward declaration
+  -- to get the equation to transport
+  -- ≡ ...
+  -- ≡ π₁ᴹ (recSub σ) ,ᴹ π₂ᴹ (recSub σ) ∶[ tyOfπ₂ᴹ (recTy A) (recSub σ) ]
+  recSub (,∘ τ t σ p q i) =
+    ,∘ᴹ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) {! recTyOf (t [ σ ]) q!} i
+-- Use the UIP assumption here and forward declaration
+--    to get the equation to transport
+
+  recTm (t [ σ ])       = recTm t [ recSub σ ]tᴹ
+  recTm (π₂ σ)          = π₂ᴹ (recSub σ)
+  recTm (βπ₂ σ t p q i) = 
+    βπ₂ᴹ (recSub σ) (recTm t) (recTyOf t p) (sym (recTyOf t (sym q))) i 
+  recTm ([idS]t t i)    = [idS]tᴹ (recTm t) i
+  recTm ([∘]t t σ τ i)  = [∘]tᴹ (recTm t) (recSub σ) (recSub τ) i
+
+  recTm⟨π₂idS⟩≡π₂ᴹidSᴹ = refl
+  recTm⟨t[σ]⟩=recTmt[recSubσ]tᴹ = refl
+
+  recTyOf {A = A} (t [ σ ]) p =
+    tyOfᴬ (recTm t [ recSub σ ]tᴹ)
+      ≡⟨ tyOf[]ᴹ ⟩
+    (tyOfᴬ (recTm t)) [ recSub σ ]Tᴹ 
+      ≡[ i ]⟨ (recTyOf t refl i [ recSub σ ]Tᴹ) ⟩
+    recTy (tyOf t) [ recSub σ ]Tᴹ
+      ≡⟨⟩
+    recTy (tyOf t [ σ ])
+      ≡[ i ]⟨ recTy (p i) ⟩
+    recTy A
+      ∎
+    
+  recTyOf {A = A} (π₂ {Γ} {Δ} {B} σ) p =
+    tyOfᴬ (recTm (π₂ σ))
+      ≡⟨ tyOfπ₂ᴹ (recTy B) (recSub σ) ⟩
+    (recTy B [ π₁ᴹ (recSub σ) ]Tᴹ)
+      ≡⟨⟩
+    recTy (B [ π₁ σ ])
+      ≡[ i ]⟨ recTy (p i) ⟩
+    recTy A
+      ∎
+  recTyOf {A = A} (βπ₂ σ t p₁ q i) = 
+    isProp→PathP {B = λ i → tyOf (βπ₂ σ t p₁ q i) ≡ A → tyOfᴬ (recTm (βπ₂ σ t p₁ q i)) ≡ recTy A}
+    (λ j → isPropΠ (λ _ → Tyᴬ-is-set _ _)) (recTyOf (βπ₂ σ t p₁ q i0)) (recTyOf (βπ₂ σ t p₁ q i1)) i 
+  recTyOf {A = A} ([idS]t t i) =
+    isProp→PathP {B = λ i → tyOf ([idS]t t i) ≡ A → tyOfᴬ (recTm ([idS]t t i)) ≡ recTy A}
+    (λ j → isPropΠ (λ _ → Tyᴬ-is-set _ _)) (recTyOf ([idS]t t i0)) (recTyOf ([idS]t t i1)) i 
+  recTyOf {A = A} ([∘]t t σ τ i) = 
+    isProp→PathP {B = λ i → tyOf ([∘]t t σ τ i) ≡ A → tyOfᴬ (recTm ([∘]t t σ τ i)) ≡ recTy A}
+    (λ j → isPropΠ (λ _ → Tyᴬ-is-set _ _)) (recTyOf ([∘]t t σ τ i0)) (recTyOf ([∘]t t σ τ i1)) i 
+    

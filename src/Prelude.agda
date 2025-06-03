@@ -4,6 +4,7 @@ open import Cubical.Core.Primitives     public
   hiding (Sub)
 open import Cubical.Foundations.Prelude public
   hiding (Sub)
+open import Cubical.Foundations.HLevels public
 open import Cubical.Data.Sigma          public
   hiding (Sub)
 open import Cubical.Data.Empty          public
