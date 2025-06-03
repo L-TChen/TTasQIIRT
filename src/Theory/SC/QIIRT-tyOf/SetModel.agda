@@ -9,6 +9,8 @@ open import Prelude
 
 module Theory.SC.QIIRT-tyOf.SetModel where
 
+open import Cubical.Foundations.HLevels
+
 open import Theory.SC.QIIRT-tyOf.Syntax
 
 mutual
@@ -47,7 +49,12 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 ⟦ [idS]T {A = A} i ⟧T γ = ⟦ A ⟧T γ
 ⟦ [∘]T A σ τ i ⟧T γ = ⟦ A ⟧T (⟦ τ ⟧S (⟦ σ ⟧S γ))
 ⟦ U[] i ⟧T γ = UU
-⟦ Ty-is-set A B x y i j ⟧T γ = {!!}
+⟦ Ty-is-set A B x y i j ⟧T γ = isSet→SquareP (λ _ _ → λ X Y → UIP)
+                                             (λ i → ⟦ x i ⟧T γ)
+                                             (λ i → ⟦ y i ⟧T γ)
+                                             refl
+                                             refl
+                                             i j
 
 
 ⟦ ∅S ⟧S γ = ⋆
@@ -68,21 +75,17 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 
 ⟦ t [ σ ] ⟧t γ = ⟦ t ⟧t (⟦ σ ⟧S γ)
 ⟦ π₂ σ ⟧t γ = ⟦ σ ⟧S γ .snd
-⟦ βπ₂ {A = A} σ t p q i ⟧t γ = {! ⟦ t ⟧t γ !}
--- transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ) : ⟦ q i ⟧T γ
--- ⟦ t ⟧t γ :  ⟦ q i ⟧T γ
-{-
-  bar : PathP (λ i → ⟦ q i ⟧T γ) (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ)) (⟦ t ⟧t γ)
-  bar = {!subst (λ z → PathP z (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ)) (⟦ t ⟧t γ)) ? ?!}
-  foo : sym p i ≡ q i
-  foo = {!sym p i!}
--}
-  where -- subst {x = p (~ i)} {q i} (λ z → ⟦ z ⟧T γ) foo (subst-filler (λ z → ⟦ z ⟧T γ) p (⟦ t ⟧t γ) (~ i))
-    foo : PathP (λ i → ⟦ p i ⟧T γ)
-      (⟦ t ⟧t γ)
-      (transp (λ j → ⟦ p j ⟧T γ) i0 (⟦ t ⟧t γ))
-    foo = transport-filler (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ)
-
--- subst {x = p (~ i)} {q i} (λ z → ⟦ z ⟧T γ)  {!(isProp→PathP (λ i → Ty-is-set (A [ βπ₁' σ t p (~ i) ])  (tyOf t)) (sym p) q)!} (subst-filler (λ z → ⟦ z ⟧T γ) p (⟦ t ⟧t γ) (~ i))
+⟦ βπ₂ {A = A} σ t p q i ⟧t γ = goal i
+ where
+  goal : PathP (λ i → ⟦ q i ⟧T γ) (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ)) (⟦ t ⟧t γ)
+  goal = toPathP goal'
+   where
+    foo : PathP (λ i → A [ βπ₁ σ t p (~ i) ] ≡ tyOf t) (sym p) q
+    foo = toPathP (UIP _ _)
+    baz : ∀ a → transp (λ i₁ → ⟦ p (~ i₁) ⟧T γ) i0 a ≡ transp (λ i₁ → ⟦ q i₁ ⟧T γ) i0 a
+    baz a j = transp (λ i → ⟦ foo j i ⟧T γ) i0 a
+    goal' : transp (λ i → ⟦ q i ⟧T γ) i0
+             (transp (λ i → ⟦ p i ⟧T γ) i0 (⟦ t ⟧t γ)) ≡ ⟦ t ⟧t γ
+    goal' = sym (baz (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ))) ∙ fromPathP (λ i → transport-filler (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ) (~ i))
 ⟦ [idS]t t i ⟧t γ   = ⟦ t ⟧t γ
 ⟦ [∘]t t σ τ i ⟧t γ = ⟦ t ⟧t (⟦ τ ⟧S (⟦ σ ⟧S γ))
