@@ -33,17 +33,20 @@ transportRefl' : {A : Set} (k : I) → (x : A) → transp (λ i → A) k x ≡ x
 transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 
 ⟦_⟧C : Ctx → Set
-{-# TERMINATING #-}
+
 ⟦_⟧T : {Γ : Ctx} → Ty Γ → ⟦ Γ ⟧C → Set
 ⟦_⟧t : {Γ : Ctx} → (t : Tm Γ) → (γ : ⟦ Γ ⟧C) → ⟦ tyOf t ⟧T γ
 ⟦_⟧S : (σ : Sub Γ Δ) → ⟦ Γ ⟧C → ⟦ Δ ⟧C
 
-⟦_,_⟧p : {Γ : Ctx}(t : Tm Γ){A : Ty Γ} → tyOf t ≡ A → {γ : ⟦ Γ ⟧C} → ⟦ tyOf t ⟧T γ → ⟦ A ⟧T γ
-⟦ t , p ⟧p {γ = γ} = transp (λ i → ⟦ p i ⟧T γ) i0
+
+-- This would look nicer, but does not play well with the termination checker
+-- ⟦_,_⟧p : {Γ : Ctx}(t : Tm Γ){A : Ty Γ} → tyOf t ≡ A → {γ : ⟦ Γ ⟧C} → ⟦ tyOf t ⟧T γ → ⟦ A ⟧T γ
+-- ⟦ t , p ⟧p {γ = γ} = transport (λ i → ⟦ p i ⟧T γ)
 
 ⟦ ∅ ⟧C = Unit
 ⟦ Γ , A ⟧C = Σ[ γ ∈ ⟦ Γ ⟧C ] (⟦ A ⟧T γ)
 
+{-# TERMINATING #-}
 ⟦ A [ σ ] ⟧T γ = ⟦ A ⟧T (⟦ σ ⟧S γ)
 ⟦ U ⟧T γ = UU
 ⟦ [idS]T {A = A} i ⟧T γ = ⟦ A ⟧T γ
@@ -58,7 +61,7 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 
 
 ⟦ ∅S ⟧S γ = ⋆
-⟦ σ , t ∶[ p ] ⟧S γ = (⟦ σ ⟧S γ) , ⟦ t , p ⟧p (⟦ t ⟧t γ)
+⟦ σ , t ∶[ p ] ⟧S γ = ⟦ σ ⟧S γ , transport (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ) -- (⟦ σ ⟧S γ) , transport (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ)
 ⟦ idS ⟧S γ = γ
 ⟦ σ ∘ τ ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ)
 ⟦ π₁ σ ⟧S γ = ⟦ σ ⟧S γ .fst
@@ -68,7 +71,7 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 ⟦ assocS σ τ δ i ⟧S γ = ⟦ δ ⟧S (⟦ τ ⟧S (⟦ σ ⟧S γ))
 ⟦ ,∘ σ t τ p q i ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ) , transp (λ j → foo i j) i0 (⟦ t ⟧t (⟦ τ ⟧S γ))
  where
-  foo : cong (λ z → ⟦ z ⟧T (⟦ τ ⟧S γ)) p ≡ cong (λ z → ⟦ z ⟧T γ) q
+  foo : (λ i → ⟦ p i ⟧T (⟦ τ ⟧S γ)) ≡ (λ i → ⟦ q i ⟧T γ)
   foo = UIP _ _
 ⟦ η∅ σ i ⟧S γ = ⋆
 ⟦ ηπ σ i ⟧S γ = ⟦ σ ⟧S γ .fst , transportRefl (⟦ σ ⟧S γ .snd) (~ i)
@@ -80,12 +83,9 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
   goal : PathP (λ i → ⟦ q i ⟧T γ) (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ)) (⟦ t ⟧t γ)
   goal = toPathP goal'
    where
-    foo : PathP (λ i → A [ βπ₁ σ t p (~ i) ] ≡ tyOf t) (sym p) q
-    foo = toPathP (UIP _ _)
-    baz : ∀ a → transp (λ i₁ → ⟦ p (~ i₁) ⟧T γ) i0 a ≡ transp (λ i₁ → ⟦ q i₁ ⟧T γ) i0 a
-    baz a j = transp (λ i → ⟦ foo j i ⟧T γ) i0 a
-    goal' : transp (λ i → ⟦ q i ⟧T γ) i0
-             (transp (λ i → ⟦ p i ⟧T γ) i0 (⟦ t ⟧t γ)) ≡ ⟦ t ⟧t γ
-    goal' = sym (baz (transp (λ i₁ → ⟦ p i₁ ⟧T γ) i0 (⟦ t ⟧t γ))) ∙ fromPathP (λ i → transport-filler (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ) (~ i))
+    baz : transport (λ j → ⟦ q j ⟧T γ) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ)) ≡ transport (λ j → ⟦ p (~ j) ⟧T γ) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ))
+    baz j = transport (UIP (λ j → ⟦ q j ⟧T γ) (λ j → ⟦ p (~ j) ⟧T γ) j) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ))
+    goal' : transport (λ i → ⟦ q i ⟧T γ) (transport (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ)) ≡ ⟦ t ⟧t γ
+    goal' = baz ∙ fromPathP (λ i → transport-filler (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ) (~ i))
 ⟦ [idS]t t i ⟧t γ   = ⟦ t ⟧t γ
 ⟦ [∘]t t σ τ i ⟧t γ = ⟦ t ⟧t (⟦ τ ⟧S (⟦ σ ⟧S γ))
