@@ -1,5 +1,6 @@
 module Theory.SC.QIIRT-tyOf.Rec where
 
+-- [TODO] : Use recursor to define the set model
 open import Prelude
 
 open import Theory.SC.QIIRT-tyOf.Syntax
@@ -117,9 +118,6 @@ module _
   recCtx ∅ = ∅ᴹ
   recCtx (Γ , A) = recCtx Γ ,ᴹ recTy A
 
-  recTm⟨π₂idS⟩≡π₂ᴹidSᴹ : recTm (π₂ {A = A} idS) ≡ π₂ᴹ idSᴹ
-  recTm⟨t[σ]⟩=recTmt[recSubσ]tᴹ : recTm (t [ σ ]) ≡ recTm t [ recSub σ ]tᴹ
-
   recTy (A [ σ ]) = recTy A [ recSub σ ]Tᴹ
   recTy U = Uᴹ
   recTy ([idS]T {A = A} i) = [idS]Tᴹ {Aᴹ = recTy A} i
@@ -127,6 +125,13 @@ module _
   recTy (U[] {σ = σ} i) = U[]ᴹ {σᴹ = recSub σ} i
   recTy (Ty-is-set A B x y i j) =
     isSet→SquareP (λ _ _ → Tyᴬ-is-set) (λ i → recTy (x i)) (λ i → recTy (y i)) refl refl i j
+    
+  recTm (t [ σ ])       = recTm t [ recSub σ ]tᴹ
+  recTm (π₂ σ)          = π₂ᴹ (recSub σ)
+  recTm (βπ₂ σ t p q i) = 
+    {!!} -- βπ₂ᴹ (recSub σ) (recTm t) (recTyOf t p) (sym (recTyOf t (sym q))) i 
+  recTm ([idS]t t i)    = [idS]tᴹ (recTm t) i
+  recTm ([∘]t t σ τ i)  = [∘]tᴹ (recTm t) (recSub σ) (recSub τ) i
 
   recSub ∅S             = ∅Sᴹ
   recSub (σ , t ∶[ p ]) = recSub σ ,ᴹ recTm t ∶[ recTyOf t p ]
@@ -138,35 +143,22 @@ module _
   recSub ((σ ∘idS) i)   = (recSub σ ∘idSᴹ) i
   recSub (assocS σ τ γ i) = assocSᴹ (recSub σ) (recSub τ) (recSub γ) i
   recSub (η∅ σ i) = η∅ᴹ (recSub σ) i
-  recSub (ηπ {Γ} {Δ} {A} σ i) = {! ηπᴹ {Aᴹ = recTy A} (recSub σ) i  !}
-  -- recSub (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
-  -- ≡ recSub (π₁ σ) ,ᴹ recTm (π₂ σ) ∶[ recTyOf (π₂ σ) (tyOfπ₂ σ) ]
-  -- ≡ π₁ᴹ (recSub σ) ,ᴹ π₂ᴹ (recSub σ) ∶[ recTyOf (π₂ σ) (tyOfπ₂ σ) ] -- Use the UIP assumption here and forward declaration
-  -- to get the equation to transport
-  -- ≡ ...
-  -- ≡ π₁ᴹ (recSub σ) ,ᴹ π₂ᴹ (recSub σ) ∶[ tyOfπ₂ᴹ (recTy A) (recSub σ) ]
+  recSub (ηπ {Γ} {Δ} {A} σ i) = (ηπᴹ (recSub σ) ∙ bar) i
+    where
+      bar =
+        π₁ᴹ (recSub σ) ,ᴹ π₂ᴹ (recSub σ) ∶[ tyOfπ₂ᴹ (recTy A) (recSub σ) ]
+          ≡[ i ]⟨ (π₁ᴹ (recSub σ) ,ᴹ π₂ᴹ (recSub σ) ∶[ Tyᴬ-is-set _ _ (tyOfπ₂ᴹ (recTy A) (recSub σ)) (recTyOf (π₂ σ) (tyOfπ₂ σ)) i ]) ⟩
+        π₁ᴹ (recSub σ) ,ᴹ recTm (π₂ σ) ∶[ recTyOf (π₂ σ) (tyOfπ₂ σ) ]
+          ∎
+      
   recSub (,∘ τ t σ p q i) =
-    ,∘ᴹ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) {! recTyOf (t [ σ ]) q!} i
--- Use the UIP assumption here and forward declaration
---    to get the equation to transport
-
-  recTm (t [ σ ])       = recTm t [ recSub σ ]tᴹ
-  recTm (π₂ σ)          = π₂ᴹ (recSub σ)
-  recTm (βπ₂ σ t p q i) = 
-    βπ₂ᴹ (recSub σ) (recTm t) (recTyOf t p) (sym (recTyOf t (sym q))) i 
-  recTm ([idS]t t i)    = [idS]tᴹ (recTm t) i
-  recTm ([∘]t t σ τ i)  = [∘]tᴹ (recTm t) (recSub σ) (recSub τ) i
-
-  recTm⟨π₂idS⟩≡π₂ᴹidSᴹ = refl
-  recTm⟨t[σ]⟩=recTmt[recSubσ]tᴹ = refl
+    ,∘ᴹ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) (recTyOf (t [ σ ]) q ) i
 
   recTyOf {A = A} (t [ σ ]) p =
     tyOfᴬ (recTm t [ recSub σ ]tᴹ)
       ≡⟨ tyOf[]ᴹ ⟩
     (tyOfᴬ (recTm t)) [ recSub σ ]Tᴹ 
       ≡[ i ]⟨ (recTyOf t refl i [ recSub σ ]Tᴹ) ⟩
-    recTy (tyOf t) [ recSub σ ]Tᴹ
-      ≡⟨⟩
     recTy (tyOf t [ σ ])
       ≡[ i ]⟨ recTy (p i) ⟩
     recTy A
@@ -175,9 +167,7 @@ module _
   recTyOf {A = A} (π₂ {Γ} {Δ} {B} σ) p =
     tyOfᴬ (recTm (π₂ σ))
       ≡⟨ tyOfπ₂ᴹ (recTy B) (recSub σ) ⟩
-    (recTy B [ π₁ᴹ (recSub σ) ]Tᴹ)
-      ≡⟨⟩
-    recTy (B [ π₁ σ ])
+    recTy B [ π₁ᴹ (recSub σ) ]Tᴹ
       ≡[ i ]⟨ recTy (p i) ⟩
     recTy A
       ∎
@@ -190,4 +180,3 @@ module _
   recTyOf {A = A} ([∘]t t σ τ i) = 
     isProp→PathP {B = λ i → tyOf ([∘]t t σ τ i) ≡ A → tyOfᴬ (recTm ([∘]t t σ τ i)) ≡ recTy A}
     (λ j → isPropΠ (λ _ → Tyᴬ-is-set _ _)) (recTyOf ([∘]t t σ τ i0)) (recTyOf ([∘]t t σ τ i1)) i 
-    
