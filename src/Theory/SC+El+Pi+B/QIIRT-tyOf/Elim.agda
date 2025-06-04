@@ -313,24 +313,57 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
 --         → (bᴹ : Tmᴬ (Γᴹ ,ᴹ Elᴹ aᴹ pa)) (pb : tyOfᴬ bᴹ ≡ Uᴹ)
 --         → Elᴹ (πᴹ aᴹ pa bᴹ pb) (tyOfπᴹ aᴹ pa bᴹ pb) ≡ Πᴹ (Elᴹ aᴹ pa) (Elᴹ bᴹ pb)
 
--- module _
---   (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) (SCᵐ : SCᴹ mot) (Boolᵐ : Boolᴹ mot SCᵐ) (Univᵐ : Univᴹ mot SCᵐ) (Piᵐ : Piᴹ mot SCᵐ) where
+module _
+  (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) (SCᵐ : SCᴹ mot) -- (Boolᵐ : Boolᴹ mot SCᵐ) (Univᵐ : Univᴹ mot SCᵐ) (Piᵐ : Piᴹ mot SCᵐ)
+  where
 
---   open Motive mot
---   open SCᴹ SCᵐ
+  open Motive mot
+  open SCᴹ SCᵐ
 --   open Boolᴹ Boolᵐ
 --   open Univᴹ Univᵐ
 --   open Piᴹ Piᵐ
 
---   recCtx  : Ctx → Ctxᴬ
---   recTy   : {Γ : Ctx} → Ty Γ → Tyᴬ (recCtx Γ)
---   recTm   : {Γ : Ctx} → Tm Γ → Tmᴬ (recCtx Γ)
---   recSub  : {Γ Δ : Ctx} → Sub Γ Δ → Subᴬ (recCtx Γ) (recCtx Δ)
---   recTyOf : {Γ : Ctx}{A : Ty Γ} → (t : Tm Γ) → tyOf t ≡ A → tyOfᴬ (recTm t) ≡ recTy A
+  elimCtx  : (Γ : Ctx) → Ctxᴬ Γ
+  elimTy   : (A : Ty Γ) → Tyᴬ (elimCtx Γ) A
+  elimSub  : (σ : Sub Γ Δ) → Subᴬ (elimCtx Γ) (elimCtx Δ) σ
+  elimTm   : (t : Tm Γ) → Tmᴬ (elimCtx Γ) t
+  elimTyOf : {!!} -- {Γ : Ctx}{A : Ty Γ} → (t : Tm Γ) → tyOf t ≡ A → tyOfᴬ (elimTm t) ≡ elimTy A
 
---   recCtx ∅ = ∅ᴹ
---   recCtx (Γ , A) = recCtx Γ ,ᴹ recTy A
+  elimCtx ∅       = ∅ᴹ
+  elimCtx (Γ , A) = elimCtx Γ ,ᴹ elimTy A
 
+  elimTy (A [ σ ]) = {!!}
+  elimTy U = {!!}
+  elimTy (El u p) = {!!}
+  elimTy (Π A B) = {!!}
+  elimTy 𝔹 = {!!}
+  elimTy ([idS]T i) = {!!}
+  elimTy ([∘]T A σ τ i) = {!!}
+  elimTy (U[] i) = {!!}
+  elimTy (El[] τ u p q i) = {!!}
+  elimTy (El[]₂ u pu pu' i) = {!!}
+  elimTy (Π[] i) = {!!}
+  elimTy (𝔹[] i) = {!!}
+  elimTy (𝔹[]₂ i) = {!!}
+  elimTy (El𝕓 i) = {!!}
+  elimTy (tyOfπ a pa b pb i) = {!!}
+  elimTy (Elπ a pa b pb i) = {!!}
+  elimTy (Ty-is-set A A₁ x y i i₁) = {!!}
+
+  elimSub ∅              = ∅Sᴹ
+  elimSub (σ , t ∶[ p ]) = elimSub σ ,ᴹ elimTm t ∶[ p , {!!} ]
+  elimSub idS            = idSᴹ
+  elimSub (τ ∘ σ)        = elimSub τ ∘ᴹ elimSub σ
+  elimSub (π₁ σ)         = π₁ᴹ (elimSub σ)
+  elimSub (βπ₁ σ t p i)  = {!!}
+  elimSub ((idS∘ σ) i)   = {!!}
+  elimSub ((σ ∘idS) i)   = {!!}
+  elimSub (assocS σ σ₁ σ₂ i) = {!!}
+  elimSub (,∘ σ t σ₁ p q i) = {!!}
+  elimSub (η∅ σ i) = {!!}
+  elimSub (ηπ σ i) = {!!}
+
+  elimTm t  = {!!}
 --   recTm⟨π₂idS⟩≡π₂ᴹidSᴹ : recTm (π₂ {A = A} idS) ≡ π₂ᴹ idSᴹ
 --   recTm⟨t[σ]⟩=recTmt[recSubσ]tᴹ : recTm (t [ σ ]) ≡ recTm t [ recSub σ ]tᴹ
 
