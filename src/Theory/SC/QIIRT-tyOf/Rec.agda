@@ -7,10 +7,10 @@ open import Theory.SC.QIIRT-tyOf.Syntax
 
 record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄)) where
   field
-    Ctxᴬ : Set ℓ₁
-    Tyᴬ : Ctxᴬ → Set ℓ₂
-    Subᴬ : Ctxᴬ → Ctxᴬ → Set ℓ₃
-    Tmᴬ : Ctxᴬ → Set ℓ₄
+    Ctxᴬ  : Set ℓ₁
+    Tyᴬ   : Ctxᴬ → Set ℓ₂
+    Subᴬ  : Ctxᴬ → Ctxᴬ → Set ℓ₃
+    Tmᴬ   : Ctxᴬ → Set ℓ₄
     tyOfᴬ : {Γᴹ : Ctxᴬ} → Tmᴬ Γᴹ → Tyᴬ Γᴹ
 
     Tyᴬ-is-set : {Γᴹ : Ctxᴬ} → isSet (Tyᴬ Γᴹ)
@@ -44,7 +44,7 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       ∅Sᴹ
         : Subᴬ Γᴹ ∅ᴹ
       _,ᴹ_∶[_]
-        : (σ : Subᴬ Γᴹ Δᴹ) (t : Tmᴬ Γᴹ) → tyOfᴬ tᴹ ≡ Aᴹ [ σ ]Tᴹ
+        : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) → tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ
         → Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ)
       idSᴹ
         : Subᴬ Γᴹ Γᴹ
@@ -139,14 +139,14 @@ module _
       bar =
         recTy A [ π₁ᴹ (recSub σ ,ᴹ recTm t ∶[ recTyOf t p ]) ]Tᴹ
           ≡⟨ recSub⟨π₁,⟩≡π₁ᴹ,ᴹ _ _ _ ⟩
+          -- the typical trick here: declare the required equation which becomes definitional later
         recTy A [ recSub (π₁ (σ , t ∶[ p ])) ]Tᴹ
-          ≡⟨ refl ⟩
+          ≡⟨⟩
         recTy (A [ π₁ (σ , t ∶[ p ]) ])
           ≡⟨ sym (recTyOf t (sym q)) ⟩
         tyOfᴬ (recTm t)
           ∎
 
-    -- βπ₂ᴹ (recSub σ) (recTm t) (recTyOf t p) (sym (recTyOf t (sym q))) i 
   recTm ([idS]t t i)    = [idS]tᴹ (recTm t) i
   recTm ([∘]t t σ τ i)  = [∘]tᴹ (recTm t) (recSub σ) (recSub τ) i
 

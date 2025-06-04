@@ -41,7 +41,7 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       ∅Sᴹ
         : Subᴬ Γᴹ ∅ᴹ
       _,ᴹ_∶[_]
-        : (σ : Subᴬ Γᴹ Δᴹ) (t : Tmᴬ Γᴹ) → tyOfᴬ tᴹ ≡ Aᴹ [ σ ]Tᴹ
+        : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) → tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ
         → Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ)
       idSᴹ
         : Subᴬ Γᴹ Γᴹ
