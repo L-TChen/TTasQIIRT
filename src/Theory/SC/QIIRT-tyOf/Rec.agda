@@ -125,11 +125,28 @@ module _
   recTy (U[] {σ = σ} i) = U[]ᴹ {σᴹ = recSub σ} i
   recTy (Ty-is-set A B x y i j) =
     isSet→SquareP (λ _ _ → Tyᴬ-is-set) (λ i → recTy (x i)) (λ i → recTy (y i)) refl refl i j
+
+  recSub⟨π₁,⟩≡π₁ᴹ,ᴹ
+    : (σ : Sub Γ Δ) (A : Ty Δ) (p : tyOf t ≡ A [ σ ])
+    → recTy A [ π₁ᴹ (recSub σ ,ᴹ recTm t ∶[ recTyOf t p ]) ]Tᴹ
+    ≡ recTy A [ recSub (π₁ (σ , t ∶[ p ])) ]Tᴹ
     
   recTm (t [ σ ])       = recTm t [ recSub σ ]tᴹ
   recTm (π₂ σ)          = π₂ᴹ (recSub σ)
-  recTm (βπ₂ σ t p q i) = 
-    {!!} -- βπ₂ᴹ (recSub σ) (recTm t) (recTyOf t p) (sym (recTyOf t (sym q))) i 
+  recTm (βπ₂ {A = A} σ t p q i) = 
+    βπ₂ᴹ (recSub σ) (recTm t) (recTyOf t p) bar i
+    where
+      bar =
+        recTy A [ π₁ᴹ (recSub σ ,ᴹ recTm t ∶[ recTyOf t p ]) ]Tᴹ
+          ≡⟨ recSub⟨π₁,⟩≡π₁ᴹ,ᴹ _ _ _ ⟩
+        recTy A [ recSub (π₁ (σ , t ∶[ p ])) ]Tᴹ
+          ≡⟨ refl ⟩
+        recTy (A [ π₁ (σ , t ∶[ p ]) ])
+          ≡⟨ sym (recTyOf t (sym q)) ⟩
+        tyOfᴬ (recTm t)
+          ∎
+
+    -- βπ₂ᴹ (recSub σ) (recTm t) (recTyOf t p) (sym (recTyOf t (sym q))) i 
   recTm ([idS]t t i)    = [idS]tᴹ (recTm t) i
   recTm ([∘]t t σ τ i)  = [∘]tᴹ (recTm t) (recSub σ) (recSub τ) i
 
@@ -153,6 +170,9 @@ module _
       
   recSub (,∘ τ t σ p q i) =
     ,∘ᴹ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) (recTyOf (t [ σ ]) q ) i
+
+
+  recSub⟨π₁,⟩≡π₁ᴹ,ᴹ _ _ _ = refl
 
   recTyOf {A = A} (t [ σ ]) p =
     tyOfᴬ (recTm t [ recSub σ ]tᴹ)
