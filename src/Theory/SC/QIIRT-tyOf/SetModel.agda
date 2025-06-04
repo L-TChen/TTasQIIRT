@@ -56,12 +56,11 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 ⟦ (idS∘ σ) i  ⟧S γ = ⟦ σ ⟧S γ
 ⟦ (σ ∘idS) i  ⟧S γ = ⟦ σ ⟧S γ
 ⟦ assocS σ τ δ i ⟧S γ = ⟦ δ ⟧S (⟦ τ ⟧S (⟦ σ ⟧S γ))
-⟦ ,∘ σ t τ p q i ⟧S γ = ?
-{- ⟦ σ ⟧S (⟦ τ ⟧S γ) , transp (λ j → foo i j) i0 (⟦ t ⟧t (⟦ τ ⟧S γ))
+⟦ ,∘ σ t τ p q i ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ) , transp (λ j → foo i j) i0 (⟦ t ⟧t (⟦ τ ⟧S γ))
  where
   foo : (λ i → ⟦ p i ⟧T (⟦ τ ⟧S γ)) ≡ (λ i → ⟦ q i ⟧T γ)
   foo = UIP _ _
--}
+
 ⟦ η∅ σ i ⟧S γ = ⋆
 ⟦ ηπ σ i ⟧S γ = ⟦ σ ⟧S γ .fst , transportRefl (⟦ σ ⟧S γ .snd) (~ i)
 
