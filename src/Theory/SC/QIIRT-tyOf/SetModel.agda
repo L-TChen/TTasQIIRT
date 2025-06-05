@@ -1,9 +1,9 @@
--- Type theory as a quotient inductive-inductive-recursive type, inspired by the formualtion of natural models
--- whereas the recursion part is impredicative.
+-- Type theory as a quotient inductive-inductive-recursive type,
+-- inspired by the formualtion of natural models whereas the recursion
+-- part is impredicative.
 
 
--- See https://github.com/agda/agda/issues/5362 for the current limitation of Agda
--- that affacts the definition of our encoding
+-- [TODO] Use the identity type to define the interface instead.
 
 open import Prelude
 
@@ -54,7 +54,8 @@ module _ (UU : Set) where
   ⟦ (idS∘ σ) i     ⟧S γ = ⟦ σ ⟧S γ
   ⟦ (σ ∘idS) i     ⟧S γ = ⟦ σ ⟧S γ
   ⟦ assocS σ τ δ i ⟧S γ = ⟦ δ ⟧S (⟦ τ ⟧S (⟦ σ ⟧S γ))
-  ⟦ ,∘ σ t τ p q i ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ) , transp (λ j → foo i j) i0 (⟦ t ⟧t (⟦ τ ⟧S γ))
+  ⟦ ,∘ σ t τ p q i ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ) ,
+    transport (λ j → foo i j) (⟦ t ⟧t (⟦ τ ⟧S γ))
     where
       foo : (λ i → ⟦ p i ⟧T (⟦ τ ⟧S γ)) ≡ (λ i → ⟦ q i ⟧T γ)
       foo = UIP _ _
@@ -92,7 +93,7 @@ open Motive stdModelᵃ
 open SCᴹ
 
 module _ (UU : Set) where
-  {-# TERMINATING #-} -- [TODO] Explain why it is harmless
+  {-# TERMINATING #-}
   stdModelᵐ : SCᴹ stdModelᵃ
   stdModelᵐ .∅ᴹ       = Unit
   stdModelᵐ ._,ᴹ_ Γ A = Σ Γ A
@@ -105,23 +106,32 @@ module _ (UU : Set) where
   stdModelᵐ ._∘ᴹ_     τ σ γ = τ (σ γ)
   stdModelᵐ .π₁ᴹ      σ γ = σ γ .fst
   stdModelᵐ .π₂ᴹ {Γ} {Δ} {A} σ = (λ γ → A (σ γ .fst)) , λ γ → σ γ .snd
-  stdModelᵐ .tyOfπ₂ᴹ  _ _ = refl
-  stdModelᵐ .idS∘ᴹ_   _ = refl
-  stdModelᵐ ._∘idSᴹ   _ = refl
+  stdModelᵐ .tyOfπ₂ᴹ  _ _   = refl
+  stdModelᵐ .idS∘ᴹ_   _     = refl
+  stdModelᵐ ._∘idSᴹ   _     = refl
   stdModelᵐ .assocSᴹ  _ _ _ = refl
-  stdModelᵐ .,∘ᴹ      σ (A , t) τ p q i γ =
-    σ (τ γ) , transport (UIP (λ j → p j (τ γ)) (λ j → q j γ) i) (t (τ γ))
+  stdModelᵐ .,∘ᴹ {Δ} {Θ} {Γ} {A} σ (B , t) τ p i γ =
+    σ (τ γ) , foo γ (~ i) -- [TODO] Why does it trigger termination checker? 
+    where
+    foo : (γ : Γ) →
+      transport (λ _ → A (σ (τ γ))) _ ≡ transport (λ j → p j (τ γ)) (t (τ γ))
+    foo γ =
+      transportRefl _  ∙ transportRefl _ ∙ transportRefl _ ∙ 
+       (λ i → transport (λ j → p j (τ γ)) (transportRefl (transport (λ _ → B (τ γ)) (transport (λ _ → B (τ γ)) (t (τ γ)))) i)) ∙
+       (λ i → transport (λ j → p j (τ γ)) (transportRefl (transport (λ _ → B (τ γ)) (t (τ γ))) i)) ∙
+        (λ i → transport (λ j → p j (τ γ)) (transportRefl (t (τ γ)) i))
+--    σ (τ γ) , transport (UIP (λ j → p j (τ γ)) (λ j → q j γ) i) (t (τ γ))
+-- stdModelᵐ .,∘ᴹ {Δ} {Θ} {Γ} {A} σ (B , t) τ p i γ = σ (τ γ) , foo (~ i)
+
   stdModelᵐ .ηπᴹ  {Γ} {Δ} {A} σ i =
     λ γ → σ γ .fst , transport-filler (λ j → A (σ γ .fst)) (σ γ .snd) i
-  stdModelᵐ .η∅ᴹ      _ = refl
+  stdModelᵐ .η∅ᴹ      _     = refl
   stdModelᵐ .βπ₁ᴹ     _ _ _ = refl
-  stdModelᵐ .βπ₂ᴹ {Γ} σ (A , t) p q i = (λ γ → q i γ) , λ γ → foo γ (~ i)
-    where
-    foo : (γ : Γ) → PathP (λ i → q (~ i) γ) (t γ) (transport (λ j → p j γ) (t γ)) 
-    foo γ = toPathP (λ i → transport (λ j → UIP (sym q) p i j γ) (t γ))
-  stdModelᵐ .[idS]Tᴹ  = refl
+  stdModelᵐ .βπ₂ᴹ {Γ} σ (A , t) p i =
+    (λ γ → p (~ i) γ) , λ γ → transport-filler (λ j → p j γ) (t γ) (~ i)
+  stdModelᵐ .[idS]Tᴹ        = refl
   stdModelᵐ .[∘]Tᴹ    _ _ _ = refl
-  stdModelᵐ .[idS]tᴹ  _ = refl
+  stdModelᵐ .[idS]tᴹ  _     = refl
   stdModelᵐ .[∘]tᴹ    _ _ _ = refl
-  stdModelᵐ .Uᴹ       _ = UU
-  stdModelᵐ .U[]ᴹ     = refl
+  stdModelᵐ .Uᴹ       _     = UU
+  stdModelᵐ .U[]ᴹ           = refl

@@ -69,10 +69,22 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       assocSᴹ
         : (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ) (γᴹ : Subᴬ Θᴹ Ξᴹ)
         → (γᴹ ∘ᴹ τᴹ) ∘ᴹ σᴹ ≡ γᴹ ∘ᴹ (τᴹ ∘ᴹ σᴹ)
+      [idS]Tᴹ
+        : Aᴹ ≡ Aᴹ [ idSᴹ ]Tᴹ
+      [∘]Tᴹ
+        : (Aᴹ : Tyᴬ Θᴹ) (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ)
+        → Aᴹ [ τᴹ ]Tᴹ [ σᴹ ]Tᴹ ≡ Aᴹ [ τᴹ ∘ᴹ σᴹ ]Tᴹ
       ,∘ᴹ
         : (σᴹ : Subᴬ Δᴹ Θᴹ) (tᴹ : Tmᴬ Δᴹ) (τᴹ : Subᴬ Γᴹ Δᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
-          (q : tyOfᴬ (tᴹ [ τᴹ ]tᴹ) ≡ Aᴹ [ σᴹ ∘ᴹ τᴹ ]Tᴹ)
-        → (σᴹ ,ᴹ tᴹ ∶[ p ]) ∘ᴹ τᴹ ≡ ((σᴹ ∘ᴹ τᴹ) ,ᴹ tᴹ [ τᴹ ]tᴹ ∶[ q ])
+        → let q = tyOfᴬ (tᴹ [ τᴹ ]tᴹ)
+                    ≡⟨ tyOf[]ᴹ ⟩
+                  (tyOfᴬ tᴹ) [ τᴹ ]Tᴹ
+                    ≡[ i ]⟨ p i [ τᴹ ]Tᴹ ⟩
+                  Aᴹ [ σᴹ ]Tᴹ [ τᴹ ]Tᴹ
+                    ≡⟨ [∘]Tᴹ _ _ _ ⟩
+                  Aᴹ [ σᴹ ∘ᴹ τᴹ ]Tᴹ
+                    ∎
+        in (σᴹ ,ᴹ tᴹ ∶[ p ]) ∘ᴹ τᴹ ≡ ((σᴹ ∘ᴹ τᴹ) ,ᴹ tᴹ [ τᴹ ]tᴹ ∶[ q ])
       ηπᴹ
         : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
         → σᴹ ≡ (π₁ᴹ σᴹ ,ᴹ π₂ᴹ σᴹ ∶[ tyOfπ₂ᴹ _ _ ])
@@ -84,13 +96,8 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ σᴹ
       βπ₂ᴹ
         : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
-        → (q : Aᴹ [ π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ]Tᴹ ≡  tyOfᴬ tᴹ)
+--        → (q : Aᴹ [ π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ]Tᴹ ≡  tyOfᴬ tᴹ)
         → π₂ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ tᴹ
-      [idS]Tᴹ
-        : Aᴹ ≡ Aᴹ [ idSᴹ ]Tᴹ
-      [∘]Tᴹ
-        : (Aᴹ : Tyᴬ Θᴹ) (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ)
-        → Aᴹ [ τᴹ ]Tᴹ [ σᴹ ]Tᴹ ≡ Aᴹ [ τᴹ ∘ᴹ σᴹ ]Tᴹ
       [idS]tᴹ
         : (tᴹ : Tmᴬ Γᴹ)
         → tᴹ ≡ tᴹ [ idSᴹ ]tᴹ
@@ -133,20 +140,8 @@ module _
     
   recTm (t [ σ ])       = recTm t [ recSub σ ]tᴹ
   recTm (π₂ σ)          = π₂ᴹ (recSub σ)
-  recTm (βπ₂ {A = A} σ t p q i) = 
-    βπ₂ᴹ (recSub σ) (recTm t) (recTyOf t p) bar i
-    where
-      bar =
-        recTy A [ π₁ᴹ (recSub σ ,ᴹ recTm t ∶[ recTyOf t p ]) ]Tᴹ
-          ≡⟨ recSub⟨π₁,⟩≡π₁ᴹ,ᴹ _ _ _ ⟩
-          -- the typical trick here: declare the required equation which becomes definitional later
-        recTy A [ recSub (π₁ (σ , t ∶[ p ])) ]Tᴹ
-          ≡⟨⟩
-        recTy (A [ π₁ (σ , t ∶[ p ]) ])
-          ≡⟨ sym (recTyOf t (sym q)) ⟩
-        tyOfᴬ (recTm t)
-          ∎
-
+  recTm (βπ₂ {A = A} σ t p _ i) = 
+    βπ₂ᴹ (recSub σ) (recTm t) (recTyOf t p) i
   recTm ([idS]t t i)    = [idS]tᴹ (recTm t) i
   recTm ([∘]t t σ τ i)  = [∘]tᴹ (recTm t) (recSub σ) (recSub τ) i
 
@@ -168,9 +163,23 @@ module _
         π₁ᴹ (recSub σ) ,ᴹ recTm (π₂ σ) ∶[ recTyOf (π₂ σ) (tyOfπ₂ σ) ]
           ∎
       
-  recSub (,∘ τ t σ p q i) =
-    ,∘ᴹ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) (recTyOf (t [ σ ]) q ) i
-
+  recSub (,∘ {A = A} τ t σ p q i) = foo i
+    where
+      foo : (recSub τ ,ᴹ recTm t ∶[ recTyOf t p ]) ∘ᴹ recSub σ
+        ≡ (recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ recTyOf (t [ σ ]) q ]
+      foo =
+        (recSub τ ,ᴹ recTm t ∶[ recTyOf t p ]) ∘ᴹ recSub σ
+          ≡⟨ ,∘ᴹ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) ⟩
+        (recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ _ ]
+         ≡[ i ]⟨ ((recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ Tyᴬ-is-set _ _ (step-≡ (tyOfᴬ (recTm t [ recSub σ ]tᴹ))
+                                                             (≡⟨⟩-syntax (tyOfᴬ (recTm t) [ recSub σ ]Tᴹ)
+                                                              (step-≡ ((recTy A [ recSub τ ]Tᴹ) [ recSub σ ]Tᴹ)
+                                                               ((recTy A [ recSub τ ∘ᴹ recSub σ ]Tᴹ) ∎)
+                                                               ([∘]Tᴹ (recTy A) (recSub σ) (recSub τ)))
+                                                              (λ i₁ → recTyOf t p i₁ [ recSub σ ]Tᴹ))
+                                                             tyOf[]ᴹ) (recTyOf (t [ σ ]) q) i ]) ⟩
+        (recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ recTyOf (t [ σ ]) q ]
+          ∎
 
   recSub⟨π₁,⟩≡π₁ᴹ,ᴹ _ _ _ = refl
 
