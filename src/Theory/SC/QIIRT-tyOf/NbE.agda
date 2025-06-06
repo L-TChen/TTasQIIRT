@@ -3,6 +3,9 @@ module Theory.SC.QIIRT-tyOf.NbE where
 open import Prelude
 open import Theory.SC.QIIRT-tyOf.Syntax
 
+postulate
+  UIP : ∀ {ℓ} → {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
+
 cong,∶[]
   : {σ σ' : Sub Γ Δ}{t t' : Tm Γ}{p : tyOf t ≡ A [ σ ]}{p' : tyOf t' ≡ A [ σ' ]}
   → σ ≡ σ' → t ≡ t'
@@ -70,6 +73,14 @@ data Ren where
   ∅ : Ren Γ ∅
   _,_∶[_] : (ρ : Ren Γ Δ)(x : Var Γ) → tyOf ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ ⌝ᴿ ] → Ren Γ (Δ , A)
 
+cong,∶[]ᴿ
+  : {ρ ρ' : Ren Γ Δ}{x x' : Var Γ}{p : tyOf ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ ⌝ᴿ ]}{p' : tyOf ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ]}
+  → ρ ≡ ρ' → x ≡ x'
+  → (ρ , x ∶[ p ]) ≡ (ρ' , x' ∶[ p' ])
+cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' =
+  cong₃ _,_∶[_] ρ≡ρ' x≡x'
+        (isSet→SquareP (λ _ _ → Ty-is-set) p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ])
+
 ⌜ ∅ ⌝ᴿ = ∅S
 ⌜ ρ , x ∶[ p ] ⌝ᴿ = ⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]
 
@@ -119,6 +130,14 @@ idR {Γ , A} = wkᴿ A idR , here ∶[ cong (A [_]) (sym (idS∘ (π₁ idS)) �
   ⌜ wkᴿ A idR ⌝ᴿ , π₂ idS ∶[ _ ]
     ∎
 
+lookupVar-wkᴿ : (ρ : Ren Γ Δ)(x : Var Δ) → lookupVar (wkᴿ A ρ) x ≡ there (lookupVar ρ x)
+lookupVar-wkᴿ (ρ , x ∶[ p ]) here = refl
+lookupVar-wkᴿ (ρ , x' ∶[ p ]) (there x) = lookupVar-wkᴿ ρ x
+
+lookupVar-idR : (x : Var Γ) → lookupVar idR x ≡ x
+lookupVar-idR here = refl
+lookupVar-idR (there x) = lookupVar-wkᴿ idR x ∙ cong there (lookupVar-idR x)
+
 _⊙_ : Ren Δ Θ → Ren Γ Δ → Ren Γ Θ
 ⌜⊙⌝ : (ρ : Ren Δ Θ)(ρ' : Ren Γ Δ) → ⌜ ρ ⌝ᴿ ∘ ⌜ ρ' ⌝ᴿ ≡ ⌜ ρ ⊙ ρ' ⌝ᴿ
 ∅ ⊙ ρ = ∅
@@ -139,33 +158,105 @@ _⊙_ : Ren Δ Θ → Ren Γ Δ → Ren Γ Θ
   ⌜ ρ ⊙ ρ' ⌝ᴿ , ⌜ lookupVar ρ' x ⌝ⱽ ∶[ _ ]
     ∎
 
+lookupVar⊙ : (ρ : Ren Δ Θ)(ρ' : Ren Γ Δ)(x : Var Θ)
+           → lookupVar ρ' (lookupVar ρ x) ≡ lookupVar (ρ ⊙ ρ') x
+lookupVar⊙ (ρ , y ∶[ p ]) ρ' here = refl
+lookupVar⊙ (ρ , y ∶[ p ]) ρ' (there x) = lookupVar⊙ ρ ρ' x
+
+wkᴿ⊙ : (ρ : Ren Δ Θ)(ρ' : Ren Γ Δ){A : Ty Δ}(x : Var Γ)(p : tyOf ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ])
+     → wkᴿ A ρ ⊙ (ρ' , x ∶[ p ]) ≡ ρ ⊙ ρ'
+wkᴿ⊙ ∅ ρ' x p = refl
+wkᴿ⊙ (ρ , x ∶[ p ]) ρ' {A} x' p' =
+  (wkᴿ A ρ ⊙ (ρ' , x' ∶[ p' ])) , lookupVar ρ' x ∶[ _ ]
+    ≡⟨ cong,∶[]ᴿ (wkᴿ⊙ ρ ρ' x' p') refl ⟩
+  (ρ ⊙ ρ') , lookupVar ρ' x ∶[ _ ]
+    ∎
+
+idR⊙ : (ρ : Ren Γ Δ) → idR ⊙ ρ ≡ ρ
+idR⊙ {_} {∅} ∅ = refl
+idR⊙ {_} {Δ , A} (ρ , x ∶[ p ]) = cong,∶[]ᴿ (wkᴿ⊙ idR ρ x p ∙ idR⊙ ρ) refl
+
+_⊙idR : (ρ : Ren Γ Δ) → ρ ⊙ idR ≡ ρ
+∅ ⊙idR = refl
+(ρ , x ∶[ p ]) ⊙idR = cong,∶[]ᴿ (ρ ⊙idR) (lookupVar-idR x)
+
+⊙-assoc : (ρ : Ren Γ Δ)(ρ' : Ren Δ Θ)(ρ'' : Ren Θ Ξ)
+        → (ρ'' ⊙ ρ') ⊙ ρ ≡ ρ'' ⊙ (ρ' ⊙ ρ)
+⊙-assoc ρ ρ' ∅ = refl
+⊙-assoc ρ ρ' (ρ'' , x'' ∶[ p'' ]) = cong,∶[]ᴿ (⊙-assoc ρ ρ' ρ'') (lookupVar⊙ ρ' ρ x'')
+
 -- Evaluate substitutions and terms to renamings and variables
 evalSub : (σ : Sub Γ Δ) → Σ[ ρ ∈ Ren Γ Δ ] σ ≡ ⌜ ρ ⌝ᴿ
 evalTm : (t : Tm Γ) → Σ[ x ∈ Var Γ ] t ≡ ⌜ x ⌝ⱽ
 
 evalSub ∅S = ∅ , refl
 evalSub (_,_∶[_] {A = A} σ t p) with evalSub σ | evalTm t
-... | ρ , eqρ | x , eqx = (ρ , x ∶[ cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ ]) , {!   !}
+... | ρ , eqρ | x , eqx =
+  (ρ , x ∶[ cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ ]) ,
+  cong,∶[] eqρ eqx
 evalSub idS = idR , ⌜idR⌝
 evalSub (σ ∘ τ) with evalSub σ | evalSub τ
 ... | ρ , eqρ | ρ' , eqρ' = ρ ⊙ ρ' , cong₂ _∘_ eqρ eqρ' ∙ ⌜⊙⌝ ρ ρ'
 evalSub (π₁ σ) with evalSub σ
 ... | (ρ , x ∶[ p ]) , eqρ = ρ , cong π₁ eqρ ∙ βπ₁ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _
-evalSub (βπ₁ σ t p i) = {!   !}
-evalSub ((idS∘ σ) i) = {!   !}
-evalSub ((σ ∘idS) i) = {!   !}
-evalSub (assocS σ σ₁ σ₂ i) = {!   !}
-evalSub (,∘ σ t σ₁ p q i) = {!   !}
-evalSub (η∅ σ i) = η∅ᴿ (evalSub σ .fst) i , λ j → {!   !}
+evalSub (βπ₁ σ t p i) with evalSub σ | evalTm t
+... | ρ , eqρ | x , eqx = ρ ,
+  isProp→PathP {B = λ j → βπ₁ σ t p j ≡ ⌜ ρ ⌝ᴿ}
+    (λ j → UIP {x = βπ₁ σ t p j} {⌜ ρ ⌝ᴿ})
+    (cong π₁ (cong,∶[] eqρ eqx) ∙ βπ₁ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
+    eqρ
+    i
+evalSub ((idS∘ σ) i) with evalSub σ
+... | ρ , eqρ = idR⊙ ρ i ,
+  isProp→PathP {B = λ j → (idS∘ σ) j ≡ ⌜ idR⊙ ρ j ⌝ᴿ}
+    (λ j → UIP {x = (idS∘ σ) j} {⌜ idR⊙ ρ j ⌝ᴿ})
+    (cong₂ _∘_ ⌜idR⌝ eqρ ∙ ⌜⊙⌝ idR ρ)
+    eqρ
+    i
+evalSub ((σ ∘idS) i) with evalSub σ
+... | ρ , eqρ = (ρ ⊙idR) i ,
+  isProp→PathP {B = λ j → (σ ∘idS) j ≡ ⌜ (ρ ⊙idR) j ⌝ᴿ}
+    (λ j → UIP {x = (σ ∘idS) j} {⌜ (ρ ⊙idR) j ⌝ᴿ})
+    (cong₂ _∘_ eqρ ⌜idR⌝ ∙ ⌜⊙⌝ ρ idR)
+    eqρ
+    i
+evalSub (assocS σ₁ σ₂ σ₃ i) with evalSub σ₁ | evalSub σ₂ | evalSub σ₃
+... | ρ₁ , eqρ₁ | ρ₂ , eqρ₂ | ρ₃ , eqρ₃ = ⊙-assoc ρ₁ ρ₂ ρ₃ i ,
+  isProp→PathP {B = λ j → assocS σ₁ σ₂ σ₃ j ≡ ⌜ ⊙-assoc ρ₁ ρ₂ ρ₃ j ⌝ᴿ}
+    (λ j → UIP {x = assocS σ₁ σ₂ σ₃ j} {⌜ ⊙-assoc ρ₁ ρ₂ ρ₃ j ⌝ᴿ})
+    (cong₂ _∘_ (cong₂ _∘_ eqρ₃ eqρ₂ ∙ ⌜⊙⌝ ρ₃ ρ₂) eqρ₁ ∙ ⌜⊙⌝ (ρ₃ ⊙ ρ₂) ρ₁)
+    (cong₂ _∘_ eqρ₃ (cong₂ _∘_ eqρ₂ eqρ₁ ∙ ⌜⊙⌝ ρ₂ ρ₁) ∙ ⌜⊙⌝ ρ₃ (ρ₂ ⊙ ρ₁))
+     i
+evalSub (η∅ σ i) with evalSub σ
+... | ρ , eqρ = η∅ᴿ ρ i , isProp→PathP {B = λ j → η∅ σ j ≡ ⌜ η∅ᴿ ρ j ⌝ᴿ} (λ j → UIP {x = η∅ σ j} {⌜ η∅ᴿ ρ j ⌝ᴿ}) eqρ (λ _ → ∅S) i
 evalSub (ηπ σ i) = {!   !}
+evalSub (,∘ σ t τ p q i) = {!   !}
 
 evalTm (t [ σ ]) with evalTm t | evalSub σ
 ... | x , eqx | ρ , eqρ = lookupVar ρ x , (λ i → eqx i [ eqρ i ]) ∙ ⌜lookupVar⌝ ρ x
 evalTm (π₂ σ) with evalSub σ
 ... | (ρ , x ∶[ p ]) , eqρ = x , cong π₂ eqρ ∙ ⟨βπ₂⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _
-evalTm (βπ₂ σ t p q i) = {!   !}
-evalTm ([idS]t t i) = {!   !}
-evalTm ([∘]t t σ τ i) = {!   !}
+evalTm (βπ₂ σ t p q i) with evalSub σ | evalTm t
+... | ρ , eqρ | x , eqx = x ,
+  isProp→PathP {B = λ j → βπ₂ σ t p q j ≡ ⌜ x ⌝ⱽ}
+    (λ j → UIP {x = βπ₂ σ t p q j} {⌜ x ⌝ⱽ})
+    (cong π₂ (cong,∶[] eqρ eqx) ∙ ⟨βπ₂⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
+     eqx
+     i
+evalTm ([idS]t t i) with evalTm t
+... | x , eqx = lookupVar-idR x (~ i) ,
+  isProp→PathP {B = λ j → [idS]t t j ≡ ⌜ lookupVar-idR x (~ j) ⌝ⱽ}
+    (λ j → UIP {x = [idS]t t j} {⌜ lookupVar-idR x (~ j) ⌝ⱽ})
+     eqx
+    ((λ i → eqx i [ ⌜idR⌝ i ]) ∙ ⌜lookupVar⌝ idR x)
+     i
+evalTm ([∘]t t σ τ i) with evalTm t | evalSub σ | evalSub τ
+... | x , eqx | ρ , eqρ | ρ' , eqρ' = lookupVar⊙ ρ' ρ x i ,
+  isProp→PathP {B = λ j → [∘]t t σ τ j ≡ ⌜ lookupVar⊙ ρ' ρ x j ⌝ⱽ}
+    (λ j → UIP {x = [∘]t t σ τ j} {⌜ lookupVar⊙ ρ' ρ x j ⌝ⱽ})
+    ((λ i → ((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x) i [ eqρ i ]) ∙ ⌜lookupVar⌝ ρ (lookupVar ρ' x))
+    ((λ i → eqx i [ (cong₂ _∘_ eqρ' eqρ ∙ ⌜⊙⌝ ρ' ρ) i ]) ∙ ⌜lookupVar⌝ (ρ' ⊙ ρ) x)
+     i
 
 -- Reify variables and renamings to neutral forms and normal forms
 ⇓ⱽ : (`σ : NeSub Γ Δ) → Var Δ → NeTm Γ
