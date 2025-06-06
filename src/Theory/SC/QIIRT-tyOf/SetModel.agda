@@ -54,8 +54,7 @@ module _ (UU : Set) where
   ⟦ (idS∘ σ) i     ⟧S γ = ⟦ σ ⟧S γ
   ⟦ (σ ∘idS) i     ⟧S γ = ⟦ σ ⟧S γ
   ⟦ assocS σ τ δ i ⟧S γ = ⟦ δ ⟧S (⟦ τ ⟧S (⟦ σ ⟧S γ))
-  ⟦ ,∘ σ t τ p q i ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ) ,
-    transport (λ j → foo i j) (⟦ t ⟧t (⟦ τ ⟧S γ))
+  ⟦ ,∘ σ t τ p q i ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ) , transport (λ j → foo i j) (⟦ t ⟧t (⟦ τ ⟧S γ))
     where
       foo : (λ i → ⟦ p i ⟧T (⟦ τ ⟧S γ)) ≡ (λ i → ⟦ q i ⟧T γ)
       foo = UIP _ _
@@ -93,7 +92,6 @@ open Motive stdModelᵃ
 open SCᴹ
 
 module _ (UU : Set) where
-  {-# TERMINATING #-}
   stdModelᵐ : SCᴹ stdModelᵃ
   stdModelᵐ .∅ᴹ       = Unit
   stdModelᵐ ._,ᴹ_ Γ A = Σ Γ A
@@ -110,8 +108,10 @@ module _ (UU : Set) where
   stdModelᵐ .idS∘ᴹ_   _     = refl
   stdModelᵐ ._∘idSᴹ   _     = refl
   stdModelᵐ .assocSᴹ  _ _ _ = refl
+  stdModelᵐ .[idS]Tᴹ        = refl
+  stdModelᵐ .[∘]Tᴹ    _ _ _ = refl
   stdModelᵐ .,∘ᴹ {Δ} {Θ} {Γ} {A} σ (B , t) τ p i γ =
-    σ (τ γ) , foo γ (~ i) -- [TODO] Why does it trigger termination checker? 
+    σ (τ γ) , {!!} -- foo γ (~ i) -- [TODO] Why does it trigger termination checker? 
     where
     foo : (γ : Γ) →
       transport (λ _ → A (σ (τ γ))) _ ≡ transport (λ j → p j (τ γ)) (t (τ γ))
@@ -129,8 +129,6 @@ module _ (UU : Set) where
   stdModelᵐ .βπ₁ᴹ     _ _ _ = refl
   stdModelᵐ .βπ₂ᴹ {Γ} σ (A , t) p i =
     (λ γ → p (~ i) γ) , λ γ → transport-filler (λ j → p j γ) (t γ) (~ i)
-  stdModelᵐ .[idS]Tᴹ        = refl
-  stdModelᵐ .[∘]Tᴹ    _ _ _ = refl
   stdModelᵐ .[idS]tᴹ  _     = refl
   stdModelᵐ .[∘]tᴹ    _ _ _ = refl
   stdModelᵐ .Uᴹ       _     = UU
