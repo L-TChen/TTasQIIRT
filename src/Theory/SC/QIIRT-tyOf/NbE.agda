@@ -202,7 +202,7 @@ evalSub (βπ₁ σ t p i) with evalSub σ | evalTm t
 ... | ρ , eqρ | x , eqx = ρ ,
   isProp→PathP {B = λ j → βπ₁ σ t p j ≡ ⌜ ρ ⌝ᴿ}
     (λ j → UIP {x = βπ₁ σ t p j} {⌜ ρ ⌝ᴿ})
-    (cong π₁ (cong,∶[] p ? eqρ eqx) ∙ βπ₁ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
+    (cong π₁ (cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (_ [_]) eqρ) eqρ eqx) ∙ βπ₁ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
     eqρ
     i
 evalSub ((idS∘ σ) i) with evalSub σ
@@ -239,7 +239,7 @@ evalTm (βπ₂ σ t p q i) with evalSub σ | evalTm t
 ... | ρ , eqρ | x , eqx = x ,
   isProp→PathP {B = λ j → βπ₂ σ t p q j ≡ ⌜ x ⌝ⱽ}
     (λ j → UIP {x = βπ₂ σ t p q j} {⌜ x ⌝ⱽ})
-    (cong π₂ (cong,∶[] {!!} {!!} eqρ eqx) ∙ ⟨βπ₂⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
+    (cong π₂ (cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (_ [_]) eqρ) eqρ eqx) ∙ ⟨βπ₂⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
      eqx
      i
 evalTm ([idS]t t i) with evalTm t
