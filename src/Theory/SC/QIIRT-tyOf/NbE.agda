@@ -7,10 +7,11 @@ postulate
   UIP : ∀ {ℓ} → {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
 
 cong,∶[]
-  : {σ σ' : Sub Γ Δ}{t t' : Tm Γ}{p : tyOf t ≡ A [ σ ]}{p' : tyOf t' ≡ A [ σ' ]}
+  : {σ σ' : Sub Γ Δ}{t t' : Tm Γ}
+  → (p : tyOf t ≡ A [ σ ])(p' : tyOf t' ≡ A [ σ' ])
   → σ ≡ σ' → t ≡ t'
   → (σ , t ∶[ p ]) ≡ (σ' , t' ∶[ p' ])
-cong,∶[] {A = A} {p = p} {p'} eqσ eqt =
+cong,∶[] {A = A} p p' eqσ eqt =
   cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Ty-is-set) p p' (cong tyOf eqt) (cong (A [_]) eqσ))
 
 -- Definition of neutral and normal forms
@@ -77,9 +78,7 @@ cong,∶[]ᴿ
   : {ρ ρ' : Ren Γ Δ}{x x' : Var Γ}{p : tyOf ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ ⌝ᴿ ]}{p' : tyOf ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ]}
   → ρ ≡ ρ' → x ≡ x'
   → (ρ , x ∶[ p ]) ≡ (ρ' , x' ∶[ p' ])
-cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' =
-  cong₃ _,_∶[_] ρ≡ρ' x≡x'
-        (isSet→SquareP (λ _ _ → Ty-is-set) p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ])
+cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i = ρ≡ρ' i , x≡x' i ∶[ isSet→SquareP (λ _ _ → Ty-is-set) p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]) i ]
 
 ⌜ ∅ ⌝ᴿ = ∅S
 ⌜ ρ , x ∶[ p ] ⌝ᴿ = ⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]
@@ -113,7 +112,7 @@ wkᴿ A (_,_∶[_] {A = A'} ρ x p) = wkᴿ A ρ , there x ∶[ cong (_[ π₁ i
   (⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]) ∘ π₁ idS
     ≡⟨ ⟨,∘⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (π₁ idS) p ⟩
   ⌜ ρ ⌝ᴿ ∘ π₁ idS , ⌜ x ⌝ⱽ [ π₁ idS ] ∶[ cong (_[ π₁ idS ]) p ∙ [∘]T A' (π₁ idS) ⌜ ρ ⌝ᴿ ]
-    ≡⟨ cong,∶[] (⌜wkᴿ⌝ A ρ) refl ⟩
+    ≡⟨ cong,∶[] (cong _[ π₁ idS ] p ∙ [∘]T _ _ _) q (⌜wkᴿ⌝ A ρ) refl ⟩
   ⌜ wkᴿ A ρ ⌝ᴿ , ⌜ x ⌝ⱽ [ π₁ idS ] ∶[ q ]
     ∎
 
@@ -126,7 +125,7 @@ idR {Γ , A} = wkᴿ A idR , here ∶[ cong (A [_]) (sym (idS∘ (π₁ idS)) �
   idS
     ≡⟨ ηπ idS ⟩
   π₁ idS , π₂ idS ∶[ tyOfπ₂ idS ]
-    ≡⟨ cong,∶[] (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) refl ⟩
+    ≡⟨ cong,∶[] refl {!!} (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) refl ⟩
   ⌜ wkᴿ A idR ⌝ᴿ , π₂ idS ∶[ _ ]
     ∎
 
@@ -154,7 +153,7 @@ _⊙_ : Ren Δ Θ → Ren Γ Δ → Ren Γ Θ
   (⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]) ∘ ⌜ ρ' ⌝ᴿ
     ≡⟨ ⟨,∘⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ ⌜ ρ' ⌝ᴿ p ⟩
   ⌜ ρ ⌝ᴿ ∘ ⌜ ρ' ⌝ᴿ , ⌜ x ⌝ⱽ [ ⌜ ρ' ⌝ᴿ ] ∶[ cong (_[ ⌜ ρ' ⌝ᴿ ]) p ∙ [∘]T A ⌜ ρ' ⌝ᴿ ⌜ ρ ⌝ᴿ ]
-    ≡⟨ cong,∶[] (⌜⊙⌝ ρ ρ') (⌜lookupVar⌝ ρ' x) ⟩
+    ≡⟨ cong,∶[] (cong _[  ⌜ ρ' ⌝ᴿ ] p ∙ [∘]T _ _ _) _ (⌜⊙⌝ ρ ρ') (⌜lookupVar⌝ ρ' x) ⟩
   ⌜ ρ ⊙ ρ' ⌝ᴿ , ⌜ lookupVar ρ' x ⌝ⱽ ∶[ _ ]
     ∎
 
@@ -193,7 +192,7 @@ evalSub ∅S = ∅ , refl
 evalSub (_,_∶[_] {A = A} σ t p) with evalSub σ | evalTm t
 ... | ρ , eqρ | x , eqx =
   (ρ , x ∶[ cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ ]) ,
-  cong,∶[] eqρ eqx
+  cong,∶[] p _ eqρ eqx
 evalSub idS = idR , ⌜idR⌝
 evalSub (σ ∘ τ) with evalSub σ | evalSub τ
 ... | ρ , eqρ | ρ' , eqρ' = ρ ⊙ ρ' , cong₂ _∘_ eqρ eqρ' ∙ ⌜⊙⌝ ρ ρ'
@@ -203,7 +202,7 @@ evalSub (βπ₁ σ t p i) with evalSub σ | evalTm t
 ... | ρ , eqρ | x , eqx = ρ ,
   isProp→PathP {B = λ j → βπ₁ σ t p j ≡ ⌜ ρ ⌝ᴿ}
     (λ j → UIP {x = βπ₁ σ t p j} {⌜ ρ ⌝ᴿ})
-    (cong π₁ (cong,∶[] eqρ eqx) ∙ βπ₁ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
+    (cong π₁ (cong,∶[] p ? eqρ eqx) ∙ βπ₁ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
     eqρ
     i
 evalSub ((idS∘ σ) i) with evalSub σ
@@ -240,7 +239,7 @@ evalTm (βπ₂ σ t p q i) with evalSub σ | evalTm t
 ... | ρ , eqρ | x , eqx = x ,
   isProp→PathP {B = λ j → βπ₂ σ t p q j ≡ ⌜ x ⌝ⱽ}
     (λ j → UIP {x = βπ₂ σ t p q j} {⌜ x ⌝ⱽ})
-    (cong π₂ (cong,∶[] eqρ eqx) ∙ ⟨βπ₂⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
+    (cong π₂ (cong,∶[] {!!} {!!} eqρ eqx) ∙ ⟨βπ₂⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
      eqx
      i
 evalTm ([idS]t t i) with evalTm t
@@ -278,7 +277,7 @@ evalTm ([∘]t t σ τ i) with evalTm t | evalSub σ | evalSub τ
 ⌜⇓ᴿ⌝ ∅ = refl
 ⌜⇓ᴿ⌝ (_,_∶[_] {A = A} ρ x p) =
   ⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]
-    ≡⟨ cong,∶[] (⌜⇓ᴿ⌝ ρ) (sym (⌜⇓ⱽid⌝ x)) ⟩
+    ≡⟨ cong,∶[] {!!} {!!} (⌜⇓ᴿ⌝ ρ) (sym (⌜⇓ⱽid⌝ x)) ⟩
   ⌜ ⇓ᴿ ρ ⌝subⁿᶠ , ⌜ ⇓ⱽ `idS x ⌝tm ∶[ cong tyOf (⌜⇓ⱽid⌝ x) ∙ p ∙ cong (A [_]) (⌜⇓ᴿ⌝ ρ) ]
     ∎
 
