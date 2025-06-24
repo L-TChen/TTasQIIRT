@@ -1,3 +1,4 @@
+{-# OPTIONS -WnoUnsupportedIndexedMatch #-}
 module Theory.SC.QIIRT-tyOf.NbE where
 
 open import Prelude
@@ -86,6 +87,9 @@ cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i = ρ≡ρ' i , x≡x' i ∶
 η∅ᴿ : (ρ : Ren Γ ∅) → ρ ≡ ∅
 η∅ᴿ ∅ = refl
 
+η,ᴿ : (ρ : Ren Γ (Δ , A)) → Σ[ ρ' ∈ Ren Γ Δ ] Σ[ x' ∈ Var Γ ] Σ[ p' ∈ tyOf ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ] ] (ρ ≡ (ρ' , x' ∶[ p' ]))
+η,ᴿ (ρ , x ∶[ p ]) = (ρ , x , p , refl)
+
 lookupVar : (ρ : Ren Γ Δ) → Var Δ → Var Γ
 lookupVar (ρ , x' ∶[ p ]) here = x'
 lookupVar (ρ , x' ∶[ p ]) (there x) = lookupVar ρ x
@@ -125,7 +129,7 @@ idR {Γ , A} = wkᴿ A idR , here ∶[ cong (A [_]) (sym (idS∘ (π₁ idS)) �
   idS
     ≡⟨ ηπ idS ⟩
   π₁ idS , π₂ idS ∶[ tyOfπ₂ idS ]
-    ≡⟨ cong,∶[] refl {!!} (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) refl ⟩
+    ≡⟨ cong,∶[] refl (cong (λ z → A [ z ]) (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR)) (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) refl ⟩
   ⌜ wkᴿ A idR ⌝ᴿ , π₂ idS ∶[ _ ]
     ∎
 
@@ -189,73 +193,123 @@ evalSub : (σ : Sub Γ Δ) → Σ[ ρ ∈ Ren Γ Δ ] σ ≡ ⌜ ρ ⌝ᴿ
 evalTm : (t : Tm Γ) → Σ[ x ∈ Var Γ ] t ≡ ⌜ x ⌝ⱽ
 
 evalSub ∅S = ∅ , refl
-evalSub (_,_∶[_] {A = A} σ t p) with evalSub σ | evalTm t
-... | ρ , eqρ | x , eqx =
-  (ρ , x ∶[ cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ ]) ,
-  cong,∶[] p _ eqρ eqx
+evalSub (_,_∶[_] {A = A} σ t p) =
+ let ρ , eqρ = evalSub σ
+     x , eqx = evalTm t
+ in (ρ , x ∶[ cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ ]) ,
+    cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ) eqρ eqx
 evalSub idS = idR , ⌜idR⌝
-evalSub (σ ∘ τ) with evalSub σ | evalSub τ
-... | ρ , eqρ | ρ' , eqρ' = ρ ⊙ ρ' , cong₂ _∘_ eqρ eqρ' ∙ ⌜⊙⌝ ρ ρ'
-evalSub (π₁ σ) with evalSub σ
-... | (ρ , x ∶[ p ]) , eqρ = ρ , cong π₁ eqρ ∙ βπ₁ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _
-evalSub (βπ₁ σ t p i) with evalSub σ | evalTm t
-... | ρ , eqρ | x , eqx = ρ ,
-  isProp→PathP {B = λ j → βπ₁ σ t p j ≡ ⌜ ρ ⌝ᴿ}
-    (λ j → UIP {x = βπ₁ σ t p j} {⌜ ρ ⌝ᴿ})
-    (cong π₁ (cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (_ [_]) eqρ) eqρ eqx) ∙ βπ₁ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
-    eqρ
-    i
-evalSub ((idS∘ σ) i) with evalSub σ
-... | ρ , eqρ = idR⊙ ρ i ,
-  isProp→PathP {B = λ j → (idS∘ σ) j ≡ ⌜ idR⊙ ρ j ⌝ᴿ}
-    (λ j → UIP {x = (idS∘ σ) j} {⌜ idR⊙ ρ j ⌝ᴿ})
-    (cong₂ _∘_ ⌜idR⌝ eqρ ∙ ⌜⊙⌝ idR ρ)
-    eqρ
-    i
-evalSub ((σ ∘idS) i) with evalSub σ
-... | ρ , eqρ = (ρ ⊙idR) i ,
-  isProp→PathP {B = λ j → (σ ∘idS) j ≡ ⌜ (ρ ⊙idR) j ⌝ᴿ}
-    (λ j → UIP {x = (σ ∘idS) j} {⌜ (ρ ⊙idR) j ⌝ᴿ})
-    (cong₂ _∘_ eqρ ⌜idR⌝ ∙ ⌜⊙⌝ ρ idR)
-    eqρ
-    i
-evalSub (assocS σ₁ σ₂ σ₃ i) with evalSub σ₁ | evalSub σ₂ | evalSub σ₃
-... | ρ₁ , eqρ₁ | ρ₂ , eqρ₂ | ρ₃ , eqρ₃ = ⊙-assoc ρ₁ ρ₂ ρ₃ i ,
-  isProp→PathP {B = λ j → assocS σ₁ σ₂ σ₃ j ≡ ⌜ ⊙-assoc ρ₁ ρ₂ ρ₃ j ⌝ᴿ}
-    (λ j → UIP {x = assocS σ₁ σ₂ σ₃ j} {⌜ ⊙-assoc ρ₁ ρ₂ ρ₃ j ⌝ᴿ})
-    (cong₂ _∘_ (cong₂ _∘_ eqρ₃ eqρ₂ ∙ ⌜⊙⌝ ρ₃ ρ₂) eqρ₁ ∙ ⌜⊙⌝ (ρ₃ ⊙ ρ₂) ρ₁)
-    (cong₂ _∘_ eqρ₃ (cong₂ _∘_ eqρ₂ eqρ₁ ∙ ⌜⊙⌝ ρ₂ ρ₁) ∙ ⌜⊙⌝ ρ₃ (ρ₂ ⊙ ρ₁))
+evalSub (σ ∘ τ) =
+ let ρ , eqρ = evalSub σ
+     ρ' , eqρ' = evalSub τ
+ in ρ ⊙ ρ' ,
+    cong₂ _∘_ eqρ eqρ' ∙ ⌜⊙⌝ ρ ρ'
+evalSub (π₁ σ) =
+ let ρ , eqρ = evalSub σ
+     (ρ' , x' , p' , eqρ') = η,ᴿ ρ
+ in ρ' ,
+    cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _
+evalSub (βπ₁ {A = A} σ t p i) =
+ let ρ , eqρ = evalSub σ
+     x , eqx = evalTm t
+ in ρ ,
+    isProp→PathP {B = λ j → βπ₁ σ t p j ≡ ⌜ ρ ⌝ᴿ}
+     (λ j → UIP {x = βπ₁ σ t p j} {⌜ ρ ⌝ᴿ})
+     (cong π₁ (cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (λ z → A [ z ]) eqρ) eqρ eqx ∙ refl)
+      ∙ βπ₁ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (cong tyOf (sym eqx) ∙ p ∙ cong (λ z → A [ z ]) eqρ))
+     eqρ
      i
-evalSub (η∅ σ i) with evalSub σ
-... | ρ , eqρ = η∅ᴿ ρ i , isProp→PathP {B = λ j → η∅ σ j ≡ ⌜ η∅ᴿ ρ j ⌝ᴿ} (λ j → UIP {x = η∅ σ j} {⌜ η∅ᴿ ρ j ⌝ᴿ}) eqρ (λ _ → ∅S) i
-evalSub (ηπ σ i) = {!   !}
-evalSub (,∘ σ t τ p q i) = {!   !}
+evalSub ((idS∘ σ) i) =
+ let ρ , eqρ = evalSub σ
+ in idR⊙ ρ i ,
+    isProp→PathP {B = λ j → (idS∘ σ) j ≡ ⌜ idR⊙ ρ j ⌝ᴿ}
+     (λ j → UIP {x = (idS∘ σ) j} {⌜ idR⊙ ρ j ⌝ᴿ})
+     (cong₂ _∘_ ⌜idR⌝ eqρ ∙ ⌜⊙⌝ idR ρ)
+     eqρ
+     i
+evalSub ((σ ∘idS) i) =
+ let ρ , eqρ = evalSub σ
+ in (ρ ⊙idR) i ,
+    isProp→PathP {B = λ j → (σ ∘idS) j ≡ ⌜ (ρ ⊙idR) j ⌝ᴿ}
+     (λ j → UIP {x = (σ ∘idS) j} {⌜ (ρ ⊙idR) j ⌝ᴿ})
+     (cong₂ _∘_ eqρ ⌜idR⌝ ∙ ⌜⊙⌝ ρ idR)
+     eqρ
+     i
+evalSub (assocS σ₁ σ₂ σ₃ i) =
+  let ρ₁ , eqρ₁ = evalSub σ₁
+      ρ₂ , eqρ₂ = evalSub σ₂
+      ρ₃ , eqρ₃ = evalSub σ₃
+  in ⊙-assoc ρ₁ ρ₂ ρ₃ i ,
+     isProp→PathP {B = λ j → assocS σ₁ σ₂ σ₃ j ≡ ⌜ ⊙-assoc ρ₁ ρ₂ ρ₃ j ⌝ᴿ}
+      (λ j → UIP {x = assocS σ₁ σ₂ σ₃ j} {⌜ ⊙-assoc ρ₁ ρ₂ ρ₃ j ⌝ᴿ})
+      (cong₂ _∘_ (cong₂ _∘_ eqρ₃ eqρ₂ ∙ ⌜⊙⌝ ρ₃ ρ₂) eqρ₁ ∙ ⌜⊙⌝ (ρ₃ ⊙ ρ₂) ρ₁)
+      (cong₂ _∘_ eqρ₃ (cong₂ _∘_ eqρ₂ eqρ₁ ∙ ⌜⊙⌝ ρ₂ ρ₁) ∙ ⌜⊙⌝ ρ₃ (ρ₂ ⊙ ρ₁))
+      i
+evalSub (,∘ {A = A} σ t τ p q i) =
+  let x , eqx = evalTm t
+      ρ , eqρ = evalSub σ
+      ρ' , eqρ' = evalSub τ
+      p'' = (λ i₁ → tyOf (⌜lookupVar⌝ ρ' x (~ i₁))) ∙ (λ i₁ → ((λ i₂ → tyOf (eqx (~ i₂))) ∙ p ∙ (cong (A [_]) eqρ)) i₁ [ ⌜ ρ' ⌝ᴿ ]) ∙ [∘]T A ⌜ ρ' ⌝ᴿ ⌜ ρ ⌝ᴿ ∙ (λ i₁ → A [ ⌜⊙⌝ ρ ρ' i₁ ])
+      p''' = (λ i₁ → tyOf (((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x) (~ i₁))) ∙ q ∙ (λ i₁ → A [ (cong₂ _∘_ eqρ eqρ' ∙ ⌜⊙⌝ ρ ρ') i₁ ])
+   in cong,∶[]ᴿ {ρ = ρ ⊙ ρ'} {x = lookupVar ρ' x} {p = p''} {p'''}   refl refl i ,
+      isProp→PathP {B = λ j → ,∘ σ t τ p q j ≡ ⌜ cong,∶[]ᴿ {p = p''} {p'''} refl refl j ⌝ᴿ}
+       (λ j → UIP {x = ,∘ σ t τ p q j} {⌜ cong,∶[]ᴿ {p = p''} {p'''} (λ _ → ρ ⊙ ρ') (λ _ → lookupVar ρ' x) j ⌝ᴿ})
+       ((λ j → (cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ) eqρ eqx) j ∘ eqρ' j) ∙ ⌜⊙⌝ (ρ , x ∶[ cong tyOf (sym eqx) ∙ p ∙ (cong (A [_]) eqρ) ]) ρ')
+       (cong,∶[] q ((λ i₁ → tyOf (((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x) (~ i₁))) ∙ q ∙ (λ i₁ → A [ (cong₂ _∘_ eqρ eqρ' ∙ ⌜⊙⌝ ρ ρ') i₁ ])) (cong₂ _∘_ eqρ eqρ' ∙ ⌜⊙⌝ ρ ρ') ((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x))
+       i
+evalSub (η∅ σ i) =
+  let ρ , eqρ = evalSub σ
+  in η∅ᴿ ρ i ,
+     isProp→PathP {B = λ j → η∅ σ j ≡ ⌜ η∅ᴿ ρ j ⌝ᴿ}
+      (λ j → UIP {x = η∅ σ j} {⌜ η∅ᴿ ρ j ⌝ᴿ})
+      eqρ
+      (λ _ → ∅S)
+      i
+evalSub {Γ = Γ} (ηπ {Δ = Δ} {A = A} σ i) =
+  let ρ , eqρ = evalSub σ
+      (ρ' , x' , p' , eqρ') = η,ᴿ ρ
+  in (eqρ' ∙ cong,∶[]ᴿ {p' = (λ i₁ → tyOf ((cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (~ i₁))) ∙ tyOfπ₂ σ ∙ (λ i₁ → A [ (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) i₁ ])} refl refl) i ,
+     isProp→PathP {B = λ j →  ηπ σ j ≡ ⌜ (eqρ' ∙ cong,∶[]ᴿ {p' = (λ i₁ → tyOf ((cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (~ i₁))) ∙ tyOfπ₂ σ ∙ (λ i₁ → A [ (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) i₁ ])} refl refl) j ⌝ᴿ}
+      (λ j → UIP {x = ηπ σ j} {⌜ (eqρ' ∙ cong,∶[]ᴿ {p' = (λ i₁ → tyOf ((cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (~ i₁))) ∙ tyOfπ₂ σ ∙ (λ i₁ → A [ (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) i₁ ])} refl refl) j ⌝ᴿ})
+      eqρ
+      (cong,∶[] (tyOfπ₂ σ) ((λ i₁ → tyOf ((cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (~ i₁))) ∙ tyOfπ₂ σ ∙ (λ i₁ → A [ (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) i₁ ])) (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _))
+      i
 
-evalTm (t [ σ ]) with evalTm t | evalSub σ
-... | x , eqx | ρ , eqρ = lookupVar ρ x , (λ i → eqx i [ eqρ i ]) ∙ ⌜lookupVar⌝ ρ x
-evalTm (π₂ σ) with evalSub σ
-... | (ρ , x ∶[ p ]) , eqρ = x , cong π₂ eqρ ∙ ⟨βπ₂⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _
-evalTm (βπ₂ σ t p q i) with evalSub σ | evalTm t
-... | ρ , eqρ | x , eqx = x ,
+evalTm (t [ σ ]) =
+ let ρ , eqρ = evalSub σ
+     x , eqx = evalTm t
+ in lookupVar ρ x , (λ i → eqx i [ eqρ i ]) ∙ ⌜lookupVar⌝ ρ x
+evalTm (π₂ σ) =
+ let ρ , eqρ = evalSub σ
+     (ρ' , x' , p' , eqρ') = η,ᴿ ρ
+ in x' , cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _
+evalTm (βπ₂ {A = A} σ t p q i) =
+  let ρ , eqρ = evalSub σ
+      x , eqx = evalTm t
+  in x ,
   isProp→PathP {B = λ j → βπ₂ σ t p q j ≡ ⌜ x ⌝ⱽ}
     (λ j → UIP {x = βπ₂ σ t p q j} {⌜ x ⌝ⱽ})
-    (cong π₂ (cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (_ [_]) eqρ) eqρ eqx) ∙ ⟨βπ₂⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ _)
+    (cong π₂ (cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ) eqρ eqx ∙ cong ⌜_⌝ᴿ refl) ∙ ⟨βπ₂⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ))
      eqx
      i
-evalTm ([idS]t t i) with evalTm t
-... | x , eqx = lookupVar-idR x (~ i) ,
+evalTm ([idS]t t i) =
+  let x , eqx = evalTm t
+  in lookupVar-idR x (~ i) ,
   isProp→PathP {B = λ j → [idS]t t j ≡ ⌜ lookupVar-idR x (~ j) ⌝ⱽ}
     (λ j → UIP {x = [idS]t t j} {⌜ lookupVar-idR x (~ j) ⌝ⱽ})
      eqx
     ((λ i → eqx i [ ⌜idR⌝ i ]) ∙ ⌜lookupVar⌝ idR x)
      i
-evalTm ([∘]t t σ τ i) with evalTm t | evalSub σ | evalSub τ
-... | x , eqx | ρ , eqρ | ρ' , eqρ' = lookupVar⊙ ρ' ρ x i ,
-  isProp→PathP {B = λ j → [∘]t t σ τ j ≡ ⌜ lookupVar⊙ ρ' ρ x j ⌝ⱽ}
-    (λ j → UIP {x = [∘]t t σ τ j} {⌜ lookupVar⊙ ρ' ρ x j ⌝ⱽ})
-    ((λ i → ((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x) i [ eqρ i ]) ∙ ⌜lookupVar⌝ ρ (lookupVar ρ' x))
-    ((λ i → eqx i [ (cong₂ _∘_ eqρ' eqρ ∙ ⌜⊙⌝ ρ' ρ) i ]) ∙ ⌜lookupVar⌝ (ρ' ⊙ ρ) x)
-     i
+evalTm ([∘]t t σ τ i) =
+  let x , eqx = evalTm t
+      ρ , eqρ = evalSub σ
+      ρ' , eqρ' = evalSub τ
+  in lookupVar⊙ ρ' ρ x i ,
+     isProp→PathP {B = λ j → [∘]t t σ τ j ≡ ⌜ lookupVar⊙ ρ' ρ x j ⌝ⱽ}
+      (λ j → UIP {x = [∘]t t σ τ j} {⌜ lookupVar⊙ ρ' ρ x j ⌝ⱽ})
+      ((λ i → ((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x) i [ eqρ i ]) ∙ ⌜lookupVar⌝ ρ (lookupVar ρ' x))
+      ((λ i → eqx i [ (cong₂ _∘_ eqρ' eqρ ∙ ⌜⊙⌝ ρ' ρ) i ]) ∙ ⌜lookupVar⌝ (ρ' ⊙ ρ) x)
+      i
 
 -- Reify variables and renamings to neutral forms and normal forms
 ⇓ⱽ : (`σ : NeSub Γ Δ) → Var Δ → NeTm Γ
@@ -277,7 +331,7 @@ evalTm ([∘]t t σ τ i) with evalTm t | evalSub σ | evalSub τ
 ⌜⇓ᴿ⌝ ∅ = refl
 ⌜⇓ᴿ⌝ (_,_∶[_] {A = A} ρ x p) =
   ⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]
-    ≡⟨ cong,∶[] {!!} {!!} (⌜⇓ᴿ⌝ ρ) (sym (⌜⇓ⱽid⌝ x)) ⟩
+    ≡⟨ cong,∶[] p _ (⌜⇓ᴿ⌝ ρ) (sym (⌜⇓ⱽid⌝ x)) ⟩
   ⌜ ⇓ᴿ ρ ⌝subⁿᶠ , ⌜ ⇓ⱽ `idS x ⌝tm ∶[ cong tyOf (⌜⇓ⱽid⌝ x) ∙ p ∙ cong (A [_]) (⌜⇓ᴿ⌝ ρ) ]
     ∎
 
