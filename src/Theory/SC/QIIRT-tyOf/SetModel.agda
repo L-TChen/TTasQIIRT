@@ -1,8 +1,3 @@
--- Type theory as a quotient inductive-inductive-recursive type,
--- inspired by the formualtion of natural models whereas the recursion
--- part is impredicative.
-
-
 -- [TODO] Use the identity type to define the interface instead.
 
 open import Prelude
@@ -76,7 +71,7 @@ module _ (UU : Set) where
   ⟦ [idS]t t i   ⟧t γ = ⟦ t ⟧t γ
   ⟦ [∘]t t σ τ i ⟧t γ = ⟦ t ⟧t (⟦ τ ⟧S (⟦ σ ⟧S γ))
 
-open import Theory.SC.QIIRT-tyOf.Rec
+open import Theory.SC.QIIRT-tyOf.Model
 
 stdModelᵃ : Motive _ _ _ _
 stdModelᵃ = record
