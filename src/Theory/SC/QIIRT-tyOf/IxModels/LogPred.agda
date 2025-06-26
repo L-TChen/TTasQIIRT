@@ -1,8 +1,8 @@
-module Theory.SC.QIIRT-tyOf.LogPred where
+module Theory.SC.QIIRT-tyOf.IxModels.LogPred where
 
 open import Prelude
 open import Theory.SC.QIIRT-tyOf.Syntax
-
+open import Theory.SC.QIIRT-tyOf.IxModel
 
 record Ctxᴾ (Γ : Ctx) : Set where
   field
@@ -10,7 +10,7 @@ record Ctxᴾ (Γ : Ctx) : Set where
     wkᴾ  : Sub ctxᴾ Γ
 open Ctxᴾ
 
-Tyᴾ : Ctxᴾ Γ → Ty Γ → Set
+Tyᴾ : Ctxᴾ Γ → Ty Γ →  Set
 Tyᴾ Γᴾ A = Ty (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ])
 
 record Subᴾ (Γᴾ : Ctxᴾ Γ)(Δᴾ : Ctxᴾ Δ)(σ : Sub Γ Δ) : Set where
@@ -22,31 +22,48 @@ open Subᴾ
 Tmᴾ : (Γᴾ : Ctxᴾ Γ) → (t : Tm Γ) → Set
 Tmᴾ Γᴾ t = Σ[ t' ∈ Tm (ctxᴾ Γᴾ) ] tyOf t' ≡ tyOf t [ wkᴾ Γᴾ ]
 
-_,ᴾ_ : (Γᴾ : Ctxᴾ Γ)(Aᴾ : Tyᴾ Γᴾ A) → Ctxᴾ (Γ , A)
-_,ᴾ_ {A = A} Γᴾ Aᴾ = record
+LogPredᵃ : Motive _ _ _ _
+LogPredᵃ = record
+  { Ctxᴬ  = Ctxᴾ
+  ; Tyᴬ   = Tyᴾ
+  ; Subᴬ  = Subᴾ
+  ; Tmᴬ   = Tmᴾ
+  ; tyOfᴬ = {!!}
+  }
+
+open SCᴹ
+
+LogPredᵐ : SCᴹ LogPredᵃ
+LogPredᵐ .∅ᴹ                 = record { ctxᴾ = ∅ ; wkᴾ = ∅ }
+LogPredᵐ ._,ᴹ_ {A = A} Γᴾ Aᴾ = record
   { ctxᴾ = (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ]) , Aᴾ
   ; wkᴾ  = (wkᴾ Γᴾ ↑ A) ∘ π₁ idS
   }
-
-_[_]ᴾ : {Γᴾ : Ctxᴾ Γ}{Δᴾ : Ctxᴾ Δ}
-      → Tyᴾ Δᴾ A → Subᴾ Γᴾ Δᴾ σ → Tyᴾ Γᴾ (A [ σ ])
-_[_]ᴾ {A = A} {σ = σ} {Γᴾ = Γᴾ} {Δᴾ = Δᴾ} Aᴾ σᴾ =
+LogPredᵐ ._[_]Tᴹ {Δ} {Δᴾ} {A} {Γ} {Γᴾ} {σ} Aᴾ σᴾ = 
   Aᴾ [ transport (λ i → Sub (ctxᴾ Γᴾ , p i) (ctxᴾ Δᴾ , (A [ wkᴾ Δᴾ ]))) (subᴾ σᴾ ↑ (A [ wkᴾ Δᴾ ])) ]
   where
     p : _≡_ {A = Ty (ctxᴾ Γᴾ)} (A [ wkᴾ Δᴾ ] [ subᴾ σᴾ ]) (A [ σ ] [ wkᴾ Γᴾ ])
     p = [∘]T A (subᴾ σᴾ) (wkᴾ Δᴾ)
       ∙ cong (A [_]) (wkᴾnat σᴾ)
       ∙ sym ([∘]T A (wkᴾ Γᴾ) σ)
-
-_[_]tᴾ : {Γᴾ : Ctxᴾ Γ}{Δᴾ : Ctxᴾ Δ}
-       → Tmᴾ Δᴾ t → Subᴾ Γᴾ Δᴾ σ → Tmᴾ Γᴾ (t [ σ ])
-_[_]tᴾ {t = t} {Γᴾ = Γᴾ} {Δᴾ = Δᴾ} tᴾ σᴾ = 
-  t [ wkᴾ Δᴾ ] [ subᴾ σᴾ ] , [∘]T _ _ _ ∙ cong (tyOf t [_]) (wkᴾnat σᴾ) ∙ sym ([∘]T _ _ _)
-
-π₁ᴾ : {Γᴾ : Ctxᴾ Γ}{Δᴾ : Ctxᴾ Δ}{Aᴾ : Tyᴾ Δᴾ A} 
-    → Subᴾ Γᴾ (Δᴾ ,ᴾ Aᴾ) σ
-    → Subᴾ Γᴾ Δᴾ (π₁ σ)
-π₁ᴾ {A = A} {σ = σ} {Γᴾ = Γᴾ} {Δᴾ} {Aᴾ} σᴾ = record
+LogPredᵐ ._[_]tᴹ {Δ} {Δᴾ} {t} {Γ} {Γᴾ} {σ} tᴾ σᴾ =
+  t [ wkᴾ Δᴾ ] [ subᴾ σᴾ ] , [∘]T _ _ _ ∙ (λ i → tyOf t [ wkᴾnat σᴾ i ]) ∙ sym ([∘]T _ _ _)
+LogPredᵐ .[idS]Tᴹ    = {!!}
+LogPredᵐ .tyOf[]ᴹ    = {!!}
+LogPredᵐ .∅Sᴹ        = record
+  { subᴾ   = ∅
+  ; wkᴾnat = η∅ _ ∙ sym (η∅ _)
+  }
+LogPredᵐ ._,ᴹ_∶[_,_] = {!!}
+LogPredᵐ .idSᴹ       = record
+  { subᴾ   = idS
+  ; wkᴾnat = (_ ∘idS) ∙ sym (idS∘ _)
+  }
+LogPredᵐ ._∘ᴹ_ {τ = τ} σᴾ τᴾ = record
+  { subᴾ   = subᴾ σᴾ ∘ subᴾ τᴾ
+  ; wkᴾnat = sym (assocS _ _ _) ∙ cong (_∘ subᴾ τᴾ) (wkᴾnat σᴾ)
+    ∙ assocS _ _ _ ∙ cong (τ ∘_) (wkᴾnat τᴾ) ∙ sym (assocS _ _ _)  }
+LogPredᵐ .π₁ᴹ {Γ} {Γᴾ} {Δ} {Δᴾ} {A} {Aᴾ} {σ} σᴾ = record
   { subᴾ = π₁ (π₁ (subᴾ σᴾ))
   ; wkᴾnat =
       wkᴾ Δᴾ ∘ π₁ (π₁ (subᴾ σᴾ))
@@ -73,11 +90,7 @@ _[_]tᴾ {t = t} {Γᴾ = Γᴾ} {Δᴾ = Δᴾ} tᴾ σᴾ =
       π₁ σ ∘ wkᴾ Γᴾ
         ∎
   }
-
-π₂ᴾ : {Γᴾ : Ctxᴾ Γ}{Δᴾ : Ctxᴾ Δ}{Aᴾ : Tyᴾ Δᴾ A} 
-    → Subᴾ Γᴾ (Δᴾ ,ᴾ Aᴾ) σ
-    → Tmᴾ Γᴾ (π₂ σ)
-π₂ᴾ {A = A} {σ} {Γᴾ = Γᴾ} {Δᴾ} {Aᴾ} σᴾ =
+LogPredᵐ .π₂ᴹ {Γ} {Γᴾ} {Δ} {Δᴾ} {A} {Aᴾ} {σ} σᴾ =
   π₂ (π₁ (subᴾ σᴾ)) , [∘]T _ _ _ ∙ cong (A [_]) p ∙ sym ([∘]T _ _ _)
   where
     p : wkᴾ Δᴾ ∘ π₁ (π₁ (subᴾ σᴾ)) ≡ π₁ σ ∘ wkᴾ Γᴾ
@@ -105,44 +118,17 @@ _[_]tᴾ {t = t} {Γᴾ = Γᴾ} {Δᴾ = Δᴾ} tᴾ σᴾ =
         ≡⟨ π₁∘ σ (wkᴾ Γᴾ) ⟩
       π₁ σ ∘ wkᴾ Γᴾ
         ∎
-
-⟦_⟧c : (Γ : Ctx) → Ctxᴾ Γ
-⟦_⟧ty : (A : Ty Γ) → Tyᴾ ⟦ Γ ⟧c A
-⟦_⟧s : (σ : Sub Γ Δ) → Subᴾ ⟦ Γ ⟧c ⟦ Δ ⟧c σ
-⟦_⟧tm : (t : Tm Γ) → Tmᴾ ⟦ Γ ⟧c t
-
-⟦ ∅ ⟧c = record { ctxᴾ = ∅ ; wkᴾ = ∅S }
-⟦ Γ , A ⟧c = ⟦ Γ ⟧c ,ᴾ ⟦ A ⟧ty
-⟦ _[_] {Δ} {Γ} A σ ⟧ty = ⟦ A ⟧ty [ ⟦ σ ⟧s ]ᴾ
-⟦ [idS]T i ⟧ty = {!   !}
-⟦ [∘]T A σ τ i ⟧ty = {!   !}
-⟦ U ⟧ty = U
-⟦ U[] {Γ} {Δ} {σ = σ} i ⟧ty = {!   !}
-⟦ Ty-is-set A A₁ x y i i₁ ⟧ty = {!   !}
-⟦ ∅S ⟧s = record
-  { subᴾ = ∅S
-  ; wkᴾnat = η∅ (∅S ∘ ∅S) ∙ sym (η∅ _)
-  }
-⟦ _,_∶[_] {A = A} σ t p ⟧s = {!   !}
-⟦ idS ⟧s = record
-  { subᴾ = idS
-  ; wkᴾnat = (_ ∘idS) ∙ sym (idS∘ _)
-  }
-⟦ σ ∘ τ ⟧s = record
-  { subᴾ = subᴾ ⟦ σ ⟧s ∘ subᴾ ⟦ τ ⟧s
-  ; wkᴾnat = sym (assocS _ _ _) ∙ cong (_∘ subᴾ ⟦ τ ⟧s) (wkᴾnat ⟦ σ ⟧s)
-           ∙ assocS _ _ _ ∙ cong (σ ∘_) (wkᴾnat ⟦ τ ⟧s) ∙ sym (assocS _ _ _)
-  }
-⟦ π₁ {Γ} {Δ} {A} σ ⟧s = π₁ᴾ ⟦ σ ⟧s
-⟦ βπ₁ σ t p i ⟧s = {!   !}
-⟦ (idS∘ σ) i ⟧s = {!   !}
-⟦ (σ ∘idS) i ⟧s = {!   !}
-⟦ assocS σ σ₁ σ₂ i ⟧s = {!   !}
-⟦ ,∘ σ t σ₁ p q i ⟧s = {!   !}
-⟦ η∅ σ i ⟧s = {!   !}
-⟦ ηπ σ i ⟧s = {!   !}
-⟦ _[_] {Δ} {Γ} t σ ⟧tm = _[_]tᴾ {t = t} ⟦ t ⟧tm ⟦ σ ⟧s
-⟦ π₂ σ ⟧tm = π₂ᴾ ⟦ σ ⟧s
-⟦ βπ₂ σ t p q i ⟧tm = {!   !}
-⟦ [idS]t t i ⟧tm = {!   !}
-⟦ [∘]t t σ τ i ⟧tm = {!   !}
+LogPredᵐ .Uᴹ = U
+LogPredᵐ .tyOfπ₂ᴹ = {!!}
+LogPredᵐ .idS∘ᴹ_ σᴹ = {!!}
+LogPredᵐ ._∘idSᴹ σᴹ = {!!}
+LogPredᵐ .assocSᴹ σᴹ τᴹ γᴹ = {!!}
+LogPredᵐ .,∘ᴹ σᴹ tᴹ τᴹ p₁ pᴹ q qᴹ = {!!}
+LogPredᵐ .ηπᴹ σᴹ = {!!}
+LogPredᵐ .η∅ᴹ σᴹ = {!!}
+LogPredᵐ .βπ₁ᴹ σᴹ tᴹ p₁ pᴹ = {!!}
+LogPredᵐ .βπ₂ᴹ σᴹ tᴹ p₁ pᴹ q qᴹ = {!!}
+LogPredᵐ .[∘]Tᴹ Aᴹ σᴹ τᴹ = {!!}
+LogPredᵐ .[idS]tᴹ tᴹ = {!!}
+LogPredᵐ .[∘]tᴹ tᴹ σᴹ τᴹ = {!!}
+LogPredᵐ .U[]ᴹ = {!!}

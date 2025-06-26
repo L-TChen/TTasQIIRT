@@ -2,15 +2,15 @@
 
 open import Prelude
 
-module Theory.SC.QIIRT-tyOf.SetModel where
+module Theory.SC.QIIRT-tyOf.Models.Set where
 
 open import Theory.SC.QIIRT-tyOf.Syntax
 
 postulate
  UIP : ∀ {ℓ} → {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
 
-transportRefl' : {A : Set} (k : I) → (x : A) → transp (λ i → A) k x ≡ x
-transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
+-- transportRefl' : {A : Set} (k : I) → (x : A) → transp (λ i → A) k x ≡ x
+-- transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 
 module _ (UU : Set) where
   ⟦_⟧C : Ctx → Set
@@ -99,7 +99,7 @@ module _ (UU : Set) where
   stdModelᵐ ._∘ᴹ_     τ σ γ = τ (σ γ)
   stdModelᵐ .π₁ᴹ      σ γ = σ γ .fst
   stdModelᵐ .π₂ᴹ {Γ} {Δ} {A} σ = (λ γ → A (σ γ .fst)) , λ γ → σ γ .snd
-  stdModelᵐ .tyOfπ₂ᴹ  _ _   = refl
+  stdModelᵐ .tyOfπ₂ᴹ  _     = refl
   stdModelᵐ .idS∘ᴹ_   _     = refl
   stdModelᵐ ._∘idSᴹ   _     = refl
   stdModelᵐ .assocSᴹ  _ _ _ = refl

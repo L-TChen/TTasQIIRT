@@ -134,7 +134,7 @@ module Foo where
       Ty-is-set : isSet (Ty Γ)
 
     data Sub where
-      ∅S'
+      ∅'
         : Sub Γ ∅
       _,_∶[_]'
         : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ A [ σ ]T
@@ -191,7 +191,7 @@ module Foo where
     _[_]t   = _[_]
     U       = U'
     U[]     = U[]'
-    ∅S      = ∅S'
+    ∅S      = ∅'
     _,_∶[_] = _,_∶[_]'
     idS     = idS'
     _∘_     = _∘'_
@@ -269,7 +269,6 @@ open Foo public
   ; _,'_ to _,_
   ; U' to U
   ; U[]' to U[]
-  ; ∅S' to ∅S
   ; _,_∶[_]' to _,_∶[_]
   ; idS' to idS
   ; _∘'_ to _∘_
