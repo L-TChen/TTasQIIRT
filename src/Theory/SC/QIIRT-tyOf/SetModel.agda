@@ -105,18 +105,18 @@ module _ (UU : Set) where
   stdModelᵐ .assocSᴹ  _ _ _ = refl
   stdModelᵐ .[idS]Tᴹ        = refl
   stdModelᵐ .[∘]Tᴹ    _ _ _ = refl
-  stdModelᵐ .,∘ᴹ {Δ} {Θ} {Γ} {A} σ (B , t) τ p i γ =
-    σ (τ γ) , {!!} -- foo γ (~ i) -- [TODO] Why does it trigger termination checker? 
-    where
-    foo : (γ : Γ) →
-      transport (λ _ → A (σ (τ γ))) _ ≡ transport (λ j → p j (τ γ)) (t (τ γ))
-    foo γ =
-      transportRefl _  ∙ transportRefl _ ∙ transportRefl _ ∙ 
-       (λ i → transport (λ j → p j (τ γ)) (transportRefl (transport (λ _ → B (τ γ)) (transport (λ _ → B (τ γ)) (t (τ γ)))) i)) ∙
-       (λ i → transport (λ j → p j (τ γ)) (transportRefl (transport (λ _ → B (τ γ)) (t (τ γ))) i)) ∙
-        (λ i → transport (λ j → p j (τ γ)) (transportRefl (t (τ γ)) i))
---    σ (τ γ) , transport (UIP (λ j → p j (τ γ)) (λ j → q j γ) i) (t (τ γ))
--- stdModelᵐ .,∘ᴹ {Δ} {Θ} {Γ} {A} σ (B , t) τ p i γ = σ (τ γ) , foo (~ i)
+  stdModelᵐ .,∘ᴹ {Δ} {Θ} {Γ} {A} σ (B , t) τ p q i γ =
+    σ (τ γ) , transport (UIP (λ j → p j (τ γ)) (λ j → q j γ) i) (t (τ γ))
+-- The following is ideal, but it does not work well with Agda's termination checker.
+--    σ (τ γ) , foo γ (~ i) -- [TODO] Why does it trigger the termination checker? 
+--    where
+--    foo : (γ : Γ) →
+--      transport (λ _ → A (σ (τ γ))) _ ≡ transport (λ j → p j (τ γ)) (t (τ γ))
+--    foo γ =
+--      transportRefl _  ∙ transportRefl _ ∙ transportRefl _ ∙ 
+--       (λ i → transport (λ j → p j (τ γ)) (transportRefl (transport (λ _ → B (τ γ)) (transport (λ _ → B (τ γ)) (t (τ γ)))) i)) ∙
+--       (λ i → transport (λ j → p j (τ γ)) (transportRefl (transport (λ _ → B (τ γ)) (t (τ γ))) i)) ∙
+--        (λ i → transport (λ j → p j (τ γ)) (transportRefl (t (τ γ)) i))
 
   stdModelᵐ .ηπᴹ  {Γ} {Δ} {A} σ i =
     λ γ → σ γ .fst , transport-filler (λ j → A (σ γ .fst)) (σ γ .snd) i

@@ -62,17 +62,22 @@ recSub (,∘ {A = A} τ t σ p q i) = foo i
       ≡ (recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ recTyOf (t [ σ ]) q ]
     foo =
       (recSub τ ,ᴹ recTm t ∶[ recTyOf t p ]) ∘ᴹ recSub σ
-        ≡⟨ ,∘ᴹ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) ⟩
-      (recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ _ ]
-       ≡[ i ]⟨ ((recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ Tyᴬ-is-set _ _ (step-≡ (tyOfᴬ (recTm t [ recSub σ ]tᴹ))
-                                                           (≡⟨⟩-syntax (tyOfᴬ (recTm t) [ recSub σ ]Tᴹ)
-                                                            (step-≡ ((recTy A [ recSub τ ]Tᴹ) [ recSub σ ]Tᴹ)
-                                                             ((recTy A [ recSub τ ∘ᴹ recSub σ ]Tᴹ) ∎)
-                                                             ([∘]Tᴹ (recTy A) (recSub σ) (recSub τ)))
-                                                            (λ i₁ → recTyOf t p i₁ [ recSub σ ]Tᴹ))
-                                                           tyOf[]ᴹ) (recTyOf (t [ σ ]) q) i ]) ⟩
+        ≡⟨ ,∘ᴹ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) (recTyOf (t [ σ ]) q) ⟩
       (recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ recTyOf (t [ σ ]) q ]
         ∎
+-- Liang-Ting (2025-06-26): The following fails to pass the termination checker in SetModel.agda
+--      (recSub τ ,ᴹ recTm t ∶[ recTyOf t p ]) ∘ᴹ recSub σ
+--        ≡⟨ ,∘ᴹ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) ⟩
+--      (recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ _ ]
+--       ≡[ i ]⟨ ((recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ Tyᴬ-is-set _ _ (step-≡ (tyOfᴬ (recTm t [ recSub σ ]tᴹ))
+--                                                           (≡⟨⟩-syntax (tyOfᴬ (recTm t) [ recSub σ ]Tᴹ)
+--                                                            (step-≡ ((recTy A [ recSub τ ]Tᴹ) [ recSub σ ]Tᴹ)
+--                                                             ((recTy A [ recSub τ ∘ᴹ recSub σ ]Tᴹ) ∎)
+--                                                             ([∘]Tᴹ (recTy A) (recSub σ) (recSub τ)))
+--                                                            (λ i₁ → recTyOf t p i₁ [ recSub σ ]Tᴹ))
+--                                                           tyOf[]ᴹ) (recTyOf (t [ σ ]) q) i ]) ⟩
+--      (recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ recTyOf (t [ σ ]) q ]
+--        ∎
 
 recSub⟨π₁,⟩≡π₁ᴹ,ᴹ _ _ _ = refl
 
