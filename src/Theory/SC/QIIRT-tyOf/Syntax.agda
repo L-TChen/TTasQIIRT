@@ -44,7 +44,6 @@ module Foo where
     ∅S
       : Sub Γ ∅
     _,_∶[_]
-
       : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ A [ σ ]T
       → Sub Γ (Δ , A)
     idS
@@ -116,8 +115,10 @@ module Foo where
 
     -- the following are the actual constructors in Agda
     data Ctx where
-      ∅' : Ctx 
-      _,'_ : (Γ : Ctx) (A : Ty Γ) → Ctx
+      ∅'
+        : Ctx 
+      _,'_
+        : (Γ : Ctx) (A : Ty Γ) → Ctx
       
     data Ty where
       _[_] : (A : Ty Δ) (σ : Sub Γ Δ)
@@ -168,6 +169,9 @@ module Foo where
       ηπ'
         : (σ : Sub Γ (Δ , A))
         → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
+      Sub-is-set
+        : isSet (Sub Γ Δ)
+
     data Tm where
       _[_] : (A : Tm Δ)(σ : Sub Γ Δ)
         → Tm Γ
