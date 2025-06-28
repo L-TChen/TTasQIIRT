@@ -70,8 +70,11 @@ cong,∶[] {Aᴹ = Aᴹ} p p' eqσ eqt =
 よᵐ .SCᴹ.[idS]Tᴹ = [idS]Tᴹ
 よᵐ .SCᴹ.[∘]Tᴹ A (σ , pσ) (τ , pτ) = [∘]Tᴹ A (σ idSᴹ) (τ idSᴹ) ∙ cong (A [_]Tᴹ)
   (pτ (σ idSᴹ) idSᴹ ∙ cong τ (idS∘ᴹ (σ idSᴹ)))
-よᵐ .SCᴹ.,∘ᴹ (σ , pσ) t (τ , pτ) p q = {!!}
-よᵐ .SCᴹ.ηπᴹ (σ , pσ) i = (λ γ →  (ηπᴹ (σ γ) ∙ cong,∶[] (tyOfπ₂ᴹ (σ γ)) {!!} {!!} {!!}) i ) , λ τ δ → {!!}
+よᵐ .SCᴹ.,∘ᴹ (σ , pσ) t (τ , pτ) p q = ΣPathP
+  (implicitFunExt (λ {Δ} → funExt λ γ → cong,∶[] _ _ refl
+    (sym ([∘]tᴹ t γ (τ idSᴹ) ∙ cong (t [_]tᴹ) (pτ γ idSᴹ ∙ cong τ (idS∘ᴹ γ)))))
+    , {!!})
+よᵐ .SCᴹ.ηπᴹ (σ , pσ) = ΣPathP (implicitFunExt (λ {Δ} → funExt (λ γ → {!ηπᴹ ? !})) , {!!})
 よᵐ .SCᴹ.η∅ᴹ (σ , pσ) i = (λ γ → η∅ᴹ (σ γ) i) , λ τ δ → {!!}
 よᵐ .SCᴹ.βπ₁ᴹ {Aᴹ = Aᴹ} (σ , pσ) t p i = (λ γ → βπ₁ᴹ (σ γ) (t [ γ ]tᴹ) (tyOf[]ᴹ ∙ cong _[ γ ]Tᴹ p ∙ [∘]Tᴹ _ γ (σ idSᴹ) ∙ cong (_ [_]Tᴹ) (pσ γ idSᴹ ∙ cong σ (idS∘ᴹ γ))) i) ,
   λ τ δ → Subᴬ-is-set _ _ {!!} {!!} i   
