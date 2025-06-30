@@ -17,15 +17,24 @@ cong,∶[] {Aᴹ = Aᴹ} p p' eqσ eqt =
 
 --open Motive
 
+Subʸ : (Γ Δ : Ctxᴬ) → Set (ℓ-max ℓ₁ ℓ₃)
+Subʸ Γ Δ = Σ[ θ ∈ (∀ {Θ} → Subᴬ Θ Γ → Subᴬ Θ Δ) ]
+  ({Ξ Θ : Ctxᴬ} (τ : Subᴬ Ξ Θ) (δ : Subᴬ Θ Γ) → θ δ ∘ᴹ τ ≡ θ (δ ∘ᴹ τ))
+
+Subʸ-τidS∘ : ((τ , pτ) : Subʸ Γᴹ Δᴹ)
+  → (γᴹ : Subᴬ Ξᴹ Γᴹ)
+  → τ idSᴹ ∘ᴹ γᴹ ≡ τ γᴹ
+Subʸ-τidS∘ (τ , pτ) γᴹ = pτ γᴹ idSᴹ ∙ cong τ (idS∘ᴹ γᴹ)
+
 よᵃ : Motive _ _ _ _
 よᵃ .Motive.Ctxᴬ       = Ctxᴬ
 よᵃ .Motive.Tyᴬ        = Tyᴬ
-よᵃ .Motive.Subᴬ       = λ Γ Δ → Σ[ θ ∈ (∀ {Θ} → Subᴬ Θ Γ → Subᴬ Θ Δ) ]
-  ({Ξ Θ : Ctxᴬ} (τ : Subᴬ Ξ Θ) (δ : Subᴬ Θ Γ) → θ δ ∘ᴹ τ ≡ θ (δ ∘ᴹ τ))
+よᵃ .Motive.Subᴬ       = Subʸ
 よᵃ .Motive.Tmᴬ        = Tmᴬ
 よᵃ .Motive.tyOfᴬ      = tyOfᴬ
 よᵃ .Motive.Tyᴬ-is-set = Tyᴬ-is-set
 よᵃ .Motive.Subᴬ-is-set (σ , pσ) (τ , pτ) p q = {!!}
+
 
 -- open SCᴹ
 よᵐ : SCᴹ よᵃ
@@ -38,9 +47,9 @@ cong,∶[] {Aᴹ = Aᴹ} p p' eqσ eqt =
 よᵐ .SCᴹ._,ᴹ_∶[_] {Aᴹ = A} (σ , pσ) t p =
   (λ γ → σ γ ,ᴹ t [ γ ]tᴹ ∶[ tyOf[]ᴹ ∙ (λ i → p i [ γ ]Tᴹ) ∙ [∘]Tᴹ A γ (σ idSᴹ) ∙ (λ i → A [ (pσ γ idSᴹ ∙ cong σ (idS∘ᴹ γ)) i ]Tᴹ)  ])
   , λ τ δ →
-    let q = tyOf[]ᴹ ∙ cong _[ τ ]Tᴹ (tyOf[]ᴹ ∙ (λ i → p i [ δ ]Tᴹ) ∙ [∘]Tᴹ A δ (σ idSᴹ) ∙ cong (A [_]Tᴹ) (pσ δ idSᴹ ∙ cong σ (idS∘ᴹ δ))) ∙ [∘]Tᴹ A τ (σ δ) in 
+    let q = tyOf[]ᴹ ∙ cong _[ τ ]Tᴹ (tyOf[]ᴹ ∙ (λ i → p i [ δ ]Tᴹ) ∙ [∘]Tᴹ A δ (σ idSᴹ) ∙ cong (A [_]Tᴹ) (Subʸ-τidS∘ (σ , pσ) δ)) ∙ [∘]Tᴹ A τ (σ δ) in 
   ,∘ᴹ (σ δ) (t [ δ ]tᴹ) τ
-    (tyOf[]ᴹ ∙ (λ i → p i [ δ ]Tᴹ) ∙ [∘]Tᴹ A δ (σ idSᴹ) ∙ cong (A [_]Tᴹ) (pσ δ idSᴹ ∙ cong σ (idS∘ᴹ δ))) q
+    (tyOf[]ᴹ ∙ (λ i → p i [ δ ]Tᴹ) ∙ [∘]Tᴹ A δ (σ idSᴹ) ∙ cong (A [_]Tᴹ) (Subʸ-τidS∘ (σ , pσ) δ)) q
     ∙ cong,∶[] q (tyOf[]ᴹ ∙ cong _[ δ ∘ᴹ τ ]Tᴹ p ∙ [∘]Tᴹ A (δ ∘ᴹ τ) (σ idSᴹ) ∙ cong (A [_]Tᴹ) (pσ (δ ∘ᴹ τ) idSᴹ ∙ cong σ (idS∘ᴹ _)))
         (pσ τ δ) ([∘]tᴹ t τ δ)
 よᵐ .SCᴹ.idSᴹ        = (λ γ → γ) , λ τ δ → refl
@@ -68,16 +77,21 @@ cong,∶[] {Aᴹ = Aᴹ} p p' eqσ eqt =
                       (pτ τ' (σ δ) i₂))) i₁) (pθ τ' (τ (σ δ)) i₁))
     in Subᴬ-is-set _ _ p q i 
 よᵐ .SCᴹ.[idS]Tᴹ = [idS]Tᴹ
-よᵐ .SCᴹ.[∘]Tᴹ A (σ , pσ) (τ , pτ) = [∘]Tᴹ A (σ idSᴹ) (τ idSᴹ) ∙ cong (A [_]Tᴹ)
-  (pτ (σ idSᴹ) idSᴹ ∙ cong τ (idS∘ᴹ (σ idSᴹ)))
-よᵐ .SCᴹ.,∘ᴹ (σ , pσ) t (τ , pτ) p q = ΣPathP
+よᵐ .SCᴹ.[∘]Tᴹ A (σ , pσ) (τ , pτ) = [∘]Tᴹ A (σ idSᴹ) (τ idSᴹ) ∙ cong (A [_]Tᴹ) (Subʸ-τidS∘ (τ , pτ) (σ idSᴹ))
+よᵐ .SCᴹ.,∘ᴹ (σ , pσ) t (τ , pτ) p q = ΣPathP -- these coherence proofs should be eliminiated because of `Subᴬ-is-set`: A general lemma will be handy.
   (implicitFunExt (λ {Δ} → funExt λ γ → cong,∶[] _ _ refl
-    (sym ([∘]tᴹ t γ (τ idSᴹ) ∙ cong (t [_]tᴹ) (pτ γ idSᴹ ∙ cong τ (idS∘ᴹ γ)))))
+    (sym ([∘]tᴹ t γ (τ idSᴹ) ∙ cong (t [_]tᴹ) (Subʸ-τidS∘ (τ , pτ) γ))))
     , {!!})
-よᵐ .SCᴹ.ηπᴹ (σ , pσ) = ΣPathP (implicitFunExt (λ {Δ} → funExt (λ γ → ηπᴹ (σ γ)  ∙ cong,∶[] (tyOfπ₂ᴹ (σ γ)) _ refl {!!} )) , {!!})
-よᵐ .SCᴹ.η∅ᴹ (σ , pσ) i = (λ γ → η∅ᴹ (σ γ) i) , λ τ δ → {!!}
-よᵐ .SCᴹ.βπ₁ᴹ {Aᴹ = Aᴹ} (σ , pσ) t p i = (λ γ → βπ₁ᴹ (σ γ) (t [ γ ]tᴹ) (tyOf[]ᴹ ∙ cong _[ γ ]Tᴹ p ∙ [∘]Tᴹ _ γ (σ idSᴹ) ∙ cong (_ [_]Tᴹ) (pσ γ idSᴹ ∙ cong σ (idS∘ᴹ γ))) i) ,
-  λ τ δ → Subᴬ-is-set _ _ {!!} {!!} i   
+よᵐ .SCᴹ.ηπᴹ (σ , pσ) = ΣPathP
+  (implicitFunExt (λ {Δ} →
+    funExt (λ γ → ηπᴹ (σ γ)  ∙ cong,∶[] (tyOfπ₂ᴹ (σ γ)) _ refl
+      (cong π₂ᴹ (sym (Subʸ-τidS∘ (σ , pσ) γ)) ∙ π₂∘ᴹ (σ idSᴹ) γ)))
+  , {!!})
+よᵐ .SCᴹ.η∅ᴹ (σ , pσ) i = (λ γ → η∅ᴹ (σ γ) i) ,
+  λ τ δ → {!!}
+よᵐ .SCᴹ.βπ₁ᴹ {Aᴹ = Aᴹ} (σ , pσ) t p i = (λ γ → βπ₁ᴹ (σ γ) (t [ γ ]tᴹ)
+  (tyOf[]ᴹ ∙ cong _[ γ ]Tᴹ p ∙ [∘]Tᴹ _ γ (σ idSᴹ) ∙ cong (_ [_]Tᴹ) (pσ γ idSᴹ ∙ cong σ (idS∘ᴹ γ))) i) ,
+  λ τ δ → {!!}
 よᵐ .SCᴹ.βπ₂ᴹ (σ , pσ) t p = βπ₂ᴹ (σ idSᴹ) _ _ ∙ sym ([idS]tᴹ t)
 よᵐ .SCᴹ.[idS]tᴹ t = [idS]tᴹ t
 よᵐ .SCᴹ.[∘]tᴹ   t (σ , _) (τ , pτ) = [∘]tᴹ t (σ idSᴹ) (τ idSᴹ) ∙ cong (t [_]tᴹ) (pτ (σ idSᴹ) idSᴹ ∙ cong τ (idS∘ᴹ _))
