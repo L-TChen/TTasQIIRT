@@ -13,6 +13,7 @@ Termᵃ = record
   ; Tmᴬ        = Tm
   ; tyOfᴬ      = tyOf
   ; Tyᴬ-is-set = Ty-is-set
+  ; Subᴬ-is-set = Sub-is-set
   }
 
 Termᵐ : SCᴹ Termᵃ
@@ -22,7 +23,7 @@ Termᵐ = record
   ; _[_]Tᴹ   = _[_]
   ; _[_]tᴹ   = _[_]
   ; tyOf[]ᴹ  = refl
-  ; ∅Sᴹ      = ∅S
+  ; ∅Sᴹ      = ∅
   ; _,ᴹ_∶[_] = _,_∶[_]
   ; idSᴹ     = idS
   ; _∘ᴹ_     = _∘_
