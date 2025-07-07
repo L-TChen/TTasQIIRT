@@ -28,7 +28,7 @@ data NeSub (Γ : Ctx) : Ctx → Set where
   `π₁ : NeSub Γ (Δ , A) → NeSub Γ Δ
 
 ⌜_⌝subⁿᵉ : NeSub Γ Δ → Sub Γ Δ
-⌜ `∅S ⌝subⁿᵉ = ∅S
+⌜ `∅S ⌝subⁿᵉ = ∅
 ⌜ `idS ⌝subⁿᵉ = idS
 ⌜ `π₁ σ ⌝subⁿᵉ = π₁ ⌜ σ ⌝subⁿᵉ
 
@@ -81,7 +81,7 @@ cong,∶[]ᴿ
   → (ρ , x ∶[ p ]) ≡ (ρ' , x' ∶[ p' ])
 cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i = ρ≡ρ' i , x≡x' i ∶[ isSet→SquareP (λ _ _ → Ty-is-set) p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]) i ]
 
-⌜ ∅ ⌝ᴿ = ∅S
+⌜ ∅ ⌝ᴿ = ∅
 ⌜ ρ , x ∶[ p ] ⌝ᴿ = ⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]
 
 η∅ᴿ : (ρ : Ren Γ ∅) → ρ ≡ ∅
@@ -192,7 +192,7 @@ _⊙idR : (ρ : Ren Γ Δ) → ρ ⊙ idR ≡ ρ
 evalSub : (σ : Sub Γ Δ) → Σ[ ρ ∈ Ren Γ Δ ] σ ≡ ⌜ ρ ⌝ᴿ
 evalTm : (t : Tm Γ) → Σ[ x ∈ Var Γ ] t ≡ ⌜ x ⌝ⱽ
 
-evalSub ∅S = ∅ , refl
+evalSub ∅ = ∅ , refl
 evalSub (_,_∶[_] {A = A} σ t p) =
  let ρ , eqρ = evalSub σ
      x , eqx = evalTm t
@@ -263,7 +263,7 @@ evalSub (η∅ σ i) =
      isProp→PathP {B = λ j → η∅ σ j ≡ ⌜ η∅ᴿ ρ j ⌝ᴿ}
       (λ j → UIP {x = η∅ σ j} {⌜ η∅ᴿ ρ j ⌝ᴿ})
       eqρ
-      (λ _ → ∅S)
+      (λ _ → ∅)
       i
 evalSub {Γ = Γ} (ηπ {Δ = Δ} {A = A} σ i) =
   let ρ , eqρ = evalSub σ
