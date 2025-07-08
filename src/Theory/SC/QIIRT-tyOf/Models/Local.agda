@@ -41,10 +41,6 @@ Ty³-is-set {Γᴹ} A³ A'³ p q i j = record
                          refl refl (cong ⌜_⌝ p) (cong ⌜_⌝ q) j i
   }
 
--- data Ty! (Γᴹ : Ctxᴬ) : Set ℓ₂ where
---   ty! : Ty³ Γᴹ → Ty! Γᴹ
---   []³≡ : {A³ A'³ : Ty³ Γᴹ} → [ A³ ]³ ≡ [ A'³ ]³ → ty! A³ ≡ ty! A'³
-
 _≡³_ : Ty³ Γᴹ → Ty³ Γᴹ → Set ℓ₂
 A³ ≡³ A'³ = [ A³ ]³ ≡ [ A'³ ]³
 
@@ -77,20 +73,15 @@ eff! = effective ≡³-is-propvalued ≡³-is-equiv _ _
 Ty!-is-set : isSet (Ty! Γᴹ)
 Ty!-is-set = squash/
 
--- record Tm! (Γᴹ : Ctxᴬ) : Set ℓ₄ where
---   constructor tm!
---   field
---     Vᵗ : Ctxᴬ
---     Eᵗ : Tmᴬ Vᵗ
---     ⌜_⌝ᵗ : Subᴬ Γᴹ Vᵗ
---   [_]ᵗ : Tmᴬ Γᴹ
---   [_]ᵗ = Eᵗ [ ⌜_⌝ᵗ ]tᴹ
--- open Tm!
-
--- tyOf! : Tm! Γᴹ → Ty! Γᴹ
--- tyOf! t! = ty! (Vᵗ t!) (tyOfᴬ (Eᵗ t!)) ⌜ t! ⌝ᵗ
 tyOf! : Tmᴬ Γᴹ → Ty! Γᴹ
 tyOf! tᴹ = ty! (ty³ _ (tyOfᴬ tᴹ) idSᴹ)
+
+_[_]T! : Ty! Δᴹ → (σᴹ : Subᴬ Γᴹ Δᴹ) → Ty! Γᴹ
+A! [ σᴹ ]T! =
+  rec/ Ty!-is-set
+       (λ A³ → !-syntax (E A³) (⌜ A³ ⌝ ∘ᴹ σᴹ))
+       (λ _ _ p → []³≡ (sym ([∘]Tᴹ _ _ _) ∙ cong (_[ σᴹ ]Tᴹ) p ∙ [∘]Tᴹ _ _ _))
+       A!
 
 SC!ᵃ : Motive _ _ _ _
 SC!ᵃ .Motive.Ctxᴬ       = Ctxᴬ
@@ -104,11 +95,7 @@ SC!ᵃ .Motive.Subᴬ-is-set = Subᴬ-is-set
 SC!ᵐ : SCᴹ SC!ᵃ
 SC!ᵐ .SCᴹ.∅ᴹ = ∅ᴹ
 SC!ᵐ .SCᴹ._,ᴹ_ Γᴹ A! = Γᴹ ,ᴹ [ A! ]!
-SC!ᵐ .SCᴹ._[_]Tᴹ A! σᴹ =
-  rec/ Ty!-is-set
-       (λ A³ → !-syntax (E A³) (⌜ A³ ⌝ ∘ᴹ σᴹ))
-       (λ _ _ p → []³≡ (sym ([∘]Tᴹ _ _ _) ∙ cong (_[ σᴹ ]Tᴹ) p ∙ [∘]Tᴹ _ _ _))
-       A!
+SC!ᵐ .SCᴹ._[_]Tᴹ = _[_]T!
 SC!ᵐ .SCᴹ._[_]tᴹ = _[_]tᴹ -- tm! (Vᵗ t!) (Eᵗ t!)  (⌜ t! ⌝ᵗ ∘ᴹ σᴹ)
 SC!ᵐ .SCᴹ.tyOf[]ᴹ {tᴹ = tᴹ} {σᴹ = σᴹ} =
   []³≡ (cong (_[ idSᴹ ]Tᴹ) tyOf[]ᴹ 
@@ -117,33 +104,43 @@ SC!ᵐ .SCᴹ.tyOf[]ᴹ {tᴹ = tᴹ} {σᴹ = σᴹ} =
        ∙ sym (idS∘ᴹ σᴹ)))
   -- [WARN]: equality should be on Tyᴬ
 SC!ᵐ .SCᴹ.∅Sᴹ = ∅Sᴹ
-SCᴹ._,ᴹ_∶[_] SC!ᵐ {Aᴹ = ⟨ Eᴹ , τᴹ ⟩! } σᴹ tᴹ p = σᴹ ,ᴹ tᴹ ∶[ [idS]Tᴹ ∙ eff! p ∙ sym ([∘]Tᴹ _ _ _) ]
--- σᴹ ,ᴹ tᴹ ∶[ [idS]Tᴹ ∙ eff! p ∙ sym ([∘]Tᴹ _ _ _) ]
-SCᴹ._,ᴹ_∶[_] SC!ᵐ {Aᴹ = []³≡ q i} σᴹ tᴹ p = σᴹ ,ᴹ tᴹ ∶[ {!   !} ]
-SCᴹ._,ᴹ_∶[_] SC!ᵐ {Aᴹ = squash/ Aᴹ A'ᴹ q q' i j} σᴹ tᴹ p = {!   !}
+SCᴹ._,ᴹ_∶[_] SC!ᵐ {Γᴹ} {Δᴹ} {Aᴹ} σᴹ tᴹ =
+  elim/ {P = λ Aᴹ → tyOf! tᴹ ≡ Aᴹ [ σᴹ ]T! → Subᴬ Γᴹ (Δᴹ ,ᴹ [ Aᴹ ]!)}
+    (λ _ → isSet→ Subᴬ-is-set)
+    (λ A³ p → σᴹ ,ᴹ tᴹ ∶[ [idS]Tᴹ ∙ eff! p ∙ sym ([∘]Tᴹ _ _ _) ])
+    (λ A³ A'³ q → {!   !})
+    Aᴹ
+-- SCᴹ._,ᴹ_∶[_] SC!ᵐ {Aᴹ = ⟨ Eᴹ , τᴹ ⟩! } σᴹ tᴹ p = σᴹ ,ᴹ tᴹ ∶[ [idS]Tᴹ ∙ eff! p ∙ sym ([∘]Tᴹ _ _ _) ]
+-- SCᴹ._,ᴹ_∶[_] SC!ᵐ {Aᴹ = []³≡ q i} σᴹ tᴹ p = σᴹ ,ᴹ tᴹ ∶[ {!   !} ]
+-- SCᴹ._,ᴹ_∶[_] SC!ᵐ {Aᴹ = squash/ Aᴹ A'ᴹ q q' i j} σᴹ tᴹ p = {!   !}
   -- tyOf[]ᴹ ∙ (λ i → [ p i ]ᵀ) ∙ sym ([∘]Tᴹ _ _ _)
 SC!ᵐ .SCᴹ.idSᴹ = idSᴹ
 SC!ᵐ .SCᴹ._∘ᴹ_ = _∘ᴹ_
 SC!ᵐ .SCᴹ.π₁ᴹ = π₁ᴹ
 SC!ᵐ .SCᴹ.π₂ᴹ = π₂ᴹ
-SC!ᵐ .SCᴹ.tyOfπ₂ᴹ {Aᴹ = ⟨ Eᴹ , τᴹ ⟩! } σᴹ = []³≡ ((λ i → tyOfπ₂ᴹ σᴹ i [ idSᴹ ]Tᴹ) ∙ sym [idS]Tᴹ ∙ [∘]Tᴹ _ _ _)
-SC!ᵐ .SCᴹ.tyOfπ₂ᴹ {Aᴹ = []³≡ p i} σᴹ = {! squash/  !}
-SC!ᵐ .SCᴹ.tyOfπ₂ᴹ {Aᴹ = squash/ Aᴹ A'ᴹ p q i j} σᴹ = {!   !}
+SC!ᵐ .SCᴹ.tyOfπ₂ᴹ {Δᴹ} {Γᴹ} {Aᴹ} = 
+  elimProp {P = λ A! → (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ [ A! ]!)) → tyOf! (π₂ᴹ σᴹ) ≡ A! [ π₁ᴹ σᴹ ]T! }
+    (λ _ → isPropΠ λ _ → squash/ _ _)
+    (λ A³ σᴹ → eq/ _ _ (sym [idS]Tᴹ ∙ tyOfπ₂ᴹ σᴹ ∙ [∘]Tᴹ _ _ _))
+    Aᴹ
   -- [WARN]: equality should be on Tyᴬ
 SC!ᵐ .SCᴹ.idS∘ᴹ_ = idS∘ᴹ_
 SC!ᵐ .SCᴹ._∘idSᴹ = _∘idSᴹ
 SC!ᵐ .SCᴹ.assocSᴹ = assocSᴹ
-SC!ᵐ .SCᴹ.[idS]Tᴹ {Aᴹ = ⟨ Eᴹ , σᴹ ⟩! } i = ⟨ Eᴹ , (σᴹ ∘idSᴹ) (~ i) ⟩!
-SC!ᵐ .SCᴹ.[idS]Tᴹ {Aᴹ = []³≡ p i} = {!   !}
-SC!ᵐ .SCᴹ.[idS]Tᴹ {Aᴹ = squash/ Aᴹ A'ᴹ p q i j} = {!   !}
-SC!ᵐ .SCᴹ.[∘]Tᴹ ⟨ Eᴹ , σᴹ ⟩! δᴹ τᴹ i = ⟨ Eᴹ , assocSᴹ δᴹ τᴹ σᴹ i ⟩!
-SC!ᵐ .SCᴹ.[∘]Tᴹ ([]³≡ p i) σᴹ τᴹ = {!   !}
-SC!ᵐ .SCᴹ.[∘]Tᴹ (squash/ Aᴹ A'ᴹ p q i j) σᴹ τᴹ = {!   !}
+SC!ᵐ .SCᴹ.[idS]Tᴹ {Γᴹ} {Aᴹ} =
+  elimProp {P = λ A! → A! ≡ A! [ idSᴹ ]T! }
+    (λ _ → squash/ _ _)
+    (λ A³ → eq/ _ _ ([idS]Tᴹ ∙ [∘]Tᴹ _ _ _))
+    Aᴹ
+SC!ᵐ .SCᴹ.[∘]Tᴹ {Θᴹ} {Γᴹ} {Δᴹ} =
+  elimProp {P = λ Aᴹ → (σᴹ : Subᴬ Γᴹ Δᴹ)(τᴹ : Subᴬ Δᴹ Θᴹ) → ((Aᴹ [ τᴹ ]T!) [ σᴹ ]T!) ≡ (Aᴹ [ τᴹ ∘ᴹ σᴹ ]T!)}
+    (λ _ → isPropΠ λ _ → isPropΠ λ _ → squash/ _ _)
+    λ A³ σᴹ τᴹ i → ⟨ E A³ , assocSᴹ σᴹ τᴹ ⌜ A³ ⌝ i ⟩!
 SC!ᵐ .SCᴹ.,∘ᴹ σᴹ tᴹ τᴹ _ _ = {!   !}
-SC!ᵐ .SCᴹ.ηπᴹ = {! ηπᴹ  !} -- ηπᴹ
+SC!ᵐ .SCᴹ.ηπᴹ = {! ηπᴹ  !}
 SC!ᵐ .SCᴹ.η∅ᴹ = η∅ᴹ
-SC!ᵐ .SCᴹ.βπ₁ᴹ σᴹ tᴹ _ = {! βπ₁ᴹ σᴹ tᴹ _  !} -- βπ₁ᴹ σᴹ tᴹ _
-SC!ᵐ .SCᴹ.βπ₂ᴹ σᴹ tᴹ _ = {!   !} -- βπ₂ᴹ σᴹ tᴹ _
+SC!ᵐ .SCᴹ.βπ₁ᴹ σᴹ tᴹ _ = {! βπ₁ᴹ σᴹ tᴹ _  !}
+SC!ᵐ .SCᴹ.βπ₂ᴹ σᴹ tᴹ _ = {! βπ₂ᴹ σᴹ tᴹ _  !}
 SC!ᵐ .SCᴹ.[idS]tᴹ = [idS]tᴹ
 SC!ᵐ .SCᴹ.[∘]tᴹ = [∘]tᴹ
 SC!ᵐ .SCᴹ.Uᴹ = ⟨ Uᴹ , idSᴹ ⟩!
