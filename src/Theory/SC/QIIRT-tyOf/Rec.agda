@@ -38,7 +38,7 @@ recTm (βπ₂ {A = A} σ t p _ i) =
 recTm ([idS]t t i)    = [idS]tᴹ (recTm t) i
 recTm ([∘]t t σ τ i)  = [∘]tᴹ (recTm t) (recSub σ) (recSub τ) i
 
-recSub ∅S             = ∅Sᴹ
+recSub ∅              = ∅Sᴹ
 recSub (σ , t ∶[ p ]) = recSub σ ,ᴹ recTm t ∶[ recTyOf t p ]
 recSub idS            = idSᴹ
 recSub (τ ∘ σ)        = recSub τ ∘ᴹ recSub σ
@@ -51,8 +51,8 @@ recSub (η∅ σ i) = η∅ᴹ (recSub σ) i
 recSub (ηπ {Γ} {Δ} {A} σ i) = (ηπᴹ (recSub σ) ∙ bar) i
   where
     bar =
-      π₁ᴹ (recSub σ) ,ᴹ π₂ᴹ (recSub σ) ∶[ tyOfπ₂ᴹ (recTy A) (recSub σ) ]
-        ≡[ i ]⟨ (π₁ᴹ (recSub σ) ,ᴹ π₂ᴹ (recSub σ) ∶[ Tyᴬ-is-set _ _ (tyOfπ₂ᴹ (recTy A) (recSub σ)) (recTyOf (π₂ σ) (tyOfπ₂ σ)) i ]) ⟩
+      π₁ᴹ (recSub σ) ,ᴹ π₂ᴹ (recSub σ) ∶[ tyOfπ₂ᴹ (recSub σ) ]
+        ≡[ i ]⟨ (π₁ᴹ (recSub σ) ,ᴹ π₂ᴹ (recSub σ) ∶[ Tyᴬ-is-set _ _ (tyOfπ₂ᴹ (recSub σ)) (recTyOf (π₂ σ) (tyOfπ₂ σ)) i ]) ⟩
       π₁ᴹ (recSub σ) ,ᴹ recTm (π₂ σ) ∶[ recTyOf (π₂ σ) (tyOfπ₂ σ) ]
         ∎
     
@@ -78,6 +78,7 @@ recSub (,∘ {A = A} τ t σ p q i) = foo i
 --                                                           tyOf[]ᴹ) (recTyOf (t [ σ ]) q) i ]) ⟩
 --      (recSub τ ∘ᴹ recSub σ) ,ᴹ recTm t [ recSub σ ]tᴹ ∶[ recTyOf (t [ σ ]) q ]
 --        ∎
+recSub (Sub-is-set σ σ' p q i j) = isSet→SquareP (λ _ _ → Subᴬ-is-set) (λ i → recSub (p i)) (λ i → recSub (q i)) refl refl i j
 
 recSub⟨π₁,⟩≡π₁ᴹ,ᴹ _ _ _ = refl
 
@@ -93,7 +94,7 @@ recTyOf {A = A} (t [ σ ]) p =
   
 recTyOf {A = A} (π₂ {Γ} {Δ} {B} σ) p =
   tyOfᴬ (recTm (π₂ σ))
-    ≡⟨ tyOfπ₂ᴹ (recTy B) (recSub σ) ⟩
+    ≡⟨ tyOfπ₂ᴹ (recSub σ) ⟩
   recTy B [ π₁ᴹ (recSub σ) ]Tᴹ
     ≡[ i ]⟨ recTy (p i) ⟩
   recTy A
