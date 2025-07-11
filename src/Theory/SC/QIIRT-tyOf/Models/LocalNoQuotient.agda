@@ -23,14 +23,17 @@ cong,∶[] {Aᴹ = Aᴹ} p p' eqσ eqt =
 ℓ! = ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃
 
 record Ty³ (Γᴹ : Ctxᴬ) : Set ℓ! where
-  constructor ty³
+  constructor ⟨_,_⟩!
   field
-    V : Ctxᴬ
+    {V} : Ctxᴬ
     E : Tyᴬ V
     ⌜_⌝ : Subᴬ Γᴹ V
   [_]³ : Tyᴬ Γᴹ
   [_]³ = E [ ⌜_⌝ ]Tᴹ
 open Ty³
+
+ty³ : (V : Ctxᴬ) → Tyᴬ V → Subᴬ Γᴹ V → Ty³ Γᴹ
+ty³ V E σ = ⟨ E , σ ⟩!
 
 Ty³-is-set : isSet (Ty³ Γᴹ)
 Ty³-is-set {Γᴹ} A³ A'³ p q i j = record
@@ -41,13 +44,8 @@ Ty³-is-set {Γᴹ} A³ A'³ p q i j = record
                          refl refl (cong ⌜_⌝ p) (cong ⌜_⌝ q) j i
   }
 
-
-
-pattern !-syntax Eᴹ σᴹ = ty³ _ Eᴹ σᴹ
-syntax !-syntax Eᴹ σᴹ = ⟨ Eᴹ , σᴹ ⟩!
-
 Tm! : Ctxᴬ → Set _
-Tm! Γᴹ = Σ (Ty³ Γᴹ) (λ T → Σ (Tmᴬ Γᴹ) λ t → tyOfᴬ t ≡ [ T ]³)
+Tm! Γᴹ = Σ[ T ∈ Ty³ Γᴹ ] Σ[ t ∈ (Tmᴬ Γᴹ) ] tyOfᴬ t ≡ [ T ]³
 
 Tm!-≡ : {Γᴹ : Ctxᴬ} → {u t : Tm! Γᴹ}
       → fst u ≡ fst t → fst (snd u) ≡ fst (snd t) → u ≡ t
@@ -69,12 +67,12 @@ _[_]t! : Tm! Δᴹ → (σᴹ : Subᴬ Γᴹ Δᴹ) → Tm! Γᴹ
  tyOf[]ᴹ ∙ cong _[ σᴹ ]Tᴹ p ∙ [∘]Tᴹ (E T) σᴹ ⌜ T ⌝
 
 SC!ᵃ : Motive _ _ _ _
-SC!ᵃ .Motive.Ctxᴬ       = Ctxᴬ
-SC!ᵃ .Motive.Tyᴬ        = Ty³
-SC!ᵃ .Motive.Subᴬ       = Subᴬ
-SC!ᵃ .Motive.Tmᴬ        = Tm!
-SC!ᵃ .Motive.tyOfᴬ      = tyOf!
-SC!ᵃ .Motive.Tyᴬ-is-set = Ty³-is-set
+SC!ᵃ .Motive.Ctxᴬ        = Ctxᴬ
+SC!ᵃ .Motive.Tyᴬ         = Ty³
+SC!ᵃ .Motive.Subᴬ        = Subᴬ
+SC!ᵃ .Motive.Tmᴬ         = Tm!
+SC!ᵃ .Motive.tyOfᴬ       = tyOf!
+SC!ᵃ .Motive.Tyᴬ-is-set  = Ty³-is-set
 SC!ᵃ .Motive.Subᴬ-is-set = Subᴬ-is-set
 
 SC!ᵐ : SCᴹ SC!ᵃ
@@ -92,14 +90,14 @@ SC!ᵐ .SCᴹ._∘ᴹ_ = _∘ᴹ_
 SC!ᵐ .SCᴹ.π₁ᴹ = π₁ᴹ
 SC!ᵐ .SCᴹ.π₂ᴹ {Aᴹ = Aᴹ} σᴹ =
  (Aᴹ [ π₁ᴹ σᴹ ]T!) , π₂ᴹ σᴹ , tyOfπ₂ᴹ σᴹ ∙ [∘]Tᴹ (E Aᴹ) (π₁ᴹ σᴹ) ⌜ Aᴹ ⌝
-SC!ᵐ .SCᴹ.tyOfπ₂ᴹ {Δᴹ} {Γᴹ} {Aᴹ} σᴹ = refl
+SC!ᵐ .SCᴹ.tyOfπ₂ᴹ σᴹ = refl
 SC!ᵐ .SCᴹ.idS∘ᴹ_ = idS∘ᴹ_
 SC!ᵐ .SCᴹ._∘idSᴹ = _∘idSᴹ
 SC!ᵐ .SCᴹ.assocSᴹ = assocSᴹ
 SC!ᵐ .SCᴹ.[idS]Tᴹ {Γᴹ} {Aᴹ} =
  cong (ty³ (Aᴹ .V) (E Aᴹ)) (sym (⌜ Aᴹ ⌝ ∘idSᴹ))
-SC!ᵐ .SCᴹ.[∘]Tᴹ {Θᴹ} {Γᴹ} {Δᴹ} Aᴹ σᴹ τᴹ =
- cong (ty³ (Aᴹ .V) (E Aᴹ)) (assocSᴹ σᴹ τᴹ ⌜ Aᴹ ⌝)
+SC!ᵐ .SCᴹ.[∘]Tᴹ Aᴹ σᴹ τᴹ =
+  cong (ty³ (Aᴹ .V) (E Aᴹ)) (assocSᴹ σᴹ τᴹ ⌜ Aᴹ ⌝)
 SC!ᵐ .SCᴹ.,∘ᴹ {Aᴹ = Aᴹ} σᴹ (Bᴹ , t , r) τᴹ p q = ,∘ᴹ σᴹ t τᴹ _ _
 SC!ᵐ .SCᴹ.ηπᴹ σᴹ = ηπᴹ σᴹ ∙ cong,∶[] _ _ refl refl
 SC!ᵐ .SCᴹ.η∅ᴹ = η∅ᴹ
@@ -109,5 +107,5 @@ SC!ᵐ .SCᴹ.βπ₂ᴹ {Aᴹ = Aᴹ} σᴹ (Bᴹ , t , q) p =
 SC!ᵐ .SCᴹ.[idS]tᴹ (Bᴹ , t , q) = Tm!-≡ (SC!ᵐ .SCᴹ.[idS]Tᴹ) ([idS]tᴹ t)
 SC!ᵐ .SCᴹ.[∘]tᴹ (Bᴹ , t , q) σᴹ τᴹ =
  Tm!-≡ (SC!ᵐ .SCᴹ.[∘]Tᴹ Bᴹ σᴹ τᴹ) ([∘]tᴹ t σᴹ τᴹ)
-SC!ᵐ .SCᴹ.Uᴹ = ty³ ∅ᴹ Uᴹ ∅Sᴹ
+SC!ᵐ .SCᴹ.Uᴹ = ⟨ Uᴹ , ∅Sᴹ ⟩!
 SC!ᵐ .SCᴹ.U[]ᴹ {σᴹ = σᴹ} = cong (ty³ ∅ᴹ Uᴹ) (η∅ᴹ (∅Sᴹ ∘ᴹ σᴹ))
