@@ -20,7 +20,7 @@ cong,∶[]
 cong,∶[] {Aᴹ = Aᴹ} p p' eqσ eqt =
   cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Tyᴬ-is-set) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))
 
-ℓ! = ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃)
+ℓ! = ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃
 
 record Ty³ (Γᴹ : Ctxᴬ) : Set ℓ! where
   constructor ty³
