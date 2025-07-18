@@ -9,17 +9,20 @@ postulate
 module _ where
   open import Theory.SC.QIIRT-tyOf.Syntax
   open import Theory.SC.QIIRT-tyOf.Models.Term
-  open import Theory.SC.QIIRT-tyOf.Models.Yoneda
-  open import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
+  import Theory.SC.QIIRT-tyOf.Models.Yoneda as Yoneda
+  import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient as Local
 
   Ctx-is-set : isSet Ctx
   Ctx-is-set _ _ = UIP
 
+  open Yoneda Termᵃ Termᵐ
+  open Local よᵃ よᵐ Ctx-is-set
+
   Termₛᵃ : Motive _ _ _ _
-  Termₛᵃ = SC!ᵃ (よᵃ Termᵃ Termᵐ) (よᵐ Termᵃ Termᵐ) Ctx-is-set
+  Termₛᵃ = SC!ᵃ
 
   Termₛᵐ : SCᴹ Termₛᵃ
-  Termₛᵐ = SC!ᵐ (よᵃ Termᵃ Termᵐ) (よᵐ Termᵃ Termᵐ) Ctx-is-set
+  Termₛᵐ = SC!ᵐ
 
 open Motive Termₛᵃ public
   hiding
@@ -66,6 +69,8 @@ open SCᴹ Termₛᵐ public
   ; [∘]tᴹ to [∘]tₛ
   ; Uᴹ to Uₛ
   ; U[]ᴹ to U[]ₛ
+  ; π₂∘ᴹ to π₂∘ₛ
+  ; π₂σ=π₂id[σ]ᴹ to π₂idSₛ
   )
 
 variable
@@ -73,3 +78,12 @@ variable
   A B C D : Tyₛ Γ
   σ τ γ : Subₛ Γ Δ
   t u v : Tmₛ Γ
+
+import Theory.SC.QIIRT-tyOf.Rec as Rec
+open Rec Termₛᵃ Termₛᵐ
+
+▸ᶜ = recCtx
+▸ᵀ = recTy
+▸ᵗ = recTm
+▸ˢ = recSub
+▸tyOf = recTyOf
