@@ -49,6 +49,13 @@ _≡ʸ_ : ∀{Γ Δ} → Subʸ Γ Δ → Subʸ Γ Δ → Set (ℓ-max ℓ₁ ℓ
   ; natʸ = λ τ δ j → isSet→SquareP (λ _ _ → Subᴬ-is-set) (cong (_∘ᴹ τ) eqʸ) eqʸ (natʸ σʸ τ δ) (natʸ σ'ʸ τ δ) j i
   }
 
+infixr 2 step-≡ʸ
+
+step-≡ʸ : ∀{Γ Δ σ'ʸ σ''ʸ}(σʸ : Subʸ Γ Δ) → σ'ʸ ≡ σ''ʸ → σʸ ≡ʸ σ'ʸ → σʸ ≡ σ''ʸ
+step-≡ʸ σʸ p pʸ = ≡ʸ→≡ pʸ ∙ p
+
+syntax step-≡ʸ σʸ p pʸ = σʸ ≡ʸ⟨ pʸ ⟩ p
+
 よᵃ : Motive _ _ _ _
 よᵃ .Motive.Ctxᴬ       = Ctxᴬ
 よᵃ .Motive.Tyᴬ        = Tyᴬ

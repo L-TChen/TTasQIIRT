@@ -149,6 +149,17 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       π₂ᴹ τᴹ [ σᴹ ]tᴹ
         ∎
 
+    π₁σ=π₁idS∘σᴹ
+      : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
+      → π₁ᴹ σᴹ ≡ π₁ᴹ idSᴹ ∘ᴹ σᴹ
+    π₁σ=π₁idS∘σᴹ σᴹ =
+      π₁ᴹ σᴹ
+        ≡[ i ]⟨ π₁ᴹ ((idS∘ᴹ σᴹ) (~ i)) ⟩
+      π₁ᴹ (idSᴹ ∘ᴹ σᴹ)
+        ≡⟨ π₁∘ᴹ idSᴹ σᴹ ⟩
+      π₁ᴹ idSᴹ ∘ᴹ σᴹ
+        ∎
+    
     π₂σ=π₂id[σ]ᴹ
       : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
       → π₂ᴹ σᴹ ≡ π₂ᴹ idSᴹ [ σᴹ ]tᴹ
@@ -159,3 +170,11 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         ≡⟨ π₂∘ᴹ idSᴹ σᴹ ⟩
       π₂ᴹ idSᴹ [ σᴹ ]tᴹ
         ∎
+    
+    cong,∶[]ᴹ
+      : {Aᴹ : Tyᴬ Δᴹ}{σᴹ σ'ᴹ : Subᴬ Γᴹ Δᴹ}{tᴹ t'ᴹ : Tmᴬ Γᴹ}
+      → (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)(p' : tyOfᴬ t'ᴹ ≡ Aᴹ [ σ'ᴹ ]Tᴹ)
+      → σᴹ ≡ σ'ᴹ → tᴹ ≡ t'ᴹ
+      → (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ (σ'ᴹ ,ᴹ t'ᴹ ∶[ p' ])
+    cong,∶[]ᴹ {Aᴹ = Aᴹ} p p' eqσ eqt =
+      cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Tyᴬ-is-set) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))

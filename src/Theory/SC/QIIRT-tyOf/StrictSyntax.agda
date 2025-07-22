@@ -69,8 +69,11 @@ open SCᴹ Termₛᵐ public
   ; [∘]tᴹ to [∘]tₛ
   ; Uᴹ to Uₛ
   ; U[]ᴹ to U[]ₛ
+  ; π₁∘ᴹ to π₁∘ₛ
   ; π₂∘ᴹ to π₂∘ₛ
+  ; π₁σ=π₁idS∘σᴹ to π₁idSₛ
   ; π₂σ=π₂id[σ]ᴹ to π₂idSₛ
+  ; cong,∶[]ᴹ to cong,∶[]ₛ
   )
 
 variable

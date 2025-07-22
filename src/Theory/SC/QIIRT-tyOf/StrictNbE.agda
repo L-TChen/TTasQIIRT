@@ -10,14 +10,12 @@ open import Theory.SC.QIIRT-tyOf.Syntax
   )
 open import Theory.SC.QIIRT-tyOf.StrictSyntax
 open import Theory.SC.QIIRT-tyOf.Model
+open import Theory.SC.QIIRT-tyOf.Models.Term
+import Theory.SC.QIIRT-tyOf.Models.Yoneda as Yoneda
+open Yoneda Termᵃ Termᵐ
+open Subʸ
 open import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
 open Ty³
-
-tr-nat
-  : {X : Set} (A B : X → Set)
-  → (f : ∀{x} → A x → B x) {x y : X} (p : x ≡ y) {a : A x}
-  → f (transport (λ i → A (p i)) a) ≡ transport (λ i → B (p i)) (f a)
-tr-nat A B f p {a} = {!    !}
 
 -- Definition of neutral and normal forms
 data NfTy (Γ : Ctxₛ) : Set where
@@ -55,86 +53,166 @@ data NfSub Γ where
 ⌜ `ne σⁿᵉ ⌝subⁿᶠ = ⌜ σⁿᵉ ⌝subⁿᵉ
 ⌜ _`,_∶[_] {A = A} σⁿᶠ tⁿᵉ p ⌝subⁿᶠ = _,ₛ_∶[_] {Aᴹ = A} ⌜ σⁿᶠ ⌝subⁿᶠ ⌜ tⁿᵉ ⌝tm p
 
+data Ctx' : Set
+[_]ᶜ : Ctx' → Ctx
+
+data Ctx' where
+  ∅ : Ctx'
+  _,_ : (Γ' : Ctx') (Aₛ : Tyₛ [ Γ' ]ᶜ) → Ctx'
+
+[ ∅ ]ᶜ       = ∅
+[ Γ' , Aₛ ]ᶜ = [ Γ' ]ᶜ , [ Aₛ ]³
+
+variable
+  Γ' Δ' Θ' : Ctx'
+
 -- Definitions of variables and renamings
-data Var : (Γ : Ctx) → Set where
-  here  : ∀{A}(Aₛ : Tyₛ Γ) → [ Aₛ ]³ ≡ A → Var (Γ , A)
-  there : ∀{B}(Bₛ : Tyₛ Γ) → Var Γ → [ Bₛ ]³ ≡ B → Var (Γ , B)
+data Var : (Γ' : Ctx') → Set where
+  here  : (Aₛ : Tyₛ [ Γ' ]ᶜ) → Var (Γ' , Aₛ)
+  there : (Bₛ : Tyₛ [ Γ' ]ᶜ) → Var Γ' → Var (Γ' , Bₛ)
 
-⌜_⌝ⱽ : Var Γ → Tmₛ Γ
-⌜ here Aₛ p ⌝ⱽ = transport (λ i → Tmₛ (_ , p i)) (π₂ₛ {Aᴹ = Aₛ} idSₛ)
-⌜ there {Γ} Bₛ x p ⌝ⱽ = ⌜ x ⌝ⱽ [ transport (λ i → Subₛ (Γ , p i) Γ) (π₁ₛ {Γ ,ₛ Bₛ} {Aᴹ = Bₛ} idSₛ) ]tₛ
+⌜_⌝ⱽ : Var Γ' → Tmₛ [ Γ' ]ᶜ
+⌜ here Aₛ    ⌝ⱽ = π₂ₛ {Aᴹ = Aₛ} idSₛ
+⌜ there Bₛ x ⌝ⱽ = ⌜ x ⌝ⱽ [ π₁ₛ {Aᴹ = Bₛ} idSₛ ]tₛ
 
-tyOfⱽ : Var Γ → Σ[ Δ ∈ Ctx ] Σ[ σ ∈ Subₛ Γ Δ ] Tyₛ Δ
-tyOfⱽ {Γ , A} (here Aₛ p) = Γ , transport (λ i → Subₛ (_ , p i) Γ) (π₁ₛ {Aᴹ = Aₛ} idSₛ) , Aₛ
-tyOfⱽ {Γ , B} (there Bₛ x p) =
-  let (Δ , σ , Aₛ) = tyOfⱽ x
-  in Δ , σ ∘ₛ transport (λ i → Subₛ (_ , p i) Γ) (π₁ₛ {Aᴹ = Bₛ} idSₛ) , Aₛ
+tyOfⱽ : Var Γ' → Σ[ Δ' ∈ Ctx' ] Σ[ σ ∈ Subₛ [ Γ' ]ᶜ [ Δ' ]ᶜ ] Tyₛ [ Δ' ]ᶜ
+tyOfⱽ {Γ' , .Aₛ} (here Aₛ) = Γ' , π₁ₛ {Aᴹ = Aₛ} idSₛ , Aₛ
+tyOfⱽ {Γ' , .Bₛ} (there Bₛ x) = let (Δ' , σ , Aₛ) = tyOfⱽ x in Δ' , σ ∘ₛ π₁ₛ {Aᴹ = Bₛ} idSₛ , Aₛ
 
-tyOfⱽ-sound : (x : Var Γ) → tyOfₛ ⌜ x ⌝ⱽ ≡ let (Δ , σ , A) = tyOfⱽ x in A [ σ ]ₛ
-tyOfⱽ-sound (here Aₛ p) = {!  tyOfₛ  !} -- refl
-tyOfⱽ-sound (there Bₛ x p) = {!   !} -- let (Δ , σ , A) = tyOfⱽ x in (λ i → tyOfⱽ-sound x i [ π₁ₛ {Aᴹ = B} idSₛ ]ₛ) ∙ [∘]Tₛ A (π₁ₛ {Aᴹ = B} idSₛ) σ
+tyOfⱽ-sound : (x : Var Γ') → tyOfₛ ⌜ x ⌝ⱽ ≡ let (_ , σ , Aₛ) = tyOfⱽ x in Aₛ [ σ ]ₛ
+tyOfⱽ-sound {Γ' , .Aₛ} (here Aₛ) = refl
+tyOfⱽ-sound (there Bₛ x) =
+  let (_ , σ , Aₛ) = tyOfⱽ x
+  in (λ i → tyOfⱽ-sound x i [ π₁ₛ {Aᴹ = Bₛ} idSₛ ]ₛ)
+     ∙ λ i → ⟨ E Aₛ ,
+      ≡ʸ→≡ {σʸ = ⌜ Aₛ [ σ ]ₛ ⌝ ∘ₛ π₁ₛ {Aᴹ = Bₛ} idSₛ} {⌜ Aₛ ⌝ ∘ₛ (σ ∘ₛ π₁ₛ {Aᴹ = Bₛ} idSₛ)}
+        refl i
+    ⟩!
 
-data Ren : Ctx → Ctx → Set
-⌜_⌝ᴿ : Ren Γ Δ → Subₛ Γ Δ
+data Ren : Ctx' → Ctx' → Set
+⌜_⌝ᴿ : Ren Γ' Δ' → Subₛ [ Γ' ]ᶜ [ Δ' ]ᶜ
 
 data Ren where
-  ∅ : Ren Γ ∅ₛ
-  _,_∶[_∣_]
-    : ∀{B} (ρ : Ren Γ Δ)(x : Var Γ)
+  ∅ : Ren Γ' ∅
+  _,_∶[_]
+    : (ρ : Ren Γ' Δ')(x : Var Γ')
     → tyOfₛ ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ ⌝ᴿ ]ₛ
-    → [ A ]³ ≡ B
-    → Ren Γ (Δ , B)
+    → Ren Γ' (Δ' , A)
 
 ⌜ ∅ ⌝ᴿ = ∅Sₛ
-⌜_⌝ᴿ {Γ} {Δ , _} (_,_∶[_∣_] {A = Aₛ} ρ x p q) = transport (λ i → Subₛ Γ (Δ , q i)) (_,ₛ_∶[_] {Aᴹ = Aₛ} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p) 
+⌜ _,_∶[_] {A = A} ρ x p ⌝ᴿ = _,ₛ_∶[_] {Aᴹ = A} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p
 
-lookupVar : (ρ : Ren Γ Δ) → Var Δ → Var Γ
-lookupVar (_ , x ∶[ _ ∣ _ ]) (here _ _) = x
-lookupVar (ρ , _ ∶[ _ ∣ _ ]) (there _ y _) = lookupVar ρ y
+lookupVar : (ρ : Ren Γ' Δ') → Var Δ' → Var Γ'
+lookupVar (_ , x ∶[ _ ]) (here _) = x
+lookupVar (ρ , _ ∶[ _ ]) (there _ x) = lookupVar ρ x
 
-⌜lookupVar⌝ : (ρ : Ren Γ Δ)(x : Var Δ) → ⌜ x ⌝ⱽ [ ⌜ ρ ⌝ᴿ ]tₛ ≡ ⌜ lookupVar ρ x ⌝ⱽ
-⌜lookupVar⌝ (ρ , x ∶[ p ∣ q ]) (here A p') =
-  {! transport-filler (λ i → Tmₛ (_ , p' i)) (π₂ₛ idSₛ) !}
-  -- sym (π₂idSₛ (transport (λ i → Subₛ _ (_ , q (~ i))) (⌜ ρ ⌝ᴿ ,ₛ ⌜ x ⌝ⱽ ∶[ p ]))) ∙ ?
-⌜lookupVar⌝ (ρ , x ∶[ p ∣ q ]) (there B y p') = {!   !}
+⌜lookupVar⌝ : (ρ : Ren Γ' Δ')(x : Var Δ') → ⌜ x ⌝ⱽ [ ⌜ ρ ⌝ᴿ ]tₛ ≡ ⌜ lookupVar ρ x ⌝ⱽ
+⌜lookupVar⌝ (ρ , x ∶[ p ]) (here Aₛ) =
+  sym (π₂idSₛ {Aᴹ = Aₛ} (_,ₛ_∶[_] {Aᴹ = Aₛ} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p))
+  ∙ βπ₂ₛ {Aᴹ = Aₛ} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p
+⌜lookupVar⌝ (ρ , x' ∶[ p ]) (there Bₛ x) =
+  [∘]tₛ ⌜ x ⌝ⱽ (_,ₛ_∶[_] {Aᴹ = Bₛ} ⌜ ρ ⌝ᴿ ⌜ x' ⌝ⱽ p) (π₁ₛ {Aᴹ = Bₛ} idSₛ)
+  ∙ (λ i → ⌜ x ⌝ⱽ [ π₁idSₛ {Aᴹ = Bₛ} (_,ₛ_∶[_] {Aᴹ = Bₛ} ⌜ ρ ⌝ᴿ ⌜ x' ⌝ⱽ p) (~ i) ]tₛ)
+  ∙ (λ i → ⌜ x ⌝ⱽ [ βπ₁ₛ {Aᴹ = Bₛ} ⌜ ρ ⌝ᴿ ⌜ x' ⌝ⱽ p i ]tₛ)
+  ∙ ⌜lookupVar⌝ ρ x
 
--- cong,∶[]ᴿ
---   : ∀{B}{ρ ρ' : Ren Γ Δ}{x x' : Var Γ}{p : tyOfₛ ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ ⌝ᴿ ]ₛ}{p' : tyOfₛ ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ]ₛ}
---     {q q' : B ≡ [ A ]³}
---   → ρ ≡ ρ' → x ≡ x'
---   → _,_∶[_∣_] {A = A} {B = B} ρ x p q ≡ _,_∶[_∣_] {A = A} {B = B} ρ' x' p' q'
--- cong,∶[]ᴿ {A = A} {B = B} {p = p} {p'} {q} {q'} ρ≡ρ' x≡x' i =
---   _,_∶[_∣_] {A = A} (ρ≡ρ' i) (x≡x' i)
---     (isSet→SquareP (λ _ _ → Tyₛ-is-set) p p' (λ i → tyOfₛ ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]ₛ) i)
---     (isSet→SquareP (λ _ _ → Ty-is-set) q q' (λ _ → B) (λ _ → [ A ]³) i)
+cong,∶[]ᴿ
+  : {ρ ρ' : Ren Γ' Δ'}{x x' : Var Γ'}{p : tyOfₛ ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ ⌝ᴿ ]ₛ}{p' : tyOfₛ ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ]ₛ}
+  → ρ ≡ ρ' → x ≡ x'
+  → _,_∶[_] {A = A} ρ x p ≡ _,_∶[_] {A = A} ρ' x' p'
+cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i =
+  _,_∶[_] {A = A} (ρ≡ρ' i) (x≡x' i)
+    (isSet→SquareP (λ _ _ → Tyₛ-is-set) p p' (λ i → tyOfₛ ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]ₛ) i)
 
-η∅ᴿ : (ρ : Ren Γ ∅) → ρ ≡ ∅
+η∅ᴿ : (ρ : Ren Γ' ∅) → ρ ≡ ∅
 η∅ᴿ ∅ = refl
 
 η,ᴿ
-  : ∀{B}(ρ : Ren Γ (Δ , B))
-  → Σ[ A ∈ Tyₛ Δ ] Σ[ q' ∈ [ A ]³ ≡ B ]
-    Σ[ ρ' ∈ Ren Γ Δ ] Σ[ x' ∈ Var Γ ]
+  : (ρ : Ren Γ' (Δ' , A))
+  → Σ[ ρ' ∈ Ren Γ' Δ' ] Σ[ x' ∈ Var Γ' ]
     Σ[ p' ∈ tyOfₛ ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ]ₛ ]
-    (ρ ≡ _,_∶[_∣_] {A = A} {B = B} ρ' x' p' q')
-η,ᴿ (_,_∶[_∣_] {A = A} ρ x p q) = A , q , ρ , x , p , refl
+    (ρ ≡ _,_∶[_] {A = A} ρ' x' p')
+η,ᴿ (_,_∶[_] {A = A} ρ x p) = ρ , x , p , refl
 
-wkᴿ : (A : Tyₛ Γ) → Ren Γ Δ → Ren (Γ ,ₛ A) Δ
-⌜wkᴿ⌝ : (A : Tyₛ Γ)(ρ : Ren Γ Δ) → ⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ ≡ ⌜ wkᴿ A ρ ⌝ᴿ
+wkᴿ : (A : Tyₛ [ Γ' ]ᶜ) → Ren Γ' Δ' → Ren (Γ' , A) Δ'
+⌜wkᴿ⌝ : (A : Tyₛ [ Γ' ]ᶜ)(ρ : Ren Γ' Δ') → ⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ ≡ ⌜ wkᴿ A ρ ⌝ᴿ
 wkᴿ A ∅ = ∅
-wkᴿ A (_,_∶[_∣_] {A = A'} ρ x p q) = wkᴿ A ρ , there A x refl ∶[ {!   !} ∣ q ]
-⌜wkᴿ⌝ A ρ = {!   !}
+wkᴿ A (_,_∶[_] {A = A'} ρ x p) =
+  wkᴿ A ρ  , there A x ∶[
+      (λ i → p i [ π₁ₛ {Aᴹ = A} idSₛ ]ₛ) -- ⟨ E (p i) , ⌜ p i ⌝ ∘ₛ (π₁ₛ {Aᴹ = A} idSₛ) ⟩!)
+    ∙ (λ i → ⟨ E (A' [ ⌜ ρ ⌝ᴿ ]ₛ) ,
+        ≡ʸ→≡
+          {σʸ = ⌜ A' [ ⌜ ρ ⌝ᴿ ]ₛ ⌝ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ}
+          {⌜ A' ⌝ ∘ₛ (⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ)}
+          refl i
+      ⟩!)
+    ∙ cong (A' [_]ₛ) (⌜wkᴿ⌝ A ρ)
+  ]
+⌜wkᴿ⌝ A ∅ = ≡ʸ→≡ {σʸ = ∅Sₛ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ} {∅Sₛ} refl
+  {-
+    y (∅Sₛ ∘ₛ π₁ₛ idSₛ) ⟶ λ _ → ∅
+    y ∅Sₛ ⟶ λ _ → ∅
+  -}
+⌜wkᴿ⌝ A (_,_∶[_] {A = A'} ρ x p) =
+  let q = (λ i → p i [ π₁ₛ {Aᴹ = A} idSₛ ]ₛ) ∙ (λ i → ⟨ E A' , ≡ʸ→≡ {σʸ = ⌜ A' [ ⌜ ρ ⌝ᴿ ]ₛ ⌝ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ} {⌜ A' ⌝ ∘ₛ (⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ)} refl i ⟩!)
+      q' = (λ i → p i [ π₁ₛ {Aᴹ = A} idSₛ ]ₛ) ∙ [∘]Tₛ A' (π₁ₛ {Aᴹ = A} idSₛ) ⌜ ρ ⌝ᴿ ∙ cong (A' [_]ₛ) (⌜wkᴿ⌝ A ρ)
+  in {!   !} -- ,∘ₛ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (π₁ₛ {Aᴹ = A} idSₛ) p q ∙ cong,∶[]ₛ q q' (⌜wkᴿ⌝ A ρ) (λ _ → ⌜ x ⌝ⱽ [ π₁ₛ {Aᴹ = A} idSₛ ]tₛ)
+  -- (_,ₛ_∶[_] {Aᴹ = A'} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p) ∘ₛ π₁ₛ {Aᴹ = A} idSₛ
+  --   ≡⟨ ,∘ₛ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (π₁ₛ {Aᴹ = A} idSₛ) p q ⟩
+  -- _,ₛ_∶[_] {Aᴹ = A'} (⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ) (⌜ x ⌝ⱽ [ π₁ₛ {Aᴹ = A} idSₛ ]tₛ) q
+  --   ≡⟨ cong,∶[]ₛ q q' (⌜wkᴿ⌝ A ρ) refl ⟩
+  -- _,ₛ_∶[_] {Aᴹ = A'} ⌜ wkᴿ A ρ ⌝ᴿ (⌜ x ⌝ⱽ [ π₁ₛ {Aᴹ = A} idSₛ ]tₛ) q'
+  --   ∎
 
-idR : Ren Γ Γ
-⌜idR⌝ : ∀{Γ} → idSₛ ≡ ⌜ idR {Γ} ⌝ᴿ
+idR : Ren Γ' Γ'
+⌜idR⌝ : idSₛ ≡ ⌜ idR {Γ'} ⌝ᴿ
 idR {∅} = ∅
-idR {Γ , A} = {! wkᴿ ⟨ A , idSₛ ⟩! idR , ? ∶[ ? ∣ ? ]   !}
-⌜idR⌝ {Γ} = {!   !}
+idR {Γ' , Aₛ} = wkᴿ Aₛ idR , here Aₛ ∶[ (λ i → Aₛ [ p i ]ₛ) ]
+  module idREq where
+    p : π₁ₛ {Aᴹ = Aₛ} idSₛ ≡ ⌜ wkᴿ Aₛ idR ⌝ᴿ
+    p = π₁ₛ {Aᴹ = Aₛ} idSₛ
+          ≡ʸ⟨ refl ⟩
+        idSₛ ∘ₛ π₁ₛ {Aᴹ = Aₛ} idSₛ
+          ≡⟨ cong (_∘ₛ π₁ₛ {Aᴹ = Aₛ} idSₛ) ⌜idR⌝ ⟩
+        ⌜ idR ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = Aₛ} idSₛ
+          ≡⟨ ⌜wkᴿ⌝ Aₛ idR ⟩
+        ⌜ wkᴿ Aₛ idR ⌝ᴿ
+          ∎
+⌜idR⌝ {∅} = η∅ₛ idSₛ
+⌜idR⌝ {Γ' , Aₛ} = {!   !}
+  -- ηπₛ {Aᴹ = Aₛ} idSₛ ∙ cong,∶[]ₛ (tyOfπ₂ₛ idSₛ) (λ i → Aₛ [ idREq.p Γ' Aₛ i ]ₛ) (idREq.p Γ' Aₛ) refl
 
-_⊙_ : Ren Δ Θ → Ren Γ Δ → Ren Γ Θ
-⌜⊙⌝ : (ρ : Ren Δ Θ)(ρ' : Ren Γ Δ) → ⌜ ρ ⌝ᴿ ∘ₛ ⌜ ρ' ⌝ᴿ ≡ ⌜ ρ ⊙ ρ' ⌝ᴿ
-ρ ⊙ ρ' = {!   !}
-⌜⊙⌝ ρ ρ' = {!   !}
+lookupVar-wkᴿ : {A : Tyₛ [ Γ' ]ᶜ}(ρ : Ren Γ' Δ')(x : Var Δ') → lookupVar (wkᴿ A ρ) x ≡ there A (lookupVar ρ x)
+lookupVar-wkᴿ (_ , _ ∶[ _ ]) (here _) = refl
+lookupVar-wkᴿ {A = A} (ρ , _ ∶[ _ ]) (there _ x) = lookupVar-wkᴿ {A = A} ρ x
+
+lookupVar-idR : (x : Var Γ') → lookupVar idR x ≡ x
+lookupVar-idR (here _) = refl
+lookupVar-idR (there Bₛ x) = lookupVar-wkᴿ idR x ∙ cong (there Bₛ) (lookupVar-idR x)
+
+_⊙_ : Ren Δ' Θ' → Ren Γ' Δ' → Ren Γ' Θ'
+⌜⊙⌝ : (ρ : Ren Δ' Θ')(ρ' : Ren Γ' Δ') → ⌜ ρ ⌝ᴿ ∘ₛ ⌜ ρ' ⌝ᴿ ≡ ⌜ ρ ⊙ ρ' ⌝ᴿ
+∅ ⊙ ρ' = ∅
+(_,_∶[_] {A = Aₛ} ρ x p) ⊙ ρ' = ρ ⊙ ρ' , lookupVar ρ' x ∶[ q ]
+  module ⊙Eq where
+    q : tyOfₛ ⌜ lookupVar ρ' x ⌝ⱽ ≡ Aₛ [ ⌜ ρ ⊙ ρ' ⌝ᴿ ]ₛ
+    q = cong tyOfₛ (sym (⌜lookupVar⌝ ρ' x))
+      ∙ (λ i → p i [ ⌜ ρ' ⌝ᴿ ]ₛ)
+      ∙ (λ i → ⟨ E Aₛ , ≡ʸ→≡ {σʸ = ⌜ Aₛ [ ⌜ ρ ⌝ᴿ ]ₛ ⌝ ∘ₛ ⌜ ρ' ⌝ᴿ} {⌜ Aₛ ⌝ ∘ₛ (⌜ ρ ⌝ᴿ ∘ₛ ⌜ ρ' ⌝ᴿ)} refl i ⟩!)
+      ∙ cong (Aₛ [_]ₛ) (⌜⊙⌝ ρ ρ') 
+⌜⊙⌝ ∅ ρ' = ∅Sₛ ∘ₛ ⌜ ρ' ⌝ᴿ ≡ʸ⟨ refl ⟩ ∅Sₛ ∎
+⌜⊙⌝ (_,_∶[_] {A = Aₛ} ρ x p) ρ' =
+  (_,ₛ_∶[_] {Aᴹ = Aₛ} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p) ∘ₛ ⌜ ρ' ⌝ᴿ
+    ≡⟨ ,∘ₛ {Aᴹ = Aₛ} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ ⌜ ρ' ⌝ᴿ p q ⟩
+  _,ₛ_∶[_] {Aᴹ = Aₛ} (⌜ ρ ⌝ᴿ ∘ₛ ⌜ ρ' ⌝ᴿ) (⌜ x ⌝ⱽ [ ⌜ ρ' ⌝ᴿ ]tₛ) q
+    ≡⟨ cong,∶[]ₛ {Aᴹ = Aₛ} q (⊙Eq.q {A = Aₛ} ρ x p ρ') (⌜⊙⌝ ρ ρ') (⌜lookupVar⌝ ρ' x) ⟩
+  _,ₛ_∶[_] {Aᴹ = Aₛ} ⌜ ρ ⊙ ρ' ⌝ᴿ ⌜ lookupVar ρ' x ⌝ⱽ (⊙Eq.q {A = Aₛ} ρ x p ρ')
+    ∎
+  where
+    q : tyOfₛ (⌜ x ⌝ⱽ [ ⌜ ρ' ⌝ᴿ ]tₛ) ≡ Aₛ [ ⌜ ρ ⌝ᴿ ∘ₛ ⌜ ρ' ⌝ᴿ ]ₛ
+    q = cong (_[ ⌜ ρ' ⌝ᴿ ]ₛ) p
+      ∙ λ i → ⟨ E Aₛ , ≡ʸ→≡ {σʸ = ⌜ Aₛ [ ⌜ ρ ⌝ᴿ ]ₛ ⌝ ∘ₛ ⌜ ρ' ⌝ᴿ} {⌜ Aₛ ⌝ ∘ₛ (⌜ ρ ⌝ᴿ ∘ₛ ⌜ ρ' ⌝ᴿ)} refl i ⟩!
+
 
 -- 
 -- open import Theory.SC.QIIRT-tyOf.Models.Yoneda
