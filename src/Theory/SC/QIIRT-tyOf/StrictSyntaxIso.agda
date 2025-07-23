@@ -14,6 +14,9 @@ open Local よᵃ よᵐ Ctx-is-set
 open Subʸ
 open Ty³
 
+postulate
+  Tm-is-set : {Γ : Ctx} → isSet (Tm Γ)
+
 ◂ᵀ : {Γ : Ctxₛ} → Tyₛ Γ → Ty Γ
 ◂ᵀ ⟨ E , σ ⟩! = E [ y σ idS ]
 
@@ -29,6 +32,7 @@ open Ty³
 {-# TERMINATING #-}
 ◂▸ᶜ : (Γ : Ctx) → ▸ᶜ Γ ≡ Γ
 ◂▸ᵀ : {Γ : Ctx}(A : Ty Γ) → ◂ᵀ (▸ᵀ A) ≡[ i ⊢ Ty (◂▸ᶜ Γ i) ] A
+◂▸ᵗ : {Γ : Ctx}(t : Tm Γ) → ◂ᵗ (▸ᵗ t) ≡[ i ⊢ Tm (◂▸ᶜ Γ i) ] t
 ◂▸ˢ : {Γ Δ : Ctx}(σ : Sub Γ Δ) → ◂ˢ (▸ˢ σ) ≡[ i ⊢ Sub (◂▸ᶜ Γ i) (◂▸ᶜ Δ i) ] σ
 ◂▸ᶜ ∅ = refl
 ◂▸ᶜ (Γ , A) i = ◂▸ᶜ Γ i , ◂▸ᵀ A i
@@ -79,4 +83,106 @@ open Ty³
     (λ k j → ◂▸ᵀ (q j) k)
     (isSet→isGroupoid Ty-is-set)
     k j i
-◂▸ˢ σ = {!   !}
+◂▸ᵗ (t [ σ ]) i = ◂▸ᵗ t i [ ◂▸ˢ σ i ]
+◂▸ᵗ (π₂ {A = A} σ) i = π₂ {A = ◂▸ᵀ A i} (◂▸ˢ σ i)
+◂▸ᵗ {Γ} (βπ₂ σ t p q i) j =
+  isSet→SquareP (λ i _ → Tm-is-set {◂▸ᶜ Γ i})
+    (λ i → ◂ᵗ (▸ᵗ (βπ₂ σ t p q i)))
+    (βπ₂ σ t p q)
+    (◂▸ᵗ (π₂ (σ , t ∶[ p ])))
+    (◂▸ᵗ t)
+    j i
+◂▸ᵗ {Γ} ([idS]t t i) j =
+  isSet→SquareP (λ i _ → Tm-is-set {◂▸ᶜ Γ i})
+    (λ i → ◂ᵗ (▸ᵗ ([idS]t t i)))
+    ([idS]t t)
+    (◂▸ᵗ t)
+    (◂▸ᵗ (t [ idS ]))
+    j i
+◂▸ᵗ {Γ} ([∘]t t σ τ i) j =
+  isSet→SquareP (λ i _ → Tm-is-set {◂▸ᶜ Γ i})
+    (λ i → ◂ᵗ (▸ᵗ ([∘]t t σ τ i)))
+    ([∘]t t σ τ)
+    (◂▸ᵗ (t [ τ ] [ σ ]))
+    (◂▸ᵗ (t [ τ ∘ σ ]))
+    j i
+◂▸ˢ {Γ} ∅ i = ∅ {◂▸ᶜ Γ i}
+◂▸ˢ {Γ} (_,_∶[_] {Δ = Δ} {A = A} σ t p) i =
+  _,_∶[_] {A = ◂▸ᵀ A i} (◂▸ˢ σ i) ((sym ([idS]t (◂ᵗ (▸ᵗ t))) ◁ ◂▸ᵗ t) i)
+    (isProp→PathP (λ i → Ty-is-set {◂▸ᶜ Γ i} (tyOf ((sym ([idS]t (◂ᵗ (▸ᵗ t))) ◁ ◂▸ᵗ t) i))
+      (◂▸ᵀ A i [ ◂▸ˢ σ i ])) q p i)
+  where
+    p' : tyOf {▸ᶜ Γ} (fst (snd (▸ᵗ t))) ≡ E (▸ᵀ A) [ y ⌜ ▸ᵀ A ⌝ idS ] [ y (▸ˢ σ) idS ]
+    p' = snd (snd (▸ᵗ t))
+        ∙ cong [_]³ (▸tyOf t p)
+        ∙ sym ([∘]Tʸ (E (▸ᵀ A)) (▸ˢ σ) ⌜ ▸ᵀ A ⌝)
+
+    q : _≡_ {A = Ty (▸ᶜ Γ)}
+          (tyOf (◂ᵗ (▸ᵗ t)) [ idS ])
+          (◂ᵀ (▸ᵀ A) [ ◂ˢ (▸ˢ σ) ])
+    q = refl
+      ∙ (λ i → p' i [ idS ])
+      ∙ [∘]T [ ▸ᵀ A ]³ idS (y (▸ˢ σ) idS)
+      ∙ λ i → [ ▸ᵀ A ]³ [ (natʸ (▸ˢ σ) idS idS ∙ cong (y (▸ˢ σ)) (idS∘ idS)) i ]
+◂▸ˢ {Γ} idS i = idS {◂▸ᶜ Γ i}
+◂▸ˢ (σ ∘ τ) = sym (Subʸ-τidS∘ (▸ˢ σ) (y (▸ˢ τ) idS)) ◁ λ i → ◂▸ˢ σ i ∘ ◂▸ˢ τ i
+◂▸ˢ (π₁ {A = A} σ) i = π₁ {A = ◂▸ᵀ A i} (◂▸ˢ σ i)
+◂▸ˢ {Γ} {Δ} (βπ₁ σ t p i) j =
+  isSet→SquareP (λ i _ → Sub-is-set {◂▸ᶜ Γ i} {◂▸ᶜ Δ i})
+    (λ i → ◂ˢ (▸ˢ (βπ₁ σ t p i)))
+    (βπ₁ σ t p)
+    (◂▸ˢ (π₁ (σ , t ∶[ p ])))
+    (◂▸ˢ σ)
+    j i
+◂▸ˢ {Γ} {Δ} ((idS∘ σ) i) j =
+  isSet→SquareP (λ i _ → Sub-is-set {◂▸ᶜ Γ i} {◂▸ᶜ Δ i})
+    refl
+    (idS∘ σ)
+    (◂▸ˢ (idS ∘ σ))
+    (◂▸ˢ σ)
+    j i
+◂▸ˢ {Γ} {Δ} ((σ ∘idS) i) j =
+  isSet→SquareP (λ i _ → Sub-is-set {◂▸ᶜ Γ i} {◂▸ᶜ Δ i})
+    (λ i → ◂ˢ (▸ˢ ((σ ∘idS) i)))
+    (σ ∘idS)
+    (◂▸ˢ (σ ∘ idS))
+    (◂▸ˢ σ)
+    j i
+◂▸ˢ (assocS {Γ} {Δ} {Θ} {Ξ} σ τ γ i) j =
+  isSet→SquareP (λ i _ → Sub-is-set {◂▸ᶜ Γ i} {◂▸ᶜ Ξ i})
+    refl
+    (assocS σ τ γ)
+    (◂▸ˢ ((γ ∘ τ) ∘ σ))
+    (◂▸ˢ (γ ∘ (τ ∘ σ)))
+    j i
+◂▸ˢ {Γ} {Θ , A} (,∘ σ t τ p q i) j =
+  isSet→SquareP (λ i _ → Sub-is-set {◂▸ᶜ Γ i} {◂▸ᶜ Θ i , ◂▸ᵀ A i})
+    (λ i → ◂ˢ (▸ˢ (,∘ σ t τ p q i)))
+    (,∘ σ t τ p q)
+    (◂▸ˢ ((σ , t ∶[ p ]) ∘ τ))
+    (◂▸ˢ (σ ∘ τ , t [ τ ] ∶[ q ]))
+    j i
+◂▸ˢ {Γ} (η∅ σ i) j =
+  isSet→SquareP (λ i _ → Sub-is-set {◂▸ᶜ Γ i} {∅})
+    (λ i → ◂ˢ (▸ˢ (η∅ σ i)))
+    (η∅ σ)
+    (◂▸ˢ σ)
+    (λ _ → ∅)
+    j i
+◂▸ˢ {Γ} {Δ , A} (ηπ σ i) j =
+  isSet→SquareP (λ i _ → Sub-is-set {◂▸ᶜ Γ i} {◂▸ᶜ (Δ , A) i})
+    (λ i → ◂ˢ (▸ˢ (ηπ σ i)))
+    (ηπ σ)
+    (◂▸ˢ σ)
+    (◂▸ˢ (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ]))
+    j i
+◂▸ˢ {Γ} {Δ} (Sub-is-set σ σ' p q i j) k =
+  isGroupoid→CubeP (λ i _ _ → Sub (◂▸ᶜ Γ i) (◂▸ᶜ Δ i))
+    (λ j i → ◂ˢ (▸ˢ (Sub-is-set σ σ' p q i j)))
+    (λ j i → Sub-is-set σ σ' p q i j)
+    (λ k i → ◂▸ˢ σ k)
+    (λ k i → ◂▸ˢ σ' k)
+    (λ k j → ◂▸ˢ (p j) k)
+    (λ k j → ◂▸ˢ (q j) k)
+    (isSet→isGroupoid Sub-is-set)
+    k j i
