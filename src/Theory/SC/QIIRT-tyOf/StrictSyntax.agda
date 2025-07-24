@@ -24,6 +24,11 @@ module _ where
   Termₛᵐ : SCᴹ Termₛᵃ
   Termₛᵐ = SC!ᵐ
 
+  ⟨_,⟩!₂≡ʸ
+    : (A : Ty Δ){σʸ σ'ʸ : Subʸ Γ Δ}
+    → σʸ ≡ʸ σ'ʸ → ⟨ A , σʸ ⟩! ≡ ⟨ A , σ'ʸ ⟩!
+  ⟨ A ,⟩!₂≡ʸ {σʸ} {σ'ʸ} pʸ i = ⟨ A , (σʸ ≡ʸ⟨ pʸ ⟩ σ'ʸ ∎) i ⟩!
+
 open Motive Termₛᵃ public
   hiding
   ( Γᴹ ; Δᴹ ; Θᴹ ; Ξᴹ
