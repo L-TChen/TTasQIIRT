@@ -64,7 +64,7 @@ data Ctx' where
 [ Γ' , Aₛ ]ᶜ = [ Γ' ]ᶜ , [ Aₛ ]³
 
 variable
-  Γ' Δ' Θ' : Ctx'
+  Γ' Δ' Θ' Ξ' : Ctx'
 
 -- Definitions of variables and renamings
 data Var : (Γ' : Ctx') → Set where
@@ -213,11 +213,38 @@ _⊙_ : Ren Δ' Θ' → Ren Γ' Δ' → Ren Γ' Θ'
     q = cong (_[ ⌜ ρ' ⌝ᴿ ]ₛ) p
       ∙ λ i → ⟨ E Aₛ , ≡ʸ→≡ {σʸ = ⌜ Aₛ [ ⌜ ρ ⌝ᴿ ]ₛ ⌝ ∘ₛ ⌜ ρ' ⌝ᴿ} {⌜ Aₛ ⌝ ∘ₛ (⌜ ρ ⌝ᴿ ∘ₛ ⌜ ρ' ⌝ᴿ)} refl i ⟩!
 
+lookupVar⊙ : (ρ : Ren Δ' Θ')(ρ' : Ren Γ' Δ')(x : Var Θ')
+           → lookupVar ρ' (lookupVar ρ x) ≡ lookupVar (ρ ⊙ ρ') x
+lookupVar⊙ (_ , _ ∶[ _ ]) _  (here _)     = refl
+lookupVar⊙ (ρ , _ ∶[ _ ]) ρ' (there Bₛ x) = lookupVar⊙ ρ ρ' x
+
+wkᴿ⊙ : (ρ : Ren Δ' Θ')(ρ' : Ren Γ' Δ'){A : Tyₛ [ Δ' ]ᶜ}(x : Var Γ')(p : tyOfₛ ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ]ₛ)
+     → wkᴿ A ρ ⊙ (ρ' , x ∶[ p ]) ≡ ρ ⊙ ρ'
+wkᴿ⊙ ∅ ρ' x p = refl
+wkᴿ⊙ (ρ , x ∶[ p ]) ρ' {A} x' p' =
+  wkᴿ A ρ ⊙ (ρ' , x' ∶[ p' ]) , lookupVar ρ' x ∶[ _ ]
+    ≡⟨ cong,∶[]ᴿ (wkᴿ⊙ ρ ρ' x' p') refl ⟩
+  (ρ ⊙ ρ') , lookupVar ρ' x ∶[ _ ]
+    ∎
+
+idR⊙ : (ρ : Ren Γ' Δ') → idR ⊙ ρ ≡ ρ
+idR⊙ {_} {.∅} ∅ = refl
+idR⊙ {_} {Δ} (ρ , x ∶[ p ]) = cong,∶[]ᴿ (wkᴿ⊙ idR ρ x p ∙ idR⊙ ρ) refl
+
+_⊙idR : (ρ : Ren Γ' Δ') → ρ ⊙ idR ≡ ρ
+∅ ⊙idR = refl
+(ρ , x ∶[ p ]) ⊙idR = cong,∶[]ᴿ (ρ ⊙idR) (lookupVar-idR x)
+
+⊙-assoc : (ρ : Ren Γ' Δ')(ρ' : Ren Δ' Θ')(ρ'' : Ren Θ' Ξ')
+        → (ρ'' ⊙ ρ') ⊙ ρ ≡ ρ'' ⊙ (ρ' ⊙ ρ)
+⊙-assoc ρ ρ' ∅ = refl
+⊙-assoc ρ ρ' (ρ'' , x ∶[ p ]) = cong,∶[]ᴿ (⊙-assoc ρ ρ' ρ'') (lookupVar⊙ ρ' ρ x)
 
 -- 
 -- open import Theory.SC.QIIRT-tyOf.Models.Yoneda
 
--- evalSub : (σ : Subₛ Γ Δ) → Σ[ ρ ∈ Ren Γ Δ ] σ ≡ ⌜ ρ ⌝ᴿ
--- evalTm : (t : Tmₛ Γ) → Σ[ x ∈ Var Γ ] t ≡ ⌜ x ⌝ⱽ
--- evalSub (y , natʸ) = {!   !}
--- evalTm t = {!   !}
+-- Evaluate substitutions and terms to renamings and variables
+evalSub : (σ : Subₛ [ Γ' ]ᶜ [ Δ' ]ᶜ) → Σ[ ρ ∈ Ren Γ' Δ' ] σ ≡ ⌜ ρ ⌝ᴿ
+evalTm : (t : Tmₛ [ Γ' ]ᶜ) → Σ[ x ∈ Var Γ' ] t ≡ ⌜ x ⌝ⱽ
+evalSub (y , natʸ) = {!   !}
+evalTm t = {!   !}
