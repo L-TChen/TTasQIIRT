@@ -103,16 +103,16 @@ _++_ : DList A → DList A → DList A
   (λ a → ⧺-idʳ [ a ]) xs
 
 ◁≡→≡ : {xs ys : JList A} → (◁ xs) .fst ≡ (◁ ys) .fst → xs ≡ ys
-◁≡→≡ p = sym (▷◁ _) ∙ (λ i → p i []) ∙ ▷◁ _
+◁≡→≡ p = sym (▷◁ _) ∙ (λ i → p i []) ∙ ▷◁ _ -- (λ i → p i []) ∙ ▷◁ _
 
 example
   : {x : A} (xs ys zs : JList A)
   → [ x ] ⧺ xs ⧺ ([] ⧺ ys ⧺ zs) ≡ [ x ] ⧺ (xs ⧺ ys) ⧺ [] ⧺ zs
 example xs ys zs = ◁≡→≡ refl
 -- the underlying idea is that we can normalise the expression with
--- repect to functional presentation
+-- respect to functional presentation
 
-
+-- Church encoding? 
 {-
 module _ {A B : Set} (BisSet : isSet B) (e : B) (_*_ : B → B → B) (i : A → B)
   (assoc : ∀ x y z → (x * y) * z ≡ x * (y * z))

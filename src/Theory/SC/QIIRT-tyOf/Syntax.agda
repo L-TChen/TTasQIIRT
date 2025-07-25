@@ -1,9 +1,9 @@
--- Type theory as a quotient inductive-inductive-recursive type, inspired by the formualtion of natural models
+-- Type theory as a quotient inductive-inductive-recursive type, inspired by the formulation of natural models
 -- whereas the recursion part is impredicative.
 
 
 -- See https://github.com/agda/agda/issues/5362 for the current limitation of Agda
--- that affacts the definition of our encoding
+-- that affects the definition of our encoding
 
 open import Prelude
   hiding (_,_)
@@ -22,7 +22,8 @@ module Foo where
     data Tm  : (Γ : Ctx) → Set
     tyOf
       : ∀ {Γ} → Tm Γ → Ty Γ
-
+      
+-- Vec A n ≅ Σ (List A) (λ xs → length xs ≡ n)
     variable
         Γ Δ Θ Ξ : Ctx
         A B C D : Ty Γ
@@ -58,17 +59,18 @@ module Foo where
       : Sub Γ (Δ , A)
       → Tm Γ
 
-    tyOfπ₂ -- definitional after the datatype declaration
+    tyOfπ₂
+    -- definitional after the datatype declaration
       : (σ : Sub Γ (Δ , A))
       → tyOf (π₂ σ) ≡ A [ π₁ σ ]T
     tyOfπ₂idS
       : tyOf (π₂ {A = A [ σ ]T} idS) ≡ A [ σ ∘ π₁ idS ]T
-
+{-
     _↑_
       : (σ : Sub Γ Δ) (A : Ty Δ)
       → Sub (Γ , A [ σ ]T) (Δ , A)
     σ ↑ A = σ ∘ π₁ idS , π₂ idS ∶[ tyOfπ₂idS ]
-
+-}
     idS∘_
       : (σ : Sub Γ Δ)
       → idS ∘ σ ≡ σ
@@ -79,7 +81,8 @@ module Foo where
       : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (γ : Sub Θ Ξ)
       → (γ ∘ τ) ∘ σ ≡ γ ∘ (τ ∘ σ)
     ,∘
-      : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≡ A [ σ ]T)
+      : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ)
+        (p : tyOf t ≡ A [ σ ]T)
         (q : tyOf (t [ τ ]t) ≡ A [ σ ∘ τ ]T)
       → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
     ηπ
@@ -214,13 +217,13 @@ module Foo where
     [idS]t  = [idS]t'
     [∘]t    = [∘]t'
 
-    tyOf (t [ σ ]) = tyOf t [ σ ]T
+    tyOf (t [ σ ])           = (tyOf t) [ σ ]T
     tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ σ ]T
     tyOf (βπ₂' σ t p q i)   = q i
     tyOf ([idS]t' t i)      = [idS]T {A = tyOf t} i
     tyOf ([∘]t' t σ τ i)    = [∘]T (tyOf t) σ τ i
 
-    -- equaitons derivable from the computational behaviour of `tyOf
+    -- equations derivable from the computational behaviour of `tyOf`
     tyOfπ₂ σ = refl
     tyOfπ₂idS {A = A} {σ = σ} = [∘]T A (π₁ idS) σ
     tyOfabs = refl

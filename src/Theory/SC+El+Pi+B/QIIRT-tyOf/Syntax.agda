@@ -1,9 +1,9 @@
--- Type theory as a quotient inductive-inductive-recursive type, inspired by the formualtion of natural models
+-- Type theory as a quotient inductive-inductive-recursive type, inspired by the formulation of natural models
 -- whereas the recursion part is impredicative.
 
 
 -- See https://github.com/agda/agda/issues/5362 for the current limitation of Agda
--- that affacts the definition of our encoding
+-- that affects the definition of our encoding
 
 open import Prelude
   hiding (_,_)
