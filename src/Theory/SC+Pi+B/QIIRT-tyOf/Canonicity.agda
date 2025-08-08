@@ -4,8 +4,6 @@ open import Prelude
 open import Theory.SC+Pi+B.QIIRT-tyOf.Syntax
 -- open import Theory.SC+Pi+B.QIIRT-tyOf.Model
 
-record ⊤ : Set where constructor ⟨⟩
-
 Ctxᴳ : Ctx → Set₁
 Ctxᴳ Γ = Sub ∅ Γ → Set
 
@@ -24,7 +22,7 @@ tyOfᴳ {Γ} {t} {Γᴳ} tᴳ γ γᴳ t' =
   let (A , Aᴳ , _ , _) = tᴳ γ γᴳ in (t [ γ ] ≡ t') × Aᴳ γ γᴳ t'
 
 ∅ᴳ : Ctxᴳ ∅
-∅ᴳ _ = ⊤
+∅ᴳ _ = Unit
 
 _,ᴳ_ : (Γᴳ : Ctxᴳ Γ) → Tyᴳ Γᴳ A → Ctxᴳ (Γ , A)
 Γᴳ ,ᴳ Aᴳ = λ γ → Σ[ γᴳ ∈ Γᴳ (π₁ γ) ] Aᴳ (π₁ γ) γᴳ (π₂ γ)
@@ -43,7 +41,7 @@ _[_]tᴳ {t = t} {σ} tᴳ σᴳ = λ γ γᴳ
     in sym ([∘]t _ _ _) , transport (λ i → Aᴳ (σ ∘ γ) (σᴳ γ γᴳ) ([∘]t t γ σ (~ i))) aᴳ
 
 ∅Sᴳ : {Γᴳ : Ctxᴳ Γ} → Subᴳ Γᴳ ∅ᴳ ∅
-∅Sᴳ _ _ = ⟨⟩
+∅Sᴳ _ _ = ⋆
 
 _∘ᴳ_
   : {Γᴳ : Ctxᴳ Γ}{Δᴳ : Ctxᴳ Δ}{Θᴳ : Ctxᴳ Θ}
@@ -97,7 +95,7 @@ _↑ᴳ_ {Γ} {Δ} {σ} {A} {Γᴳ} {Δᴳ} σᴳ Aᴳ =
   → Bᴳ (_∘_ {∅ , A [ γ ]} {Γ , A} {∅} (γ ↑ A) (idS , a ∶[ q ∙ [idS]T ]))
        (_∘ᴳ_ {∅} {∅ , A [ γ ]} {Γ , A} {γ ↑ A} {idS , a ∶[ q ∙ [idS]T ]} {∅ᴳ}
              (_↑ᴳ_ {σ = γ} (λ γ' _ → transport (λ i → Γᴳ ((sym (γ ∘idS) ∙ (λ j → γ ∘ (η∅ idS ∙ sym (η∅ γ')) j)) i)) γᴳ) Aᴳ)
-             {!   !} idS ⟨⟩)
+             {!   !} idS ⋆)
        (app t p [ idS , a ∶[ q ∙ [idS]T ] ])
   )
 
