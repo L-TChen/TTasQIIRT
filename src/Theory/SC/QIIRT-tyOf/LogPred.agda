@@ -3,11 +3,6 @@ module Theory.SC.QIIRT-tyOf.LogPred where
 open import Prelude
 open import Theory.SC.QIIRT-tyOf.Syntax
 
-_↑_
-  : (σ : Sub Γ Δ) (A : Ty Δ)
-  → Sub (Γ , A [ σ ]) (Δ , A)
-σ ↑ A = σ ∘ π₁ idS , π₂ idS ∶[ tyOfπ₂idS ]
-
 record Ctxᴾ (Γ : Ctx) : Set where
   field
     ctxᴾ : Ctx

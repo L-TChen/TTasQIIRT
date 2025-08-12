@@ -14,6 +14,7 @@ Termᵃ = record
   ; tyOfᴬ      = tyOf
   ; Tyᴬ-is-set = Ty-is-set
   ; Subᴬ-is-set = Sub-is-set
+  ; Tmᴬ-is-set = Tm-is-set
   }
 
 Termᵐ : SCᴹ Termᵃ

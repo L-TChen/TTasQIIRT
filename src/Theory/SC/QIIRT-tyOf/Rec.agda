@@ -1,3 +1,4 @@
+{-# OPTIONS --allow-unsolved-metas #-}
 open import Prelude
 
 open import Theory.SC.QIIRT-tyOf.Model
@@ -21,8 +22,8 @@ recCtx (Γ , A) = recCtx Γ ,ᴹ recTy A
 recTy (A [ σ ]) = recTy A [ recSub σ ]Tᴹ
 recTy U = Uᴹ
 recTy ([idS]T {A = A} i) = [idS]Tᴹ {Aᴹ = recTy A} i
-recTy ([∘]T A σ τ i) = [∘]Tᴹ (recTy A) (recSub σ) (recSub τ) i
-recTy (U[] {σ = σ} i) = U[]ᴹ {σᴹ = recSub σ} i
+recTy ([∘]T A σ τ i)     = [∘]Tᴹ (recTy A) (recSub σ) (recSub τ) i
+recTy (U[] {σ = σ} i)    = U[]ᴹ {σᴹ = recSub σ} i
 recTy (Ty-is-set A B x y i j) =
   isSet→SquareP (λ _ _ → Tyᴬ-is-set) (λ i → recTy (x i)) (λ i → recTy (y i)) refl refl i j
 
@@ -37,6 +38,8 @@ recTm (βπ₂ {A = A} σ t p _ i) =
   βπ₂ᴹ (recSub σ) (recTm t) (recTyOf t p) i
 recTm ([idS]t t i)    = [idS]tᴹ (recTm t) i
 recTm ([∘]t t σ τ i)  = [∘]tᴹ (recTm t) (recSub σ) (recSub τ) i
+recTm (Tm-is-set t u p q i j) =
+  Tmᴬ-is-set (recTm t) (recTm u) (cong recTm p) (cong recTm q) i j
 
 recSub ∅              = ∅Sᴹ
 recSub (σ , t ∶[ p ]) = recSub σ ,ᴹ recTm t ∶[ recTyOf t p ]
@@ -108,3 +111,4 @@ recTyOf {A = A} ([idS]t t i) =
 recTyOf {A = A} ([∘]t t σ τ i) = 
   isProp→PathP {B = λ i → tyOf ([∘]t t σ τ i) ≡ A → tyOfᴬ (recTm ([∘]t t σ τ i)) ≡ recTy A}
   (λ j → isPropΠ (λ _ → Tyᴬ-is-set _ _)) (recTyOf ([∘]t t σ τ i0)) (recTyOf ([∘]t t σ τ i1)) i 
+recTyOf (Tm-is-set t u p q i j) = {!!}

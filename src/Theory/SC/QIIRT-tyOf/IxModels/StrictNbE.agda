@@ -1,4 +1,4 @@
-module Theory.SC.QIIRT-tyOf.StrictNbE where
+module Theory.SC.QIIRT-tyOf.IxModels.StrictNbE where
 
 open import Prelude
 open import Theory.SC.QIIRT-tyOf.Syntax
@@ -8,12 +8,14 @@ open import Theory.SC.QIIRT-tyOf.Syntax
   ; t; u
   ; σ; τ; δ; γ
   )
-open import Theory.SC.QIIRT-tyOf.StrictSyntax
+open import Theory.SC.QIIRT-tyOf.Models.StrictTerm
 open import Theory.SC.QIIRT-tyOf.Model
 open import Theory.SC.QIIRT-tyOf.Models.Term
 import Theory.SC.QIIRT-tyOf.Models.Yoneda as Yoneda
+
 open Yoneda Termᵃ Termᵐ
 open Subʸ
+
 open import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
 open Ty³
 
@@ -244,7 +246,7 @@ _⊙idR : (ρ : Ren Γ' Δ') → ρ ⊙ idR ≡ ρ
 -- open import Theory.SC.QIIRT-tyOf.Models.Yoneda
 
 -- Evaluate substitutions and terms to renamings and variables
-evalSub : (σ : Subₛ [ Γ' ]ᶜ [ Δ' ]ᶜ) → Σ[ ρ ∈ Ren Γ' Δ' ] σ ≡ ⌜ ρ ⌝ᴿ
-evalTm : (t : Tmₛ [ Γ' ]ᶜ) → Σ[ x ∈ Var Γ' ] t ≡ ⌜ x ⌝ⱽ
-evalSub (y , natʸ) = {!   !}
-evalTm t = {!   !}
+-- evalSub : (σ : Subₛ [ Γ' ]ᶜ [ Δ' ]ᶜ) → Σ[ ρ ∈ Ren Γ' Δ' ] σ ≡ ⌜ ρ ⌝ᴿ
+-- evalTm : (t : Tmₛ [ Γ' ]ᶜ) → Σ[ x ∈ Var Γ' ] t ≡ ⌜ x ⌝ⱽ
+-- evalSub (y , natʸ) = {!   !}
+-- evalTm t = {!   !}

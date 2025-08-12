@@ -1,10 +1,11 @@
-module Theory.SC.QIIRT-tyOf.StrictSyntax where
+module Theory.SC.QIIRT-tyOf.Models.StrictTerm where
 
 open import Prelude
 open import Theory.SC.QIIRT-tyOf.Model
 
 postulate
   UIP : ∀ {ℓ} → {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
+  -- [TODO] remove this later
 
 module _ where
   open import Theory.SC.QIIRT-tyOf.Syntax

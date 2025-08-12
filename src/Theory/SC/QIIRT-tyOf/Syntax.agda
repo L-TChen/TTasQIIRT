@@ -23,7 +23,6 @@ module Foo where
     tyOf
       : ∀ {Γ} → Tm Γ → Ty Γ
       
--- Vec A n ≅ Σ (List A) (λ xs → length xs ≡ n)
     variable
         Γ Δ Θ Ξ : Ctx
         A B C D : Ty Γ
@@ -65,12 +64,12 @@ module Foo where
       → tyOf (π₂ σ) ≡ A [ π₁ σ ]T
     tyOfπ₂idS
       : tyOf (π₂ {A = A [ σ ]T} idS) ≡ A [ σ ∘ π₁ idS ]T
-{-
+
     _↑_
       : (σ : Sub Γ Δ) (A : Ty Δ)
       → Sub (Γ , A [ σ ]T) (Δ , A)
     σ ↑ A = σ ∘ π₁ idS , π₂ idS ∶[ tyOfπ₂idS ]
--}
+    
     idS∘_
       : (σ : Sub Γ Δ)
       → idS ∘ σ ≡ σ
@@ -173,7 +172,7 @@ module Foo where
         : (σ : Sub Γ (Δ , A))
         → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
       Sub-is-set
-        : isSet (Sub Γ Δ)
+        : isSet (Sub Γ Δ) -- Added for NbE
 
     data Tm where
       _[_] : (A : Tm Δ)(σ : Sub Γ Δ)
@@ -191,6 +190,8 @@ module Foo where
       [∘]t'
         : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
         → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
+      Tm-is-set
+        : isSet (Tm Γ) -- Added for NbE
 
     ∅       = ∅'
     _,_     = _,'_
@@ -219,9 +220,10 @@ module Foo where
 
     tyOf (t [ σ ])           = (tyOf t) [ σ ]T
     tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ σ ]T
-    tyOf (βπ₂' σ t p q i)   = q i
-    tyOf ([idS]t' t i)      = [idS]T {A = tyOf t} i
-    tyOf ([∘]t' t σ τ i)    = [∘]T (tyOf t) σ τ i
+    tyOf (βπ₂' σ t p q i)    = q i
+    tyOf ([idS]t' t i)       = [idS]T {A = tyOf t} i
+    tyOf ([∘]t' t σ τ i)     = [∘]T (tyOf t) σ τ i
+    tyOf (Tm-is-set t u p q i j) = Ty-is-set (tyOf t) (tyOf u) (cong tyOf p) (cong tyOf q) i j
 
     -- equations derivable from the computational behaviour of `tyOf`
     tyOfπ₂ σ = refl

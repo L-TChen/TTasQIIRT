@@ -40,7 +40,7 @@ module _ (UU : Set) where
       refl
       i j
 
-  ⟦ ∅S             ⟧S γ = ⋆
+  ⟦ ∅              ⟧S γ = ⋆
   ⟦ σ , t ∶[ p ]   ⟧S γ = ⟦ σ ⟧S γ , transport (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ)
   ⟦ idS            ⟧S γ = γ
   ⟦ σ ∘ τ          ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ)
@@ -55,6 +55,8 @@ module _ (UU : Set) where
       foo = UIP _ _
   ⟦ η∅ σ i         ⟧S γ = ⋆
   ⟦ ηπ σ i         ⟧S γ = ⟦ σ ⟧S γ .fst , transportRefl (⟦ σ ⟧S γ .snd) (~ i)
+  ⟦ Sub-is-set σ τ p q i j ⟧S γ =
+    isSet→SquareP (λ _ _ → λ _ _ → UIP) (λ i → ⟦ p i ⟧S γ) (λ i → ⟦ q i ⟧S γ) refl refl i j
 
   ⟦ t [ σ ] ⟧t γ = ⟦ t ⟧t (⟦ σ ⟧S γ)
   ⟦ π₂ σ    ⟧t γ = ⟦ σ ⟧S γ .snd
@@ -70,6 +72,7 @@ module _ (UU : Set) where
 
   ⟦ [idS]t t i   ⟧t γ = ⟦ t ⟧t γ
   ⟦ [∘]t t σ τ i ⟧t γ = ⟦ t ⟧t (⟦ τ ⟧S (⟦ σ ⟧S γ))
+  ⟦ Tm-is-set t u p q i j ⟧t γ = {!!}
 
 open import Theory.SC.QIIRT-tyOf.Model
 
@@ -81,6 +84,8 @@ stdModelᵃ = record
     ; Tmᴬ   = λ Γ → Σ[ A ∈ (Γ → Set) ] ((γ : Γ) → A γ)
     ; tyOfᴬ = λ (A , t) γ → A γ
     ; Tyᴬ-is-set = λ _ _ → UIP
+    ; Tmᴬ-is-set = λ {_} → isSetΣ (isSetΠ (λ γ → λ _ _ → UIP)) (λ A → isSetΠ (λ γ → λ _ _ → UIP))
+    ; Subᴬ-is-set = isSetΠ (λ γ → λ _ _ → UIP)
     }
 
 open Motive stdModelᵃ

@@ -74,6 +74,7 @@ SC!ᵃ .Motive.Tmᴬ         = Tm!
 SC!ᵃ .Motive.tyOfᴬ       = tyOf!
 SC!ᵃ .Motive.Tyᴬ-is-set  = Ty³-is-set
 SC!ᵃ .Motive.Subᴬ-is-set = Subᴬ-is-set
+SC!ᵃ .Motive.Tmᴬ-is-set  = isSetΣ Ty³-is-set λ _ → isSetΣ Tmᴬ-is-set λ _ → isProp→isSet (Tyᴬ-is-set _ _)
 
 SC!ᵐ : SCᴹ SC!ᵃ
 SC!ᵐ .SCᴹ.∅ᴹ = ∅ᴹ

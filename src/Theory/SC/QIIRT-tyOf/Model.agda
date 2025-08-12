@@ -12,6 +12,7 @@ record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ �
 
     Tyᴬ-is-set : {Γᴹ : Ctxᴬ} → isSet (Tyᴬ Γᴹ)
     Subᴬ-is-set : {Γᴹ Δᴹ : Ctxᴬ} → isSet (Subᴬ Γᴹ Δᴹ)
+    Tmᴬ-is-set : {Γᴹ : Ctxᴬ} → isSet (Tmᴬ Γᴹ)
 
   variable
     Γᴹ Δᴹ Θᴹ Ξᴹ : Ctxᴬ

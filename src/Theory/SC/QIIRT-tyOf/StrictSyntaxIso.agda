@@ -1,9 +1,11 @@
+{-# OPTIONS --allow-unsolved-metas #-}
+
 open import Prelude
 
 module Theory.SC.QIIRT-tyOf.StrictSyntaxIso where
 
 open import Theory.SC.QIIRT-tyOf.Syntax
-open import Theory.SC.QIIRT-tyOf.StrictSyntax
+open import Theory.SC.QIIRT-tyOf.Models.StrictTerm
 open import Theory.SC.QIIRT-tyOf.Models.Term
   using (Termᵃ; Termᵐ)
 import Theory.SC.QIIRT-tyOf.Models.Yoneda as Yoneda
@@ -13,9 +15,6 @@ open Yoneda Termᵃ Termᵐ
 open Local よᵃ よᵐ Ctx-is-set
 open Subʸ
 open Ty³
-
-postulate
-  Tm-is-set : {Γ : Ctx} → isSet (Tm Γ)
 
 ◂ᵀ : {Γ : Ctxₛ} → Tyₛ Γ → Ty Γ
 ◂ᵀ ⟨ E , σ ⟩! = E [ y σ idS ]
@@ -106,6 +105,9 @@ postulate
     (◂▸ᵗ (t [ τ ] [ σ ]))
     (◂▸ᵗ (t [ τ ∘ σ ]))
     j i
+◂▸ᵗ (Tm-is-set t t₁ x y₁ i₁ i₂) i =
+  {!!}
+
 ◂▸ˢ {Γ} ∅ i = ∅ {◂▸ᶜ Γ i}
 ◂▸ˢ {Γ} (_,_∶[_] {Δ = Δ} {A = A} σ t p) i =
   _,_∶[_] {A = ◂▸ᵀ A i} (◂▸ˢ σ i) ((sym ([idS]t (◂ᵗ (▸ᵗ t))) ◁ ◂▸ᵗ t) i)

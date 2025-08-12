@@ -71,13 +71,14 @@ _∘ʸ_ : ∀{Γ Δ Θ} → Subʸ Δ Θ → Subʸ Γ Δ → Subʸ Γ Θ
 [∘]Tʸ A σʸ τʸ = [∘]Tᴹ A (y σʸ idSᴹ) (y τʸ idSᴹ) ∙ cong (A [_]Tᴹ) (Subʸ-τidS∘ τʸ (y σʸ idSᴹ))
 
 よᵃ : Motive _ _ _ _
-よᵃ .Motive.Ctxᴬ       = Ctxᴬ
-よᵃ .Motive.Tyᴬ        = Tyᴬ
-よᵃ .Motive.Subᴬ       = Subʸ
-よᵃ .Motive.Tmᴬ        = Tmᴬ
-よᵃ .Motive.tyOfᴬ      = tyOfᴬ
-よᵃ .Motive.Tyᴬ-is-set = Tyᴬ-is-set
+よᵃ .Motive.Ctxᴬ        = Ctxᴬ
+よᵃ .Motive.Tyᴬ         = Tyᴬ
+よᵃ .Motive.Subᴬ        = Subʸ
+よᵃ .Motive.Tmᴬ         = Tmᴬ
+よᵃ .Motive.tyOfᴬ       = tyOfᴬ
+よᵃ .Motive.Tyᴬ-is-set  = Tyᴬ-is-set
 よᵃ .Motive.Subᴬ-is-set = Subʸ-is-set
+よᵃ .Motive.Tmᴬ-is-set  = Tmᴬ-is-set
 
 -- open SCᴹ
 よᵐ : SCᴹ よᵃ
