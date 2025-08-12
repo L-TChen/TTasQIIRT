@@ -278,26 +278,26 @@ module _
   open Piᴹ Piᵐ
 
   recCtx  : Ctx → Ctxᴬ
-  recTy   : {Γ : Ctx} → Ty Γ → Tyᴬ (recCtx Γ)
-  recTm   : {Γ : Ctx} → Tm Γ → Tmᴬ (recCtx Γ)
-  recSub  : {Γ Δ : Ctx} → Sub Γ Δ → Subᴬ (recCtx Γ) (recCtx Δ)
-  recTyOf : {Γ : Ctx}{A : Ty Γ} → (t : Tm Γ) → tyOf t ≡ A → tyOfᴬ (recTm t) ≡ recTy A
+  recTy   : Ty Γ → Tyᴬ (recCtx Γ)
+  recTm   : Tm Γ → Tmᴬ (recCtx Γ)
+  recSub  : Sub Γ Δ → Subᴬ (recCtx Γ) (recCtx Δ)
+  recTyOf : (t : Tm Γ) → tyOf t ≡ A → tyOfᴬ (recTm t) ≡ recTy A
 
-  recCtx ∅ = ∅ᴹ
+  recCtx ∅       = ∅ᴹ
   recCtx (Γ , A) = recCtx Γ ,ᴹ recTy A
 
-  recTm⟨π₂idS⟩≡π₂ᴹidSᴹ : recTm (π₂ {A = A} idS) ≡ π₂ᴹ idSᴹ
+  recTm⟨π₂idS⟩≡π₂ᴹidSᴹ          : recTm (π₂ {A = A} idS) ≡ π₂ᴹ idSᴹ
   recTm⟨t[σ]⟩=recTmt[recSubσ]tᴹ : recTm (t [ σ ]) ≡ recTm t [ recSub σ ]tᴹ
 
   recTy (A [ σ ]) = recTy A [ recSub σ ]Tᴹ
-  recTy 𝔹 = 𝔹ᴹ
-  recTy U = Uᴹ
-  recTy (El u p) = Elᴹ (recTm u) (recTyOf u p)
-  recTy (Π A B) = Πᴹ (recTy A) (recTy B)
+  recTy 𝔹         = 𝔹ᴹ
+  recTy U         = Uᴹ
+  recTy (El u p)  = Elᴹ (recTm u) (recTyOf u p)
+  recTy (Π A B)   = Πᴹ (recTy A) (recTy B)
   recTy ([idS]T {A = A} i) = [idS]Tᴹ {Aᴹ = recTy A} i
-  recTy ([∘]T A σ τ i) = [∘]Tᴹ (recTy A) (recSub σ) (recSub τ) i
-  recTy (U[] {σ = σ} i) = U[]ᴹ {σᴹ = recSub σ} i
-  recTy (El[] τ u p q i) = {!El[]ᴹ (recSub τ) (recTm u) (recTyOf u p) i!}
+  recTy ([∘]T A σ τ i)     = [∘]Tᴹ (recTy A) (recSub σ) (recSub τ) i
+  recTy (U[] {σ = σ} i)    = U[]ᴹ {σᴹ = recSub σ} i
+  recTy (El[] τ u p q i)   = {!El[]ᴹ (recSub τ) (recTm u) (recTyOf u p) i!}
    where
     foo : (tyOf[]ᴹ ∙ cong (λ z → z [ recSub τ ]Tᴹ) (recTyOf u p) ∙ U[]ᴹ) ≡ {!recTyOf (u Foo.[ τ ]t) q!}
     foo = {!!}
