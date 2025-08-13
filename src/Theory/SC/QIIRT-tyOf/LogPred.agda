@@ -12,8 +12,8 @@ open Ctxᴾ
 Tyᴾ : Ctxᴾ Γ → Ty Γ → Set
 Tyᴾ Γᴾ A = Ty (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ])
 
-Tyᴾ-is-set : {Γᴾ : Ctxᴾ Γ} → isSet (Tyᴾ Γᴾ A)
-Tyᴾ-is-set = Ty-is-set
+-- Tyᴾ-is-set : {Γᴾ : Ctxᴾ Γ} → isSet (Tyᴾ Γᴾ A)
+-- Tyᴾ-is-set = Ty-is-set
 
 record Subᴾ (Γᴾ : Ctxᴾ Γ)(Δᴾ : Ctxᴾ Δ)(σ : Sub Γ Δ) : Set where
   field
@@ -29,15 +29,18 @@ Subᴾ-is-set
   : {Γᴾ : Ctxᴾ Γ}{Δᴾ : Ctxᴾ Δ}{σ : Sub Γ Δ}
   → isSet (Subᴾ Γᴾ Δᴾ σ)
 Subᴾ-is-set {Δ = Δ} {Γᴾ = Γᴾ} {Δᴾ} {σ} σᴾ σ'ᴾ p q i j = record 
-  { subᴾ = Sub-is-set (subᴾ σᴾ) (subᴾ σ'ᴾ) (λ k → subᴾ (p k)) (λ k → subᴾ (q k)) i j
+  { subᴾ = UIP' (subᴾ σᴾ) (subᴾ σ'ᴾ) (λ k → subᴾ (p k)) (λ k → subᴾ (q k)) i j
+--  { subᴾ = Sub-is-set (subᴾ σᴾ) (subᴾ σ'ᴾ) (λ k → subᴾ (p k)) (λ k → subᴾ (q k)) i j
   ; wkᴾnat = λ k → isGroupoid→CubeP (λ _ _ _ → Sub (ctxᴾ Γᴾ) Δ)
-      (λ j i → wkᴾ Δᴾ ∘ Sub-is-set (subᴾ σᴾ) (subᴾ σ'ᴾ) (λ k → subᴾ (p k)) (λ k → subᴾ (q k)) i j)
+      (λ j i → wkᴾ Δᴾ ∘ UIP' (subᴾ σᴾ) (subᴾ σ'ᴾ) (λ k → subᴾ (p k)) (λ k → subᴾ (q k)) i j)
+--      (λ j i → wkᴾ Δᴾ ∘ Sub-is-set (subᴾ σᴾ) (subᴾ σ'ᴾ) (λ k → subᴾ (p k)) (λ k → subᴾ (q k)) i j)
       (λ _ _ → σ ∘ wkᴾ Γᴾ)
       (λ k i → wkᴾnat σᴾ k)
       (λ k i → wkᴾnat σ'ᴾ k)
       (λ k j → wkᴾnat (p j) k)
       (λ k j → wkᴾnat (q j) k)
-      (isSet→isGroupoid Sub-is-set)
+      (isSet→isGroupoid UIP')
+--      (isSet→isGroupoid Sub-is-set)
       k j i
   }
 

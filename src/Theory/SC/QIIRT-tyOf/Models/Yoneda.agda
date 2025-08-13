@@ -6,14 +6,7 @@ module Theory.SC.QIIRT-tyOf.Models.Yoneda
 
 open Motive A
 open SCᴹ SCᵐ
-
-cong,∶[]
-  : {σᴹ σ'ᴹ : Subᴬ Γᴹ Δᴹ}{tᴹ t'ᴹ : Tmᴬ Γᴹ}
-  → (pᴹ : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ) (p'ᴹ : tyOfᴬ t'ᴹ ≡ Aᴹ [ σ'ᴹ ]Tᴹ)
-  → σᴹ ≡ σ'ᴹ → tᴹ ≡ t'ᴹ
-  → (σᴹ ,ᴹ tᴹ ∶[ pᴹ ]) ≡ (σ'ᴹ ,ᴹ t'ᴹ ∶[ p'ᴹ ])
-cong,∶[] {Aᴹ = Aᴹ} p p' eqσ eqt =
-  cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Tyᴬ-is-set) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))
+  renaming (cong,∶[]ᴹ to cong,∶[])
 
 record Subʸ (Γ Δ : Ctxᴬ) : Set (ℓ-max ℓ₁ ℓ₃) where
   constructor _,_
@@ -28,16 +21,17 @@ open Subʸ
 
 Subʸ-is-set : ∀{Γ Δ} → isSet (Subʸ Γ Δ)
 Subʸ-is-set {Γ} {Δ} (σ , pσ) (σ' , pσ') p q i j = record
-  { y = λ γᴹ → isSet→SquareP (λ _ _ → Subᴬ-is-set) refl refl (λ k → y (p k) γᴹ) (λ k → y (q k) γᴹ) j i
+  { y = λ γᴹ → isSet→SquareP (λ _ _ _ _ → UIP) refl refl (λ k → y (p k) γᴹ) (λ k → y (q k) γᴹ) j i
+  -- { y = λ γᴹ → isSet→SquareP (λ _ _ → Subᴬ-is-set) refl refl (λ k → y (p k) γᴹ) (λ k → y (q k) γᴹ) j i
   ; natʸ = λ {Ξ} {Θ} τ δ k →
     isGroupoid→CubeP (λ _ _ _ → Subᴬ Ξ Δ)
-      (λ j i → isSet→SquareP (λ _ _ → Subᴬ-is-set) refl refl (λ k → y (p k) δ) (λ k → y (q k) δ) j i ∘ᴹ τ)
-      (λ j i → isSet→SquareP (λ _ _ → Subᴬ-is-set) refl refl (λ k → y (p k) (δ ∘ᴹ τ)) (λ k → y (q k) (δ ∘ᴹ τ)) j i)
+      (λ j i → isSet→SquareP (λ _ _ _ _ → UIP) refl refl (λ k → y (p k) δ) (λ k → y (q k) δ) j i ∘ᴹ τ)
+      (λ j i → isSet→SquareP (λ _ _ _ _ → UIP) refl refl (λ k → y (p k) (δ ∘ᴹ τ)) (λ k → y (q k) (δ ∘ᴹ τ)) j i)
       (λ k _ → pσ τ δ k)
       (λ k _ → pσ' τ δ k)
       (λ k j → natʸ (p j) τ δ k)
       (λ k j → natʸ (q j) τ δ k)
-      (isSet→isGroupoid Subᴬ-is-set) k j i
+      (isSet→isGroupoid UIP') k j i
   }
 
 _≡ʸ_ : ∀{Γ Δ} → Subʸ Γ Δ → Subʸ Γ Δ → Set (ℓ-max ℓ₁ ℓ₃)
@@ -47,7 +41,7 @@ _≡ʸ_ {Γ} {Δ} (σ , pσ) (σ' , pσ') = _≡_ {A = {Θ : Ctxᴬ} → Subᴬ 
 ≡ʸ→≡  {σʸ = σʸ} {σ'ʸ} eqʸ i = record
   { y = eqʸ i
   ; natʸ = λ τ δ j →
-      isSet→SquareP (λ _ _ → Subᴬ-is-set)
+      isSet→SquareP (λ _ _ → UIP')
         (λ i → eqʸ i δ ∘ᴹ τ)
         (λ i → eqʸ i (δ ∘ᴹ τ))
         (natʸ σʸ τ δ)
@@ -76,9 +70,9 @@ _∘ʸ_ : ∀{Γ Δ Θ} → Subʸ Δ Θ → Subʸ Γ Δ → Subʸ Γ Θ
 よᵃ .Motive.Subᴬ        = Subʸ
 よᵃ .Motive.Tmᴬ         = Tmᴬ
 よᵃ .Motive.tyOfᴬ       = tyOfᴬ
-よᵃ .Motive.Tyᴬ-is-set  = Tyᴬ-is-set
-よᵃ .Motive.Subᴬ-is-set = Subʸ-is-set
-よᵃ .Motive.Tmᴬ-is-set  = Tmᴬ-is-set
+-- よᵃ .Motive.Tyᴬ-is-set  = Tyᴬ-is-set
+-- よᵃ .Motive.Subᴬ-is-set = Subʸ-is-set
+-- よᵃ .Motive.Tmᴬ-is-set  = Tmᴬ-is-set
 
 -- open SCᴹ
 よᵐ : SCᴹ よᵃ

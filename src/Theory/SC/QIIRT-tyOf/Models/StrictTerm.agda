@@ -3,10 +3,6 @@ module Theory.SC.QIIRT-tyOf.Models.StrictTerm where
 open import Prelude
 open import Theory.SC.QIIRT-tyOf.Model
 
-postulate
-  UIP : ∀ {ℓ} → {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
-  -- [TODO] remove this later
-
 module _ where
   open import Theory.SC.QIIRT-tyOf.Syntax
   open import Theory.SC.QIIRT-tyOf.Models.Term
@@ -43,8 +39,8 @@ open Motive Termₛᵃ public
   ; Subᴬ  to Subₛ
   ; Tmᴬ   to Tmₛ
   ; tyOfᴬ to tyOfₛ
-  ; Tyᴬ-is-set  to Tyₛ-is-set
-  ; Subᴬ-is-set to Subₛ-is-set
+--  ; Tyᴬ-is-set  to Tyₛ-is-set
+--  ; Subᴬ-is-set to Subₛ-is-set
   )
 
 open SCᴹ Termₛᵐ public

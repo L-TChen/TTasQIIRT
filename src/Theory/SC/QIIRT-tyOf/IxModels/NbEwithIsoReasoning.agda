@@ -8,11 +8,7 @@ open import Theory.SC.QIIRT-tyOf.Models.StrictTerm
   using (▸ᶜ; ▸ᵀ; ⟨_,⟩!₂≡ʸ)
 open import Theory.SC.QIIRT-tyOf.StrictSyntaxIso
 open import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
-  hiding (cong,∶[])
 open Ty³
-
-postulate
-  UIP : ∀ {ℓ} → {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
 
 cong,∶[]
   : {σ σ' : Sub Γ Δ}{t t' : Tm Γ}
@@ -20,7 +16,8 @@ cong,∶[]
   → σ ≡ σ' → t ≡ t'
   → (σ , t ∶[ p ]) ≡ (σ' , t' ∶[ p' ])
 cong,∶[] {A = A} p p' eqσ eqt =
-  cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Ty-is-set) p p' (cong tyOf eqt) (cong (A [_]) eqσ))
+  cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → UIP') p p' (cong tyOf eqt) (cong (A [_]) eqσ))
+--  cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Ty-is-set) p p' (cong tyOf eqt) (cong (A [_]) eqσ))
 
 -- Definition of neutral and normal forms
 data NfTy (Γ : Ctx) : Set where
@@ -93,7 +90,9 @@ cong,∶[]ᴿ
   : {ρ ρ' : Ren Γ Δ}{x x' : Var Γ}{p : tyOf ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ ⌝ᴿ ]}{p' : tyOf ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ]}
   → ρ ≡ ρ' → x ≡ x'
   → (ρ , x ∶[ p ]) ≡ (ρ' , x' ∶[ p' ])
-cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i = ρ≡ρ' i , x≡x' i ∶[ isSet→SquareP (λ _ _ → Ty-is-set) p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]) i ]
+cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i =
+  ρ≡ρ' i , x≡x' i ∶[ isSet→SquareP (λ _ _ → UIP') p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]) i ]
+-- cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i = ρ≡ρ' i , x≡x' i ∶[ isSet→SquareP (λ _ _ → Ty-is-set) p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]) i ]
 
 ⌜ ∅ ⌝ᴿ = ∅
 ⌜ ρ , x ∶[ p ] ⌝ᴿ = ⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]
@@ -303,8 +302,8 @@ evalSub {Γ = Γ} (ηπ {Δ = Δ} {A = A} σ i) =
       eqρ
       (cong,∶[] (tyOfπ₂ σ) ((λ i₁ → tyOf ((cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (~ i₁))) ∙ tyOfπ₂ σ ∙ (λ i₁ → A [ (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) i₁ ])) (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _))
       i
-evalSub (Sub-is-set σ σ' p q i j) =
-  isSet→SquareP (λ i j → Subᴰ-is-set (Sub-is-set σ σ' p q j i)) refl refl (λ j → evalSub (p j)) (λ j → evalSub (q j)) j i
+-- evalSub (Sub-is-set σ σ' p q i j) =
+--   isSet→SquareP (λ i j → Subᴰ-is-set (Sub-is-set σ σ' p q j i)) refl refl (λ j → evalSub (p j)) (λ j → evalSub (q j)) j i
 
 evalTm (t [ σ ]) =
  let ρ , eqρ = evalSub σ
@@ -341,7 +340,7 @@ evalTm ([∘]t t σ τ i) =
       ((λ i → ((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x) i [ eqρ i ]) ∙ ⌜lookupVar⌝ ρ (lookupVar ρ' x))
       ((λ i → eqx i [ (cong₂ _∘_ eqρ' eqρ ∙ ⌜⊙⌝ ρ' ρ) i ]) ∙ ⌜lookupVar⌝ (ρ' ⊙ ρ) x)
       i
-evalTm (Tm-is-set t u p q i j) = {!!}
+-- evalTm (Tm-is-set t u p q i j) = {!!}
 
 -- Reify variables and renamings to neutral forms and normal forms
 ⇓ⱽ : (`σ : NeSub Γ Δ) → Var Δ → NeTm Γ

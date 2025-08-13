@@ -10,9 +10,9 @@ record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ �
     Tmᴬ   : Ctxᴬ → Set ℓ₄
     tyOfᴬ : {Γᴹ : Ctxᴬ} → Tmᴬ Γᴹ → Tyᴬ Γᴹ
 
-    Tyᴬ-is-set : {Γᴹ : Ctxᴬ} → isSet (Tyᴬ Γᴹ)
-    Subᴬ-is-set : {Γᴹ Δᴹ : Ctxᴬ} → isSet (Subᴬ Γᴹ Δᴹ)
-    Tmᴬ-is-set : {Γᴹ : Ctxᴬ} → isSet (Tmᴬ Γᴹ)
+--    Tyᴬ-is-set : {Γᴹ : Ctxᴬ} → isSet (Tyᴬ Γᴹ)
+--    Subᴬ-is-set : {Γᴹ Δᴹ : Ctxᴬ} → isSet (Subᴬ Γᴹ Δᴹ)
+--    Tmᴬ-is-set : {Γᴹ : Ctxᴬ} → isSet (Tmᴬ Γᴹ)
 
   variable
     Γᴹ Δᴹ Θᴹ Ξᴹ : Ctxᴬ
@@ -178,4 +178,5 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       → σᴹ ≡ σ'ᴹ → tᴹ ≡ t'ᴹ
       → (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ (σ'ᴹ ,ᴹ t'ᴹ ∶[ p' ])
     cong,∶[]ᴹ {Aᴹ = Aᴹ} p p' eqσ eqt =
-      cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Tyᴬ-is-set) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))
+      cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ _ _ → UIP) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))
+--      cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Tyᴬ-is-set) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))

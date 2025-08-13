@@ -1,3 +1,5 @@
+{-# OPTIONS -WnoUnsupportedIndexedMatch #-}
+
 module Theory.SC.QIIRT-tyOf.IxModels.StrictNbE where
 
 open import Prelude
@@ -124,7 +126,8 @@ cong,∶[]ᴿ
   → _,_∶[_] {A = A} ρ x p ≡ _,_∶[_] {A = A} ρ' x' p'
 cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i =
   _,_∶[_] {A = A} (ρ≡ρ' i) (x≡x' i)
-    (isSet→SquareP (λ _ _ → Tyₛ-is-set) p p' (λ i → tyOfₛ ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]ₛ) i)
+    (isSet→SquareP (λ _ _ → UIP') p p' (λ i → tyOfₛ ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]ₛ) i)
+--    (isSet→SquareP (λ _ _ → Tyₛ-is-set) p p' (λ i → tyOfₛ ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]ₛ) i)
 
 η∅ᴿ : (ρ : Ren Γ' ∅) → ρ ≡ ∅
 η∅ᴿ ∅ = refl
@@ -158,13 +161,16 @@ wkᴿ A (_,_∶[_] {A = A'} ρ x p) =
 ⌜wkᴿ⌝ A (_,_∶[_] {A = A'} ρ x p) =
   let q = (λ i → p i [ π₁ₛ {Aᴹ = A} idSₛ ]ₛ) ∙ (λ i → ⟨ E A' , ≡ʸ→≡ {σʸ = ⌜ A' [ ⌜ ρ ⌝ᴿ ]ₛ ⌝ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ} {⌜ A' ⌝ ∘ₛ (⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ)} refl i ⟩!)
       q' = (λ i → p i [ π₁ₛ {Aᴹ = A} idSₛ ]ₛ) ∙ [∘]Tₛ A' (π₁ₛ {Aᴹ = A} idSₛ) ⌜ ρ ⌝ᴿ ∙ cong (A' [_]ₛ) (⌜wkᴿ⌝ A ρ)
-  in {!   !} -- ,∘ₛ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (π₁ₛ {Aᴹ = A} idSₛ) p q ∙ cong,∶[]ₛ q q' (⌜wkᴿ⌝ A ρ) (λ _ → ⌜ x ⌝ⱽ [ π₁ₛ {Aᴹ = A} idSₛ ]tₛ)
-  -- (_,ₛ_∶[_] {Aᴹ = A'} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p) ∘ₛ π₁ₛ {Aᴹ = A} idSₛ
-  --   ≡⟨ ,∘ₛ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (π₁ₛ {Aᴹ = A} idSₛ) p q ⟩
-  -- _,ₛ_∶[_] {Aᴹ = A'} (⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ) (⌜ x ⌝ⱽ [ π₁ₛ {Aᴹ = A} idSₛ ]tₛ) q
-  --   ≡⟨ cong,∶[]ₛ q q' (⌜wkᴿ⌝ A ρ) refl ⟩
-  -- _,ₛ_∶[_] {Aᴹ = A'} ⌜ wkᴿ A ρ ⌝ᴿ (⌜ x ⌝ⱽ [ π₁ₛ {Aᴹ = A} idSₛ ]tₛ) q'
-  --   ∎
+  in {! !} 
+  {-
+  ,∘ₛ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (π₁ₛ {Aᴹ = A} idSₛ) p q ∙ cong,∶[]ₛ q q' (⌜wkᴿ⌝ A ρ) (λ _ → ⌜ x ⌝ⱽ [ π₁ₛ {Aᴹ = A} idSₛ ]tₛ)
+  (_,ₛ_∶[_] {Aᴹ = A'} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p) ∘ₛ π₁ₛ {Aᴹ = A} idSₛ
+    ≡⟨ ,∘ₛ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (π₁ₛ {Aᴹ = A} idSₛ) p q ⟩
+  _,ₛ_∶[_] {Aᴹ = A'} (⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ) (⌜ x ⌝ⱽ [ π₁ₛ {Aᴹ = A} idSₛ ]tₛ) q
+    ≡⟨ cong,∶[]ₛ q q' (⌜wkᴿ⌝ A ρ) refl ⟩
+  _,ₛ_∶[_] {Aᴹ = A'} ⌜ wkᴿ A ρ ⌝ᴿ (⌜ x ⌝ⱽ [ π₁ₛ {Aᴹ = A} idSₛ ]tₛ) q'
+    ∎
+  -}
 
 idR : Ren Γ' Γ'
 ⌜idR⌝ : idSₛ ≡ ⌜ idR {Γ'} ⌝ᴿ
@@ -181,7 +187,8 @@ idR {Γ' , Aₛ} = wkᴿ Aₛ idR , here Aₛ ∶[ (λ i → Aₛ [ p i ]ₛ) ]
         ⌜ wkᴿ Aₛ idR ⌝ᴿ
           ∎
 ⌜idR⌝ {∅} = η∅ₛ idSₛ
-⌜idR⌝ {Γ' , Aₛ} = {!   !}
+⌜idR⌝ {Γ' , Aₛ} = ηπₛ {Aᴹ = Aₛ} idSₛ ∙ {!cong,∶[]ₛ (tyOfπ₂ₛ idSₛ) ? ?!}
+-- {! ηπₛ {Aᴹ = Aₛ} idSₛ ∙ cong,∶[]ₛ (tyOfπ₂ₛ idSₛ) (λ i → Aₛ [ idREq.p Γ' Aₛ i ]ₛ) (idREq.p Γ' Aₛ) refl!}
   -- ηπₛ {Aᴹ = Aₛ} idSₛ ∙ cong,∶[]ₛ (tyOfπ₂ₛ idSₛ) (λ i → Aₛ [ idREq.p Γ' Aₛ i ]ₛ) (idREq.p Γ' Aₛ) refl
 
 lookupVar-wkᴿ : {A : Tyₛ [ Γ' ]ᶜ}(ρ : Ren Γ' Δ')(x : Var Δ') → lookupVar (wkᴿ A ρ) x ≡ there A (lookupVar ρ x)

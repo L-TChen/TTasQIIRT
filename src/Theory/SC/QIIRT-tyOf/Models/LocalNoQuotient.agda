@@ -11,14 +11,7 @@ open import Cubical.Relation.Binary.Base
 
 open Motive A
 open SCᴹ SCᵐ
-
-cong,∶[]
-  : {σᴹ σ'ᴹ : Subᴬ Γᴹ Δᴹ}{tᴹ t'ᴹ : Tmᴬ Γᴹ}
-  → (pᴹ : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ) (p'ᴹ : tyOfᴬ t'ᴹ ≡ Aᴹ [ σ'ᴹ ]Tᴹ)
-  → σᴹ ≡ σ'ᴹ → tᴹ ≡ t'ᴹ
-  → (σᴹ ,ᴹ tᴹ ∶[ pᴹ ]) ≡ (σ'ᴹ ,ᴹ t'ᴹ ∶[ p'ᴹ ])
-cong,∶[] {Aᴹ = Aᴹ} p p' eqσ eqt =
-  cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Tyᴬ-is-set) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))
+  renaming (cong,∶[]ᴹ to cong,∶[])
 
 ℓ! = ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃
 
@@ -35,14 +28,14 @@ open Ty³
 ty³ : (V : Ctxᴬ) → Tyᴬ V → Subᴬ Γᴹ V → Ty³ Γᴹ
 ty³ V E σ = ⟨ E , σ ⟩!
 
-Ty³-is-set : isSet (Ty³ Γᴹ)
-Ty³-is-set {Γᴹ} A³ A'³ p q i j = record
-  { V = isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i
-  ; E = isSet→SquareP (λ j i → Tyᴬ-is-set {isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i})
-                       refl refl (cong E p) (cong E q) j i
-  ; ⌜_⌝ = isSet→SquareP (λ j i → Subᴬ-is-set {Γᴹ} {isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i})
-                         refl refl (cong ⌜_⌝ p) (cong ⌜_⌝ q) j i
-  }
+-- Ty³-is-set : isSet (Ty³ Γᴹ)
+-- Ty³-is-set {Γᴹ} A³ A'³ p q i j = record
+--   { V = isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i
+--   ; E = isSet→SquareP (λ j i → Tyᴬ-is-set {isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i})
+--                        refl refl (cong E p) (cong E q) j i
+--   ; ⌜_⌝ = isSet→SquareP (λ j i → Subᴬ-is-set {Γᴹ} {isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i})
+--                          refl refl (cong ⌜_⌝ p) (cong ⌜_⌝ q) j i
+--   }
 
 Tm! : Ctxᴬ → Set _
 Tm! Γᴹ = Σ[ T ∈ Ty³ Γᴹ ] Σ[ t ∈ (Tmᴬ Γᴹ) ] tyOfᴬ t ≡ [ T ]³
@@ -52,7 +45,8 @@ Tm!-≡ : {Γᴹ : Ctxᴬ} → {u t : Tm! Γᴹ}
 Tm!-≡ {Γᴹ} {Aᴹ , u , p} {Bᴹ , t , q} r w i =
  r i ,
  w i ,
- isProp→PathP {B = λ j → tyOfᴬ (w j) ≡ [ r j ]³} (λ j → Tyᴬ-is-set (tyOfᴬ (w j)) [ r j ]³) p q i
+ isProp→PathP {B = λ j → tyOfᴬ (w j) ≡ [ r j ]³} (λ j → UIP) p q i
+ -- isProp→PathP {B = λ j → tyOfᴬ (w j) ≡ [ r j ]³} (λ j → Tyᴬ-is-set (tyOfᴬ (w j)) [ r j ]³) p q i
 
 tyOf! : Tm! Γᴹ → Ty³ Γᴹ
 tyOf! = fst
@@ -72,9 +66,9 @@ SC!ᵃ .Motive.Tyᴬ         = Ty³
 SC!ᵃ .Motive.Subᴬ        = Subᴬ
 SC!ᵃ .Motive.Tmᴬ         = Tm!
 SC!ᵃ .Motive.tyOfᴬ       = tyOf!
-SC!ᵃ .Motive.Tyᴬ-is-set  = Ty³-is-set
-SC!ᵃ .Motive.Subᴬ-is-set = Subᴬ-is-set
-SC!ᵃ .Motive.Tmᴬ-is-set  = isSetΣ Ty³-is-set λ _ → isSetΣ Tmᴬ-is-set λ _ → isProp→isSet (Tyᴬ-is-set _ _)
+-- SC!ᵃ .Motive.Tyᴬ-is-set  = Ty³-is-set
+-- SC!ᵃ .Motive.Subᴬ-is-set = Subᴬ-is-set
+-- SC!ᵃ .Motive.Tmᴬ-is-set  = isSetΣ Ty³-is-set λ _ → isSetΣ Tmᴬ-is-set λ _ → isProp→isSet (Tyᴬ-is-set _ _)
 
 SC!ᵐ : SCᴹ SC!ᵃ
 SC!ᵐ .SCᴹ.∅ᴹ = ∅ᴹ

@@ -7,4 +7,4 @@ depend:
   cubical
 
 flags:
-  --auto-inline --cubical --exact-split
+  --auto-inline --cubical --exact-split --guardedness

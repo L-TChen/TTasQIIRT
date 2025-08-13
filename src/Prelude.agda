@@ -5,6 +5,8 @@ open import Cubical.Core.Primitives     public
 open import Cubical.Foundations.Prelude public
   hiding (Sub)
 open import Cubical.Foundations.HLevels public
+open import Cubical.Foundations.Path    public
+open import Cubical.Foundations.Isomorphism public
 open import Cubical.Data.Sigma          public
   hiding (Sub)
 open import Cubical.Data.Empty          public
@@ -25,3 +27,9 @@ PathP-syntax : ∀ {ℓ} (A : I → Type ℓ) → A i0 → A i1 → Type ℓ
 PathP-syntax = PathP
 
 syntax PathP-syntax (λ i → A) x y = x ≡[ i ⊢ A ] y
+
+postulate
+  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
+
+UIP' : {A : Set ℓ} → isSet A 
+UIP' x y = UIP

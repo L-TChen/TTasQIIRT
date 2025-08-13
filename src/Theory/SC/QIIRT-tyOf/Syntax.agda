@@ -134,7 +134,7 @@ module Foo where
         : Ty Γ
       U[]'
         : U [ σ ]T ≡ U
-      Ty-is-set : isSet (Ty Γ)
+--      Ty-is-set : isSet (Ty Γ)
 
     data Sub where
       ∅'
@@ -171,8 +171,8 @@ module Foo where
       ηπ'
         : (σ : Sub Γ (Δ , A))
         → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
-      Sub-is-set
-        : isSet (Sub Γ Δ) -- Added for NbE
+--      Sub-is-set
+--        : isSet (Sub Γ Δ) -- Added for NbE
 
     data Tm where
       _[_] : (A : Tm Δ)(σ : Sub Γ Δ)
@@ -190,8 +190,8 @@ module Foo where
       [∘]t'
         : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
         → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
-      Tm-is-set
-        : isSet (Tm Γ) -- Added for NbE
+--      Tm-is-set
+--        : isSet (Tm Γ) -- Added for NbE
 
     ∅       = ∅'
     _,_     = _,'_
@@ -223,7 +223,7 @@ module Foo where
     tyOf (βπ₂' σ t p q i)    = q i
     tyOf ([idS]t' t i)       = [idS]T {A = tyOf t} i
     tyOf ([∘]t' t σ τ i)     = [∘]T (tyOf t) σ τ i
-    tyOf (Tm-is-set t u p q i j) = Ty-is-set (tyOf t) (tyOf u) (cong tyOf p) (cong tyOf q) i j
+--    tyOf (Tm-is-set t u p q i j) = Ty-is-set (tyOf t) (tyOf u) (cong tyOf p) (cong tyOf q) i j
 
     -- equations derivable from the computational behaviour of `tyOf`
     tyOfπ₂ σ = refl
@@ -363,6 +363,51 @@ vz = π₂ idS
 vs : Tm Γ → Tm (Γ , B)
 vs x = x [ wk ]
 -- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
+
+{-
+module CtxPath where
+  Cover : Ctx → Ctx → Type
+  reflCode : ∀ Γ → Cover Γ Γ
+
+  encode : Γ ≡ Δ → Cover Γ Δ
+  encodeRefl : encode refl ≡ reflCode Γ
+
+  decode : Cover Γ Δ → Γ ≡ Δ
+  decodeRefl : decode (reflCode Γ) ≡ refl
+  
+  Cover ∅ ∅             = Unit
+  Cover ∅ (Δ , A)       = ⊥
+  Cover (Γ , A) ∅       = ⊥
+  Cover (Γ , A) (Δ , B) = Σ[ p ∈ Cover Γ Δ ] PathP (λ i → Ty (decode p i)) A B
+  -- transport (λ i → Ty (decode p i)) A ≡ B
+
+  reflCode ∅       = ⋆
+  reflCode (Γ , A) = reflCode Γ Prelude., transport (sym λ j → PathP (λ i → Ty (decodeRefl {Γ} j i)) A A) refl
+
+  encode {Γ} = J (λ Δ _ → Cover Γ Δ) (reflCode Γ)
+
+  encodeRefl {Γ} = JRefl (λ Δ _ → Cover Γ Δ) (reflCode Γ)
+
+  decode {∅}     {∅}        _ = refl
+  decode {Γ , A} {Δ , B} (p Prelude., q) = cong₂ _,_ (decode p) q
+
+  decodeRefl {∅}     = refl
+  decodeRefl {Γ , A} = {!!} -- [TODO] 
+
+  decodeEncode : (p : Γ ≡ Δ) → decode (encode p) ≡ p
+  decodeEncode {Γ} = J (λ _ p → decode (encode p) ≡ p)
+    (cong decode encodeRefl ∙ decodeRefl)
+
+  isPropCover : ∀ Γ Δ → isProp (Cover Γ Δ)
+  isPropCover ∅       ∅       = isPropUnit
+  isPropCover ∅       (Δ , B) = isProp⊥
+  isPropCover (Γ , A) ∅       = isProp⊥
+  isPropCover (Γ , A) (Δ , B) = isPropΣ (isPropCover Γ Δ)
+    λ c → λ p q → sym (PathPIsoPath (λ i → Ty (decode c i)) A B .Iso.leftInv p) ∙ cong toPathP (Ty-is-set _ _ (fromPathP p) (fromPathP q)) ∙ PathPIsoPath (λ i → Ty (decode c i)) A B .Iso.leftInv q
+
+  Ctx-is-set : isSet Ctx
+  Ctx-is-set Γ Δ = isPropRetract encode decode decodeEncode (isPropCover Γ Δ)
+-}
 
 -- -- vz:= : (t : Tm Γ) → let (_ , (σ , A)) = tyOf t in Sub Γ (Γ , A [ σ ])
 -- -- vz:= {Γ} t = idS , t ∶[ {!!} ]
