@@ -1,4 +1,4 @@
-{-# OPTIONS -WnoUnsupportedIndexedMatch --show-implicit #-}
+{-# OPTIONS -WnoUnsupportedIndexedMatch --show-implicit --lossy-unification #-}
 
 module Theory.SC.QIIRT-tyOf.IxModels.StrictNbE where
 
@@ -226,7 +226,7 @@ idR {Γ' , Aₛ} = wkᴿ Aₛ idR , here Aₛ ∶[
   _,ₛ_∶[_] {[ Γ' ]ᶜ ,ₛ Aₛ} {[ Γ' ]ᶜ} {Aₛ}
     ⌜ wkᴿ {Γ'} {Γ'} Aₛ (idR {Γ'}) ⌝ᴿ ⌜ here {Γ'} Aₛ ⌝ⱽ pf 
     
-    ≡⟨ {!!} ⟩ -- Is this Agda's bug? 
+    ≡⟨⟩
 
   _,ₛ_∶[_] {[ Γ' , Aₛ ]ᶜ} {[ Γ' ]ᶜ} {Aₛ}
     ⌜ wkᴿ {Γ'} {Γ'} Aₛ (idR {Γ'}) ⌝ᴿ ⌜ here {Γ'} Aₛ ⌝ⱽ pf 
