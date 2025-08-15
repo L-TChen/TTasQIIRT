@@ -1,4 +1,4 @@
-{-# OPTIONS -WnoUnsupportedIndexedMatch #-}
+{-# OPTIONS -WnoUnsupportedIndexedMatch --show-implicit #-}
 
 module Theory.SC.QIIRT-tyOf.IxModels.NbE where
 
@@ -6,8 +6,11 @@ open import Prelude
 open import Theory.SC.QIIRT-tyOf.Syntax
 
 cong,∶[]
-  : {σ σ' : Sub Γ Δ}{t t' : Tm Γ}
-  → (p : tyOf t ≡ A [ σ ])(p' : tyOf t' ≡ A [ σ' ])
+  : {Γ Δ : Ctx} {A : Ty Δ}
+  {σ : Sub Γ Δ}{t : Tm Γ}
+  (p : tyOf t ≡ A [ σ ])
+  {σ' : Sub Γ Δ}{t' : Tm Γ}
+  (p' : tyOf t' ≡ A [ σ' ])
   → σ ≡ σ' → t ≡ t'
   → (σ , t ∶[ p ]) ≡ (σ' , t' ∶[ p' ])
 cong,∶[] {A = A} p p' eqσ eqt =
@@ -175,22 +178,26 @@ idR {Γ , A} = wkᴿ A idR , here ∶[ cong (A [_]) (sym (idS∘ (π₁ idS)) �
     ≡⟨ ηπ idS ⟩
   π₁ idS , π₂ idS ∶[ tyOfπ₂ idS ]
     ≡⟨ cong,∶[] refl
-        (cong (λ z → A [ z ]) (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR))
-        (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) refl
+       {⌜ wkᴿ A idR ⌝ᴿ} {π₂ idS} (cong (λ z → A [ z ]) (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR))
+        (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) refl 
       ⟩
-  ⌜ wkᴿ A idR ⌝ᴿ , π₂ idS ∶[ _ ]
+  -- the following term is not necessary, as the proof is just refl
+--  ⌜ wkᴿ A idR ⌝ᴿ , π₂ idS
+--    ∶[ cong (A [_]) (sym (idS∘ π₁ idS) ∙ cong ((_∘ π₁ idS)) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) ]
+--    ≡⟨⟩
+  ⌜ idR {Γ , A} ⌝ᴿ
     ∎
 
 lookupVar-wkᴿ
   : (ρ : Ren Γ Δ)(x : Var Δ)
   → lookupVar (wkᴿ A ρ) x ≡ there (lookupVar ρ x)
-lookupVar-wkᴿ (ρ , x ∶[ p ]) here = refl
+lookupVar-wkᴿ (ρ , x ∶[ p ])  here      = refl
 lookupVar-wkᴿ (ρ , x' ∶[ p ]) (there x) = lookupVar-wkᴿ ρ x
 
 lookupVar-idR
   : (x : Var Γ)
   → lookupVar idR x ≡ x
-lookupVar-idR here = refl
+lookupVar-idR here      = refl
 lookupVar-idR (there x) =
   lookupVar-wkᴿ idR x ∙ cong there (lookupVar-idR x)
 

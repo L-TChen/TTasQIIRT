@@ -173,10 +173,13 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         ∎
     
     cong,∶[]ᴹ
-      : {Aᴹ : Tyᴬ Δᴹ}{σᴹ σ'ᴹ : Subᴬ Γᴹ Δᴹ}{tᴹ t'ᴹ : Tmᴬ Γᴹ}
-      → (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)(p' : tyOfᴬ t'ᴹ ≡ Aᴹ [ σ'ᴹ ]Tᴹ)
-      → σᴹ ≡ σ'ᴹ → tᴹ ≡ t'ᴹ
-      → (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ (σ'ᴹ ,ᴹ t'ᴹ ∶[ p' ])
+      : {Γᴹ Δᴹ : Ctxᴬ} {Aᴹ : Tyᴬ Δᴹ}
+      {σᴹ  : Subᴬ Γᴹ Δᴹ} {tᴹ : Tmᴬ Γᴹ}
+      (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
+      {σᴹ' : Subᴬ Γᴹ Δᴹ} {tᴹ' : Tmᴬ Γᴹ}
+      (p' : tyOfᴬ tᴹ' ≡ Aᴹ [ σᴹ' ]Tᴹ)
+      → σᴹ ≡ σᴹ' → tᴹ ≡ tᴹ'
+      → (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ (σᴹ' ,ᴹ tᴹ' ∶[ p' ])
     cong,∶[]ᴹ {Aᴹ = Aᴹ} p p' eqσ eqt =
       cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ _ _ → UIP) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))
 --      cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Tyᴬ-is-set) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))
