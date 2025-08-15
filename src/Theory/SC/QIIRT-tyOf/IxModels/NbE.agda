@@ -121,8 +121,8 @@ cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i = ρ≡ρ' i , x≡x' i ∶
 lookupVar
   : (ρ : Ren Γ Δ) → Var Δ
   → Var Γ
-lookupVar (ρ , x' ∶[ p ]) here = x'
-lookupVar (ρ , x' ∶[ p ]) (there x) = lookupVar ρ x
+lookupVar (ρ , x ∶[ _ ]) here = x
+lookupVar (ρ , _ ∶[ _ ]) (there x) = lookupVar ρ x
 
 ⌜lookupVar⌝
   : (ρ : Ren Γ Δ)(x : Var Δ)
