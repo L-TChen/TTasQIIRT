@@ -14,7 +14,8 @@ module Foo where
   module _ where -- delimit the scope of forward declarations
     infixl 8  _[_] _[_]T _[_]t
     infixr 10 _∘_
-    infixl 4  _,_ _,_∶[_] _,_∶[_]'
+    infixl 5 _,_∶[_]'
+    infixl 4  _,_ _,_∶[_] 
 
     data Ctx : Set
     data Sub : (Γ Δ : Ctx) → Set

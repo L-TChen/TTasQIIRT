@@ -44,7 +44,9 @@ data NeTm (Γ : Ctx) : Set where
     : NeSub Γ (Δ , A)
     → NeTm Γ
 
-⌜_⌝tm : NeTm Γ → Tm Γ
+⌜_⌝tm
+  : NeTm Γ
+  → Tm Γ
 ⌜ `π₂ σⁿᵉ ⌝tm = π₂ ⌜ σⁿᵉ ⌝subⁿᵉ
 
 data NfSub (Γ : Ctx) : Ctx → Set
@@ -72,7 +74,9 @@ data Var : (Γ : Ctx) → Set where
     : Var Γ
     → Var (Γ , B)
 
-⌜_⌝ⱽ : Var Γ → Tm Γ
+⌜_⌝ⱽ
+  : Var Γ
+  → Tm Γ
 ⌜ here    ⌝ⱽ = π₂ idS
 ⌜ there x ⌝ⱽ = ⌜ x ⌝ⱽ [ π₁ idS ]
 
@@ -81,13 +85,13 @@ tyOfⱽ
   → Σ[ Δ ∈ Ctx ] Σ[ σ ∈ Sub Γ Δ ] Ty Δ
 tyOfⱽ (here {Γ} {A})    = Γ , π₁ idS , A
 tyOfⱽ (there {Γ} {B} x) =
-  let (Δ , σ , A) = tyOfⱽ x
-  in Δ , σ ∘ π₁ idS , A
+  let (Δ , σ , A) = tyOfⱽ x in
+  Δ , σ ∘ π₁ idS , A
 
 tyOfⱽ-sound
   : (x : Var Γ)
   → tyOf ⌜ x ⌝ⱽ ≡ let (Δ , σ , A) = tyOfⱽ x in A [ σ ]
-tyOfⱽ-sound here = refl
+tyOfⱽ-sound here      = refl
 tyOfⱽ-sound (there x) =
   let (Δ , σ , A) = tyOfⱽ x
   in (λ i → tyOfⱽ-sound x i [ π₁ idS ]) ∙ [∘]T A (π₁ idS) σ
@@ -114,17 +118,6 @@ cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i = ρ≡ρ' i , x≡x' i ∶
 ⌜ ∅ ⌝ᴿ = ∅
 ⌜ ρ , x ∶[ p ] ⌝ᴿ = ⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]
 
-η∅ᴿ
-  : (ρ : Ren Γ ∅)
-  → ρ ≡ ∅
-η∅ᴿ ∅ = refl
-
-η,ᴿ
-  : (ρ : Ren Γ (Δ , A))
-  → Σ[ ρ' ∈ Ren Γ Δ ] Σ[ x' ∈ Var Γ ] Σ[ p' ∈ tyOf ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ] ]
-    ρ ≡ (ρ' , x' ∶[ p' ])
-η,ᴿ (ρ , x ∶[ p ]) = (ρ , x , p , refl)
-
 lookupVar
   : (ρ : Ren Γ Δ) → Var Δ
   → Var Γ
@@ -146,6 +139,18 @@ lookupVar (ρ , x' ∶[ p ]) (there x) = lookupVar ρ x
   ⌜ lookupVar ρ x ⌝ⱽ
     ∎
 
+η∅ᴿ
+  : (ρ : Ren Γ ∅)
+  → ρ ≡ ∅
+η∅ᴿ ∅ = refl
+
+η,ᴿ
+  : (ρ : Ren Γ (Δ , A))
+  → Σ[ ρ' ∈ Ren Γ Δ ] Σ[ x' ∈ Var Γ ] Σ[ p' ∈ tyOf ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ] ]
+    ρ ≡ ρ' , x' ∶[ p' ]
+η,ᴿ (ρ , x ∶[ p ]) = (ρ , x , p , refl)
+
+
 wkᴿ
   : (A : Ty Γ) → Ren Γ Δ
   → Ren (Γ , A) Δ
@@ -155,7 +160,8 @@ wkᴿ
 wkᴿ A ∅ = ∅
 wkᴿ A (_,_∶[_] {A = A'} ρ x p) =
   wkᴿ A ρ , there x ∶[
-    cong (_[ π₁ idS ]) p ∙ [∘]T A' (π₁ idS) ⌜ ρ ⌝ᴿ ∙ cong (A' [_]) (⌜wkᴿ⌝ A ρ) ]
+    cong (_[ π₁ idS ]) p ∙ [∘]T A' (π₁ idS) ⌜ ρ ⌝ᴿ ∙ cong (A' [_]) (⌜wkᴿ⌝ A ρ)
+    ]
 ⌜wkᴿ⌝ A ∅ = η∅ _
 ⌜wkᴿ⌝ A (_,_∶[_] {A = A'} ρ x p) =
   let q = cong (_[ π₁ idS ]) p ∙ [∘]T A' (π₁ idS) ⌜ ρ ⌝ᴿ ∙ cong (A' [_]) (⌜wkᴿ⌝ A ρ) in
@@ -168,8 +174,7 @@ wkᴿ A (_,_∶[_] {A = A'} ρ x p) =
 
 idR : Ren Γ Γ
 ⌜idR⌝
-  : ∀{Γ}
-  → idS ≡ ⌜ idR {Γ} ⌝ᴿ
+  : idS ≡ ⌜ idR {Γ} ⌝ᴿ
 idR {∅} = ∅
 idR {Γ , A} = wkᴿ A idR , here ∶[ cong (A [_]) (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) ]
 ⌜idR⌝ {∅} = η∅ _
@@ -178,13 +183,15 @@ idR {Γ , A} = wkᴿ A idR , here ∶[ cong (A [_]) (sym (idS∘ (π₁ idS)) �
     ≡⟨ ηπ idS ⟩
   π₁ idS , π₂ idS ∶[ tyOfπ₂ idS ]
     ≡⟨ cong,∶[] refl
-       {⌜ wkᴿ A idR ⌝ᴿ} {π₂ idS} (cong (λ z → A [ z ]) (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR))
-        (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) refl 
+       -- {⌜ wkᴿ A idR ⌝ᴿ} {π₂ idS}
+       (cong (λ z → A [ z ]) (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR))
+       (sym (idS∘ (π₁ idS)) ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR)
+       refl 
       ⟩
   -- the following term is not necessary, as the proof is just refl
---  ⌜ wkᴿ A idR ⌝ᴿ , π₂ idS
---    ∶[ cong (A [_]) (sym (idS∘ π₁ idS) ∙ cong ((_∘ π₁ idS)) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) ]
---    ≡⟨⟩
+ ⌜ wkᴿ A idR ⌝ᴿ , π₂ idS
+   ∶[ cong (A [_]) (sym (idS∘ π₁ idS) ∙ cong ((_∘ π₁ idS)) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) ]
+   ≡⟨⟩
   ⌜ idR {Γ , A} ⌝ᴿ
     ∎
 

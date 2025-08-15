@@ -20,6 +20,22 @@ open Subʸ
 open import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
 open Ty³
 
+-- Ctx' is defined in order to pattern match in Var
+data Ctx' : Set
+[_]ᶜ : Ctx' → Ctx
+
+data Ctx' where
+  ∅
+    : Ctx'
+  _,_
+    : (Γ' : Ctx') (Aₛ : Tyₛ [ Γ' ]ᶜ)
+    → Ctx'
+
+[ ∅       ]ᶜ = ∅
+[ Γ' , Aₛ ]ᶜ = [ Γ' ]ᶜ ,ₛ Aₛ
+
+variable
+  Γ' Δ' Θ' Ξ' : Ctx'
 -- Definition of neutral and normal forms
 data NfTy (Γ : Ctxₛ) : Set where
   `U : NfTy Γ
@@ -47,11 +63,14 @@ data NeTm (Γ : Ctx) : Set where
     → NeTm Γ
 
 ⌜_⌝tm
-  : NeTm Γ → Tmₛ Γ
+  : NeTm Γ
+  → Tmₛ Γ
 ⌜ `π₂ A σⁿᵉ ⌝tm = π₂ₛ {Aᴹ = A} ⌜ σⁿᵉ ⌝subⁿᵉ
 
 data NfSub (Γ : Ctx) : Ctx → Set
-⌜_⌝subⁿᶠ : NfSub Γ Δ → Subₛ Γ Δ
+⌜_⌝subⁿᶠ
+  : NfSub Γ Δ
+  → Subₛ Γ Δ
 
 data NfSub Γ where
   `ne_
@@ -65,29 +84,14 @@ data NfSub Γ where
 ⌜ `ne σⁿᵉ ⌝subⁿᶠ = ⌜ σⁿᵉ ⌝subⁿᵉ
 ⌜ _`,_∶[_] {A = A} σⁿᶠ tⁿᵉ p ⌝subⁿᶠ = _,ₛ_∶[_] {Aᴹ = A} ⌜ σⁿᶠ ⌝subⁿᶠ ⌜ tⁿᵉ ⌝tm p
 
-data Ctx' : Set
-[_]ᶜ : Ctx' → Ctx
-
-data Ctx' where
-  ∅
-    : Ctx'
-  _,_
-    : (Γ' : Ctx') (Aₛ : Tyₛ [ Γ' ]ᶜ)
-    → Ctx'
-
-[ ∅ ]ᶜ       = ∅
-[ Γ' , Aₛ ]ᶜ = [ Γ' ]ᶜ , [ Aₛ ]³
-
-variable
-  Γ' Δ' Θ' Ξ' : Ctx'
-
 -- Definitions of variables and renamings
 data Var : (Γ' : Ctx') → Set where
   here
     : (Aₛ : Tyₛ [ Γ' ]ᶜ)
     → Var (Γ' , Aₛ)
   there
-    : (Bₛ : Tyₛ [ Γ' ]ᶜ) → Var Γ'
+    : (Bₛ : Tyₛ [ Γ' ]ᶜ)
+    → Var Γ'
     → Var (Γ' , Bₛ)
 
 ⌜_⌝ⱽ
@@ -99,8 +103,8 @@ data Var : (Γ' : Ctx') → Set where
 tyOfⱽ
   : Var Γ'
   → Σ[ Δ' ∈ Ctx' ] Σ[ σ ∈ Subₛ [ Γ' ]ᶜ [ Δ' ]ᶜ ] Tyₛ [ Δ' ]ᶜ
-tyOfⱽ {Γ' , .Aₛ} (here Aₛ)    = Γ' , π₁ₛ {Aᴹ = Aₛ} idSₛ , Aₛ
-tyOfⱽ {Γ' , .Bₛ} (there Bₛ x) =
+tyOfⱽ (here {Γ'} Aₛ)    = Γ' , π₁ₛ {Aᴹ = Aₛ} idSₛ , Aₛ
+tyOfⱽ (there {Γ'} Bₛ x) =
   let (Δ' , σ , Aₛ) = tyOfⱽ x in
   Δ' , σ ∘ₛ π₁ₛ {Aᴹ = Bₛ} idSₛ , Aₛ
 
@@ -109,43 +113,20 @@ tyOfⱽ-sound
   → tyOfₛ ⌜ x ⌝ⱽ ≡ let (_ , σ , Aₛ) = tyOfⱽ x in Aₛ [ σ ]ₛ
 tyOfⱽ-sound (here Aₛ)    = refl
 tyOfⱽ-sound (there Bₛ x) =
-  let (_ , σ , Aₛ) = tyOfⱽ x
+  let (Γ , σ , Aₛ) = tyOfⱽ x
   in (λ i → tyOfⱽ-sound x i [ π₁ₛ {Aᴹ = Bₛ} idSₛ ]ₛ)
-     ∙ λ i → ⟨ E Aₛ ,
-      ≡ʸ→≡ {σʸ = ⌜ Aₛ [ σ ]ₛ ⌝ ∘ₛ π₁ₛ {Aᴹ = Bₛ} idSₛ} {⌜ Aₛ ⌝ ∘ₛ (σ ∘ₛ π₁ₛ {Aᴹ = Bₛ} idSₛ)}
-        refl i ⟩!
+     ∙ cong (ty³ _ _ _ _ (E Aₛ)) (≡ʸ→≡ refl)
 
 data Ren : Ctx' → Ctx' → Set
 ⌜_⌝ᴿ : Ren Γ' Δ' → Subₛ [ Γ' ]ᶜ [ Δ' ]ᶜ
 
 data Ren where
-  ∅ : Ren Γ' ∅
+  ∅
+    : Ren Γ' ∅
   _,_∶[_]
     : (ρ : Ren Γ' Δ')(x : Var Γ')
     → tyOfₛ ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ ⌝ᴿ ]ₛ
     → Ren Γ' (Δ' , A)
-
-⌜ ∅ ⌝ᴿ = ∅Sₛ
-⌜ _,_∶[_] {A = A} ρ x p ⌝ᴿ =
-  _,ₛ_∶[_] {Aᴹ = A} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p
-
-lookupVar
-  : (ρ : Ren Γ' Δ') → Var Δ'
-  → Var Γ'
-lookupVar (_ , x ∶[ _ ]) (here _) = x
-lookupVar (ρ , _ ∶[ _ ]) (there _ x) = lookupVar ρ x
-
-⌜lookupVar⌝
-  : (ρ : Ren Γ' Δ')(x : Var Δ') → ⌜ x ⌝ⱽ [ ⌜ ρ ⌝ᴿ ]tₛ ≡ ⌜ lookupVar ρ x ⌝ⱽ
-⌜lookupVar⌝ (ρ , x ∶[ p ]) (here Aₛ) =
-  sym (π₂idSₛ {Aᴹ = Aₛ} (_,ₛ_∶[_] {Aᴹ = Aₛ} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p))
-  ∙ βπ₂ₛ {Aᴹ = Aₛ} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p
-⌜lookupVar⌝ (ρ , x' ∶[ p ]) (there Bₛ x) =
-  [∘]tₛ ⌜ x ⌝ⱽ (_,ₛ_∶[_] {Aᴹ = Bₛ} ⌜ ρ ⌝ᴿ ⌜ x' ⌝ⱽ p) (π₁ₛ {Aᴹ = Bₛ} idSₛ)
-  ∙ (λ i → ⌜ x ⌝ⱽ [ π₁idSₛ {Aᴹ = Bₛ} (_,ₛ_∶[_] {Aᴹ = Bₛ} ⌜ ρ ⌝ᴿ ⌜ x' ⌝ⱽ p) (~ i) ]tₛ)
-  ∙ (λ i → ⌜ x ⌝ⱽ [ βπ₁ₛ {Aᴹ = Bₛ} ⌜ ρ ⌝ᴿ ⌜ x' ⌝ⱽ p i ]tₛ)
-  ∙ ⌜lookupVar⌝ ρ x
-
 cong,∶[]ᴿ
   : {ρ ρ' : Ren Γ' Δ'}{x x' : Var Γ'}{p : tyOfₛ ⌜ x ⌝ⱽ ≡ A [ ⌜ ρ ⌝ᴿ ]ₛ}{p' : tyOfₛ ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ]ₛ}
   → ρ ≡ ρ' → x ≡ x'
@@ -155,15 +136,37 @@ cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i =
     (isSet→SquareP (λ _ _ → UIP') p p' (λ i → tyOfₛ ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]ₛ) i)
 --    (isSet→SquareP (λ _ _ → Tyₛ-is-set) p p' (λ i → tyOfₛ ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]ₛ) i)
 
-η∅ᴿ : (ρ : Ren Γ' ∅) → ρ ≡ ∅
+⌜ ∅ ⌝ᴿ = ∅Sₛ
+⌜ _,_∶[_] {Γ'} {Δ'} {A} ρ x p ⌝ᴿ =
+  _,ₛ_∶[_] {[ Γ' ]ᶜ} {[ Δ' ]ᶜ} {Aᴹ = A} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p
+
+lookupVar
+  : (ρ : Ren Γ' Δ') → Var Δ'
+  → Var Γ'
+lookupVar (_ , x ∶[ _ ]) (here _) = x
+lookupVar (ρ , _ ∶[ _ ]) (there _ x) = lookupVar ρ x
+
+⌜lookupVar⌝
+  : (ρ : Ren Γ' Δ')(x : Var Δ')
+  → ⌜ x ⌝ⱽ [ ⌜ ρ ⌝ᴿ ]tₛ ≡ ⌜ lookupVar ρ x ⌝ⱽ
+⌜lookupVar⌝ (ρ , x ∶[ p ]) (here Aₛ) =
+  sym (π₂idSₛ {Aᴹ = Aₛ} (_,ₛ_∶[_] {Aᴹ = Aₛ} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p)) ∙ βπ₂ₛ {Aᴹ = Aₛ} ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ p
+⌜lookupVar⌝ (ρ , x' ∶[ p ]) (there Bₛ x) =
+  [∘]tₛ ⌜ x ⌝ⱽ (_,ₛ_∶[_] {Aᴹ = Bₛ} ⌜ ρ ⌝ᴿ ⌜ x' ⌝ⱽ p) (π₁ₛ {Aᴹ = Bₛ} idSₛ)
+  ∙ (λ i → ⌜ x ⌝ⱽ [ π₁idSₛ {Aᴹ = Bₛ} (_,ₛ_∶[_] {Aᴹ = Bₛ} ⌜ ρ ⌝ᴿ ⌜ x' ⌝ⱽ p) (~ i) ]tₛ)
+  ∙ (λ i → ⌜ x ⌝ⱽ [ βπ₁ₛ {Aᴹ = Bₛ} ⌜ ρ ⌝ᴿ ⌜ x' ⌝ⱽ p i ]tₛ)
+  ∙ ⌜lookupVar⌝ ρ x
+
+η∅ᴿ
+  : (ρ : Ren Γ' ∅)
+  → ρ ≡ ∅
 η∅ᴿ ∅ = refl
 
 η,ᴿ
   : (ρ : Ren Γ' (Δ' , A))
-  → Σ[ ρ' ∈ Ren Γ' Δ' ] Σ[ x' ∈ Var Γ' ]
-    Σ[ p' ∈ tyOfₛ ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ]ₛ ]
-    (ρ ≡ _,_∶[_] {A = A} ρ' x' p')
-η,ᴿ (_,_∶[_] {A = A} ρ x p) = ρ , x , p , refl
+  → Σ[ ρ' ∈ Ren Γ' Δ' ] Σ[ x' ∈ Var Γ' ] Σ[ p' ∈ tyOfₛ ⌜ x' ⌝ⱽ ≡ A [ ⌜ ρ' ⌝ᴿ ]ₛ ]
+    ρ ≡ ρ'  , x' ∶[ p' ]
+η,ᴿ (ρ , x ∶[ p ]) = ρ , x , p , refl
 
 wkᴿ
   : (A : Tyₛ [ Γ' ]ᶜ) → Ren Γ' Δ'
@@ -172,22 +175,11 @@ wkᴿ
   : (A : Tyₛ [ Γ' ]ᶜ)(ρ : Ren Γ' Δ')
   → ⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ ≡ ⌜ wkᴿ A ρ ⌝ᴿ
 wkᴿ A ∅ = ∅
-wkᴿ A (_,_∶[_] {A = A'} ρ x p) =
+wkᴿ {Γ'} A (_,_∶[_] {A = A'} ρ x p) =
   wkᴿ A ρ  , there A x ∶[
-      (λ i → p i [ π₁ₛ {Aᴹ = A} idSₛ ]ₛ) -- ⟨ E (p i) , ⌜ p i ⌝ ∘ₛ (π₁ₛ {Aᴹ = A} idSₛ) ⟩!)
-    ∙ (λ i → ⟨ E (A' [ ⌜ ρ ⌝ᴿ ]ₛ) ,
-        ≡ʸ→≡
-          {σʸ = ⌜ A' [ ⌜ ρ ⌝ᴿ ]ₛ ⌝ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ}
-          {⌜ A' ⌝ ∘ₛ (⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ)}
-          refl i
-      ⟩!)
-    ∙ cong (A' [_]ₛ) (⌜wkᴿ⌝ A ρ)
+    cong _[ π₁ₛ {Aᴹ = A} idSₛ ]ₛ p ∙ cong (ty³ _ _ _ _ (E (A' [ ⌜ ρ ⌝ᴿ ]ₛ))) (≡ʸ→≡ refl) ∙ cong (A' [_]ₛ) (⌜wkᴿ⌝ A ρ) 
   ]
-⌜wkᴿ⌝ A ∅ = ≡ʸ→≡ {σʸ = ∅Sₛ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ} {∅Sₛ} refl
-  {-
-    y (∅Sₛ ∘ₛ π₁ₛ idSₛ) ⟶ λ _ → ∅
-    y ∅Sₛ ⟶ λ _ → ∅
-  -}
+⌜wkᴿ⌝ A ∅ = ≡ʸ→≡ refl
 ⌜wkᴿ⌝ A (_,_∶[_] {A = A'} ρ x p) =
   let q = (λ i → p i [ π₁ₛ {Aᴹ = A} idSₛ ]ₛ) ∙ (λ i → ⟨ E A' , ≡ʸ→≡ {σʸ = ⌜ A' [ ⌜ ρ ⌝ᴿ ]ₛ ⌝ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ} {⌜ A' ⌝ ∘ₛ (⌜ ρ ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = A} idSₛ)} refl i ⟩!)
       q' = (λ i → p i [ π₁ₛ {Aᴹ = A} idSₛ ]ₛ) ∙ [∘]Tₛ A' (π₁ₛ {Aᴹ = A} idSₛ) ⌜ ρ ⌝ᴿ ∙ cong (A' [_]ₛ) (⌜wkᴿ⌝ A ρ)
@@ -203,19 +195,11 @@ wkᴿ A (_,_∶[_] {A = A'} ρ x p) =
   -}
 
 idR : Ren Γ' Γ'
-⌜idR⌝ : idSₛ ≡ ⌜ idR {Γ'} ⌝ᴿ
+⌜idR⌝
+  : idSₛ {[ Γ' ]ᶜ} ≡ ⌜ idR {Γ'} ⌝ᴿ
 idR {∅} = ∅
-idR {Γ' , Aₛ} = wkᴿ Aₛ idR , here Aₛ ∶[ (λ i → Aₛ [ p i ]ₛ) ]
-  where
-    p : π₁ₛ {Aᴹ = Aₛ} idSₛ ≡ ⌜ wkᴿ Aₛ idR ⌝ᴿ
-    p = π₁ₛ {Aᴹ = Aₛ} idSₛ
-          ≡ʸ⟨ refl ⟩
-        idSₛ ∘ₛ π₁ₛ {Aᴹ = Aₛ} idSₛ
-          ≡⟨ cong (_∘ₛ π₁ₛ {Aᴹ = Aₛ} idSₛ) ⌜idR⌝ ⟩
-        ⌜ idR ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = Aₛ} idSₛ
-          ≡⟨ ⌜wkᴿ⌝ Aₛ idR ⟩
-        ⌜ wkᴿ Aₛ idR ⌝ᴿ
-          ∎
+idR {Γ' , Aₛ} = wkᴿ Aₛ idR , here Aₛ ∶[
+  cong (Aₛ [_]ₛ) (≡ʸ→≡ refl ∙ cong (_∘ₛ π₁ₛ {[ Γ' ]ᶜ ,ₛ Aₛ} {[ Γ' ]ᶜ} {Aᴹ = Aₛ} idSₛ) (⌜idR⌝ {Γ'}) ∙ ⌜wkᴿ⌝ {Γ'} Aₛ idR) ]
 ⌜idR⌝ {∅}       = η∅ₛ _
 ⌜idR⌝ {Γ' , Aₛ} = 
   idSₛ
@@ -229,27 +213,32 @@ idR {Γ' , Aₛ} = wkᴿ Aₛ idR , here Aₛ ∶[ (λ i → Aₛ [ p i ]ₛ) ]
        (π₂ₛ {Aᴹ = Aₛ} idSₛ)
        (tyOfπ₂ₛ {Aᴹ = Aₛ} idSₛ)
     ≡⟨ cong,∶[]ₛ {[ Γ' ]ᶜ ,ₛ Aₛ} {[ Γ' ]ᶜ} {Aₛ}
-        {σᴹ = π₁ₛ {Aᴹ = Aₛ} idSₛ} {π₂ₛ {Aᴹ = Aₛ} idSₛ} (tyOfπ₂ₛ {Aᴹ = Aₛ} (idSₛ {[ Γ' ]ᶜ ,ₛ Aₛ}))
-        {⌜ wkᴿ Aₛ idR ⌝ᴿ} {π₂ₛ {Aᴹ = Aₛ} idSₛ} pf
-        p refl ⟩
+        (tyOfπ₂ₛ {Aᴹ = Aₛ} idSₛ)
+        pf
+        p
+        refl ⟩
 
   _,ₛ_∶[_] {[ Γ' ]ᶜ ,ₛ Aₛ} {[ Γ' ]ᶜ} {Aₛ}
-    (⌜ wkᴿ {Γ'} {Γ'} Aₛ idR ⌝ᴿ) (π₂ₛ {[ Γ' ]ᶜ ,ₛ Aₛ} {[ Γ' ]ᶜ} {Aᴹ = Aₛ} idSₛ) pf
+    ⌜ wkᴿ {Γ'} Aₛ idR ⌝ᴿ (π₂ₛ {Aᴹ = Aₛ} idSₛ) pf
 
-    ≡⟨ {!!} ⟩
+    ≡⟨⟩
+
+  _,ₛ_∶[_] {[ Γ' ]ᶜ ,ₛ Aₛ} {[ Γ' ]ᶜ} {Aₛ}
+    ⌜ wkᴿ {Γ'} {Γ'} Aₛ (idR {Γ'}) ⌝ᴿ ⌜ here {Γ'} Aₛ ⌝ⱽ pf 
+    
+    ≡⟨ {!!} ⟩ -- Is this Agda's bug? 
+
+  _,ₛ_∶[_] {[ Γ' , Aₛ ]ᶜ} {[ Γ' ]ᶜ} {Aₛ}
+    ⌜ wkᴿ {Γ'} {Γ'} Aₛ (idR {Γ'}) ⌝ᴿ ⌜ here {Γ'} Aₛ ⌝ⱽ pf 
+    
+    ≡⟨⟩ 
 
   ⌜ idR {Γ' , Aₛ} ⌝ᴿ
+
     ∎
   where
-    p : π₁ₛ {Aᴹ = Aₛ} idSₛ ≡ ⌜ wkᴿ Aₛ idR ⌝ᴿ
-    p = π₁ₛ {Aᴹ = Aₛ} idSₛ
-          ≡ʸ⟨ refl ⟩
-        idSₛ ∘ₛ π₁ₛ {Aᴹ = Aₛ} idSₛ
-          ≡⟨ cong (_∘ₛ π₁ₛ {Aᴹ = Aₛ} idSₛ) ⌜idR⌝ ⟩
-        ⌜ idR ⌝ᴿ ∘ₛ π₁ₛ {Aᴹ = Aₛ} idSₛ
-          ≡⟨ ⌜wkᴿ⌝ Aₛ idR ⟩
-        ⌜ wkᴿ Aₛ idR ⌝ᴿ
-          ∎
+    p : π₁ₛ {Aᴹ = Aₛ} idSₛ ≡ ⌜ wkᴿ {Γ'} Aₛ idR ⌝ᴿ
+    p = ≡ʸ→≡ refl ∙ cong (_∘ₛ π₁ₛ {Aᴹ = Aₛ} idSₛ) (⌜idR⌝ {Γ'}) ∙ ⌜wkᴿ⌝ {Γ'} Aₛ idR
     pf : tyOfₛ (π₂ₛ {Aᴹ = Aₛ} idSₛ) ≡ (Aₛ [ ⌜_⌝ᴿ {Γ' , Aₛ} {Γ'} (wkᴿ {Γ'} {Γ'} Aₛ (idR {Γ'})) ]ₛ) 
     pf = cong (Aₛ [_]ₛ)
       (≡ʸ→≡ refl ∙ (cong (_∘ₛ π₁ₛ {Aᴹ = Aₛ} (idSₛ {[ Γ' ]ᶜ ,ₛ Aₛ})) (⌜idR⌝ {Γ'})) ∙ (⌜wkᴿ⌝ Aₛ (idR {Γ'})))
