@@ -3,6 +3,9 @@
 {-
   LIANG-TING (2025-08-15): With --lossy-unification enabled,
   we even don't need to fill in impicit arguments! 
+  As strict interpretation of constructors are injective, using lossy unification shall be consistent.
+
+  Can we just turn on lossy-unification for these definitions?
 -}
 
 module Theory.SC.QIIRT-tyOf.IxModels.StrictNbE where
@@ -16,6 +19,7 @@ open import Theory.SC.QIIRT-tyOf.Syntax
   ; σ; τ; δ; γ
   )
 open import Theory.SC.QIIRT-tyOf.Models.StrictTerm
+--  renaming (_,ₛ_ to _,'_; _,ₛ_∶[_] to _,'_∶[_])
 
 open import Theory.SC.QIIRT-tyOf.Models.Term
 open import Theory.SC.QIIRT-tyOf.Models.Yoneda Termᵃ Termᵐ
@@ -304,7 +308,12 @@ _⊙idR : (ρ : Ren Γ' Δ') → ρ ⊙ idR ≡ ρ
 
 
 -- Evaluate substitutions and terms to renamings and variables
-evalSub : (σ : Subₛ [ Γ' ]ᶜ [ Δ' ]ᶜ) → Σ[ ρ ∈ Ren Γ' Δ' ] σ ≡ ⌜ ρ ⌝ᴿ
-evalTm  : (t : Tmₛ [ Γ' ]ᶜ) → Σ[ x ∈ Var Γ' ] t ≡ ⌜ x ⌝ⱽ
-evalSub (y , natʸ) = {!   !}
-evalTm t = {!   !}
+{- It seems that we have to convert strictified syntax back and forth?
+evalSub
+  : (σ : Subₛ [ Γ' ]ᶜ [ Δ' ]ᶜ)
+  → Σ[ ρ ∈ Ren Γ' Δ' ] σ ≡ ⌜ ρ ⌝ᴿ
+evalTm : (t : Tmₛ [ Γ' ]ᶜ) → Σ[ x ∈ Var Γ' ] t ≡ ⌜ x ⌝ⱽ
+
+evalSub σ = {!  !}
+evalTm t  = {!   !}
+-}

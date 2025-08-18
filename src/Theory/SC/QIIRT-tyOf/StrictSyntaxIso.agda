@@ -1,4 +1,4 @@
-{-# OPTIONS --allow-unsolved-metas #-}
+{-# OPTIONS --lossy-unification #-}
 
 open import Prelude
 

@@ -60,6 +60,13 @@ _[_]t! : Tm! Δᴹ → (σᴹ : Subᴬ Γᴹ Δᴹ) → Tm! Γᴹ
  (t [ σᴹ ]tᴹ) ,
  tyOf[]ᴹ ∙ cong _[ σᴹ ]Tᴹ p ∙ [∘]Tᴹ (E T) σᴹ ⌜ T ⌝
 
+_,!_ : (Γᴹ : Ctxᴬ) → Ty³ Γᴹ → Ctxᴬ
+Γᴹ ,! A! = Γᴹ ,ᴹ [ A! ]³
+
+_,!_∶[_] : {Aᴹ : Ty³ Δᴹ} (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tm! Γᴹ) → tyOf! tᴹ ≡ Aᴹ [ σᴹ ]T!
+        → Subᴬ Γᴹ (Δᴹ ,! Aᴹ)
+_,!_∶[_] {Aᴹ = Aᴹ} σᴹ (Bᴹ , t , q) p = σᴹ ,ᴹ t ∶[ q ∙ cong [_]³ p ∙ sym ([∘]Tᴹ (E Aᴹ) σᴹ ⌜ Aᴹ ⌝) ]
+
 SC!ᵃ : Motive _ _ _ _
 SC!ᵃ .Motive.Ctxᴬ        = Ctxᴬ
 SC!ᵃ .Motive.Tyᴬ         = Ty³
@@ -72,14 +79,13 @@ SC!ᵃ .Motive.tyOfᴬ       = tyOf!
 
 SC!ᵐ : SCᴹ SC!ᵃ
 SC!ᵐ .SCᴹ.∅ᴹ = ∅ᴹ
-SC!ᵐ .SCᴹ._,ᴹ_ Γᴹ A! = Γᴹ ,ᴹ [ A! ]³
+SC!ᵐ .SCᴹ._,ᴹ_ = _,!_
 SC!ᵐ .SCᴹ._[_]Tᴹ = _[_]T!
 SC!ᵐ .SCᴹ._[_]tᴹ = _[_]t!
-SC!ᵐ .SCᴹ.tyOf[]ᴹ {tᴹ = tᴹ} {σᴹ = σᴹ} =
+SC!ᵐ .SCᴹ.tyOf[]ᴹ  =
   refl
 SC!ᵐ .SCᴹ.∅Sᴹ = ∅Sᴹ
-SCᴹ._,ᴹ_∶[_] SC!ᵐ {Γᴹ} {Δᴹ} {Aᴹ} σᴹ (Bᴹ , t , q) p =
- σᴹ ,ᴹ t ∶[ q ∙ cong [_]³ p ∙ sym ([∘]Tᴹ (E Aᴹ) σᴹ ⌜ Aᴹ ⌝) ]
+SC!ᵐ .SCᴹ._,ᴹ_∶[_] = _,!_∶[_]
 SC!ᵐ .SCᴹ.idSᴹ = idSᴹ
 SC!ᵐ .SCᴹ._∘ᴹ_ = _∘ᴹ_
 SC!ᵐ .SCᴹ.π₁ᴹ = π₁ᴹ

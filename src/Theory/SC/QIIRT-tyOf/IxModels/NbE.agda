@@ -255,14 +255,20 @@ _⊙idR : (ρ : Ren Γ Δ) → ρ ⊙ idR ≡ ρ
 ∅ ⊙idR = refl
 (ρ , x ∶[ p ]) ⊙idR = cong,∶[]ᴿ (ρ ⊙idR) (lookupVar-idR x)
 
-⊙-assoc : (ρ : Ren Γ Δ)(ρ' : Ren Δ Θ)(ρ'' : Ren Θ Ξ)
-        → (ρ'' ⊙ ρ') ⊙ ρ ≡ ρ'' ⊙ (ρ' ⊙ ρ)
+⊙-assoc
+  : (ρ : Ren Γ Δ)(ρ' : Ren Δ Θ)(ρ'' : Ren Θ Ξ)
+  → (ρ'' ⊙ ρ') ⊙ ρ ≡ ρ'' ⊙ (ρ' ⊙ ρ)
 ⊙-assoc ρ ρ' ∅ = refl
-⊙-assoc ρ ρ' (ρ'' , x'' ∶[ p'' ]) = cong,∶[]ᴿ (⊙-assoc ρ ρ' ρ'') (lookupVar⊙ ρ' ρ x'')
+⊙-assoc ρ ρ' (ρ'' , x'' ∶[ p'' ]) =
+  cong,∶[]ᴿ (⊙-assoc ρ ρ' ρ'') (lookupVar⊙ ρ' ρ x'')
 
 -- Evaluate substitutions and terms to renamings and variables
-evalSub : (σ : Sub Γ Δ) → Σ[ ρ ∈ Ren Γ Δ ] σ ≡ ⌜ ρ ⌝ᴿ
-evalTm : (t : Tm Γ) → Σ[ x ∈ Var Γ ] t ≡ ⌜ x ⌝ⱽ
+evalSub
+  : (σ : Sub Γ Δ)
+  → Σ[ ρ ∈ Ren Γ Δ ] σ ≡ ⌜ ρ ⌝ᴿ
+evalTm
+  : (t : Tm Γ)
+  → Σ[ x ∈ Var Γ ] t ≡ ⌜ x ⌝ⱽ
 
 evalSub ∅ = ∅ , refl
 evalSub (_,_∶[_] {A = A} σ t p) =

@@ -1,4 +1,3 @@
-{-# OPTIONS --allow-unsolved-metas #-}
 open import Prelude
 
 open import Theory.SC.QIIRT-tyOf.Model

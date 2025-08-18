@@ -13,6 +13,7 @@ record Subʸ (Γ Δ : Ctxᴬ) : Set (ℓ-max ℓ₁ ℓ₃) where
   field
     y : ∀{Θ} → Subᴬ Θ Γ → Subᴬ Θ Δ
     natʸ : {Ξ Θ : Ctxᴬ} (τ : Subᴬ Ξ Θ) (δ : Subᴬ Θ Γ) → y δ ∘ᴹ τ ≡ y (δ ∘ᴹ τ)
+    
   Subʸ-τidS∘
     : ∀{Ξ} (γᴹ : Subᴬ Ξ Γ)
     → y idSᴹ ∘ᴹ γᴹ ≡ y γᴹ
@@ -35,7 +36,8 @@ Subʸ-is-set {Γ} {Δ} (σ , pσ) (σ' , pσ') p q i j = record
   }
 
 _≡ʸ_ : ∀{Γ Δ} → Subʸ Γ Δ → Subʸ Γ Δ → Set (ℓ-max ℓ₁ ℓ₃)
-_≡ʸ_ {Γ} {Δ} (σ , pσ) (σ' , pσ') = _≡_ {A = {Θ : Ctxᴬ} → Subᴬ Θ Γ → Subᴬ Θ Δ} σ σ' -- ∀{Θ} {γᴹ : Subᴬ Θ _} → σ γᴹ ≡ σ' γᴹ
+_≡ʸ_ {Γ} {Δ} (σ , _) (σ' , _) = _≡_ {A = {Θ : Ctxᴬ} → Subᴬ Θ Γ → Subᴬ Θ Δ} σ σ'
+-- ∀{Θ} {γᴹ : Subᴬ Θ _} → σ γᴹ ≡ σ' γᴹ
 
 ≡ʸ→≡ : ∀{Γ Δ} {σʸ σ'ʸ : Subʸ Γ Δ} → σʸ ≡ʸ σ'ʸ → σʸ ≡ σ'ʸ
 ≡ʸ→≡  {σʸ = σʸ} {σ'ʸ} eqʸ i = record
@@ -64,6 +66,17 @@ _∘ʸ_ : ∀{Γ Δ Θ} → Subʸ Δ Θ → Subʸ Γ Δ → Subʸ Γ Θ
   → A [ y τʸ idSᴹ ]Tᴹ [ y σʸ idSᴹ ]Tᴹ ≡ A [ y (τʸ ∘ʸ σʸ) idSᴹ ]Tᴹ
 [∘]Tʸ A σʸ τʸ = [∘]Tᴹ A (y σʸ idSᴹ) (y τʸ idSᴹ) ∙ cong (A [_]Tᴹ) (Subʸ-τidS∘ τʸ (y σʸ idSᴹ))
 
+_,ʸ_∶[_]
+  : (σᴹ : Subʸ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) → tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ .y idSᴹ ]Tᴹ
+  → Subʸ Γᴹ (Δᴹ ,ᴹ Aᴹ)
+_,ʸ_∶[_] {Γᴹ} {Δᴹ} {A} (σ , pσ) t p =
+  (λ γ → σ γ ,ᴹ t [ γ ]tᴹ ∶[ tyOf[]ᴹ ∙ (λ i → p i [ γ ]Tᴹ) ∙ [∘]Tᴹ A γ (σ idSᴹ) ∙ (λ i → A [ (pσ γ idSᴹ ∙ cong σ (idS∘ᴹ γ)) i ]Tᴹ)  ])
+  , λ τ δ → let q = tyOf[]ᴹ ∙ cong _[ τ ]Tᴹ (tyOf[]ᴹ ∙ (λ i → p i [ δ ]Tᴹ) ∙ [∘]Tᴹ A δ (σ idSᴹ) ∙ cong (A [_]Tᴹ) (Subʸ-τidS∘ (σ , pσ) δ)) ∙ [∘]Tᴹ A τ (σ δ) in 
+  ,∘ᴹ (σ δ) (t [ δ ]tᴹ) τ
+    (tyOf[]ᴹ ∙ (λ i → p i [ δ ]Tᴹ) ∙ [∘]Tᴹ A δ (σ idSᴹ) ∙ cong (A [_]Tᴹ) (Subʸ-τidS∘ (σ , pσ) δ)) q
+    ∙ cong,∶[] q (tyOf[]ᴹ ∙ cong _[ δ ∘ᴹ τ ]Tᴹ p ∙ [∘]Tᴹ A (δ ∘ᴹ τ) (σ idSᴹ) ∙ cong (A [_]Tᴹ) (pσ (δ ∘ᴹ τ) idSᴹ ∙ cong σ (idS∘ᴹ _)))
+        (pσ τ δ) ([∘]tᴹ t τ δ)
+
 よᵃ : Motive _ _ _ _
 よᵃ .Motive.Ctxᴬ        = Ctxᴬ
 よᵃ .Motive.Tyᴬ         = Tyᴬ
@@ -74,6 +87,7 @@ _∘ʸ_ : ∀{Γ Δ Θ} → Subʸ Δ Θ → Subʸ Γ Δ → Subʸ Γ Θ
 -- よᵃ .Motive.Subᴬ-is-set = Subʸ-is-set
 -- よᵃ .Motive.Tmᴬ-is-set  = Tmᴬ-is-set
 
+
 -- open SCᴹ
 よᵐ : SCᴹ よᵃ
 よᵐ .SCᴹ.∅ᴹ          = ∅ᴹ
@@ -82,13 +96,7 @@ _∘ʸ_ : ∀{Γ Δ Θ} → Subʸ Δ Θ → Subʸ Γ Δ → Subʸ Γ Θ
 よᵐ .SCᴹ._[_]tᴹ t (σ , _) = t [ σ idSᴹ ]tᴹ
 よᵐ .SCᴹ.tyOf[]ᴹ     = tyOf[]ᴹ
 よᵐ .SCᴹ.∅Sᴹ         = (λ _ → ∅Sᴹ) , λ τ δ → η∅ᴹ _
-よᵐ .SCᴹ._,ᴹ_∶[_] {Aᴹ = A} (σ , pσ) t p =
-  (λ γ → σ γ ,ᴹ t [ γ ]tᴹ ∶[ tyOf[]ᴹ ∙ (λ i → p i [ γ ]Tᴹ) ∙ [∘]Tᴹ A γ (σ idSᴹ) ∙ (λ i → A [ (pσ γ idSᴹ ∙ cong σ (idS∘ᴹ γ)) i ]Tᴹ)  ])
-  , λ τ δ → let q = tyOf[]ᴹ ∙ cong _[ τ ]Tᴹ (tyOf[]ᴹ ∙ (λ i → p i [ δ ]Tᴹ) ∙ [∘]Tᴹ A δ (σ idSᴹ) ∙ cong (A [_]Tᴹ) (Subʸ-τidS∘ (σ , pσ) δ)) ∙ [∘]Tᴹ A τ (σ δ) in 
-  ,∘ᴹ (σ δ) (t [ δ ]tᴹ) τ
-    (tyOf[]ᴹ ∙ (λ i → p i [ δ ]Tᴹ) ∙ [∘]Tᴹ A δ (σ idSᴹ) ∙ cong (A [_]Tᴹ) (Subʸ-τidS∘ (σ , pσ) δ)) q
-    ∙ cong,∶[] q (tyOf[]ᴹ ∙ cong _[ δ ∘ᴹ τ ]Tᴹ p ∙ [∘]Tᴹ A (δ ∘ᴹ τ) (σ idSᴹ) ∙ cong (A [_]Tᴹ) (pσ (δ ∘ᴹ τ) idSᴹ ∙ cong σ (idS∘ᴹ _)))
-        (pσ τ δ) ([∘]tᴹ t τ δ)
+よᵐ .SCᴹ._,ᴹ_∶[_] = _,ʸ_∶[_]
 よᵐ .SCᴹ.idSᴹ = (λ γ → γ) , λ τ δ → refl
 よᵐ .SCᴹ._∘ᴹ_ = _∘ʸ_
 よᵐ .π₁ᴹ (σ , pσ) = (λ γ → π₁ᴹ (σ γ)) ,
