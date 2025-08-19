@@ -24,9 +24,6 @@ Bool-elim : (P : Bool → Set) → P true → P false → (b : Bool) → P b
 Bool-elim P t f true = t
 Bool-elim P t f false = f
 
-postulate
- UIP : ∀ {ℓ} → {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
-
 transportRefl' : {A : Set} (k : I) → (x : A) → transp (λ i → A) k x ≡ x
 transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 
