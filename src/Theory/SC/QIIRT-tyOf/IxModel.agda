@@ -80,7 +80,8 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : Sub∙ Γ∙ (Δ∙ ,∙ A∙) σ
         → Tm∙ Γ∙ (π₂ σ)
       tyOfπ₂∙
-        : tyOf∙ (π₂∙ σ∙) ≡ A∙ [ π₁∙ σ∙ ]T∙
+        : (σ∙ : Sub∙ Γ∙ (Δ∙ ,∙ A∙) σ)
+        → tyOf∙ (π₂∙ σ∙) ≡ A∙ [ π₁∙ σ∙ ]T∙
       idS∘∙_
         : (σ∙ : Sub∙ Γ∙ Δ∙ σ)
         → idS∙ ∘∙ σ∙
@@ -104,7 +105,7 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
           (σ∙ ∘∙ τ∙) ,∙ t∙ [ τ∙ ]t∙ ∶[ q , q∙ ]
       ηπ∙
         : (σ∙ : Sub∙ Γ∙ (Δ∙ ,∙ A∙) σ)
-        → σ∙ ≡Sub[ ηπ σ ] (π₁∙ σ∙ ,∙ π₂∙ σ∙ ∶[ refl , tyOfπ₂∙ ])
+        → σ∙ ≡Sub[ ηπ σ ] (π₁∙ σ∙ ,∙ π₂∙ σ∙ ∶[ refl , tyOfπ₂∙ σ∙ ])
       η∅∙
         : (σ∙ : Sub∙ Γ∙ ∅∙ σ)
         → σ∙ ≡Sub[ η∅ σ ] ∅S∙
@@ -118,7 +119,7 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → (q : A [ π₁ (σ , t ∶[ p ]) ] ≡ tyOf t)
           (q∙ : A∙ [ π₁∙ (σ∙ ,∙ t∙ ∶[ p , p∙ ]) ]T∙ ≡Ty[ q ] tyOf∙ t∙)
         → π₂∙ (σ∙ ,∙ t∙ ∶[ p , p∙ ])
-        ≡[ i ⊢ Tm∙ Γ∙ (βπ₂ σ t p q i) ]
+        ≡Tm[ βπ₂ σ t p q ]
           t∙
       [idS]T∙
         : (A∙ : Ty∙ Γ∙ A)

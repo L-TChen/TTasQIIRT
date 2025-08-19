@@ -5,45 +5,45 @@ module Theory.SC.QIIRT-tyOf.Models.Term where
 open import Theory.SC.QIIRT-tyOf.Syntax
 open import Theory.SC.QIIRT-tyOf.Model
 
-Termᵃ : Motive _ _ _ _
-Termᵃ = record
-  { Ctxᴬ       = Ctx
-  ; Tyᴬ        = Ty
-  ; Subᴬ       = Sub
-  ; Tmᴬ        = Tm
-  ; tyOfᴬ      = tyOf
+TermM : Motive _ _ _ _
+TermM = record
+  { Ctx  = Ctx
+  ; Ty   = Ty
+  ; Sub  = Sub
+  ; Tm   = Tm
+  ; tyOf = tyOf
 --  ; Tyᴬ-is-set = Ty-is-set
 --  ; Subᴬ-is-set = Sub-is-set
 --  ; Tmᴬ-is-set = Tm-is-set
   }
 
-Termᵐ : SCᴹ Termᵃ
-Termᵐ = record
-  { ∅ᴹ       = ∅
-  ; _,ᴹ_     = _,_
-  ; _[_]Tᴹ   = _[_]
-  ; _[_]tᴹ   = _[_]
-  ; tyOf[]ᴹ  = refl
-  ; ∅Sᴹ      = ∅
-  ; _,ᴹ_∶[_] = _,_∶[_]
-  ; idSᴹ     = idS
-  ; _∘ᴹ_     = _∘_
-  ; π₁ᴹ      = π₁
-  ; π₂ᴹ      = π₂
-  ; tyOfπ₂ᴹ  = tyOfπ₂
-  ; idS∘ᴹ_   = idS∘_
-  ; _∘idSᴹ   = _∘idS
-  ; assocSᴹ  = assocS
-  ; [idS]Tᴹ  = [idS]T
-  ; [∘]Tᴹ    = [∘]T
-  ; ,∘ᴹ      = ,∘
-  ; ηπᴹ      = ηπ
-  ; η∅ᴹ      = η∅
-  ; βπ₁ᴹ     = βπ₁
-  ; βπ₂ᴹ     = λ {Γ} {Δ} {A} σ t p
+TermSC : SC TermM
+TermSC = record
+  { ∅       = ∅
+  ; _,C_    = _,_
+  ; _[_]T   = _[_]
+  ; _[_]t   = _[_]
+  ; tyOf[]  = refl
+  ; ∅S      = ∅
+  ; _,_∶[_] = _,_∶[_]
+  ; idS     = idS
+  ; _∘_     = _∘_
+  ; π₁      = π₁
+  ; π₂      = π₂
+  ; tyOfπ₂  = tyOfπ₂
+  ; idS∘_   = idS∘_
+  ; _∘idS   = _∘idS
+  ; assocS  = assocS
+  ; [idS]T  = [idS]T
+  ; [∘]T    = [∘]T
+  ; ,∘      = ,∘
+  ; ηπ      = ηπ
+  ; η∅      = η∅
+  ; βπ₁     = βπ₁
+  ; βπ₂     = λ {Γ} {Δ} {A} σ t p
     → βπ₂ σ t p (cong (A [_]) (βπ₁ σ t p) ∙ sym p)
-  ; [idS]tᴹ  = [idS]t
-  ; [∘]tᴹ    = [∘]t
-  ; Uᴹ       = U
-  ; U[]ᴹ     = U[]
+  ; [idS]t  = [idS]t
+  ; [∘]t    = [∘]t
+  ; U       = U
+  ; U[]     = U[]
   }

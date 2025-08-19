@@ -4,182 +4,184 @@ module Theory.SC.QIIRT-tyOf.Model where
 
 record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄)) where
   field
-    Ctxᴬ  : Set ℓ₁
-    Tyᴬ   : Ctxᴬ → Set ℓ₂
-    Subᴬ  : Ctxᴬ → Ctxᴬ → Set ℓ₃
-    Tmᴬ   : Ctxᴬ → Set ℓ₄
-    tyOfᴬ : {Γᴹ : Ctxᴬ} → Tmᴬ Γᴹ → Tyᴬ Γᴹ
+    Ctx  : Set ℓ₁
+    Ty   : Ctx → Set ℓ₂
+    Sub  : Ctx → Ctx → Set ℓ₃
+    Tm   : Ctx → Set ℓ₄
+    tyOf : {Γ : Ctx} → Tm Γ → Ty Γ
 
---    Tyᴬ-is-set : {Γᴹ : Ctxᴬ} → isSet (Tyᴬ Γᴹ)
---    Subᴬ-is-set : {Γᴹ Δᴹ : Ctxᴬ} → isSet (Subᴬ Γᴹ Δᴹ)
---    Tmᴬ-is-set : {Γᴹ : Ctxᴬ} → isSet (Tmᴬ Γᴹ)
+--    Ty-is-set : {Γ : Ctx} → isSet (Ty Γ)
+--    Sub-is-set : {Γ Δ : Ctx} → isSet (Sub Γ Δ)
+--    Tm-is-set : {Γ : Ctx} → isSet (Tm Γ)
 
-  variable
-    Γᴹ Δᴹ Θᴹ Ξᴹ : Ctxᴬ
-    Aᴹ Bᴹ Cᴹ Dᴹ : Tyᴬ Γᴹ
-    σᴹ τᴹ γᴹ    : Subᴬ Γᴹ Δᴹ
-    tᴹ uᴹ vᴹ    : Tmᴬ Γᴹ
+  module GVars where
+    variable
+      Γ Δ Θ Ξ : Ctx
+      A B C D : Ty Γ
+      σ τ γ    : Sub Γ Δ
+      t u v    : Tm Γ
 
 module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
   open Motive mot
+  open GVars
 
-  record SCᴹ : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
+  record SC : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     field
-      ∅ᴹ
-        : Ctxᴬ
-      _,ᴹ_
-        : (Γᴹ : Ctxᴬ)(Aᴹ : Tyᴬ Γᴹ)
-        → Ctxᴬ
-      _[_]Tᴹ
-        : (Aᴹ : Tyᴬ Δᴹ)(σᴹ : Subᴬ Γᴹ Δᴹ)
-        → Tyᴬ Γᴹ
-      _[_]tᴹ
-        : (tᴹ : Tmᴬ Δᴹ)(σᴹ : Subᴬ Γᴹ Δᴹ)
-        → Tmᴬ Γᴹ
-      tyOf[]ᴹ
-        : tyOfᴬ (tᴹ [ σᴹ ]tᴹ) ≡ (tyOfᴬ tᴹ) [ σᴹ ]Tᴹ
-      ∅Sᴹ
-        : Subᴬ Γᴹ ∅ᴹ
-      _,ᴹ_∶[_]
-        : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) → tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ
-        → Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ)
-      idSᴹ
-        : Subᴬ Γᴹ Γᴹ
-      _∘ᴹ_
-        : Subᴬ Δᴹ Θᴹ → Subᴬ Γᴹ Δᴹ
-        → Subᴬ Γᴹ Θᴹ
-      π₁ᴹ
-        : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ)
-        → Subᴬ Γᴹ Δᴹ
-      π₂ᴹ
-        : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ)
-        → Tmᴬ Γᴹ
-      tyOfπ₂ᴹ
-        : {Aᴹ : Tyᴬ Δᴹ} (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
-        → tyOfᴬ (π₂ᴹ {Aᴹ = Aᴹ} σᴹ) ≡ Aᴹ [ π₁ᴹ σᴹ ]Tᴹ
-      idS∘ᴹ_
-        : (σᴹ : Subᴬ Γᴹ Δᴹ)
-        → idSᴹ ∘ᴹ σᴹ ≡ σᴹ
-      _∘idSᴹ
-        : (σᴹ : Subᴬ Γᴹ Δᴹ)
-        → σᴹ ∘ᴹ idSᴹ ≡ σᴹ
-      assocSᴹ
-        : (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ) (γᴹ : Subᴬ Θᴹ Ξᴹ)
-        → (γᴹ ∘ᴹ τᴹ) ∘ᴹ σᴹ ≡ γᴹ ∘ᴹ (τᴹ ∘ᴹ σᴹ)
-      [idS]Tᴹ
-        : Aᴹ ≡ Aᴹ [ idSᴹ ]Tᴹ
-      [∘]Tᴹ
-        : (Aᴹ : Tyᴬ Θᴹ) (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ)
-        → Aᴹ [ τᴹ ]Tᴹ [ σᴹ ]Tᴹ ≡ Aᴹ [ τᴹ ∘ᴹ σᴹ ]Tᴹ
-      ,∘ᴹ
-        : (σᴹ : Subᴬ Δᴹ Θᴹ) (tᴹ : Tmᴬ Δᴹ) (τᴹ : Subᴬ Γᴹ Δᴹ)
-        → (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ) (q : tyOfᴬ (tᴹ [ τᴹ ]tᴹ) ≡ Aᴹ [ σᴹ ∘ᴹ τᴹ ]Tᴹ)
---        → let q = tyOfᴬ (tᴹ [ τᴹ ]tᴹ)
---                    ≡⟨ tyOf[]ᴹ ⟩
---                  (tyOfᴬ tᴹ) [ τᴹ ]Tᴹ
---                    ≡[ i ]⟨ p i [ τᴹ ]Tᴹ ⟩
---                  Aᴹ [ σᴹ ]Tᴹ [ τᴹ ]Tᴹ
---                    ≡⟨ [∘]Tᴹ _ _ _ ⟩
---                  Aᴹ [ σᴹ ∘ᴹ τᴹ ]Tᴹ
+      ∅
+        : Ctx
+      _,C_
+        : (Γ : Ctx)(A : Ty Γ)
+        → Ctx
+      _[_]T
+        : (A : Ty Δ)(σ : Sub Γ Δ)
+        → Ty Γ
+      _[_]t
+        : (t : Tm Δ)(σ : Sub Γ Δ)
+        → Tm Γ
+      tyOf[]
+        : tyOf (t [ σ ]t) ≡ (tyOf t) [ σ ]T
+      ∅S
+        : Sub Γ ∅
+      _,_∶[_]
+        : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ A [ σ ]T
+        → Sub Γ (Δ ,C A)
+      idS
+        : Sub Γ Γ
+      _∘_
+        : Sub Δ Θ → Sub Γ Δ
+        → Sub Γ Θ
+      π₁
+        : Sub Γ (Δ ,C A)
+        → Sub Γ Δ
+      π₂
+        : Sub Γ (Δ ,C A)
+        → Tm Γ
+      tyOfπ₂
+        : {A : Ty Δ} (σ : Sub Γ (Δ ,C A))
+        → tyOf (π₂ {A = A} σ) ≡ A [ π₁ σ ]T
+      idS∘_
+        : (σ : Sub Γ Δ)
+        → idS ∘ σ ≡ σ
+      _∘idS
+        : (σ : Sub Γ Δ)
+        → σ ∘ idS ≡ σ
+      assocS
+        : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (γ : Sub Θ Ξ)
+        → (γ ∘ τ) ∘ σ ≡ γ ∘ (τ ∘ σ)
+      [idS]T
+        : A ≡ A [ idS ]T
+      [∘]T
+        : (A : Ty Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
+        → A [ τ ]T [ σ ]T ≡ A [ τ ∘ σ ]T
+      ,∘
+        : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ)
+        → (p : tyOf t ≡ A [ σ ]T) (q : tyOf (t [ τ ]t) ≡ A [ σ ∘ τ ]T)
+--        → let q = tyOf (t [ τ ]t)
+--                    ≡⟨ tyOf[] ⟩
+--                  (tyOf t) [ τ ]T
+--                    ≡[ i ]⟨ p i [ τ ]T ⟩
+--                  A [ σ ]T [ τ ]T
+--                    ≡⟨ [∘]T _ _ _ ⟩
+--                  A [ σ ∘ τ ]T
 --                    ∎
 --        in
-        → (σᴹ ,ᴹ tᴹ ∶[ p ]) ∘ᴹ τᴹ ≡ ((σᴹ ∘ᴹ τᴹ) ,ᴹ tᴹ [ τᴹ ]tᴹ ∶[ q ])
-      ηπᴹ
-        : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
-        → σᴹ ≡ (π₁ᴹ σᴹ ,ᴹ π₂ᴹ σᴹ ∶[ tyOfπ₂ᴹ _ ])
-      η∅ᴹ
-        : (σᴹ : Subᴬ Γᴹ ∅ᴹ)
-        → σᴹ ≡ ∅Sᴹ
-      βπ₁ᴹ
-        : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
-        → π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ σᴹ
-      βπ₂ᴹ
-        : (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tmᴬ Γᴹ) (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
---        → (q : Aᴹ [ π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ]Tᴹ ≡  tyOfᴬ tᴹ)
-        → π₂ᴹ (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ tᴹ
-      [idS]tᴹ
-        : (tᴹ : Tmᴬ Γᴹ)
-        → tᴹ ≡ tᴹ [ idSᴹ ]tᴹ
-      [∘]tᴹ
-        : (tᴹ : Tmᴬ Θᴹ) (σᴹ : Subᴬ Γᴹ Δᴹ) (τᴹ : Subᴬ Δᴹ Θᴹ)
-        → tᴹ [ τᴹ ]tᴹ [ σᴹ ]tᴹ ≡ tᴹ [ τᴹ ∘ᴹ σᴹ ]tᴹ
-      Uᴹ
-        : Tyᴬ Γᴹ
-      U[]ᴹ
-        : Uᴹ [ σᴹ ]Tᴹ ≡ Uᴹ
+        → (σ , t ∶[ p ]) ∘ τ ≡ ((σ ∘ τ) , t [ τ ]t ∶[ q ])
+      ηπ
+        : (σ : Sub Γ (Δ ,C A))
+        → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ _ ])
+      η∅
+        : (σ : Sub Γ ∅)
+        → σ ≡ ∅S
+      βπ₁
+        : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ A [ σ ]T)
+        → π₁ (σ , t ∶[ p ]) ≡ σ
+      βπ₂
+        : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ A [ σ ]T)
+--        → (q : A [ π₁ (σ , t ∶[ p ]) ]T ≡  tyOf t)
+        → π₂ (σ , t ∶[ p ]) ≡ t
+      [idS]t
+        : (t : Tm Γ)
+        → t ≡ t [ idS ]t
+      [∘]t
+        : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
+        → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
+      U
+        : Ty Γ
+      U[]
+        : U [ σ ]T ≡ U
 
     
-    tyOfπ₂[]ᴹ
-      : (τᴹ : Subᴬ Δᴹ (Θᴹ ,ᴹ Aᴹ))
-      → (σᴹ : Subᴬ Γᴹ Δᴹ)
-      → tyOfᴬ (π₂ᴹ τᴹ [ σᴹ ]tᴹ) ≡ Aᴹ [ π₁ᴹ τᴹ ∘ᴹ σᴹ ]Tᴹ
-    tyOfπ₂[]ᴹ {Δᴹ} {Θᴹ} {Aᴹ} {_} τᴹ σᴹ = tyOf[]ᴹ ∙ (λ i → tyOfπ₂ᴹ τᴹ i [ σᴹ ]Tᴹ) ∙ [∘]Tᴹ Aᴹ σᴹ (π₁ᴹ τᴹ)
---      tyOfᴬ (π₂ᴹ τᴹ [ σᴹ ]tᴹ)
---        ≡⟨ tyOf[]ᴹ ⟩
---      tyOfᴬ (π₂ᴹ τᴹ) [ σᴹ ]Tᴹ
---        ≡[ i ]⟨ tyOfπ₂ᴹ τᴹ i [ σᴹ ]Tᴹ ⟩
---      Aᴹ [ π₁ᴹ τᴹ ]Tᴹ [ σᴹ ]Tᴹ
---        ≡⟨ [∘]Tᴹ Aᴹ σᴹ (π₁ᴹ τᴹ) ⟩
---      Aᴹ [ π₁ᴹ τᴹ ∘ᴹ σᴹ ]Tᴹ
+    tyOfπ₂[]
+      : (τ : Sub Δ (Θ ,C A))
+      → (σ : Sub Γ Δ)
+      → tyOf (π₂ τ [ σ ]t) ≡ A [ π₁ τ ∘ σ ]T
+    tyOfπ₂[] {Δ} {Θ} {A} {_} τ σ = tyOf[] ∙ (λ i → tyOfπ₂ τ i [ σ ]T) ∙ [∘]T A σ (π₁ τ)
+--      tyOf (π₂ τ [ σ ]t)
+--        ≡⟨ tyOf[] ⟩
+--      tyOf (π₂ τ) [ σ ]T
+--        ≡[ i ]⟨ tyOfπ₂ τ i [ σ ]T ⟩
+--      A [ π₁ τ ]T [ σ ]T
+--        ≡⟨ [∘]T A σ (π₁ τ) ⟩
+--      A [ π₁ τ ∘ σ ]T
 --        ∎
         
-    π₁∘ᴹ
-      : (τᴹ : Subᴬ Δᴹ (Θᴹ ,ᴹ Aᴹ)) (σᴹ : Subᴬ Γᴹ Δᴹ)
-      → π₁ᴹ (τᴹ ∘ᴹ σᴹ) ≡ π₁ᴹ τᴹ ∘ᴹ σᴹ
-    π₁∘ᴹ {Aᴹ = Aᴹ} τᴹ σᴹ =
-      π₁ᴹ (τᴹ ∘ᴹ σᴹ)
-        ≡⟨ cong π₁ᴹ (cong (_∘ᴹ σᴹ) (ηπᴹ τᴹ)) ⟩
-      π₁ᴹ ((π₁ᴹ τᴹ ,ᴹ π₂ᴹ τᴹ ∶[ tyOfπ₂ᴹ τᴹ ]) ∘ᴹ σᴹ)
-        ≡⟨ cong π₁ᴹ (,∘ᴹ (π₁ᴹ τᴹ) (π₂ᴹ τᴹ) σᴹ (tyOfπ₂ᴹ τᴹ) (tyOfπ₂[]ᴹ τᴹ σᴹ)) ⟩
-      π₁ᴹ ((π₁ᴹ τᴹ ∘ᴹ σᴹ) ,ᴹ (π₂ᴹ τᴹ [ σᴹ ]tᴹ) ∶[ _ ])
-        ≡⟨  βπ₁ᴹ (π₁ᴹ τᴹ ∘ᴹ σᴹ) (π₂ᴹ τᴹ [ σᴹ ]tᴹ)
-          (tyOf[]ᴹ ∙ cong _[ σᴹ ]Tᴹ (tyOfπ₂ᴹ τᴹ) ∙ [∘]Tᴹ _ _ _)  ⟩
-      π₁ᴹ τᴹ ∘ᴹ σᴹ
+    π₁∘
+      : (τ : Sub Δ (Θ ,C A)) (σ : Sub Γ Δ)
+      → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
+    π₁∘ {A = A} τ σ =
+      π₁ (τ ∘ σ)
+        ≡⟨ cong π₁ (cong (_∘ σ) (ηπ τ)) ⟩
+      π₁ ((π₁ τ , π₂ τ ∶[ tyOfπ₂ τ ]) ∘ σ)
+        ≡⟨ cong π₁ (,∘ (π₁ τ) (π₂ τ) σ (tyOfπ₂ τ) (tyOfπ₂[] τ σ)) ⟩
+      π₁ ((π₁ τ ∘ σ) , (π₂ τ [ σ ]t) ∶[ _ ])
+        ≡⟨  βπ₁ (π₁ τ ∘ σ) (π₂ τ [ σ ]t)
+          (tyOf[] ∙ cong _[ σ ]T (tyOfπ₂ τ) ∙ [∘]T _ _ _)  ⟩
+      π₁ τ ∘ σ
         ∎
 
-    π₂∘ᴹ
-      : (τᴹ : Subᴬ Δᴹ (Θᴹ ,ᴹ Aᴹ)) (σᴹ : Subᴬ Γᴹ Δᴹ)
-      → π₂ᴹ (τᴹ ∘ᴹ σᴹ) ≡ π₂ᴹ τᴹ [ σᴹ ]tᴹ
-    π₂∘ᴹ τᴹ σᴹ =
-      π₂ᴹ (τᴹ ∘ᴹ σᴹ)
-        ≡[ i ]⟨ π₂ᴹ (ηπᴹ τᴹ i ∘ᴹ σᴹ) ⟩
-      π₂ᴹ ((π₁ᴹ τᴹ ,ᴹ π₂ᴹ τᴹ ∶[ _ ]) ∘ᴹ σᴹ)
-        ≡[ i ]⟨ π₂ᴹ (,∘ᴹ (π₁ᴹ τᴹ) (π₂ᴹ τᴹ) σᴹ (tyOfπ₂ᴹ τᴹ) (tyOfπ₂[]ᴹ τᴹ σᴹ) i) ⟩
-      π₂ᴹ ((π₁ᴹ τᴹ ∘ᴹ σᴹ) ,ᴹ (π₂ᴹ τᴹ [ σᴹ ]tᴹ) ∶[ _ ])
-        ≡⟨ βπ₂ᴹ _ _ _ ⟩
-      π₂ᴹ τᴹ [ σᴹ ]tᴹ
+    π₂∘
+      : (τ : Sub Δ (Θ ,C A)) (σ : Sub Γ Δ)
+      → π₂ (τ ∘ σ) ≡ π₂ τ [ σ ]t
+    π₂∘ τ σ =
+      π₂ (τ ∘ σ)
+        ≡[ i ]⟨ π₂ (ηπ τ i ∘ σ) ⟩
+      π₂ ((π₁ τ , π₂ τ ∶[ _ ]) ∘ σ)
+        ≡[ i ]⟨ π₂ (,∘ (π₁ τ) (π₂ τ) σ (tyOfπ₂ τ) (tyOfπ₂[] τ σ) i) ⟩
+      π₂ ((π₁ τ ∘ σ) , (π₂ τ [ σ ]t) ∶[ _ ])
+        ≡⟨ βπ₂ _ _ _ ⟩
+      π₂ τ [ σ ]t
         ∎
 
-    π₁σ=π₁idS∘σᴹ
-      : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
-      → π₁ᴹ σᴹ ≡ π₁ᴹ idSᴹ ∘ᴹ σᴹ
-    π₁σ=π₁idS∘σᴹ σᴹ =
-      π₁ᴹ σᴹ
-        ≡[ i ]⟨ π₁ᴹ ((idS∘ᴹ σᴹ) (~ i)) ⟩
-      π₁ᴹ (idSᴹ ∘ᴹ σᴹ)
-        ≡⟨ π₁∘ᴹ idSᴹ σᴹ ⟩
-      π₁ᴹ idSᴹ ∘ᴹ σᴹ
+    π₁σ=π₁idS∘σ
+      : (σ : Sub Γ (Δ ,C A))
+      → π₁ σ ≡ π₁ idS ∘ σ
+    π₁σ=π₁idS∘σ σ =
+      π₁ σ
+        ≡[ i ]⟨ π₁ ((idS∘ σ) (~ i)) ⟩
+      π₁ (idS ∘ σ)
+        ≡⟨ π₁∘ idS σ ⟩
+      π₁ idS ∘ σ
         ∎
     
-    π₂σ=π₂id[σ]ᴹ
-      : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ))
-      → π₂ᴹ σᴹ ≡ π₂ᴹ idSᴹ [ σᴹ ]tᴹ
-    π₂σ=π₂id[σ]ᴹ σᴹ =
-      π₂ᴹ σᴹ
-        ≡[ i ]⟨ π₂ᴹ ((idS∘ᴹ σᴹ) (~ i)) ⟩
-      π₂ᴹ (idSᴹ ∘ᴹ σᴹ)
-        ≡⟨ π₂∘ᴹ idSᴹ σᴹ ⟩
-      π₂ᴹ idSᴹ [ σᴹ ]tᴹ
+    π₂σ=π₂id[σ]
+      : (σ : Sub Γ (Δ ,C A))
+      → π₂ σ ≡ π₂ idS [ σ ]t
+    π₂σ=π₂id[σ] σ =
+      π₂ σ
+        ≡[ i ]⟨ π₂ ((idS∘ σ) (~ i)) ⟩
+      π₂ (idS ∘ σ)
+        ≡⟨ π₂∘ idS σ ⟩
+      π₂ idS [ σ ]t
         ∎
     
-    cong,∶[]ᴹ
-      : {Γᴹ Δᴹ : Ctxᴬ} {Aᴹ : Tyᴬ Δᴹ}
-      {σᴹ  : Subᴬ Γᴹ Δᴹ} {tᴹ : Tmᴬ Γᴹ}
-      (p : tyOfᴬ tᴹ ≡ Aᴹ [ σᴹ ]Tᴹ)
-      {σᴹ' : Subᴬ Γᴹ Δᴹ} {tᴹ' : Tmᴬ Γᴹ}
-      (p' : tyOfᴬ tᴹ' ≡ Aᴹ [ σᴹ' ]Tᴹ)
-      → σᴹ ≡ σᴹ' → tᴹ ≡ tᴹ'
-      → (σᴹ ,ᴹ tᴹ ∶[ p ]) ≡ (σᴹ' ,ᴹ tᴹ' ∶[ p' ])
-    cong,∶[]ᴹ {Aᴹ = Aᴹ} p p' eqσ eqt =
-      cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ _ _ → UIP) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))
---      cong₃ _,ᴹ_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Tyᴬ-is-set) p p' (cong tyOfᴬ eqt) (cong (Aᴹ [_]Tᴹ) eqσ))
+    cong,∶[]
+      : {Γ Δ : Ctx} {A : Ty Δ}
+      {σ  : Sub Γ Δ} {t : Tm Γ}
+      (p : tyOf t ≡ A [ σ ]T)
+      {σ' : Sub Γ Δ} {t' : Tm Γ}
+      (p' : tyOf t' ≡ A [ σ' ]T)
+      → σ ≡ σ' → t ≡ t'
+      → (σ , t ∶[ p ]) ≡ (σ' , t' ∶[ p' ])
+    cong,∶[] {A = A} p p' eqσ eqt =
+      cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ _ _ → UIP) p p' (cong tyOf eqt) (cong (A [_]T) eqσ))
+--      cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Ty-is-set) p p' (cong tyOf eqt) (cong (A [_]T) eqσ))
