@@ -24,11 +24,13 @@ module Foo where
     tyOf
       : ∀ {Γ} → Tm Γ → Ty Γ
       
-    variable
-        Γ Δ Θ Ξ : Ctx
-        A B C D : Ty Γ
-        t u     : Tm Γ
-        σ τ δ γ : Sub Γ Δ
+    module GVars where
+      variable
+          Γ Δ Θ Ξ : Ctx
+          A B C D : Ty Γ
+          t u     : Tm Γ
+          σ τ δ γ : Sub Γ Δ
+    open GVars public
 
     -- Substitution calculus
     ∅

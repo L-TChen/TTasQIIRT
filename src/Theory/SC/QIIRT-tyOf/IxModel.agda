@@ -3,136 +3,145 @@ module Theory.SC.QIIRT-tyOf.IxModel where
 open import Prelude
 
 open import Theory.SC.QIIRT-tyOf.Syntax
+open GVars
 
 record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄)) where
   field
-    Ctxᴬ
+    Ctx∙
       : (Γ : Ctx)
       → Set ℓ₁
-    Tyᴬ
-      : Ctxᴬ Γ → Ty Γ
+    Ty∙
+      : Ctx∙ Γ → Ty Γ
       → Set ℓ₂
-    Subᴬ
-      : (Γᴹ : Ctxᴬ Γ) (Δᴹ : Ctxᴬ Δ) → Sub Γ Δ
+    Sub∙
+      : (Γ∙ : Ctx∙ Γ) (Δ∙ : Ctx∙ Δ) → Sub Γ Δ
       → Set ℓ₃
-    Tmᴬ
-      : Ctxᴬ Γ → Tm Γ
+    Tm∙
+      : Ctx∙ Γ → Tm Γ
       → Set ℓ₄
-    tyOfᴬ
-      : {Γᴹ : Ctxᴬ Γ} → Tmᴬ Γᴹ t
-      → Tyᴬ Γᴹ (tyOf t)
+    tyOf∙
+      : {Γ∙ : Ctx∙ Γ} → Tm∙ Γ∙ t
+      → Ty∙ Γ∙ (tyOf t)
+
+  -- SC∙ is defined separately from Motive in order to declare
+  -- generalizable variables.
 
   variable
-    Γᴹ Δᴹ Θᴹ Ξᴹ : Ctxᴬ Γ
-    Aᴹ Bᴹ Cᴹ Dᴹ : Tyᴬ  Γᴹ A
-    σᴹ τᴹ γᴹ    : Subᴬ Γᴹ Δᴹ σ
-    tᴹ uᴹ vᴹ    : Tmᴬ  Γᴹ t
+    Γ∙ Δ∙ Θ∙ Ξ∙ : Ctx∙ Γ
+    A∙ B∙ C∙ D∙ : Ty∙  Γ∙ A
+    σ∙ τ∙ γ∙    : Sub∙ Γ∙ Δ∙ σ
+    t∙ u∙ v∙    : Tm∙  Γ∙ t
+
+  infix 4 _≡Ty[_]_ _≡Tm[_]_ _≡Sub[_]_
+
+  _≡Ty[_]_ : Ty∙ Γ∙ A → A ≡ B → Ty∙ Γ∙ B → Type ℓ₂
+  _≡Ty[_]_ {Γ} {Γ∙} A∙ e B∙ = PathP (λ i → Ty∙ Γ∙ (e i)) A∙ B∙
+
+  _≡Tm[_]_ : Tm∙ Γ∙ t → t ≡ u → Tm∙ Γ∙ u → Type ℓ₄
+  _≡Tm[_]_ {Γ} {Γ∙} t∙ e u∙ = PathP (λ i → Tm∙ Γ∙ (e i)) t∙ u∙
+
+  _≡Sub[_]_ : Sub∙ Γ∙ Δ∙ σ → σ ≡ τ → Sub∙ Γ∙ Δ∙ τ → Type ℓ₃
+  _≡Sub[_]_ {Γ} {Γ∙} {Δ} {Δ∙} σ∙ e τ∙ = PathP (λ i → Sub∙ Γ∙ Δ∙ (e i)) σ∙ τ∙
 
 module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
   open Motive mot
 
-  record SCᴹ : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
+  record SC∙ : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     field
-      ∅ᴹ
-        : Ctxᴬ ∅
-      _,ᴹ_
-        : (Γᴹ : Ctxᴬ Γ)(Aᴹ : Tyᴬ Γᴹ A)
-        → Ctxᴬ (Γ , A)
-      _[_]Tᴹ
-        : (Aᴹ : Tyᴬ Δᴹ A)(σᴹ : Subᴬ Γᴹ Δᴹ σ)
-        → Tyᴬ Γᴹ (A [ σ ])
-      _[_]tᴹ
-        : (tᴹ : Tmᴬ Δᴹ t)(σᴹ : Subᴬ Γᴹ Δᴹ σ)
-        → Tmᴬ Γᴹ (t [ σ ])
-      tyOf[]ᴹ
-        : tyOfᴬ (tᴹ [ σᴹ ]tᴹ) ≡ (tyOfᴬ tᴹ) [ σᴹ ]Tᴹ
-      ∅Sᴹ
-        : Subᴬ Γᴹ ∅ᴹ ∅
-      _,ᴹ_∶[_,_]
-        : (σᴹ : Subᴬ Γᴹ Δᴹ σ) {Aᴹ : Tyᴬ Δᴹ A} (tᴹ : Tmᴬ Γᴹ t)
+      ∅∙
+        : Ctx∙ ∅
+      _,∙_
+        : (Γ∙ : Ctx∙ Γ)(A∙ : Ty∙ Γ∙ A)
+        → Ctx∙ (Γ , A)
+      _[_]T∙
+        : (A∙ : Ty∙ Δ∙ A)(σ∙ : Sub∙ Γ∙ Δ∙ σ)
+        → Ty∙ Γ∙ (A [ σ ])
+      _[_]t∙
+        : (t∙ : Tm∙ Δ∙ t)(σ∙ : Sub∙ Γ∙ Δ∙ σ)
+        → Tm∙ Γ∙ (t [ σ ])
+      tyOf[]∙
+        : tyOf∙ (t∙ [ σ∙ ]t∙) ≡ (tyOf∙ t∙) [ σ∙ ]T∙
+      ∅S∙
+        : Sub∙ Γ∙ ∅∙ ∅
+      _,∙_∶[_,_]
+        : (σ∙ : Sub∙ Γ∙ Δ∙ σ) {A∙ : Ty∙ Δ∙ A} (t∙ : Tm∙ Γ∙ t)
         → (p : tyOf t ≡ A [ σ ])
-        → tyOfᴬ tᴹ ≡[ i ⊢ Tyᴬ Γᴹ (p i) ] (Aᴹ [ σᴹ ]Tᴹ)
-        → Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) (σ , t ∶[ p ])
-      idSᴹ
-        : Subᴬ Γᴹ Γᴹ idS
-      _∘ᴹ_
-        : Subᴬ Δᴹ Θᴹ τ → Subᴬ Γᴹ Δᴹ σ
-        → Subᴬ Γᴹ Θᴹ (τ ∘ σ)
-      π₁ᴹ
-        : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) σ
-        → Subᴬ Γᴹ Δᴹ (π₁ σ)
-      π₂ᴹ
-        : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) σ
-        → Tmᴬ Γᴹ (π₂ σ)
-      tyOfπ₂ᴹ
-        : tyOfᴬ (π₂ᴹ σᴹ) ≡ Aᴹ [ π₁ᴹ σᴹ ]Tᴹ
-      idS∘ᴹ_
-        : (σᴹ : Subᴬ Γᴹ Δᴹ σ)
-        → idSᴹ ∘ᴹ σᴹ
-        ≡[ i ⊢ Subᴬ Γᴹ Δᴹ ((idS∘ σ) i) ] σᴹ
+        → tyOf∙ t∙ ≡Ty[ p ] (A∙ [ σ∙ ]T∙)
+        → Sub∙ Γ∙ (Δ∙ ,∙ A∙) (σ , t ∶[ p ])
+      idS∙
+        : Sub∙ Γ∙ Γ∙ idS
+      _∘∙_
+        : Sub∙ Δ∙ Θ∙ τ → Sub∙ Γ∙ Δ∙ σ
+        → Sub∙ Γ∙ Θ∙ (τ ∘ σ)
+      π₁∙
+        : Sub∙ Γ∙ (Δ∙ ,∙ A∙) σ
+        → Sub∙ Γ∙ Δ∙ (π₁ σ)
+      π₂∙
+        : Sub∙ Γ∙ (Δ∙ ,∙ A∙) σ
+        → Tm∙ Γ∙ (π₂ σ)
+      tyOfπ₂∙
+        : tyOf∙ (π₂∙ σ∙) ≡ A∙ [ π₁∙ σ∙ ]T∙
+      idS∘∙_
+        : (σ∙ : Sub∙ Γ∙ Δ∙ σ)
+        → idS∙ ∘∙ σ∙
+        ≡Sub[ idS∘ σ ] σ∙
         -- [TODO] Justify the usage of transport in the eliminator
-      _∘idSᴹ
-        : (σᴹ : Subᴬ Γᴹ Δᴹ σ)
-        → σᴹ ∘ᴹ idSᴹ
-        ≡[ i ⊢ Subᴬ Γᴹ Δᴹ ((σ ∘idS) i) ] σᴹ
-      assocSᴹ
-        : (σᴹ : Subᴬ Γᴹ Δᴹ σ) (τᴹ : Subᴬ Δᴹ Θᴹ τ) (γᴹ : Subᴬ Θᴹ Ξᴹ γ)
-        → (γᴹ ∘ᴹ τᴹ) ∘ᴹ σᴹ
-        ≡[ i ⊢ Subᴬ Γᴹ Ξᴹ (assocS σ τ γ i) ]
-           γᴹ ∘ᴹ (τᴹ ∘ᴹ σᴹ)
-      ,∘ᴹ
-        : (σᴹ : Subᴬ Δᴹ Θᴹ σ) (tᴹ : Tmᴬ Δᴹ t) (τᴹ : Subᴬ Γᴹ Δᴹ τ)
-          (p : tyOf t ≡ A [ σ ]) (pᴹ : tyOfᴬ tᴹ ≡[ i ⊢ Tyᴬ Δᴹ (p i) ] Aᴹ [ σᴹ ]Tᴹ)
-          (q : tyOf (t [ τ ]) ≡ A [ σ ∘ τ ]) (qᴹ : tyOfᴬ (tᴹ [ τᴹ ]tᴹ) ≡[ i ⊢ Tyᴬ Γᴹ (q i) ] (Aᴹ [ σᴹ ∘ᴹ τᴹ ]Tᴹ))
-        → (σᴹ ,ᴹ tᴹ ∶[ p , pᴹ ]) ∘ᴹ τᴹ
-        ≡[ i ⊢ Subᴬ Γᴹ (Θᴹ ,ᴹ Aᴹ) (,∘ σ t τ p q i) ]
-          ((σᴹ ∘ᴹ τᴹ) ,ᴹ tᴹ [ τᴹ ]tᴹ ∶[ q , qᴹ ])
-      ηπᴹ
-        : (σᴹ : Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) σ)
-        → σᴹ
-        ≡[ i ⊢ Subᴬ Γᴹ (Δᴹ ,ᴹ Aᴹ) (ηπ σ i) ]
-          (π₁ᴹ σᴹ ,ᴹ π₂ᴹ σᴹ ∶[ refl , tyOfπ₂ᴹ ])
-      η∅ᴹ
-        : (σᴹ : Subᴬ Γᴹ ∅ᴹ σ)
-        → σᴹ ≡[ i ⊢ Subᴬ Γᴹ ∅ᴹ (η∅ σ i) ] ∅Sᴹ
-      βπ₁ᴹ
-        : (σᴹ : Subᴬ Γᴹ Δᴹ σ) (tᴹ : Tmᴬ Γᴹ t)
-        → (p : tyOf t ≡ A [ σ ]) (pᴹ : tyOfᴬ tᴹ ≡[ i ⊢ Tyᴬ Γᴹ (p i) ] Aᴹ [ σᴹ ]Tᴹ)
-        → π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p , pᴹ ])
-        ≡[ i ⊢ Subᴬ Γᴹ Δᴹ (βπ₁ σ t p i) ]
-          σᴹ
-      βπ₂ᴹ
-        : (σᴹ : Subᴬ Γᴹ Δᴹ σ) (tᴹ : Tmᴬ Γᴹ t)
-        → (p : tyOf t ≡ A [ σ ]) (pᴹ : tyOfᴬ tᴹ ≡[ i ⊢ Tyᴬ Γᴹ (p i) ] Aᴹ [ σᴹ ]Tᴹ)
+      _∘idS∙
+        : (σ∙ : Sub∙ Γ∙ Δ∙ σ)
+        → σ∙ ∘∙ idS∙
+        ≡Sub[ σ ∘idS ] σ∙
+      assocS∙
+        : (σ∙ : Sub∙ Γ∙ Δ∙ σ) (τ∙ : Sub∙ Δ∙ Θ∙ τ) (γ∙ : Sub∙ Θ∙ Ξ∙ γ)
+        → (γ∙ ∘∙ τ∙) ∘∙ σ∙
+        ≡Sub[ assocS σ τ γ ]
+           γ∙ ∘∙ (τ∙ ∘∙ σ∙)
+      ,∘∙
+        : (σ∙ : Sub∙ Δ∙ Θ∙ σ) (t∙ : Tm∙ Δ∙ t) (τ∙ : Sub∙ Γ∙ Δ∙ τ)
+          (p : tyOf t ≡ A [ σ ]) (p∙ : tyOf∙ t∙ ≡Ty[ p ] A∙ [ σ∙ ]T∙)
+          (q : tyOf (t [ τ ]) ≡ A [ σ ∘ τ ]) (q∙ : tyOf∙ (t∙ [ τ∙ ]t∙) ≡Ty[ q ] (A∙ [ σ∙ ∘∙ τ∙ ]T∙))
+        → (σ∙ ,∙ t∙ ∶[ p , p∙ ]) ∘∙ τ∙
+        ≡Sub[ ,∘ σ t τ p q ]
+          (σ∙ ∘∙ τ∙) ,∙ t∙ [ τ∙ ]t∙ ∶[ q , q∙ ]
+      ηπ∙
+        : (σ∙ : Sub∙ Γ∙ (Δ∙ ,∙ A∙) σ)
+        → σ∙ ≡Sub[ ηπ σ ] (π₁∙ σ∙ ,∙ π₂∙ σ∙ ∶[ refl , tyOfπ₂∙ ])
+      η∅∙
+        : (σ∙ : Sub∙ Γ∙ ∅∙ σ)
+        → σ∙ ≡Sub[ η∅ σ ] ∅S∙
+      βπ₁∙
+        : (σ∙ : Sub∙ Γ∙ Δ∙ σ) (t∙ : Tm∙ Γ∙ t)
+        → (p : tyOf t ≡ A [ σ ]) (p∙ : tyOf∙ t∙ ≡Ty[ p ] A∙ [ σ∙ ]T∙)
+        → π₁∙ (σ∙ ,∙ t∙ ∶[ p , p∙ ]) ≡Sub[ βπ₁ σ t p ] σ∙
+      βπ₂∙
+        : (σ∙ : Sub∙ Γ∙ Δ∙ σ) (t∙ : Tm∙ Γ∙ t)
+        → (p : tyOf t ≡ A [ σ ]) (p∙ : tyOf∙ t∙ ≡Ty[ p ] A∙ [ σ∙ ]T∙)
         → (q : A [ π₁ (σ , t ∶[ p ]) ] ≡ tyOf t)
-          (qᴹ : Aᴹ [ π₁ᴹ (σᴹ ,ᴹ tᴹ ∶[ p , pᴹ ]) ]Tᴹ ≡[ i ⊢ Tyᴬ Γᴹ (q i) ] tyOfᴬ tᴹ)
-        → π₂ᴹ (σᴹ ,ᴹ tᴹ ∶[ p , pᴹ ])
-        ≡[ i ⊢ Tmᴬ Γᴹ (βπ₂ σ t p q i) ]
-          tᴹ
-      [idS]Tᴹ
-        : (Aᴹ : Tyᴬ Γᴹ A)
-        → Aᴹ
-        ≡[ i ⊢ Tyᴬ Γᴹ ([idS]T {Γ} {A} i) ]
-          Aᴹ [ idSᴹ ]Tᴹ
-      [∘]Tᴹ
-        : (Aᴹ : Tyᴬ Θᴹ A) (σᴹ : Subᴬ Γᴹ Δᴹ σ) (τᴹ : Subᴬ Δᴹ Θᴹ τ)
-        → Aᴹ [ τᴹ ]Tᴹ [ σᴹ ]Tᴹ
-        ≡[ i ⊢ Tyᴬ Γᴹ ([∘]T A σ τ i) ]
-          Aᴹ [ τᴹ ∘ᴹ σᴹ ]Tᴹ
-      [idS]tᴹ
-        : (tᴹ : Tmᴬ Γᴹ t)
-        → tᴹ
-        ≡[ i ⊢ Tmᴬ Γᴹ ([idS]t t i) ]
-          tᴹ [ idSᴹ ]tᴹ
-      [∘]tᴹ
-        : (tᴹ : Tmᴬ Θᴹ t) (σᴹ : Subᴬ Γᴹ Δᴹ σ) (τᴹ : Subᴬ Δᴹ Θᴹ τ)
-        → tᴹ [ τᴹ ]tᴹ [ σᴹ ]tᴹ
-        ≡[ i ⊢ Tmᴬ Γᴹ ([∘]t t σ τ i) ]
-          tᴹ [ τᴹ ∘ᴹ σᴹ ]tᴹ
-      Uᴹ
-        : Tyᴬ Γᴹ A
-      U[]ᴹ
-        : {Γᴹ : Ctxᴬ Γ} {Δᴹ : Ctxᴬ Δ} {σᴹ : Subᴬ Γᴹ Δᴹ σ}
-        → Uᴹ [ σᴹ ]Tᴹ
-        ≡[ i ⊢ Tyᴬ Γᴹ (U[] {σ = σ} i) ]
-          Uᴹ
+          (q∙ : A∙ [ π₁∙ (σ∙ ,∙ t∙ ∶[ p , p∙ ]) ]T∙ ≡Ty[ q ] tyOf∙ t∙)
+        → π₂∙ (σ∙ ,∙ t∙ ∶[ p , p∙ ])
+        ≡[ i ⊢ Tm∙ Γ∙ (βπ₂ σ t p q i) ]
+          t∙
+      [idS]T∙
+        : (A∙ : Ty∙ Γ∙ A)
+        → A∙ ≡Ty[ [idS]T {Γ} {A} ] (A∙ [ idS∙ ]T∙)
+      [∘]T∙
+        : (A∙ : Ty∙ Θ∙ A) (σ∙ : Sub∙ Γ∙ Δ∙ σ) (τ∙ : Sub∙ Δ∙ Θ∙ τ)
+        → A∙ [ τ∙ ]T∙ [ σ∙ ]T∙
+        ≡Ty[ [∘]T A σ τ ]
+          A∙ [ τ∙ ∘∙ σ∙ ]T∙
+      [idS]t∙
+        : (t∙ : Tm∙ Γ∙ t)
+        → t∙
+        ≡Tm[ [idS]t t ]
+          t∙ [ idS∙ ]t∙
+      [∘]t∙
+        : (t∙ : Tm∙ Θ∙ t) (σ∙ : Sub∙ Γ∙ Δ∙ σ) (τ∙ : Sub∙ Δ∙ Θ∙ τ)
+        → t∙ [ τ∙ ]t∙ [ σ∙ ]t∙
+        ≡Tm[ [∘]t t σ τ ]
+          t∙ [ τ∙ ∘∙ σ∙ ]t∙
+      U∙
+        : Ty∙ Γ∙ A
+      U[]∙
+        : {Γ∙ : Ctx∙ Γ} {Δ∙ : Ctx∙ Δ} {σ∙ : Sub∙ Γ∙ Δ∙ σ}
+        → U∙ [ σ∙ ]T∙
+        ≡Ty[ U[] {σ = σ} ]
+          U∙
