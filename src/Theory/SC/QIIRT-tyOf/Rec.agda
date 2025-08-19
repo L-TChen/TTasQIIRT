@@ -2,10 +2,9 @@ open import Prelude
 
 open import Theory.SC.QIIRT-tyOf.Model
 
-module Theory.SC.QIIRT-tyOf.Rec (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) (m : SC mot) where
+module Theory.SC.QIIRT-tyOf.Rec (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
 
-open Motive mot
-open SC m
+open SC C
 
 import Theory.SC.QIIRT-tyOf.Syntax as S
 open S.GVars

@@ -327,7 +327,7 @@ open Foo public
     ∎
 
 π₁idS
-  : (σ : Sub Γ (Δ , A))
+  : (σ : Sub Γ (Δ , A)) 
   → π₁ σ ≡ π₁ idS ∘ σ
 π₁idS σ = 
   π₁ σ

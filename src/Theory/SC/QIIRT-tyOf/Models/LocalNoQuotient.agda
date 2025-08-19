@@ -2,111 +2,110 @@ open import Prelude
 open import Theory.SC.QIIRT-tyOf.Model
 
 module Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
-  (A : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) (SCᵐ : SCᴹ A)
-  (Ctxᴬ-is-set : isSet (A .Motive.Ctxᴬ)) where
+  (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄)  where
 
-open import Cubical.HITs.SetQuotients
-  renaming (elim to elim/; rec to rec/)
-open import Cubical.Relation.Binary.Base
-
-open Motive A
-open SCᴹ SCᵐ
-  renaming (cong,∶[]ᴹ to cong,∶[])
+open SC C
+open GVars
 
 ℓ! = ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃
 
-record Ty³ (Γᴹ : Ctxᴬ) : Set ℓ! where
+record Ty³ (Γ : Ctx) : Set ℓ! where
+  inductive
+  eta-equality
   constructor ⟨_,_⟩!
   field
-    {V} : Ctxᴬ
-    E : Tyᴬ V
-    ⌜_⌝ : Subᴬ Γᴹ V
-  [_]³ : Tyᴬ Γᴹ
-  [_]³ = E [ ⌜_⌝ ]Tᴹ
+    {V} : Ctx
+    E   : Ty V
+    ⌜_⌝ : Sub Γ V
+
+  [_]³ : Ty Γ
+  [_]³ = E [ ⌜_⌝ ]T
 open Ty³
 
-ty³ : (V : Ctxᴬ) → Tyᴬ V → Subᴬ Γᴹ V → Ty³ Γᴹ
+ty³ : (V : Ctx) → Ty V → Sub Γ V → Ty³ Γ
 ty³ V E σ = ⟨ E , σ ⟩!
 
--- Ty³-is-set : isSet (Ty³ Γᴹ)
--- Ty³-is-set {Γᴹ} A³ A'³ p q i j = record
+-- Ty³-is-set : isSet (Ty³ Γ)
+-- Ty³-is-set {Γ} A³ A'³ p q i j = record
 --   { V = isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i
 --   ; E = isSet→SquareP (λ j i → Tyᴬ-is-set {isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i})
 --                        refl refl (cong E p) (cong E q) j i
---   ; ⌜_⌝ = isSet→SquareP (λ j i → Subᴬ-is-set {Γᴹ} {isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i})
+--   ; ⌜_⌝ = isSet→SquareP (λ j i → Subᴬ-is-set {Γ} {isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i})
 --                          refl refl (cong ⌜_⌝ p) (cong ⌜_⌝ q) j i
 --   }
 
-Tm! : Ctxᴬ → Set _
-Tm! Γᴹ = Σ[ T ∈ Ty³ Γᴹ ] Σ[ t ∈ (Tmᴬ Γᴹ) ] tyOfᴬ t ≡ [ T ]³
+Tm! : Ctx → Set _
+Tm! Γ = Σ[ T ∈ Ty³ Γ ] Σ[ t ∈ (Tm Γ) ] tyOf t ≡ [ T ]³
 
-Tm!-≡ : {Γᴹ : Ctxᴬ} → {u t : Tm! Γᴹ}
+Tm!-≡ : {Γ : Ctx} → {u t : Tm! Γ}
       → fst u ≡ fst t → fst (snd u) ≡ fst (snd t) → u ≡ t
-Tm!-≡ {Γᴹ} {Aᴹ , u , p} {Bᴹ , t , q} r w i =
+Tm!-≡ {Γ} {A , u , p} {B , t , q} r w i =
  r i ,
  w i ,
- isProp→PathP {B = λ j → tyOfᴬ (w j) ≡ [ r j ]³} (λ j → UIP) p q i
- -- isProp→PathP {B = λ j → tyOfᴬ (w j) ≡ [ r j ]³} (λ j → Tyᴬ-is-set (tyOfᴬ (w j)) [ r j ]³) p q i
+ isProp→PathP {B = λ j → tyOf (w j) ≡ [ r j ]³} (λ j → UIP) p q i
+-- isProp→PathP {B = λ j → tyOf (w j) ≡ [ r j ]³} (λ j → Ty-is-set (tyOf (w j)) [ r j ]³) p q i
 
-tyOf! : Tm! Γᴹ → Ty³ Γᴹ
+tyOf! : Tm! Γ → Ty³ Γ
 tyOf! = fst
 
-_[_]T! : Ty³ Δᴹ → (σᴹ : Subᴬ Γᴹ Δᴹ) → Ty³ Γᴹ
-A! [ σᴹ ]T! = ⟨ E A! , ⌜ A! ⌝ ∘ᴹ σᴹ ⟩!
+_[_]T! : Ty³ Δ → (σ : Sub Γ Δ) → Ty³ Γ
+A! [ σ ]T! = ⟨ E A! , ⌜ A! ⌝ ∘ σ ⟩!
 
-_[_]t! : Tm! Δᴹ → (σᴹ : Subᴬ Γᴹ Δᴹ) → Tm! Γᴹ
-(T , t , p) [ σᴹ ]t! =
- (T [ σᴹ ]T!) ,
- (t [ σᴹ ]tᴹ) ,
- tyOf[]ᴹ ∙ cong _[ σᴹ ]Tᴹ p ∙ [∘]Tᴹ (E T) σᴹ ⌜ T ⌝
+_[_]t! : Tm! Δ → (σ : Sub Γ Δ) → Tm! Γ
+(T , t , p) [ σ ]t! =
+ (T [ σ ]T!) ,
+ (t [ σ ]t) ,
+ tyOf[] ∙ cong _[ σ ]T p ∙ [∘]T (E T) σ ⌜ T ⌝
 
-_,!_ : (Γᴹ : Ctxᴬ) → Ty³ Γᴹ → Ctxᴬ
-Γᴹ ,! A! = Γᴹ ,ᴹ [ A! ]³
+_,!_ : (Γ : Ctx) → Ty³ Γ → Ctx
+Γ ,! A! = Γ ,C [ A! ]³
 
-_,!_∶[_] : {Aᴹ : Ty³ Δᴹ} (σᴹ : Subᴬ Γᴹ Δᴹ) (tᴹ : Tm! Γᴹ) → tyOf! tᴹ ≡ Aᴹ [ σᴹ ]T!
-        → Subᴬ Γᴹ (Δᴹ ,! Aᴹ)
-_,!_∶[_] {Aᴹ = Aᴹ} σᴹ (Bᴹ , t , q) p = σᴹ ,ᴹ t ∶[ q ∙ cong [_]³ p ∙ sym ([∘]Tᴹ (E Aᴹ) σᴹ ⌜ Aᴹ ⌝) ]
+_,!_∶[_] : {A : Ty³ Δ} (σ : Sub Γ Δ) (t : Tm! Γ) → tyOf! t ≡ A [ σ ]T!
+        → Sub Γ (Δ ,! A)
+_,!_∶[_] {A = A} σ (B , t , q) p = σ , t ∶[ q ∙ cong [_]³ p ∙ sym ([∘]T (E A) σ ⌜ A ⌝) ]
 
-SC!ᵃ : Motive _ _ _ _
-SC!ᵃ .Motive.Ctxᴬ        = Ctxᴬ
-SC!ᵃ .Motive.Tyᴬ         = Ty³
-SC!ᵃ .Motive.Subᴬ        = Subᴬ
-SC!ᵃ .Motive.Tmᴬ         = Tm!
-SC!ᵃ .Motive.tyOfᴬ       = tyOf!
--- SC!ᵃ .Motive.Tyᴬ-is-set  = Ty³-is-set
--- SC!ᵃ .Motive.Subᴬ-is-set = Subᴬ-is-set
--- SC!ᵃ .Motive.Tmᴬ-is-set  = isSetΣ Ty³-is-set λ _ → isSetΣ Tmᴬ-is-set λ _ → isProp→isSet (Tyᴬ-is-set _ _)
+!C : Motive
+!C .Motive.Ctx        = Ctx
+!C .Motive.Ty         = Ty³
+!C .Motive.Sub        = Sub
+!C .Motive.Tm         = Tm!
+!C .Motive.tyOf       = tyOf!
+-- SC!ᵃ .Motive.Ty-is-set  = Ty³-is-set
+-- SC!ᵃ .Motive.Sub-is-set = Sub-is-set
+-- SC!ᵃ .Motive.Tm-is-set  = isSetΣ Ty³-is-set λ _ → isSetΣ Tm-is-set λ _ → isProp→isSet (Ty-is-set _ _)
 
-SC!ᵐ : SCᴹ SC!ᵃ
-SC!ᵐ .SCᴹ.∅ᴹ = ∅ᴹ
-SC!ᵐ .SCᴹ._,ᴹ_ = _,!_
-SC!ᵐ .SCᴹ._[_]Tᴹ = _[_]T!
-SC!ᵐ .SCᴹ._[_]tᴹ = _[_]t!
-SC!ᵐ .SCᴹ.tyOf[]ᴹ  =
-  refl
-SC!ᵐ .SCᴹ.∅Sᴹ = ∅Sᴹ
-SC!ᵐ .SCᴹ._,ᴹ_∶[_] = _,!_∶[_]
-SC!ᵐ .SCᴹ.idSᴹ = idSᴹ
-SC!ᵐ .SCᴹ._∘ᴹ_ = _∘ᴹ_
-SC!ᵐ .SCᴹ.π₁ᴹ = π₁ᴹ
-SC!ᵐ .SCᴹ.π₂ᴹ {Aᴹ = Aᴹ} σᴹ =
- (Aᴹ [ π₁ᴹ σᴹ ]T!) , π₂ᴹ σᴹ , tyOfπ₂ᴹ σᴹ ∙ [∘]Tᴹ (E Aᴹ) (π₁ᴹ σᴹ) ⌜ Aᴹ ⌝
-SC!ᵐ .SCᴹ.tyOfπ₂ᴹ σᴹ = refl
-SC!ᵐ .SCᴹ.idS∘ᴹ_ = idS∘ᴹ_
-SC!ᵐ .SCᴹ._∘idSᴹ = _∘idSᴹ
-SC!ᵐ .SCᴹ.assocSᴹ = assocSᴹ
-SC!ᵐ .SCᴹ.[idS]Tᴹ {Γᴹ} {Aᴹ} =
- cong (ty³ (Aᴹ .V) (E Aᴹ)) (sym (⌜ Aᴹ ⌝ ∘idSᴹ))
-SC!ᵐ .SCᴹ.[∘]Tᴹ Aᴹ σᴹ τᴹ =
-  cong (ty³ (Aᴹ .V) (E Aᴹ)) (assocSᴹ σᴹ τᴹ ⌜ Aᴹ ⌝)
-SC!ᵐ .SCᴹ.,∘ᴹ {Aᴹ = Aᴹ} σᴹ (Bᴹ , t , r) τᴹ p q = ,∘ᴹ σᴹ t τᴹ _ _
-SC!ᵐ .SCᴹ.ηπᴹ σᴹ = ηπᴹ σᴹ ∙ cong,∶[] _ _ refl refl
-SC!ᵐ .SCᴹ.η∅ᴹ = η∅ᴹ
-SC!ᵐ .SCᴹ.βπ₁ᴹ σᴹ (Bᴹ , t , q) p =  βπ₁ᴹ σᴹ t _
-SC!ᵐ .SCᴹ.βπ₂ᴹ {Aᴹ = Aᴹ} σᴹ (Bᴹ , t , q) p =
- Tm!-≡ (cong (Aᴹ [_]T!) (βπ₁ᴹ σᴹ t _) ∙ sym p) (βπ₂ᴹ σᴹ t _)
-SC!ᵐ .SCᴹ.[idS]tᴹ (Bᴹ , t , q) = Tm!-≡ (SC!ᵐ .SCᴹ.[idS]Tᴹ) ([idS]tᴹ t)
-SC!ᵐ .SCᴹ.[∘]tᴹ (Bᴹ , t , q) σᴹ τᴹ =
- Tm!-≡ (SC!ᵐ .SCᴹ.[∘]Tᴹ Bᴹ σᴹ τᴹ) ([∘]tᴹ t σᴹ τᴹ)
-SC!ᵐ .SCᴹ.Uᴹ = ⟨ Uᴹ , ∅Sᴹ ⟩!
-SC!ᵐ .SCᴹ.U[]ᴹ {σᴹ = σᴹ} = cong (ty³ ∅ᴹ Uᴹ) (η∅ᴹ (∅Sᴹ ∘ᴹ σᴹ))
+!SC : IsSC !C
+!SC .IsSC.∅ = ∅
+!SC .IsSC._,C_ = _,!_
+!SC .IsSC._[_]T = _[_]T!
+!SC .IsSC._[_]t = _[_]t!
+!SC .IsSC.tyOf[] = refl
+!SC .IsSC.∅S = ∅S
+!SC .IsSC._,_∶[_] = _,!_∶[_]
+!SC .IsSC.idS = idS
+!SC .IsSC._∘_ = _∘_
+!SC .IsSC.π₁ = π₁
+!SC .IsSC.π₂ {A = A} σ =
+  (A [ π₁ σ ]T!) , π₂ σ , tyOfπ₂ σ ∙ [∘]T (E A) (π₁ σ) ⌜ A ⌝
+!SC .IsSC.tyOfπ₂ σ = refl
+!SC .IsSC.idS∘_ = idS∘_
+!SC .IsSC._∘idS = _∘idS
+!SC .IsSC.assocS = assocS
+!SC .IsSC.[idS]T {Γ} {A} =
+  cong (ty³ (A .V) (E A)) (sym (⌜ A ⌝ ∘idS))
+!SC .IsSC.[∘]T A σ τ =
+  cong (ty³ (A .V) (E A)) (assocS σ τ ⌜ A ⌝)
+!SC .IsSC.,∘ {A = A} σ (B , t , r) τ p q = ,∘ σ t τ _ _
+!SC .IsSC.ηπ σ = ηπ σ ∙ cong,∶[] _ _ refl refl
+!SC .IsSC.η∅ = η∅
+!SC .IsSC.βπ₁ σ (B , t , q) p =  βπ₁ σ t _
+!SC .IsSC.βπ₂ {A = A} σ (B , t , q) p =
+  Tm!-≡ (cong (A [_]T!) (βπ₁ σ t _) ∙ sym p) (βπ₂ σ t _)
+!SC .IsSC.[idS]t (B , t , q) = Tm!-≡ (!SC .IsSC.[idS]T) ([idS]t t)
+!SC .IsSC.[∘]t (B , t , q) σ τ =
+  Tm!-≡ (!SC .IsSC.[∘]T B σ τ) ([∘]t t σ τ)
+!SC .IsSC.U = ⟨ U , ∅S ⟩!
+!SC .IsSC.U[] {σ = σ} = cong (ty³ ∅ U) (η∅ (∅S ∘ σ))
+
+_! : SC _ _ _ _
+_! = record { mot = !C ; isSC = !SC }

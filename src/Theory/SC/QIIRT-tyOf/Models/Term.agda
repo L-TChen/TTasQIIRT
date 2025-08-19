@@ -5,7 +5,7 @@ module Theory.SC.QIIRT-tyOf.Models.Term where
 open import Theory.SC.QIIRT-tyOf.Syntax
 open import Theory.SC.QIIRT-tyOf.Model
 
-TermM : Motive _ _ _ _
+TermM : Motive
 TermM = record
   { Ctx  = Ctx
   ; Ty   = Ty
@@ -17,8 +17,8 @@ TermM = record
 --  ; Tmᴬ-is-set = Tm-is-set
   }
 
-TermSC : SC TermM
-TermSC = record
+TermIsSC : IsSC TermM
+TermIsSC = record
   { ∅       = ∅
   ; _,C_    = _,_
   ; _[_]T   = _[_]
@@ -47,3 +47,6 @@ TermSC = record
   ; U       = U
   ; U[]     = U[]
   }
+
+Term : SC _ _ _ _
+Term = record { mot = TermM ; isSC = TermIsSC }

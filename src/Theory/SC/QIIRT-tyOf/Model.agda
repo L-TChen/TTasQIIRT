@@ -2,10 +2,11 @@ open import Prelude
 
 module Theory.SC.QIIRT-tyOf.Model where
 
-record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄)) where
+record Motive {ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level} : Set (ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄)) where
   field
     Ctx  : Set ℓ₁
     Ty   : Ctx → Set ℓ₂
+
     Sub  : Ctx → Ctx → Set ℓ₃
     Tm   : Ctx → Set ℓ₄
     tyOf : {Γ : Ctx} → Tm Γ → Ty Γ
@@ -21,11 +22,11 @@ record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ �
       σ τ γ    : Sub Γ Δ
       t u v    : Tm Γ
 
-module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
+module _ (mot : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}) where
   open Motive mot
-  open GVars
+  open GVars -- generalisable variables cannot be used when opened in a record
 
-  record SC : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
+  record IsSC : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     field
       ∅
         : Ctx
@@ -185,3 +186,37 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
     cong,∶[] {A = A} p p' eqσ eqt =
       cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ _ _ → UIP) p p' (cong tyOf eqt) (cong (A [_]T) eqσ))
 --      cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Ty-is-set) p p' (cong tyOf eqt) (cong (A [_]T) eqσ))
+
+record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄))) where
+  inductive
+  eta-equality
+
+  field
+    mot  : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}
+    isSC : IsSC mot
+
+  open Motive mot public
+  open IsSC isSC  public
+  open GVars
+
+  π₁idS
+    : (σ : Sub Γ (Δ ,C A)) 
+    → π₁ σ ≡ π₁ idS ∘ σ
+  π₁idS σ = 
+    π₁ σ
+      ≡⟨ cong π₁ (sym (idS∘ σ)) ⟩
+    π₁ (idS ∘ σ)
+      ≡⟨ π₁∘ _ σ ⟩
+    π₁ idS ∘ σ
+      ∎
+
+  π₂idS
+    : (σ : Sub Γ (Δ ,C A))
+    → π₂ σ ≡ π₂ idS [ σ ]t
+  π₂idS σ =
+    π₂ σ
+      ≡⟨ cong π₂ (sym (idS∘ σ)) ⟩
+    π₂ (idS ∘ σ)
+      ≡⟨ π₂∘ _ _ ⟩
+    π₂ idS [ σ ]t
+      ∎

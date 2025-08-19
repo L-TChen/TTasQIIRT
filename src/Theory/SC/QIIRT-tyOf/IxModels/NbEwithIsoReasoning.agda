@@ -129,6 +129,7 @@ wkᴿ A (_,_∶[_] {A = A'} ρ x p) = wkᴿ A ρ , there x ∶[ q ]
       ∙ (A' [ ⌜ ρ ⌝ᴿ ] [ π₁ idS ]
         ▸ᵀ≡⟨ ⟨ E (▸ᵀ A') ,⟩!₂≡ʸ refl ⟩ -- [Diff]: `[∘]T A' (π₁ idS) ⌜ ρ ⌝ᴿ` originally
         A' [ ⌜ ρ ⌝ᴿ ∘ π₁ idS ] ∎)
+      
       ∙ cong (A' [_]) (⌜wkᴿ⌝ A ρ)
 ⌜wkᴿ⌝ A ∅ = ∅ ∘ π₁ idS ▸ˢ≡ʸ⟨ refl ⟩ ∅ ∎ -- [Diff]: `η∅ _` originally
 ⌜wkᴿ⌝ A (_,_∶[_] {A = A'} ρ x p) =

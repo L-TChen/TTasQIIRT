@@ -4,35 +4,49 @@ open import Prelude
 
 module Theory.SC.QIIRT-tyOf.StrictSyntaxIso where
 
-open import Theory.SC.QIIRT-tyOf.Syntax
-open import Theory.SC.QIIRT-tyOf.Models.StrictTerm
+open import Theory.SC.QIIRT-tyOf.Model
 open import Theory.SC.QIIRT-tyOf.Models.Term
-  using (Termᵃ; Termᵐ)
-import Theory.SC.QIIRT-tyOf.Models.Yoneda as Yoneda
-import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient as Local
+  using (Term)
+open import Theory.SC.QIIRT-tyOf.Models.StrictTerm
 
-open Yoneda Termᵃ Termᵐ
-open Local よᵃ よᵐ Ctx-is-set
-open Subʸ
-open Ty³
+open import Theory.SC.QIIRT-tyOf.Models.Yoneda Term
+open import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
 
-◂ᵀ : {Γ : Ctxₛ} → Tyₛ Γ → Ty Γ
+open Subʸ 
+open Ty³ 
+
+module S where
+  open SC Termₛ public
+  
+open import Theory.SC.QIIRT-tyOf.Syntax
+
+open GVars
+
+◂ᵀ
+  : S.Ty Γ
+  → Ty Γ
 ◂ᵀ ⟨ E , σ ⟩! = E [ y σ idS ]
 
-◂ᵗ : {Γ : Ctxₛ} → Tmₛ Γ → Tm Γ
+◂ᵗ
+  : S.Tm Γ
+  → Tm Γ
 ◂ᵗ (A , t , p) = t
 
-◂ˢ : {Γ Δ : Ctxₛ} → Subₛ Γ Δ → Sub Γ Δ
+◂ˢ
+  : S.Sub Γ Δ
+  → Sub Γ Δ
 ◂ˢ σ = y σ idS
 
-◂tyOfₛ : {Γ : Ctxₛ}{A : Tyₛ Γ} → (t : Tmₛ Γ) → tyOfₛ t ≡ A → tyOf (◂ᵗ t) ≡ ◂ᵀ A
-◂tyOfₛ (A , t , p) q = p ∙ cong [_]³ q
+◂tyOf
+  : {A : S.Ty Γ} (t : S.Tm Γ) → S.tyOf t ≡ A
+  → tyOf (◂ᵗ t) ≡ ◂ᵀ A
+◂tyOf (A , t , p) q = p ∙ cong [_]³ q
 
 {-# TERMINATING #-}
 ◂▸ᶜ : (Γ : Ctx) → ▸ᶜ Γ ≡ Γ
-◂▸ᵀ : {Γ : Ctx}(A : Ty Γ) → ◂ᵀ (▸ᵀ A) ≡[ i ⊢ Ty (◂▸ᶜ Γ i) ] A
-◂▸ᵗ : {Γ : Ctx}(t : Tm Γ) → ◂ᵗ (▸ᵗ t) ≡[ i ⊢ Tm (◂▸ᶜ Γ i) ] t
-◂▸ˢ : {Γ Δ : Ctx}(σ : Sub Γ Δ) → ◂ˢ (▸ˢ σ) ≡[ i ⊢ Sub (◂▸ᶜ Γ i) (◂▸ᶜ Δ i) ] σ
+◂▸ᵀ : (A : Ty Γ) → ◂ᵀ (▸ᵀ A) ≡[ i ⊢ Ty (◂▸ᶜ Γ i) ] A
+◂▸ᵗ : (t : Tm Γ) → ◂ᵗ (▸ᵗ t) ≡[ i ⊢ Tm (◂▸ᶜ Γ i) ] t
+◂▸ˢ : (σ : Sub Γ Δ) → ◂ˢ (▸ˢ σ) ≡[ i ⊢ Sub (◂▸ᶜ Γ i) (◂▸ᶜ Δ i) ] σ
 ◂▸ᶜ ∅ = refl
 ◂▸ᶜ (Γ , A) i = ◂▸ᶜ Γ i , ◂▸ᵀ A i
 ◂▸ᵀ {Γ} (_[_] {Δ = Δ} A σ) = p ◁ pᵈ
