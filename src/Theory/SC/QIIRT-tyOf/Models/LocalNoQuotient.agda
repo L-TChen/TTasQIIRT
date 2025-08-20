@@ -5,13 +5,11 @@ module Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
   (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄)  where
 
 open SC C
-open GVars
+-- open GVars
 
 ℓ! = ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃
 
 record Ty³ (Γ : Ctx) : Set ℓ! where
-  inductive
-  eta-equality
   constructor ⟨_,_⟩!
   field
     {V} : Ctx

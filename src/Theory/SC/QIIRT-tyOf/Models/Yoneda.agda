@@ -5,11 +5,9 @@ module Theory.SC.QIIRT-tyOf.Models.Yoneda
   (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
 
 open SC C
-open GVars
+-- open GVars
 
 record Subʸ (Γ Δ : Ctx) : Set (ℓ-max ℓ₁ ℓ₃) where
-  inductive
-  eta-equality
   constructor _,_
   field
     y : ∀{Θ} → Sub Θ Γ → Sub Θ Δ
@@ -108,7 +106,7 @@ _,ʸ_∶[_] {Γ} {Δ} {A} (σ , pσ) t p =
 よIsSC .IsSC._∘idS (σ , pσ) = ≡ʸ→≡ refl
 よIsSC .IsSC.assocS (σ , pσ) (τ , pτ) (θ , pθ) = ≡ʸ→≡ refl
 よIsSC .IsSC.[idS]T = [idS]T
-よIsSC .IsSC.[∘]T = [∘]Tʸ
+よIsSC .IsSC.[∘]T   = [∘]Tʸ
 よIsSC .IsSC.,∘ {A = A} (σ , pσ) t τʸ p q = ≡ʸ→≡ λ i γ →
   let r = tyOf[] ∙ (λ j → p j [ y τʸ γ ]T) ∙ [∘]T A (y τʸ γ) (σ idS) ∙ (λ j → A [ (pσ (y τʸ γ) idS ∙ (λ k → σ ((idS∘ (y τʸ γ)) k))) j ]T)
       r' = tyOf[] ∙ (λ j → q j [ γ ]T) ∙ [∘]T A γ (y ((σ , pσ) ∘ʸ τʸ) idS) ∙ (λ j → A [ (natʸ ((σ , pσ) ∘ʸ τʸ) γ idS ∙ (λ k → y ((σ , pσ) ∘ʸ τʸ) ((idS∘ γ) k))) j ]T)

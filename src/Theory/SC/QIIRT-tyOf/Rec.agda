@@ -7,14 +7,13 @@ module Theory.SC.QIIRT-tyOf.Rec (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
 open SC C
 
 import Theory.SC.QIIRT-tyOf.Syntax as S
-open S.GVars
 
 recCtx  : S.Ctx → Ctx
 {-# TERMINATING #-}
-recTy   : S.Ty Γ → Ty (recCtx Γ)
-recTm   : S.Tm Γ → Tm (recCtx Γ)
-recSub  : S.Sub Γ Δ → Sub (recCtx Γ) (recCtx Δ)
-recTyOf : (t : S.Tm Γ) → S.tyOf t ≡ A → tyOf (recTm t) ≡ recTy A
+recTy   : S.Ty S.Γ → Ty (recCtx S.Γ)
+recTm   : S.Tm S.Γ → Tm (recCtx S.Γ)
+recSub  : S.Sub S.Γ S.Δ → Sub (recCtx S.Γ) (recCtx S.Δ)
+recTyOf : (t : S.Tm S.Γ) → S.tyOf t ≡ S.A → tyOf (recTm t) ≡ recTy S.A
 
 recCtx S.∅ = ∅
 recCtx (Γ S., A) = recCtx Γ ,C recTy A
@@ -28,9 +27,9 @@ recTy (S.U[] {σ = σ} i)    = U[] {σ = recSub σ} i
 --  isSet→SquareP (λ _ _ → Ty-is-set) (λ i → recTy (x i)) (λ i → recTy (y i)) refl refl i j
 
 recSub⟨π₁,⟩≡π₁,
-  : (σ : S.Sub Γ Δ) (A : S.Ty Δ) (p : S.tyOf t ≡ A S.[ σ ])
-  → recTy A [ π₁ (recSub σ , recTm t ∶[ recTyOf t p ]) ]T
-  ≡ recTy A [ recSub (S.π₁ (σ S., t ∶[ p ])) ]T
+  : (σ : S.Sub S.Γ S.Δ) (A : S.Ty S.Δ) (p : S.tyOf S.t ≡ A S.[ σ ])
+  → recTy A [ π₁ (recSub σ , recTm S.t ∶[ recTyOf S.t p ]) ]T
+  ≡ recTy A [ recSub (S.π₁ (σ S., S.t ∶[ p ])) ]T
   
 recTm (t S.[ σ ])       = recTm t [ recSub σ ]t
 recTm (S.π₂ σ)          = π₂ (recSub σ)

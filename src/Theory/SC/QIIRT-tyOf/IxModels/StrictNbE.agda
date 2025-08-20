@@ -42,6 +42,7 @@ data Ctx' where
 
 variable
   Γ' Δ' Θ' Ξ' : Ctx'
+
 -- Definition of neutral and normal forms
 
 data NfTy (Γ : Ctx) : Set where

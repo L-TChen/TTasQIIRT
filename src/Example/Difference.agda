@@ -30,9 +30,9 @@ record Model : Set₁ where
 
   open IsModel isModel public
     
-record IsDepModel {X : Set} {XisSet : isSet X} (M : IsModel X XisSet)
-  (P : X → Set) (PisSet : ∀ x → isSet (P x)) : Set₁ where
-  open IsModel M
+record IsDepModel (M : Model)
+  (P : Model.X M → Set) (PisSet : ∀ x → isSet (P x)) : Set₁ where
+  open Model M
   
   infixr 10 _⋆_
 
@@ -43,11 +43,10 @@ record IsDepModel {X : Set} {XisSet : isSet X} (M : IsModel X XisSet)
     𝐞 : P e
     𝐢 : (a : A) → P (i a)
 
-  infix 4 PathP-fam
-  PathP-fam : {x y : X} → P x → x ≡ y → P y → Type
-  PathP-fam px e py = PathP (λ i → P (e i)) px py
+  infix 4 _≡[_]_
+  _≡[_]_ : {x y : X} → P x → x ≡ y → P y → Type
+  _≡[_]_ px e py = PathP (λ i → P (e i)) px py
 
-  syntax PathP-fam px e py = px ≡[ e ] py
   field
     ⋆-assoc
       : ∀ {x y z} (𝐱 : P x) (𝐲 : P y) (𝐳 : P z)
@@ -59,20 +58,18 @@ record IsDepModel {X : Set} {XisSet : isSet X} (M : IsModel X XisSet)
       : ∀ {x} (𝐱 : P x)
       → 𝐞 ⋆ 𝐱 ≡[ *-idˡ x ] 𝐱
 
-
 record DepModel (M : Model) : Type₁ where
-  open Model M
 
   field
-    P      : X → Type
+    P      : Model.X M → Type
     PisSet : ∀ x → isSet (P x)
-    DM : IsDepModel isModel P PisSet
+    DM : IsDepModel M P PisSet
 
   open IsDepModel DM public
 
-record IsModelProp {X : Type} {XisSet : isSet X} (M : IsModel X XisSet)
-  (P : X → Type) (PisSet : ∀ x → isProp (P x)) : Set₁ where
-  open IsModel M
+record IsModelProp (M : Model)
+  (P : Model.X M → Type) (PisSet : ∀ x → isProp (P x)) : Set₁ where
+  open Model M
 
   field
     _⋆_
@@ -85,9 +82,9 @@ record ModelProp (M : Model) : Set₁ where
   open Model M
 
   field
-    P : X → Type
+    P : Model.X M → Type
     PisProp : ∀ x → isProp (P x)
-    MP : IsModelProp isModel P PisProp
+    MP : IsModelProp M P PisProp
 
   open IsModelProp MP public
   
@@ -142,6 +139,21 @@ Term = record
     }
   }
 
+Model→DepModel
+  : Model → DepModel Term
+Model→DepModel M = let open Model M in record
+  { P      = λ _ → X
+  ; PisSet = λ _ → XisSet
+  ; DM     = record
+    { _⋆_ = _*_
+    ; 𝐞   = e
+    ; 𝐢   = i
+    ; ⋆-assoc = *-assoc
+    ; ⋆-idʳ = *-idʳ
+    ; ⋆-idˡ = *-idˡ
+    }
+  }
+
 module Elimitor (C : DepModel Term) where
   open Model    Term
   open DepModel C
@@ -161,19 +173,24 @@ module Elimitor (C : DepModel Term) where
 open Elimitor
 
 module Recursor (M : Model) where
-  open Model    M
+  open Model M
+    using (X)
 
   rec : JList → X
-  rec []        = e
-  rec (xs ⧺ ys) = rec xs * rec ys
-  rec [ x ]     = i x
-  rec (⧺-assoc xs ys zs i) = *-assoc (rec xs) (rec ys) (rec zs) i
-  rec (⧺-idʳ xs i) = *-idʳ (rec xs) i
-  rec (⧺-idˡ xs i) = *-idˡ (rec xs) i
-  rec (trunc xs ys p q i j) =
-    XisSet (rec xs) (rec ys) (cong rec p) (cong rec q) i j
+  rec = elim (Model→DepModel M)
 open Recursor
     
+module _ {M : Model} where
+  open Model M
+  rec=elim
+    : (xs : JList) → rec M xs ≡ elim (Model→DepModel M) xs
+  rec=elim = elim $ ModelProp→DepModel record
+    { P = _ ; PisProp = λ _ → XisSet _ _ ; MP = record
+      { _⋆_ = λ {xs} {ys} px py → cong₂ _*_ px py
+      ; 𝐞   = refl
+      ; 𝐢   = λ _ → refl }
+    }
+
 DList : Set
 DList = Σ[ xs ∈ (JList → JList) ] ((ys zs : JList) → xs ys ⧺ zs ≡ xs (ys ⧺ zs))
 
@@ -242,6 +259,21 @@ example
   → [ x ] ⧺ xs ⧺ ([] ⧺ ys ⧺ zs) ≡ [ x ] ⧺ (xs ⧺ ys) ⧺ [] ⧺ zs
 example xs ys zs = ◁≡→≡ refl
 
+lem
+  : (P : JList → Set) (PisSet : ∀ x → isSet (P x))
+  → IsDepModel DListMod (λ xs → P (▷ xs)) (PisSet ∘ ▷_)
+  → IsDepModel Term P PisSet
+lem P PisSet M = let open IsDepModel M in record
+  { _⋆_     = λ {x} {y} px py →
+     subst {x = ▷ ◁ (x ⧺ y)} {x ⧺ y} P (▷◁ (x ⧺ y))
+       {! subst {x = x} {▷ (◁ x)} P (sym (▷◁ x)) px ⋆ subst {x = y} {▷ ◁ y} P (sym (▷◁ y)) py !}
+  ; 𝐞       = {!!} --
+  ; 𝐢       = {!!} --
+  ; ⋆-assoc = {!!} --
+  ; ⋆-idʳ = {!!}
+  ; ⋆-idˡ = {!!}
+  }
+
 open import Cubical.Data.Nat
   hiding (elim)
 len : DList → ℕ
@@ -268,197 +300,197 @@ revᵣ = record { X = DList ; XisSet = DListIsSet ; isModel = let open Model DLi
 reverse : DList → DList
 reverse xs = rec revᵣ (▷ xs)
 
-reverse² : (xs : DList) → reverse (reverse xs) ≡ xs
-reverse² xs = elim (record { P = λ xs → {!rec revᵣ xs!} ; PisSet = {!!} ; DM = {!!} }) (▷ xs)
 
--- -- -- -- -- -- -- -- Church encoding? 
--- -- -- -- -- -- -- {-
--- -- -- -- -- -- -- module _ {A B : Set} (BisSet : isSet B) (e : B) (_*_ : B → B → B) (i : A → B)
--- -- -- -- -- -- --   (assoc : ∀ x y z → (x * y) * z ≡ x * (y * z))
--- -- -- -- -- -- --   (idʳ : ∀ x → x * e ≡ x)
--- -- -- -- -- -- --   (idˡ : ∀ x → e * x ≡ x) where
+-- lem₁ : DepModel DListMod → DepModel Term
 
--- -- -- -- -- -- --   recJ : JList A → B
--- -- -- -- -- -- --   recJ []        = e
--- -- -- -- -- -- --   recJ (xs ⧺ ys) = recJ xs * recJ ys
--- -- -- -- -- -- --   recJ [ x ]     = i x
--- -- -- -- -- -- --   recJ (⧺-assoc xs ys zs i) = assoc (recJ xs) (recJ ys) (recJ zs) i
--- -- -- -- -- -- --   recJ (⧺-idʳ xs i) = idʳ (recJ xs) i
--- -- -- -- -- -- --   recJ (⧺-idˡ xs i) = idˡ (recJ xs) i
--- -- -- -- -- -- --   recJ (trunc xs ys p q i j) =
--- -- -- -- -- -- --     isSet→SquareP (λ _ _ → BisSet) (cong recJ p) (cong recJ q) refl refl i j
+-- -- Church encoding? 
+-- {-
+-- module _ {A B : Set} (BisSet : isSet B) (e : B) (_*_ : B → B → B) (i : A → B)
+--   (assoc : ∀ x y z → (x * y) * z ≡ x * (y * z))
+--   (idʳ : ∀ x → x * e ≡ x)
+--   (idˡ : ∀ x → e * x ≡ x) where
 
--- -- -- -- -- -- --   module _ {P : B → Set} (PisSet : ∀ x → isSet (P x))
--- -- -- -- -- -- --     (pe : P e) (_*P_ : ∀ {x y} → P x → P y → P (x * y)) (iP : ∀ a → P (i a))
--- -- -- -- -- -- --     (assocP : {x y z : B}(px : P x)(py : P y)(pz : P z) →
--- -- -- -- -- -- --       PathP (λ i → P (assoc x y z i)) ((px *P py) *P pz) (px *P (py *P pz)))
--- -- -- -- -- -- --     (idʳP : {x : B}(px : P x) → PathP (λ i → P (idʳ x i)) (px *P pe) px)
--- -- -- -- -- -- --     (idˡP : {x : B}(px : P x) → PathP (λ i → P (idˡ x i)) (pe *P px) px)
--- -- -- -- -- -- --     where
+--   recJ : JList A → B
+--   recJ []        = e
+--   recJ (xs ⧺ ys) = recJ xs * recJ ys
+--   recJ [ x ]     = i x
+--   recJ (⧺-assoc xs ys zs i) = assoc (recJ xs) (recJ ys) (recJ zs) i
+--   recJ (⧺-idʳ xs i) = idʳ (recJ xs) i
+--   recJ (⧺-idˡ xs i) = idˡ (recJ xs) i
+--   recJ (trunc xs ys p q i j) =
+--     isSet→SquareP (λ _ _ → BisSet) (cong recJ p) (cong recJ q) refl refl i j
 
--- -- -- -- -- -- --     elimJ : (xs : JList A) → P (recJ xs)
--- -- -- -- -- -- --     elimJ []        = pe
--- -- -- -- -- -- --     elimJ (xs ⧺ ys) = elimJ xs *P elimJ ys
--- -- -- -- -- -- --     elimJ [ x ]     = iP x
--- -- -- -- -- -- --     elimJ (⧺-assoc xs ys zs i) = assocP (elimJ xs) (elimJ ys) (elimJ zs) i
--- -- -- -- -- -- --     elimJ (⧺-idʳ xs i) = idʳP (elimJ xs) i
--- -- -- -- -- -- --     elimJ (⧺-idˡ xs i) = idˡP (elimJ xs) i
--- -- -- -- -- -- --     elimJ (trunc xs ys p q i j) = 
--- -- -- -- -- -- --       isOfHLevel→isOfHLevelDep 2 (λ x → PisSet (recJ x)) (elimJ xs) (elimJ ys) (cong elimJ p) (cong elimJ q) (trunc xs ys p q) i j
+--   module _ {P : B → Set} (PisSet : ∀ x → isSet (P x))
+--     (pe : P e) (_*P_ : ∀ {x y} → P x → P y → P (x * y)) (iP : ∀ a → P (i a))
+--     (assocP : {x y z : B}(px : P x)(py : P y)(pz : P z) →
+--       PathP (λ i → P (assoc x y z i)) ((px *P py) *P pz) (px *P (py *P pz)))
+--     (idʳP : {x : B}(px : P x) → PathP (λ i → P (idʳ x i)) (px *P pe) px)
+--     (idˡP : {x : B}(px : P x) → PathP (λ i → P (idˡ x i)) (pe *P px) px)
+--     where
 
--- -- -- -- -- -- --   module _ {P : B → Set} (PisProp : ∀ x → isProp (P x))
--- -- -- -- -- -- --     (pe : P e) (_*P_ : ∀ {x y} → P x → P y → P (x * y)) (iP : ∀ a → P (i a))
--- -- -- -- -- -- --     where
+--     elimJ : (xs : JList A) → P (recJ xs)
+--     elimJ []        = pe
+--     elimJ (xs ⧺ ys) = elimJ xs *P elimJ ys
+--     elimJ [ x ]     = iP x
+--     elimJ (⧺-assoc xs ys zs i) = assocP (elimJ xs) (elimJ ys) (elimJ zs) i
+--     elimJ (⧺-idʳ xs i) = idʳP (elimJ xs) i
+--     elimJ (⧺-idˡ xs i) = idˡP (elimJ xs) i
+--     elimJ (trunc xs ys p q i j) = 
+--       isOfHLevel→isOfHLevelDep 2 (λ x → PisSet (recJ x)) (elimJ xs) (elimJ ys) (cong elimJ p) (cong elimJ q) (trunc xs ys p q) i j
 
--- -- -- -- -- -- --     elimJProp : (xs : JList A) → P (recJ xs)
--- -- -- -- -- -- --     elimJProp = elimJ (λ x → isProp→isSet (PisProp x))
--- -- -- -- -- -- --       pe _*P_ iP (λ _ _ _ → toPathP (PisProp _ _ _)) (λ _ → toPathP (PisProp _ _ _)) (λ _ → toPathP (PisProp _ _ _))
+--   module _ {P : B → Set} (PisProp : ∀ x → isProp (P x))
+--     (pe : P e) (_*P_ : ∀ {x y} → P x → P y → P (x * y)) (iP : ∀ a → P (i a))
+--     where
 
--- -- -- -- -- -- -- initial
--- -- -- -- -- -- --   : (xs : JList A)
--- -- -- -- -- -- --   → recJ trunc [] _⧺_ [_] ⧺-assoc ⧺-idʳ ⧺-idˡ xs ≡ xs
--- -- -- -- -- -- -- initial = elimJProp' (λ xs → trunc _ _) refl (λ p q → cong₂ _⧺_ p q) (λ a → refl)
+--     elimJProp : (xs : JList A) → P (recJ xs)
+--     elimJProp = elimJ (λ x → isProp→isSet (PisProp x))
+--       pe _*P_ iP (λ _ _ _ → toPathP (PisProp _ _ _)) (λ _ → toPathP (PisProp _ _ _)) (λ _ → toPathP (PisProp _ _ _))
 
--- -- -- -- -- -- -- -}
+-- initial
+--   : (xs : JList A)
+--   → recJ trunc [] _⧺_ [_] ⧺-assoc ⧺-idʳ ⧺-idˡ xs ≡ xs
+-- initial = elimJProp' (λ xs → trunc _ _) refl (λ p q → cong₂ _⧺_ p q) (λ a → refl)
 
--- -- -- -- -- -- -- -- -- -- -- data ∥_∥ (A : Set) : Prop where
--- -- -- -- -- -- -- -- -- -- --   ∣_∣ : A → ∥ A ∥
--- -- -- -- -- -- -- -- -- -- -- 
--- -- -- -- -- -- -- -- -- -- -- rec : {A : Set} {B : Prop} → (A → B) → ∥ A ∥ → B
--- -- -- -- -- -- -- -- -- -- -- rec f ∣ x ∣ = f x
--- -- -- -- -- -- -- -- -- -- -- 
--- -- -- -- -- -- -- -- -- -- -- rec2 : {A B : Set} {C : Prop} → (A → B → C) → ∥ A ∥ → ∥ B ∥ → C
--- -- -- -- -- -- -- -- -- -- -- rec2 f ∣ x ∣ ∣ y ∣ = f x y
+-- -}
 
--- -- -- -- -- -- -- -- -- -- -- record Σp (A : Set) (B : A → Prop) : Set where
--- -- -- -- -- -- -- -- -- -- --   constructor _,_
--- -- -- -- -- -- -- -- -- -- --   field
--- -- -- -- -- -- -- -- -- -- --     fst : A
--- -- -- -- -- -- -- -- -- -- --     snd : B fst
--- -- -- -- -- -- -- -- -- -- -- open Σp public
--- -- -- -- -- -- -- -- -- -- -- 
--- -- -- -- -- -- -- -- -- -- -- infixr 4 _,_
--- -- -- -- -- -- -- -- -- -- -- 
--- -- -- -- -- -- -- -- -- -- -- Σp-syntax : (A : Set) (B : A → Prop) → Set
--- -- -- -- -- -- -- -- -- -- -- Σp-syntax = Σp
--- -- -- -- -- -- -- -- -- -- -- 
--- -- -- -- -- -- -- -- -- -- -- syntax Σp-syntax A (λ x → B) = Σp[ x ∈ A ] B
+-- -- -- -- -- data ∥_∥ (A : Set) : Prop where
+-- -- -- -- --   ∣_∣ : A → ∥ A ∥
+-- -- -- -- -- 
+-- -- -- -- -- rec : {A : Set} {B : Prop} → (A → B) → ∥ A ∥ → B
+-- -- -- -- -- rec f ∣ x ∣ = f x
+-- -- -- -- -- 
+-- -- -- -- -- rec2 : {A B : Set} {C : Prop} → (A → B → C) → ∥ A ∥ → ∥ B ∥ → C
+-- -- -- -- -- rec2 f ∣ x ∣ ∣ y ∣ = f x y
 
--- -- -- -- -- -- -- -- -- -- -- data List (A : Set) : Set where
--- -- -- -- -- -- -- -- -- -- --   []  : List A
--- -- -- -- -- -- -- -- -- -- --   _∷_ : A → List A → List A
+-- -- -- -- -- record Σp (A : Set) (B : A → Prop) : Set where
+-- -- -- -- --   constructor _,_
+-- -- -- -- --   field
+-- -- -- -- --     fst : A
+-- -- -- -- --     snd : B fst
+-- -- -- -- -- open Σp public
+-- -- -- -- -- 
+-- -- -- -- -- infixr 4 _,_
+-- -- -- -- -- 
+-- -- -- -- -- Σp-syntax : (A : Set) (B : A → Prop) → Set
+-- -- -- -- -- Σp-syntax = Σp
+-- -- -- -- -- 
+-- -- -- -- -- syntax Σp-syntax A (λ x → B) = Σp[ x ∈ A ] B
 
--- -- -- -- -- -- -- -- -- -- -- _++_ : List A → List A → List A
--- -- -- -- -- -- -- -- -- -- -- []       ++ ys = ys
--- -- -- -- -- -- -- -- -- -- -- (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
+-- -- -- -- -- data List (A : Set) : Set where
+-- -- -- -- --   []  : List A
+-- -- -- -- --   _∷_ : A → List A → List A
 
--- -- -- -- -- -- -- -- -- -- -- infixr 10 _++_ _++'_
+-- -- -- -- -- _++_ : List A → List A → List A
+-- -- -- -- -- []       ++ ys = ys
+-- -- -- -- -- (x ∷ xs) ++ ys = x ∷ (xs ++ ys)
 
--- -- -- -- -- -- -- -- -- -- -- ++-identityʳ : (xs : List A) → xs ++ [] ≡ xs
--- -- -- -- -- -- -- -- -- -- -- ++-identityʳ []       = refl
--- -- -- -- -- -- -- -- -- -- -- ++-identityʳ (x ∷ xs) = cong (x ∷_) (++-identityʳ xs)
+-- -- -- -- -- infixr 10 _++_ _++'_
 
--- -- -- -- -- -- -- -- -- -- -- ++-assoc
--- -- -- -- -- -- -- -- -- -- --   : (xs ys zs : List A)
--- -- -- -- -- -- -- -- -- -- --   → (xs ++ ys) ++ zs ≡ xs ++ ys ++ zs
--- -- -- -- -- -- -- -- -- -- -- ++-assoc []       ys zs = refl
--- -- -- -- -- -- -- -- -- -- -- ++-assoc (x ∷ xs) ys zs = cong (x ∷_) (++-assoc xs ys zs)
+-- -- -- -- -- ++-identityʳ : (xs : List A) → xs ++ [] ≡ xs
+-- -- -- -- -- ++-identityʳ []       = refl
+-- -- -- -- -- ++-identityʳ (x ∷ xs) = cong (x ∷_) (++-identityʳ xs)
 
--- -- -- -- -- -- -- -- -- -- -- DList : Set → Set
--- -- -- -- -- -- -- -- -- -- -- DList A = Σp[ xs ∈ (List A → List A) ]
--- -- -- -- -- -- -- -- -- -- --   ∥ ((ys zs : List A) → xs ys ++ zs ≡ xs (ys ++ zs)) ∥
+-- -- -- -- -- ++-assoc
+-- -- -- -- --   : (xs ys zs : List A)
+-- -- -- -- --   → (xs ++ ys) ++ zs ≡ xs ++ ys ++ zs
+-- -- -- -- -- ++-assoc []       ys zs = refl
+-- -- -- -- -- ++-assoc (x ∷ xs) ys zs = cong (x ∷_) (++-assoc xs ys zs)
 
--- -- -- -- -- -- -- -- -- -- -- _++'_ : DList A → DList A → DList A
--- -- -- -- -- -- -- -- -- -- -- (xs , p) ++' (ys , q) = (λ zs → xs (ys zs))
--- -- -- -- -- -- -- -- -- -- --   , rec2 (λ p q → ∣ (λ zs as → p (ys zs) as ∙ cong xs (q zs as)) ∣) p q
+-- -- -- -- -- DList : Set → Set
+-- -- -- -- -- DList A = Σp[ xs ∈ (List A → List A) ]
+-- -- -- -- --   ∥ ((ys zs : List A) → xs ys ++ zs ≡ xs (ys ++ zs)) ∥
 
--- -- -- -- -- -- -- -- -- -- -- []' : DList A
--- -- -- -- -- -- -- -- -- -- -- []' = (λ ys → ys) , ∣ (λ _ _ → refl) ∣
+-- -- -- -- -- _++'_ : DList A → DList A → DList A
+-- -- -- -- -- (xs , p) ++' (ys , q) = (λ zs → xs (ys zs))
+-- -- -- -- --   , rec2 (λ p q → ∣ (λ zs as → p (ys zs) as ∙ cong xs (q zs as)) ∣) p q
 
--- -- -- -- -- -- -- -- -- -- -- ++'-identityʳ : (xs : DList A) → xs ++' []' ≡ xs
--- -- -- -- -- -- -- -- -- -- -- ++'-identityʳ xs = refl
+-- -- -- -- -- []' : DList A
+-- -- -- -- -- []' = (λ ys → ys) , ∣ (λ _ _ → refl) ∣
 
--- -- -- -- -- -- -- -- -- -- -- ++'-assoc
--- -- -- -- -- -- -- -- -- -- --   : (xs ys zs : DList A)
--- -- -- -- -- -- -- -- -- -- --   → (xs ++' ys) ++' zs ≡ xs ++' ys ++' zs
--- -- -- -- -- -- -- -- -- -- -- ++'-assoc xs ys zs = refl
+-- -- -- -- -- ++'-identityʳ : (xs : DList A) → xs ++' []' ≡ xs
+-- -- -- -- -- ++'-identityʳ xs = refl
 
--- -- -- -- -- -- -- -- -- -- -- data JList (A : Set) : Set
--- -- -- -- -- -- -- -- -- -- -- flatten : JList A → List A
+-- -- -- -- -- ++'-assoc
+-- -- -- -- --   : (xs ys zs : DList A)
+-- -- -- -- --   → (xs ++' ys) ++' zs ≡ xs ++' ys ++' zs
+-- -- -- -- -- ++'-assoc xs ys zs = refl
 
--- -- -- -- -- -- -- -- -- -- -- data JList A where
--- -- -- -- -- -- -- -- -- -- --   []  : JList A
--- -- -- -- -- -- -- -- -- -- --   [_] : A → JList A
--- -- -- -- -- -- -- -- -- -- --   _⧺_ : JList A → JList A → JList A
--- -- -- -- -- -- -- -- -- -- --   nf : (xs ys : JList A) → flatten xs ≡ flatten ys → xs ≡ ys
+-- -- -- -- -- data JList (A : Set) : Set
+-- -- -- -- -- flatten : JList A → List A
+
+-- -- -- -- -- data JList A where
+-- -- -- -- --   []  : JList A
+-- -- -- -- --   [_] : A → JList A
+-- -- -- -- --   _⧺_ : JList A → JList A → JList A
+-- -- -- -- --   nf : (xs ys : JList A) → flatten xs ≡ flatten ys → xs ≡ ys
   
--- -- -- -- -- -- -- -- -- -- -- flatten []        = []
--- -- -- -- -- -- -- -- -- -- -- flatten [ x ]     = x ∷ []
--- -- -- -- -- -- -- -- -- -- -- flatten (xs ⧺ ys) = flatten xs ++ flatten ys
--- -- -- -- -- -- -- -- -- -- -- flatten (nf xs ys x i) = x i
+-- -- -- -- -- flatten []        = []
+-- -- -- -- -- flatten [ x ]     = x ∷ []
+-- -- -- -- -- flatten (xs ⧺ ys) = flatten xs ++ flatten ys
+-- -- -- -- -- flatten (nf xs ys x i) = x i
 
--- -- -- -- -- -- -- -- -- -- -- fromList : List A → DList A
--- -- -- -- -- -- -- -- -- -- -- fromList xs = (λ ys → xs ++ ys) , ∣ ++-assoc xs ∣
+-- -- -- -- -- fromList : List A → DList A
+-- -- -- -- -- fromList xs = (λ ys → xs ++ ys) , ∣ ++-assoc xs ∣
 
--- -- -- -- -- -- -- -- -- -- -- toList : DList A → List A
--- -- -- -- -- -- -- -- -- -- -- toList (xs , _) = xs []
+-- -- -- -- -- toList : DList A → List A
+-- -- -- -- -- toList (xs , _) = xs []
 
--- -- -- -- -- -- -- -- -- -- -- fromJList : JList A → DList A
--- -- -- -- -- -- -- -- -- -- -- fromJList []        = (λ xs → xs) , ∣ (λ _ _ → refl) ∣
--- -- -- -- -- -- -- -- -- -- -- fromJList [ x ]     = (λ xs → x ∷ xs) , ∣ (λ _ _ → refl) ∣
--- -- -- -- -- -- -- -- -- -- -- fromJList (xs ⧺ ys) = fromJList xs ++' fromJList ys
--- -- -- -- -- -- -- -- -- -- -- fromJList (nf xs xs' p i) = {!!} -- (λ zs → {!!}) , ∣ {!λ !} ∣
+-- -- -- -- -- fromJList : JList A → DList A
+-- -- -- -- -- fromJList []        = (λ xs → xs) , ∣ (λ _ _ → refl) ∣
+-- -- -- -- -- fromJList [ x ]     = (λ xs → x ∷ xs) , ∣ (λ _ _ → refl) ∣
+-- -- -- -- -- fromJList (xs ⧺ ys) = fromJList xs ++' fromJList ys
+-- -- -- -- -- fromJList (nf xs xs' p i) = {!!} -- (λ zs → {!!}) , ∣ {!λ !} ∣
 
--- -- -- -- -- -- -- -- -- -- -- postulate
--- -- -- -- -- -- -- -- -- -- --   toJList : DList A → JList A
--- -- -- -- -- -- -- -- -- -- --   toJList-fromJList
--- -- -- -- -- -- -- -- -- -- --     : (xs : JList A) → toJList (fromJList xs) ≡ xs
--- -- -- -- -- -- -- -- -- -- -- -- toJList (xs , p) = {!!}
--- -- -- -- -- -- -- -- -- -- -- postulate
--- -- -- -- -- -- -- -- -- -- --   fromList-toList : (xs : DList A) → fromList (toList xs) ≡ xs -- List needs to be a set
--- -- -- -- -- -- -- -- -- -- -- --  (xs []) ++_ , _
--- -- -- -- -- -- -- -- -- -- -- --    ≡⟨ {!!} ⟩
--- -- -- -- -- -- -- -- -- -- -- --  (λ ys → xs ([] ++ ys)) , p
--- -- -- -- -- -- -- -- -- -- -- --    ≡⟨ refl ⟩
--- -- -- -- -- -- -- -- -- -- -- --  xs , p
--- -- -- -- -- -- -- -- -- -- -- --    ∎ 
+-- -- -- -- -- postulate
+-- -- -- -- --   toJList : DList A → JList A
+-- -- -- -- --   toJList-fromJList
+-- -- -- -- --     : (xs : JList A) → toJList (fromJList xs) ≡ xs
+-- -- -- -- -- -- toJList (xs , p) = {!!}
+-- -- -- -- -- postulate
+-- -- -- -- --   fromList-toList : (xs : DList A) → fromList (toList xs) ≡ xs -- List needs to be a set
+-- -- -- -- -- --  (xs []) ++_ , _
+-- -- -- -- -- --    ≡⟨ {!!} ⟩
+-- -- -- -- -- --  (λ ys → xs ([] ++ ys)) , p
+-- -- -- -- -- --    ≡⟨ refl ⟩
+-- -- -- -- -- --  xs , p
+-- -- -- -- -- --    ∎ 
 
--- -- -- -- -- -- -- -- -- -- -- toList-fromList : (xs : List A) → toList (fromList xs) ≡ xs
--- -- -- -- -- -- -- -- -- -- -- toList-fromList = ++-identityʳ
+-- -- -- -- -- toList-fromList : (xs : List A) → toList (fromList xs) ≡ xs
+-- -- -- -- -- toList-fromList = ++-identityʳ
 
--- -- -- -- -- -- -- -- -- -- -- fromList++
--- -- -- -- -- -- -- -- -- -- --   : (xs ys : List A)
--- -- -- -- -- -- -- -- -- -- --   → fromList (xs ++ ys) ≡ fromList xs ++' fromList ys
--- -- -- -- -- -- -- -- -- -- -- fromList++ xs ys i = (λ zs → ++-assoc xs ys zs i) , ∣ (λ ys zs → {!!}) ∣ -- requires that List is a set 
+-- -- -- -- -- fromList++
+-- -- -- -- --   : (xs ys : List A)
+-- -- -- -- --   → fromList (xs ++ ys) ≡ fromList xs ++' fromList ys
+-- -- -- -- -- fromList++ xs ys i = (λ zs → ++-assoc xs ys zs i) , ∣ (λ ys zs → {!!}) ∣ -- requires that List is a set 
 
--- -- -- -- -- -- -- -- -- -- -- example
--- -- -- -- -- -- -- -- -- -- --   : (xs ys zs : List A)
--- -- -- -- -- -- -- -- -- -- --   → xs ++ (ys ++ zs) ≡ (xs ++ ys) ++ zs
--- -- -- -- -- -- -- -- -- -- -- example xs ys zs =
--- -- -- -- -- -- -- -- -- -- --   xs ++ ys ++ zs
--- -- -- -- -- -- -- -- -- -- --     ≡⟨ sym $ toList-fromList _ ⟩
--- -- -- -- -- -- -- -- -- -- --   toList (fromList (xs ++ ys ++ zs))
--- -- -- -- -- -- -- -- -- -- --     ≡⟨ cong toList (fromList++ xs (ys ++ zs)) ⟩
--- -- -- -- -- -- -- -- -- -- --   toList (fromList xs ++' (fromList (ys ++ zs)))
--- -- -- -- -- -- -- -- -- -- --     ≡⟨ cong toList (cong (fromList xs ++'_) (fromList++ ys zs)) ⟩
--- -- -- -- -- -- -- -- -- -- --   toList (fromList xs ++' (fromList ys ++' fromList zs))
--- -- -- -- -- -- -- -- -- -- --     ≡⟨ refl ⟩
--- -- -- -- -- -- -- -- -- -- --   toList ((fromList xs ++' fromList ys) ++' fromList zs)
--- -- -- -- -- -- -- -- -- -- --     ≡⟨ cong toList (cong (_++' fromList zs) (sym $ fromList++ xs ys)) ⟩
--- -- -- -- -- -- -- -- -- -- --   toList (fromList (xs ++ ys) ++' fromList zs)
--- -- -- -- -- -- -- -- -- -- --     ≡⟨ cong toList (sym $ fromList++ (xs ++ ys) zs) ⟩
--- -- -- -- -- -- -- -- -- -- --   toList (fromList ((xs ++ ys) ++ zs))
--- -- -- -- -- -- -- -- -- -- --     ≡⟨ toList-fromList _ ⟩
--- -- -- -- -- -- -- -- -- -- --   (xs ++ ys) ++ zs
--- -- -- -- -- -- -- -- -- -- --     ∎
+-- -- -- -- -- example
+-- -- -- -- --   : (xs ys zs : List A)
+-- -- -- -- --   → xs ++ (ys ++ zs) ≡ (xs ++ ys) ++ zs
+-- -- -- -- -- example xs ys zs =
+-- -- -- -- --   xs ++ ys ++ zs
+-- -- -- -- --     ≡⟨ sym $ toList-fromList _ ⟩
+-- -- -- -- --   toList (fromList (xs ++ ys ++ zs))
+-- -- -- -- --     ≡⟨ cong toList (fromList++ xs (ys ++ zs)) ⟩
+-- -- -- -- --   toList (fromList xs ++' (fromList (ys ++ zs)))
+-- -- -- -- --     ≡⟨ cong toList (cong (fromList xs ++'_) (fromList++ ys zs)) ⟩
+-- -- -- -- --   toList (fromList xs ++' (fromList ys ++' fromList zs))
+-- -- -- -- --     ≡⟨ refl ⟩
+-- -- -- -- --   toList ((fromList xs ++' fromList ys) ++' fromList zs)
+-- -- -- -- --     ≡⟨ cong toList (cong (_++' fromList zs) (sym $ fromList++ xs ys)) ⟩
+-- -- -- -- --   toList (fromList (xs ++ ys) ++' fromList zs)
+-- -- -- -- --     ≡⟨ cong toList (sym $ fromList++ (xs ++ ys) zs) ⟩
+-- -- -- -- --   toList (fromList ((xs ++ ys) ++ zs))
+-- -- -- -- --     ≡⟨ toList-fromList _ ⟩
+-- -- -- -- --   (xs ++ ys) ++ zs
+-- -- -- -- --     ∎
 
--- -- -- -- -- -- -- -- -- -- -- example2
--- -- -- -- -- -- -- -- -- -- --   : (xs ys zs : JList A)
--- -- -- -- -- -- -- -- -- -- --   → xs ⧺ (ys ⧺ zs) ≡ (xs ⧺ ys) ⧺ zs
--- -- -- -- -- -- -- -- -- -- -- example2 xs ys zs =
--- -- -- -- -- -- -- -- -- -- --     sym (toJList-fromJList (xs ⧺ (ys ⧺ zs)))
--- -- -- -- -- -- -- -- -- -- -- --  ∙ cong toJList lemma
--- -- -- -- -- -- -- -- -- -- --   ∙ toJList-fromJList ((xs ⧺ ys) ⧺ zs) 
--- -- -- -- -- -- -- -- -- -- --   where
--- -- -- -- -- -- -- -- -- -- --     lemma : fromJList (xs ⧺ (ys ⧺ zs)) ≡ fromJList ((xs ⧺ ys) ⧺ zs)
--- -- -- -- -- -- -- -- -- -- --     lemma = refl
+-- -- -- -- -- example2
+-- -- -- -- --   : (xs ys zs : JList A)
+-- -- -- -- --   → xs ⧺ (ys ⧺ zs) ≡ (xs ⧺ ys) ⧺ zs
+-- -- -- -- -- example2 xs ys zs =
+-- -- -- -- --     sym (toJList-fromJList (xs ⧺ (ys ⧺ zs)))
+-- -- -- -- -- --  ∙ cong toJList lemma
+-- -- -- -- --   ∙ toJList-fromJList ((xs ⧺ ys) ⧺ zs) 
+-- -- -- -- --   where
+-- -- -- -- --     lemma : fromJList (xs ⧺ (ys ⧺ zs)) ≡ fromJList ((xs ⧺ ys) ⧺ zs)
+-- -- -- -- --     lemma = refl
