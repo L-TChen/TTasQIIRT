@@ -1,12 +1,14 @@
+{-# OPTIONS --hidden-argument-puns #-}
+
 open import Prelude
 
 module Theory.SC.QIIRT-tyOf.IxModel where
 
 import Theory.SC.QIIRT-tyOf.Syntax as S
-open S
-  hiding (module Var)
 open S.Var
   hiding (C)
+open S
+  hiding (module Var)
 
 record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄)) where
   field
@@ -25,7 +27,7 @@ record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ �
     tyOf∙
       : {Γ∙ : Ctx∙ Γ} → Tm∙ Γ∙ t
       → Ty∙ Γ∙ (tyOf t)
-
+-- 
   -- SC∙ is defined separately from Motive in order to declare
   -- generalizable variables.
 
@@ -40,13 +42,56 @@ record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ �
   infix 4 _≡Ty[_]_ _≡Tm[_]_ _≡Sub[_]_
 
   _≡Ty[_]_ : Ty∙ Γ∙ A → A ≡ B → Ty∙ Γ∙ B → Type ℓ₂
-  _≡Ty[_]_ {Γ} {Γ∙} A∙ e B∙ = PathP (λ i → Ty∙ Γ∙ (e i)) A∙ B∙
+  _≡Ty[_]_ {Γ∙} A∙ e B∙ = PathP (λ i → Ty∙ Γ∙ (e i)) A∙ B∙
+  {-# INJECTIVE_FOR_INFERENCE _≡Ty[_]_ #-}
 
+  -- adapted from 1Lab
+  infixr 30 _∙Ty[]_ ∙Ty[-]-syntax
+  infixr 2 ≡Ty[]⟨⟩-syntax ≡Ty[-]⟨⟩-syntax
+
+  _∙Ty[]_
+    : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} 
+    → {A∙ : Ty∙ Γ∙ A} {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
+    → {p : A ≡ B} → A∙ ≡Ty[ p ] B∙
+    → {q : B ≡ C} → B∙ ≡Ty[ q ] C∙
+    → A∙ ≡Ty[ p ∙ q ] C∙
+  _∙Ty[]_ {Γ∙} {p} p∙ {q} q∙ =
+     _∙P_ {B = λ A → Ty∙ Γ∙ A} p∙ q∙
+
+  ∙Ty[-]-syntax
+    : {A B C : Ty Γ} (p : A ≡ B) {q : B ≡ C} {Γ∙ : Ctx∙ Γ}
+    → {A∙ : Ty∙ Γ∙ A} {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
+    → A∙ ≡Ty[ p ] B∙ → B∙ ≡Ty[ q ] C∙
+    → A∙ ≡Ty[ p ∙ q ] C∙
+  ∙Ty[-]-syntax _ p∙ q∙ = p∙ ∙Ty[] q∙
+
+  syntax ∙Ty[-]-syntax p p∙ q∙ = p∙ ∙Ty[ p ] q∙ 
+
+  ≡Ty[]⟨⟩-syntax
+    : {A B C : Ty Γ} {p : A ≡ B} {q : B ≡ C} {Γ∙ : Ctx∙ Γ}
+    → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C}
+    → B∙ ≡Ty[ q ] C∙ → A∙ ≡Ty[ p ] B∙
+    → A∙ ≡Ty[ p ∙ q ] C∙
+  ≡Ty[]⟨⟩-syntax A∙ q∙ p∙ = p∙ ∙Ty[] q∙ 
+
+  syntax ≡Ty[]⟨⟩-syntax A∙ q∙ p∙ = A∙ ≡Ty[]⟨ p∙ ⟩ q∙
+
+  ≡Ty[-]⟨⟩-syntax 
+    : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} (p : A ≡ B) {q : B ≡ C}
+    → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
+    → B∙ ≡Ty[ q ] C∙ → A∙ ≡Ty[ p ] B∙
+    → A∙ ≡Ty[ p ∙ q ] C∙
+  ≡Ty[-]⟨⟩-syntax A∙ p q∙ p∙ = p∙ ∙Ty[] q∙
+
+  syntax ≡Ty[-]⟨⟩-syntax p A∙ q∙ p∙ = A∙ ≡Ty[ p ]⟨ p∙ ⟩ q∙
+  
   _≡Tm[_]_ : Tm∙ Γ∙ t → t ≡ u → Tm∙ Γ∙ u → Type ℓ₄
-  _≡Tm[_]_ {Γ} {Γ∙} t∙ e u∙ = PathP (λ i → Tm∙ Γ∙ (e i)) t∙ u∙
+  _≡Tm[_]_ {Γ∙} t∙ e u∙ = PathP (λ i → Tm∙ Γ∙ (e i)) t∙ u∙
 
   _≡Sub[_]_ : Sub∙ Γ∙ Δ∙ σ → σ ≡ τ → Sub∙ Γ∙ Δ∙ τ → Type ℓ₃
-  _≡Sub[_]_ {Γ} {Γ∙} {Δ} {Δ∙} σ∙ e τ∙ = PathP (λ i → Sub∙ Γ∙ Δ∙ (e i)) σ∙ τ∙
+  _≡Sub[_]_ {Γ∙} {Δ∙} σ∙ e τ∙ = PathP (λ i → Sub∙ Γ∙ Δ∙ (e i)) σ∙ τ∙
+
+
 
 module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
   open Motive mot
@@ -69,7 +114,7 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : tyOf∙ (t∙ [ σ∙ ]t∙) ≡ (tyOf∙ t∙) [ σ∙ ]T∙
       ∅S∙
         : Sub∙ Γ∙ ∅∙ ∅
-      _,∙_∶[_,_]
+      _,_∶[_,_]∙
         : (σ∙ : Sub∙ Γ∙ Δ∙ σ) {A∙ : Ty∙ Δ∙ A} (t∙ : Tm∙ Γ∙ t)
         → (p : tyOf t ≡ A [ σ ])
         → tyOf∙ t∙ ≡Ty[ p ] (A∙ [ σ∙ ]T∙)
@@ -106,25 +151,25 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : (σ∙ : Sub∙ Δ∙ Θ∙ σ) (t∙ : Tm∙ Δ∙ t) (τ∙ : Sub∙ Γ∙ Δ∙ τ)
           (p : tyOf t ≡ A [ σ ]) (p∙ : tyOf∙ t∙ ≡Ty[ p ] A∙ [ σ∙ ]T∙)
           (q : tyOf (t [ τ ]) ≡ A [ σ ∘ τ ]) (q∙ : tyOf∙ (t∙ [ τ∙ ]t∙) ≡Ty[ q ] (A∙ [ σ∙ ∘∙ τ∙ ]T∙))
-        → (σ∙ ,∙ t∙ ∶[ p , p∙ ]) ∘∙ τ∙
+        → (σ∙ , t∙ ∶[ p , p∙ ]∙) ∘∙ τ∙
         ≡Sub[ ,∘ σ t τ p q ]
-          (σ∙ ∘∙ τ∙) ,∙ t∙ [ τ∙ ]t∙ ∶[ q , q∙ ]
+          (σ∙ ∘∙ τ∙) , t∙ [ τ∙ ]t∙ ∶[ q , q∙ ]∙
       ηπ∙
         : (σ∙ : Sub∙ Γ∙ (Δ∙ ,∙ A∙) σ)
-        → σ∙ ≡Sub[ ηπ σ ] (π₁∙ σ∙ ,∙ π₂∙ σ∙ ∶[ refl , tyOfπ₂∙ σ∙ ])
+        → σ∙ ≡Sub[ ηπ σ ] (π₁∙ σ∙ , π₂∙ σ∙ ∶[ refl , tyOfπ₂∙ σ∙ ]∙)
       η∅∙
         : (σ∙ : Sub∙ Γ∙ ∅∙ σ)
         → σ∙ ≡Sub[ η∅ σ ] ∅S∙
       βπ₁∙
         : (σ∙ : Sub∙ Γ∙ Δ∙ σ) (t∙ : Tm∙ Γ∙ t)
         → (p : tyOf t ≡ A [ σ ]) (p∙ : tyOf∙ t∙ ≡Ty[ p ] A∙ [ σ∙ ]T∙)
-        → π₁∙ (σ∙ ,∙ t∙ ∶[ p , p∙ ]) ≡Sub[ βπ₁ σ t p ] σ∙
+        → π₁∙ (σ∙ , t∙ ∶[ p , p∙ ]∙) ≡Sub[ βπ₁ σ t p ] σ∙
       βπ₂∙
         : (σ∙ : Sub∙ Γ∙ Δ∙ σ) (t∙ : Tm∙ Γ∙ t)
         → (p : tyOf t ≡ A [ σ ]) (p∙ : tyOf∙ t∙ ≡Ty[ p ] A∙ [ σ∙ ]T∙)
         → (q : A [ π₁ (σ , t ∶[ p ]) ] ≡ tyOf t)
-          (q∙ : A∙ [ π₁∙ (σ∙ ,∙ t∙ ∶[ p , p∙ ]) ]T∙ ≡Ty[ q ] tyOf∙ t∙)
-        → π₂∙ (σ∙ ,∙ t∙ ∶[ p , p∙ ])
+          (q∙ : A∙ [ π₁∙ (σ∙ , t∙ ∶[ p , p∙ ]∙) ]T∙ ≡Ty[ q ] tyOf∙ t∙)
+        → π₂∙ (σ∙ , t∙ ∶[ p , p∙ ]∙)
         ≡Tm[ βπ₂ σ t p q ]
           t∙
       [idS]T∙

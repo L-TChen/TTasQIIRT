@@ -37,36 +37,12 @@ postulate
 UIP' : {A : Set ℓ} → isSet A 
 UIP' x y = UIP
 
--- PathP-fam : {A : Set ℓ'} {P : A → Type ℓ} {x y : A} → P x → (e : x ≡ y) → P y → Type ℓ
--- PathP-fam {P = P} {x} {y} px e py = PathP (λ i → P (e i)) px py
--- 
--- syntax PathP-fam px e py = px ≡[ e ] py
-
--- Syntax for chains of equational reasoning
-
--- step-≡'
---   : {P : A → Type ℓ} {x y z : A} (px : P x) {py : P y} {e' : y ≡ z} {pz : P z} 
---   → {p : py ≡[ e' ] pz} → (e : x ≡ y) → px ≡[ e ] py → px ≡[ e ∙ e' ] pz
--- step-≡' px {py} {e'} {pz} {p} e q = {!!}  -- compPathP q p 
--- 
--- syntax step-≡' px p e py = px ≡[ e ]⟨ p ⟩ py
-
--- ≡⟨⟩-syntax : (x : A) → y ≡ z → x ≡ y → x ≡ z
--- ≡⟨⟩-syntax = step-≡
-
--- infixr 2 ≡⟨⟩-syntax
--- syntax ≡⟨⟩-syntax x y (λ i → B) = x ≡[ i ]⟨ B ⟩ y
-
--- _≡⟨⟩_ : (x : A) → x ≡ y → x ≡ y
--- _ ≡⟨⟩ x≡y = x≡y
-
--- ≡⟨⟩⟨⟩-syntax : (x y : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
--- ≡⟨⟩⟨⟩-syntax x y p q r = p ∙∙ q ∙∙ r
--- infixr 3 ≡⟨⟩⟨⟩-syntax
--- syntax ≡⟨⟩⟨⟩-syntax x y B C = x ≡⟨ B ⟩≡ y ≡⟨ C ⟩≡
-
--- _≡⟨_⟩≡⟨_⟩_ : (x : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
--- _ ≡⟨ x≡y ⟩≡⟨ y≡z ⟩ z≡w = x≡y ∙∙ y≡z ∙∙ z≡w
-
--- _∎ : (x : A) → x ≡ x
--- _ ∎ = refl
+postulate
+  _∙P_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'}
+          {x y z : A} {x' : B x} {y' : B y} {z' : B z}
+          {p : x ≡ y} {q : y ≡ z}
+      → PathP (λ i → B (p i)) x' y'
+      → PathP (λ i → B (q i)) y' z'
+      → PathP (λ i → B ((p ∙ q) i)) x' z'
+--  _∙P_ {B = B} {x' = x'} {p = p} {q = q} p' q' i = ?
+    

@@ -21,7 +21,7 @@ recCtx (Γ S., A) = recCtx Γ ,C recTy A
 
 recTy (A S.[ σ ]) = recTy A [ recSub σ ]T
 recTy S.U         = U
-recTy (S.[idS]T {A = A} i) = [idS]T {A = recTy A} i -- [idS]T {A = recTy A} i
+recTy (S.[idS]T {A = A} i) = [idS]T {A = recTy A} i
 recTy (S.[∘]T A σ τ i)     = [∘]T (recTy A) (recSub σ) (recSub τ) i
 recTy (S.U[] {σ = σ} i)    = U[] {σ = recSub σ} i
 -- recTy (S.Ty-is-set A B x y i j) = ?
