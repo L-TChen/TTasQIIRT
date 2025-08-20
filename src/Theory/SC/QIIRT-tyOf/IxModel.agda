@@ -1,9 +1,12 @@
-module Theory.SC.QIIRT-tyOf.IxModel where
-
 open import Prelude
 
-open import Theory.SC.QIIRT-tyOf.Syntax
-open GVars
+module Theory.SC.QIIRT-tyOf.IxModel where
+
+import Theory.SC.QIIRT-tyOf.Syntax as S
+open S
+  hiding (module Var)
+open S.Var
+  hiding (C)
 
 record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄)) where
   field
@@ -26,11 +29,13 @@ record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ �
   -- SC∙ is defined separately from Motive in order to declare
   -- generalizable variables.
 
-  variable
-    Γ∙ Δ∙ Θ∙ Ξ∙ : Ctx∙ Γ
-    A∙ B∙ C∙ D∙ : Ty∙  Γ∙ A
-    σ∙ τ∙ γ∙    : Sub∙ Γ∙ Δ∙ σ
-    t∙ u∙ v∙    : Tm∙  Γ∙ t
+  module Var where
+    variable
+      Γ∙ Δ∙ Θ∙ Ξ∙ : Ctx∙ Γ
+      A∙ B∙ C∙ D∙ : Ty∙  Γ∙ A
+      σ∙ τ∙ γ∙    : Sub∙ Γ∙ Δ∙ σ
+      t∙ u∙ v∙    : Tm∙  Γ∙ t
+  open Var
 
   infix 4 _≡Ty[_]_ _≡Tm[_]_ _≡Sub[_]_
 
@@ -45,8 +50,9 @@ record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ �
 
 module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
   open Motive mot
+  open Var
 
-  record SC∙ : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
+  record IsSC∙ : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     field
       ∅∙
         : Ctx∙ ∅
@@ -146,3 +152,11 @@ module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → U∙ [ σ∙ ]T∙
         ≡Ty[ U[] {σ = σ} ]
           U∙
+
+record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄)) where
+  field
+    C    : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄
+    isSC : IsSC∙ C 
+
+  open Motive C   public
+  open IsSC∙ isSC public

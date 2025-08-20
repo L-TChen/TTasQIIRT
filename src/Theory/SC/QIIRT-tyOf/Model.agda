@@ -15,15 +15,16 @@ record Motive {ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level} : Set (ℓ-suc (ℓ₁ ⊔ �
 --    Sub-is-set : {Γ Δ : Ctx} → isSet (Sub Γ Δ)
 --    Tm-is-set : {Γ : Ctx} → isSet (Tm Γ)
 
-  variable
-    Γ Δ Θ Ξ : Ctx
-    A B C D : Ty Γ
-    σ τ γ    : Sub Γ Δ
-    t u v    : Tm Γ
+  module Var where
+    variable
+      Γ Δ Θ Ξ : Ctx
+      A B C D : Ty Γ
+      σ τ γ    : Sub Γ Δ
+      t u v    : Tm Γ
 
 module _ (mot : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}) where
   open Motive mot
---  open GVars -- generalisable variables cannot be used when opened in a record
+  open Var -- generalisable variables cannot be used when opened in a record
 
   record IsSC : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     field
@@ -127,9 +128,6 @@ module _ (mot : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}) where
         
 
 record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄))) where
-  inductive
-  eta-equality
-
   field
     mot  : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}
     isSC : IsSC mot
@@ -137,7 +135,7 @@ record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ�
   open Motive mot public
   open IsSC isSC  public
 
---  open GVars
+  open Var
   
   π₁∘
     : (τ : Sub Δ (Θ ,C A)) (σ : Sub Γ Δ)

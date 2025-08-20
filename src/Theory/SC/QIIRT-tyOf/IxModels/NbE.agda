@@ -3,7 +3,9 @@
 module Theory.SC.QIIRT-tyOf.IxModels.NbE where
 
 open import Prelude
-open import Theory.SC.QIIRT-tyOf.Syntax
+open import Theory.SC.QIIRT-tyOf.Syntax as S
+  hiding (module Var)
+open S.Var
 
 cong,∶[]
   : {Γ Δ : Ctx} {A : Ty Δ}

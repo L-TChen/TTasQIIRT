@@ -24,11 +24,13 @@ module Foo where
     tyOf
       : ∀ {Γ} → Tm Γ → Ty Γ
       
-    variable
-        Γ Δ Θ Ξ : Ctx
-        A B C D : Ty Γ
-        t u     : Tm Γ
-        σ τ δ γ : Sub Γ Δ
+    module Var where
+      variable
+          Γ Δ Θ Ξ : Ctx
+          A B C D : Ty Γ
+          t u     : Tm Γ
+          σ τ δ γ : Sub Γ Δ
+    open Var
 
     -- Substitution calculus
     ∅
@@ -234,6 +236,7 @@ module Foo where
     tyOfff  = [idS]T
     tyOf𝕓   = refl
  
+  open Var
   wk : Sub (Γ , A) Γ
   wk = π₁ idS
   
@@ -298,6 +301,7 @@ open Foo public
   ; [∘]t'  to [∘]t
   )
 
+open Var
 π₁∘
   : (τ : Sub Δ (Θ , A)) (σ : Sub Γ Δ)
   → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ

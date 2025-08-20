@@ -5,7 +5,7 @@ module Theory.SC.QIIRT-tyOf.Models.Yoneda
   (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
 
 open SC C
--- open GVars
+open Var
 
 record Subʸ (Γ Δ : Ctx) : Set (ℓ-max ℓ₁ ℓ₃) where
   constructor _,_

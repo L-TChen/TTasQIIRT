@@ -15,7 +15,8 @@ open import Theory.SC.QIIRT-tyOf.Model
 
 open import Theory.SC.QIIRT-tyOf.Models.StrictTerm
 open SC Termₛ
-open GVars
+  renaming (module Var to GVar)
+open GVar
 
 open import Theory.SC.QIIRT-tyOf.Models.Term
   using (Term)

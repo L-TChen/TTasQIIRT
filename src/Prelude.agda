@@ -21,7 +21,7 @@ open import Cubical.Data.Bool           public
 open import Agda.Primitive              public
 
 variable
-  ℓ ℓ' ℓ'' ℓ''' ℓ'''' ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level
+  ℓ ℓ' ℓ'' ℓ''' ℓ'''' ℓ₁ ℓ₂ ℓ₃ ℓ₄ ℓ₁' ℓ₂' ℓ₃' ℓ₄' : Level
 
 infix 4 PathP-syntax
 PathP-syntax : (A : I → Type ℓ) → A i0 → A i1 → Type ℓ

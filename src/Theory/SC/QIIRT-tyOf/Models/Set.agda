@@ -6,6 +6,7 @@ module Theory.SC.QIIRT-tyOf.Models.Set where
 
 module _ (UU : Set) where
   open import Theory.SC.QIIRT-tyOf.Syntax
+  open Var
 
   ⟦_⟧C : Ctx → Set
 

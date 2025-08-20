@@ -5,7 +5,7 @@ module Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
   (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄)  where
 
 open SC C
--- open GVars
+open Var
 
 ℓ! = ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃
 

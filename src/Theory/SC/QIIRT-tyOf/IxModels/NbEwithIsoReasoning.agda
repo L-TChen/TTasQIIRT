@@ -3,12 +3,15 @@
 module Theory.SC.QIIRT-tyOf.IxModels.NbEwithIsoReasoning where
 
 open import Prelude
-open import Theory.SC.QIIRT-tyOf.Syntax
+open import Theory.SC.QIIRT-tyOf.Syntax as S
+  hiding (module Var)
 open import Theory.SC.QIIRT-tyOf.Models.StrictTerm
   using (▸ᶜ; ▸ᵀ; ⟨_,⟩!₂≡ʸ)
 open import Theory.SC.QIIRT-tyOf.StrictSyntaxIso
 open import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
 open Ty³
+
+open S.Var
 
 cong,∶[]
   : {σ σ' : Sub Γ Δ}{t t' : Tm Γ}
