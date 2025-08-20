@@ -3,17 +3,12 @@ open import Prelude
 
 open import Theory.SC.QIIRT-tyOf.IxModel
 
-module Theory.SC.QIIRT-tyOf.Elim
-  (M : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄)
-  (C : IsSC∙ M) where
---  (C : SC∙ ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
+module Theory.SC.QIIRT-tyOf.Elim (C : SC∙ ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
 
-open Motive M
+open SC∙ C
   hiding (module Var)
-open IsSC∙ C
 
 open import Theory.SC.QIIRT-tyOf.Syntax
-
 open Var
 
 elimCtx  : (Γ : Ctx) → Ctx∙ Γ
@@ -59,9 +54,8 @@ elimSub (ηπ {Γ} {Δ} {A} σ i) = {!ηπ∙ (elimSub σ) !}
 elimTyOf {Γ} {A} (t [ σ ]) p =
    transport (λ i →
     tyOf∙ (elimTm t [ elimSub σ ]t∙) ≡Ty[ UIP {x = tyOf (t [ σ ])} {A}
-    (refl ∙ p) p i  ] elimTy A)
-    (_∙P_ {B = λ A → Ty∙ (elimCtx Γ) A}
-    (cong _[ elimSub σ ]T∙ (elimTyOf t refl)) (cong elimTy p))
+    (refl ∙ refl ∙ p) p i  ] elimTy A)
+    (tyOf[]∙ ∙Ty[] cong _[ elimSub σ ]T∙ (elimTyOf t refl) ∙Ty[] cong elimTy p)
   
 elimTyOf (π₂ σ)          p = {!!}
 elimTyOf (βπ₂ σ t p q i) p' = {!!}
