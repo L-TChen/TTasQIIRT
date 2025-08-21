@@ -31,6 +31,24 @@ record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ �
   -- SC∙ is defined separately from Motive in order to declare
   -- generalizable variables.
 
+  infix 4 _≡Ty[_]_ _≡Tm[_]_ _≡Sub[_]_
+
+  _≡Ty[_]_
+    : {Γ∙ : Ctx∙ Γ}
+    → Ty∙ Γ∙ A → A ≡ B → Ty∙ Γ∙ B → Type ℓ₂
+  _≡Ty[_]_ {Γ∙} A∙ e B∙ = PathP (λ i → Ty∙ Γ∙ (e i)) A∙ B∙
+  {-# INJECTIVE_FOR_INFERENCE _≡Ty[_]_ #-}
+
+  _≡Tm[_]_
+    : {Γ∙ : Ctx∙ Γ}
+    → Tm∙ Γ∙ t → t ≡ u → Tm∙ Γ∙ u → Type ℓ₄
+  _≡Tm[_]_ {Γ∙} t∙ e u∙ = PathP (λ i → Tm∙ Γ∙ (e i)) t∙ u∙
+
+  _≡Sub[_]_
+    : {Γ∙ : Ctx∙ Γ} {Δ∙ : Ctx∙ Δ}
+    → Sub∙ Γ∙ Δ∙ σ → σ ≡ τ → Sub∙ Γ∙ Δ∙ τ → Type ℓ₃
+  _≡Sub[_]_ {Γ∙} {Δ∙} σ∙ e τ∙ = PathP (λ i → Sub∙ Γ∙ Δ∙ (e i)) σ∙ τ∙
+
   module Var where
     variable
       Γ∙ Δ∙ Θ∙ Ξ∙ : Ctx∙ Γ
@@ -38,60 +56,6 @@ record Motive (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ �
       σ∙ τ∙ γ∙    : Sub∙ Γ∙ Δ∙ σ
       t∙ u∙ v∙    : Tm∙  Γ∙ t
   open Var
-
-  infix 4 _≡Ty[_]_ _≡Tm[_]_ _≡Sub[_]_
-
-  _≡Ty[_]_ : Ty∙ Γ∙ A → A ≡ B → Ty∙ Γ∙ B → Type ℓ₂
-  _≡Ty[_]_ {Γ∙} A∙ e B∙ = PathP (λ i → Ty∙ Γ∙ (e i)) A∙ B∙
-  {-# INJECTIVE_FOR_INFERENCE _≡Ty[_]_ #-}
-
-  -- adapted from 1Lab
-  infixr 30 _∙Ty[]_ ∙Ty[-]-syntax
-  infixr 2 ≡Ty[]⟨⟩-syntax ≡Ty[-]⟨⟩-syntax
-
-  _∙Ty[]_
-    : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} 
-    → {A∙ : Ty∙ Γ∙ A} {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
-    → {p : A ≡ B} → A∙ ≡Ty[ p ] B∙
-    → {q : B ≡ C} → B∙ ≡Ty[ q ] C∙
-    → A∙ ≡Ty[ p ∙ q ] C∙
-  _∙Ty[]_ {Γ∙} {p} p∙ {q} q∙ =
-     _∙P_ {B = λ A → Ty∙ Γ∙ A} p∙ q∙
-
-  ∙Ty[-]-syntax
-    : {A B C : Ty Γ} (p : A ≡ B) {q : B ≡ C} {Γ∙ : Ctx∙ Γ}
-    → {A∙ : Ty∙ Γ∙ A} {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
-    → A∙ ≡Ty[ p ] B∙ → B∙ ≡Ty[ q ] C∙
-    → A∙ ≡Ty[ p ∙ q ] C∙
-  ∙Ty[-]-syntax _ p∙ q∙ = p∙ ∙Ty[] q∙
-
-  syntax ∙Ty[-]-syntax p p∙ q∙ = p∙ ∙Ty[ p ] q∙ 
-
-  ≡Ty[]⟨⟩-syntax
-    : {A B C : Ty Γ} {p : A ≡ B} {q : B ≡ C} {Γ∙ : Ctx∙ Γ}
-    → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C}
-    → B∙ ≡Ty[ q ] C∙ → A∙ ≡Ty[ p ] B∙
-    → A∙ ≡Ty[ p ∙ q ] C∙
-  ≡Ty[]⟨⟩-syntax A∙ q∙ p∙ = p∙ ∙Ty[] q∙ 
-
-  syntax ≡Ty[]⟨⟩-syntax A∙ q∙ p∙ = A∙ ≡Ty[]⟨ p∙ ⟩ q∙
-
-  ≡Ty[-]⟨⟩-syntax 
-    : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} (p : A ≡ B) {q : B ≡ C}
-    → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
-    → B∙ ≡Ty[ q ] C∙ → A∙ ≡Ty[ p ] B∙
-    → A∙ ≡Ty[ p ∙ q ] C∙
-  ≡Ty[-]⟨⟩-syntax A∙ p q∙ p∙ = p∙ ∙Ty[] q∙
-
-  syntax ≡Ty[-]⟨⟩-syntax p A∙ q∙ p∙ = A∙ ≡Ty[ p ]⟨ p∙ ⟩ q∙
-  
-  _≡Tm[_]_ : Tm∙ Γ∙ t → t ≡ u → Tm∙ Γ∙ u → Type ℓ₄
-  _≡Tm[_]_ {Γ∙} t∙ e u∙ = PathP (λ i → Tm∙ Γ∙ (e i)) t∙ u∙
-
-  _≡Sub[_]_ : Sub∙ Γ∙ Δ∙ σ → σ ≡ τ → Sub∙ Γ∙ Δ∙ τ → Type ℓ₃
-  _≡Sub[_]_ {Γ∙} {Δ∙} σ∙ e τ∙ = PathP (λ i → Sub∙ Γ∙ Δ∙ (e i)) σ∙ τ∙
-
-
 
 module _ (mot : Motive ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
   open Motive mot
@@ -205,3 +169,67 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁ ⊔ �
 
   open Motive C   public
   open IsSC∙ isSC public
+
+  -- adapted from 1Lab
+  infixr 30 _∙Ty[]_ _∙Sub[]_ ∙Ty[-]-syntax
+  infixr 2 ≡Ty[]⟨⟩-syntax ≡Ty[-]⟨⟩-syntax
+  infix 1 beginTy_
+
+  open Var
+
+  _∙Ty[]_
+    : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} 
+    → {A∙ : Ty∙ Γ∙ A} {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
+    → {p : A ≡ B} → A∙ ≡Ty[ p ] B∙
+    → {q : B ≡ C} → B∙ ≡Ty[ q ] C∙
+    → A∙ ≡Ty[ p ∙ q ] C∙
+  _∙Ty[]_ {Γ∙} {p} p∙ {q} q∙ =
+     _∙P_ {B = λ A → Ty∙ Γ∙ A} p∙ q∙
+
+  ∙Ty[-]-syntax
+    : {A B C : Ty Γ} (p : A ≡ B) {q : B ≡ C} {Γ∙ : Ctx∙ Γ}
+    → {A∙ : Ty∙ Γ∙ A} {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
+    → A∙ ≡Ty[ p ] B∙ → B∙ ≡Ty[ q ] C∙
+    → A∙ ≡Ty[ p ∙ q ] C∙
+  ∙Ty[-]-syntax _ p∙ q∙ = p∙ ∙Ty[] q∙
+
+  syntax ∙Ty[-]-syntax p p∙ q∙ = p∙ ∙Ty[ p ] q∙ 
+
+  ≡Ty[]⟨⟩-syntax
+    : {A B C : Ty Γ} {p : A ≡ B} {q : B ≡ C} {Γ∙ : Ctx∙ Γ}
+    → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C}
+    → B∙ ≡Ty[ q ] C∙ → A∙ ≡Ty[ p ] B∙
+    → A∙ ≡Ty[ p ∙ q ] C∙
+  ≡Ty[]⟨⟩-syntax A∙ q∙ p∙ = p∙ ∙Ty[] q∙ 
+
+  syntax ≡Ty[]⟨⟩-syntax A∙ q∙ p∙ = A∙ ≡Ty[]⟨ p∙ ⟩ q∙
+
+  ≡Ty[-]⟨⟩-syntax 
+    : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} (p : A ≡ B) {q : B ≡ C}
+    → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
+    → B∙ ≡Ty[ q ] C∙ → A∙ ≡Ty[ p ] B∙
+    → A∙ ≡Ty[ p ∙ q ] C∙
+  ≡Ty[-]⟨⟩-syntax A∙ p q∙ p∙ = p∙ ∙Ty[] q∙
+
+  syntax ≡Ty[-]⟨⟩-syntax p A∙ q∙ p∙ = A∙ ≡Ty[ p ]⟨ p∙ ⟩ q∙
+  
+  beginTy_
+    : {p q : A ≡ B}
+    → A∙ ≡Ty[ p ] B∙
+    → A∙ ≡Ty[ q ] B∙
+  beginTy_ {A∙} {B∙} {p} {q} p∙ =
+    subst (λ r → A∙ ≡Ty[ r ] B∙) (UIP _ _) p∙ 
+
+  _∙Sub[]_
+    : {p : σ ≡ τ} → σ∙ ≡Sub[ p ] τ∙
+    → {q : τ ≡ γ} → τ∙ ≡Sub[ q ] γ∙
+    → σ∙ ≡Sub[ p ∙ q ] γ∙
+  _∙Sub[]_ {p} p∙ {q} q∙ =
+     _∙P_ {B = λ σ → Sub∙ _ _ σ} p∙ q∙
+
+  beginSub_
+    : {p q : σ ≡ τ}
+    → σ∙ ≡Sub[ p ] τ∙
+    → σ∙ ≡Sub[ q ] τ∙
+  beginSub_ {σ∙} {τ∙} {p} {q} p∙ =
+    subst (λ r → σ∙ ≡Sub[ r ] τ∙) (UIP _ _) p∙ 

@@ -18,6 +18,9 @@ open import Cubical.Data.Nat            public
 open import Cubical.Data.Bool           public
   using (Bool; true; false)
 
+open import Cubical.Foundations.Function public 
+  using (_$_; hasType)
+  
 open import Agda.Primitive              public
 
 variable

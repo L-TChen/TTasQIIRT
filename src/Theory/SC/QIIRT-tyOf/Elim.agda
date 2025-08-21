@@ -1,4 +1,4 @@
-{-# OPTIONS --hidden-argument-puns #-}
+{-# OPTIONS --hidden-argument-puns --no-require-unique-meta-solutions #-}
 open import Prelude
 
 open import Theory.SC.QIIRT-tyOf.IxModel
@@ -32,7 +32,15 @@ elimTm (t [ σ ]) = elimTm t [ elimSub σ ]t∙
 elimTm (π₂ σ)    = π₂∙ (elimSub σ)
 elimTm (βπ₂ {A} σ t p q i) =
   βπ₂∙ (elimSub σ) (elimTm t) p (elimTyOf _ p) q
-  {!!} i
+  (beginTy
+    elimTy A [ π₁∙ (elimSub σ , elimTm t ∶[ p , elimTyOf t p ]∙) ]T∙
+      ≡Ty[ cong (A [_]) (βπ₁ σ t p) ]⟨ (λ i → (elimTy A)
+        [ βπ₁∙ (elimSub σ) (elimTm t) p (elimTyOf t p) i ]T∙) ⟩
+    elimTy A [ elimSub σ ]T∙
+      ≡Ty[ sym p ]⟨ symP $ elimTyOf t p ⟩
+    tyOf∙ (elimTm t)
+    ∎) i
+    
 elimTm ([idS]t t i)    = [idS]t∙ (elimTm t) i
 elimTm ([∘]t t σ τ i)  = [∘]t∙ (elimTm t) (elimSub σ) (elimSub τ) i
 
@@ -49,15 +57,31 @@ elimSub (assocS σ τ γ i) = assocS∙ (elimSub σ) (elimSub τ) (elimSub γ) i
 elimSub (,∘ σ t τ p q i) =
   ,∘∙ (elimSub σ) (elimTm t) (elimSub τ) p (elimTyOf _ p) q (elimTyOf _ q) i
 elimSub (η∅ σ i) = η∅∙ (elimSub σ) i
-elimSub (ηπ {Γ} {Δ} {A} σ i) = {!ηπ∙ (elimSub σ) !}
+elimSub (ηπ {Γ} {Δ} {A} σ i) = -- ?? 
+  (beginSub (ηπ∙ (elimSub σ) ∙Sub[] bar)) i 
+  where
+    bar : π₁∙ (elimSub σ) , π₂∙ (elimSub σ) ∶[ refl , tyOfπ₂∙ (elimSub σ) ]∙
+      ≡ π₁∙ (elimSub σ) , elimTm (π₂ σ) ∶[ refl , elimTyOf (π₂ σ) refl ]∙
+    bar = λ i → π₁∙ (elimSub σ) , π₂∙ (elimSub σ)
+      ∶[ refl , UIP (tyOfπ₂∙ (elimSub σ)) (elimTyOf (π₂ σ) refl) i ]∙
 
-elimTyOf {Γ} {A} (t [ σ ]) p =
-   transport (λ i →
-    tyOf∙ (elimTm t [ elimSub σ ]t∙) ≡Ty[ UIP {x = tyOf (t [ σ ])} {A}
-    (refl ∙ refl ∙ p) p i  ] elimTy A)
-    (tyOf[]∙ ∙Ty[] cong _[ elimSub σ ]T∙ (elimTyOf t refl) ∙Ty[] cong elimTy p)
+elimTyOf {Γ} {A} (t [ σ ]) p = beginTy
+  tyOf∙ (elimTm t [ elimSub σ ]t∙)
+    ≡Ty[]⟨ tyOf[]∙ ⟩
+  tyOf∙ (elimTm t) [ elimSub σ ]T∙
+    ≡Ty[]⟨ (λ i → elimTyOf t refl i [ elimSub σ ]T∙) ⟩
+  elimTy (tyOf t) [ elimSub σ ]T∙
+    ≡Ty[ p ]⟨ cong elimTy p  ⟩
+  elimTy A
+    ∎
   
-elimTyOf (π₂ σ)          p = {!!}
+elimTyOf {A} (π₂ {A = B} σ) p = beginTy
+  tyOf∙ (elimTm (π₂ σ))
+    ≡Ty[]⟨ tyOfπ₂∙ (elimSub σ) ⟩
+  elimTy B [ π₁∙ (elimSub σ) ]T∙
+    ≡Ty[ p ]⟨ (λ i → elimTy (p i)) ⟩
+  elimTy A
+    ∎
 elimTyOf (βπ₂ σ t p q i) p' = {!!}
 elimTyOf ([idS]t t i)    p = {!!}
 elimTyOf ([∘]t t σ τ i)  p = {!!}
