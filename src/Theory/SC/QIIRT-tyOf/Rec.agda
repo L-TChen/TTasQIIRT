@@ -108,8 +108,11 @@ recTyOf {A = A} (S.βπ₂ σ t p₁ q i) =
   (λ j → isPropΠ λ _ → UIP) (recTyOf (S.βπ₂ σ t p₁ q i0)) (recTyOf (S.βπ₂ σ t p₁ q i1)) i 
 --  (λ j → isPropΠ (λ _ → Tyᴬ-is-set _ _)) (recTyOf (βπ₂ σ t p₁ q i0)) (recTyOf (βπ₂ σ t p₁ q i1)) i 
 recTyOf {A = A} (S.[idS]t t i) =
-  isProp→PathP {B = λ i → S.tyOf (S.[idS]t t i) ≡ A → tyOf (recTm (S.[idS]t t i)) ≡ recTy A}
-  (λ j → isPropΠ λ _ → UIP) (recTyOf (S.[idS]t t i0)) (recTyOf (S.[idS]t t i1)) i 
+  isProp→PathP
+    {B = λ i → S.tyOf (S.[idS]t t i) ≡ A → tyOf (recTm (S.[idS]t t i)) ≡ recTy A}
+    (λ j → isPropΠ λ _ → UIP)
+    (recTyOf (S.[idS]t t i0))
+    (recTyOf (S.[idS]t t i1)) i 
 --  (λ j → isPropΠ (λ _ → Tyᴬ-is-set _ _)) (recTyOf ([idS]t t i0)) (recTyOf ([idS]t t i1)) i 
 recTyOf {A = A} (S.[∘]t t σ τ i) = 
   isProp→PathP {B = λ i → S.tyOf (S.[∘]t t σ τ i) ≡ A → tyOf (recTm (S.[∘]t t σ τ i)) ≡ recTy A}

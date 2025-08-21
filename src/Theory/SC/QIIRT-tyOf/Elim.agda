@@ -82,6 +82,24 @@ elimTyOf {A} (π₂ {A = B} σ) p = beginTy
     ≡Ty[ p ]⟨ (λ i → elimTy (p i)) ⟩
   elimTy A
     ∎
-elimTyOf (βπ₂ σ t p q i) p' = {!!}
-elimTyOf ([idS]t t i)    p = {!!}
-elimTyOf ([∘]t t σ τ i)  p = {!!}
+elimTyOf {Γ} {A} (βπ₂ σ t p q i) =
+  isProp→PathP {B = λ i →
+      (r : tyOf (βπ₂ σ t p q i) ≡ A)
+      → tyOf∙ (elimTm (βπ₂ σ t p q i)) ≡Ty[ r ] elimTy A}
+   (λ j → isPropΠ λ p → isOfHLevelPathP' {A = λ i → Ty∙ (elimCtx Γ) (p i)} 1
+   (λ _ _ → UIP) _ _)
+   (elimTyOf (βπ₂ σ t p q i0)) (elimTyOf (βπ₂ σ t p q i1)) i
+elimTyOf {Γ} {A} ([idS]t t i) =
+  isProp→PathP {B = λ i →
+      (r : tyOf ([idS]t t i) ≡ A)
+      → tyOf∙ (elimTm ([idS]t t i)) ≡Ty[ r ] elimTy A}
+    (λ j → isPropΠ λ p → isOfHLevelPathP' {A = λ i → Ty∙ (elimCtx Γ) (p i)} 1
+    (λ _ _ → UIP) _ _)
+    (elimTyOf ([idS]t t i0)) (elimTyOf ([idS]t t i1)) i
+elimTyOf {Γ} {A} ([∘]t t σ τ i) =
+  isProp→PathP {B = λ i →
+    (r : tyOf ([∘]t t σ τ i) ≡ A)
+    → tyOf∙ (elimTm ([∘]t t σ τ i)) ≡Ty[ r ] elimTy A}
+    (λ j → isPropΠ λ p → isOfHLevelPathP' {A = λ i → Ty∙ (elimCtx Γ) (p i)} 1
+    (λ _ _ → UIP) _ _)
+  (elimTyOf ([∘]t t σ τ i0)) (elimTyOf ([∘]t t σ τ i1)) i
