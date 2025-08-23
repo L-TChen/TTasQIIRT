@@ -10,7 +10,7 @@ open import Cubical.Foundations.Isomorphism public
 open import Cubical.Data.Sigma          public
   hiding (Sub)
 open import Cubical.Data.Empty          public
-  renaming (elim to elim-⊥)
+  renaming (elim to elim-⊥; rec to rec-⊥)
 open import Cubical.Data.Unit           public
   renaming (tt to ⋆)
 open import Cubical.Data.Nat            public
@@ -40,12 +40,10 @@ postulate
 UIP' : {A : Set ℓ} → isSet A 
 UIP' x y = UIP
 
-postulate
-  _∙P_ : ∀ {ℓ ℓ'} {A : Type ℓ} {B : A → Type ℓ'}
-          {x y z : A} {x' : B x} {y' : B y} {z' : B z}
-          {p : x ≡ y} {q : y ≡ z}
-      → PathP (λ i → B (p i)) x' y'
-      → PathP (λ i → B (q i)) y' z'
-      → PathP (λ i → B ((p ∙ q) i)) x' z'
---  _∙P_ {B = B} {x' = x'} {p = p} {q = q} p' q' i = ?
-    
+_∙P_
+  : {x y z : A} {B : A → Type ℓ'} {x' : B x} {y' : B y} {z' : B z} {p : x ≡ y} {q : y ≡ z}
+  → PathP (λ i → B (p i)) x' y'
+  → PathP (λ i → B (q i)) y' z'
+  → PathP (λ i → B ((p ∙ q) i)) x' z'
+_∙P_ {ℓ} {A} {ℓ'} {x} {y} {z} {B} {x'} {y'} {z'} {p} {q} p' q' =
+  compPathP' {ℓ} {A} {ℓ'} {x} {y} {z} {B} {x'} {y'} {z'} {p} {q} p' q'
