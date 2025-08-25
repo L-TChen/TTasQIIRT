@@ -57,13 +57,13 @@ elimSub (assocS σ τ γ i) = assocS∙ (elimSub σ) (elimSub τ) (elimSub γ) i
 elimSub (,∘ σ t τ p q i) =
   ,∘∙ (elimSub σ) (elimTm t) (elimSub τ) p (elimTyOf _ p) q (elimTyOf _ q) i
 elimSub (η∅ σ i) = η∅∙ (elimSub σ) i
-elimSub (ηπ {Γ} {Δ} {A} σ i) = -- ?? 
-  (beginSub (ηπ∙ (elimSub σ) ∙Sub[] bar)) i 
-  where
-    bar : π₁∙ (elimSub σ) , π₂∙ (elimSub σ) ∶[ refl , tyOfπ₂∙ (elimSub σ) ]∙
-      ≡ π₁∙ (elimSub σ) , elimTm (π₂ σ) ∶[ refl , elimTyOf (π₂ σ) refl ]∙
-    bar = λ i → π₁∙ (elimSub σ) , π₂∙ (elimSub σ)
-      ∶[ refl , UIP (tyOfπ₂∙ (elimSub σ)) (elimTyOf (π₂ σ) refl) i ]∙
+elimSub (ηπ {Γ} {Δ} {A} σ i) = (beginSub[ ηπ σ ]
+  (elimSub σ
+    ≡Sub[ ηπ σ ]⟨ ηπ∙ (elimSub σ) ⟩
+  π₁∙ (elimSub σ) , π₂∙ (elimSub σ) ∶[ refl , tyOfπ₂∙ (elimSub σ) ]∙
+    ≡Sub[ refl ]⟨ cong (π₁∙ (elimSub σ) , π₂∙ (elimSub σ) ∶[ refl ,_]∙) (UIP _ _) ⟩
+  π₁∙ (elimSub σ) , elimTm (π₂ σ) ∶[ refl , elimTyOf (π₂ σ) refl ]∙
+    ∎)) i
 
 elimTyOf {Γ} {A} (t [ σ ]) p = beginTy
   tyOf∙ (elimTm t [ elimSub σ ]t∙)
@@ -79,7 +79,7 @@ elimTyOf {A} (π₂ {A = B} σ) p = beginTy
   tyOf∙ (elimTm (π₂ σ))
     ≡Ty[]⟨ tyOfπ₂∙ (elimSub σ) ⟩
   elimTy B [ π₁∙ (elimSub σ) ]T∙
-    ≡Ty[ p ]⟨ (λ i → elimTy (p i)) ⟩
+    ≡Ty[ p ]⟨ cong elimTy p ⟩
   elimTy A
     ∎
 elimTyOf {Γ} {A} (βπ₂ σ t p q i) =
