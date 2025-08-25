@@ -3,10 +3,12 @@ open import Prelude
 
 open import Theory.SC.QIIRT-tyOf.IxModel
 
-module Theory.SC.QIIRT-tyOf.Elim (C : SC∙ ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
+module Theory.SC.QIIRT-tyOf.Elim (C∙ : SC∙ ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
 
-open SC∙ C
-  hiding (module Var)
+private
+  module M = SC∙ C∙
+open M hiding (module Var)
+open M.Var
 
 open import Theory.SC.QIIRT-tyOf.Syntax
 open Var
@@ -30,17 +32,16 @@ elimTy (U[] {σ} i) = U[]∙ {σ∙ = elimSub σ} i
 
 elimTm (t [ σ ]) = elimTm t [ elimSub σ ]t∙
 elimTm (π₂ σ)    = π₂∙ (elimSub σ)
-elimTm (βπ₂ {A} σ t p q i) =
-  βπ₂∙ (elimSub σ) (elimTm t) p (elimTyOf _ p) q
-  (beginTy
+elimTm (βπ₂ {A} σ t p q i) = (beginTm[ βπ₂ σ t p q ]
+  (βπ₂∙ (elimSub σ) (elimTm t) p (elimTyOf _ p) q) (beginTy
     elimTy A [ π₁∙ (elimSub σ , elimTm t ∶[ p , elimTyOf t p ]∙) ]T∙
       ≡Ty[ cong (A [_]) (βπ₁ σ t p) ]⟨ (λ i → (elimTy A)
         [ βπ₁∙ (elimSub σ) (elimTm t) p (elimTyOf t p) i ]T∙) ⟩
     elimTy A [ elimSub σ ]T∙
-      ≡Ty[ sym p ]⟨ symP $ elimTyOf t p ⟩
+      ≡Ty[ sym p ]⟨ (symP $ elimTyOf t p) ⟩
     tyOf∙ (elimTm t)
-    ∎) i
-    
+    ∎)
+  ) i
 elimTm ([idS]t t i)    = [idS]t∙ (elimTm t) i
 elimTm ([∘]t t σ τ i)  = [∘]t∙ (elimTm t) (elimSub σ) (elimSub τ) i
 
@@ -57,7 +58,7 @@ elimSub (assocS σ τ γ i) = assocS∙ (elimSub σ) (elimSub τ) (elimSub γ) i
 elimSub (,∘ σ t τ p q i) =
   ,∘∙ (elimSub σ) (elimTm t) (elimSub τ) p (elimTyOf _ p) q (elimTyOf _ q) i
 elimSub (η∅ σ i) = η∅∙ (elimSub σ) i
-elimSub (ηπ {Γ} {Δ} {A} σ i) = (beginSub[ ηπ σ ]
+elimSub (ηπ {Γ} {Δ} {A} σ i) = (beginSub[ ηπ σ ] -- the index cannot be inferred by unification
   (elimSub σ
     ≡Sub[ ηπ σ ]⟨ ηπ∙ (elimSub σ) ⟩
   π₁∙ (elimSub σ) , π₂∙ (elimSub σ) ∶[ refl , tyOfπ₂∙ (elimSub σ) ]∙
