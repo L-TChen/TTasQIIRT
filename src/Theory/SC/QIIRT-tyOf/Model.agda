@@ -6,7 +6,6 @@ record Motive {ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level} : Set (ℓ-suc (ℓ₁ ⊔ �
   field
     Ctx  : Set ℓ₁
     Ty   : Ctx → Set ℓ₂
-
     Sub  : Ctx → Ctx → Set ℓ₃
     Tm   : Ctx → Set ℓ₄
     tyOf : {Γ : Ctx} → Tm Γ → Ty Γ
@@ -17,8 +16,8 @@ record Motive {ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level} : Set (ℓ-suc (ℓ₁ ⊔ �
 
   module Var where
     variable
-      Γ Δ Θ Ξ : Ctx
-      A B C D : Ty Γ
+      Γ Δ Θ Ξ  : Ctx
+      A B C D  : Ty Γ
       σ τ γ    : Sub Γ Δ
       t u v    : Tm Γ
 
@@ -136,6 +135,16 @@ record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ�
   open IsSC isSC  public
 
   open Var
+
+  tyOfπ₂idS
+    : (σ : Sub Γ Δ) (A : Ty Δ)
+    → tyOf (π₂ {A = A [ σ ]T} idS) ≡ A [ σ ∘ π₁ idS ]T
+  tyOfπ₂idS σ A = tyOfπ₂ idS ∙ [∘]T _ _ _
+  
+  _↑_
+    : (σ : Sub Γ Δ) (A : Ty Δ)
+    → Sub (Γ ,C (A [ σ ]T)) (Δ ,C A)
+  σ ↑ A = (σ ∘ π₁ idS) , π₂ idS ∶[ tyOfπ₂idS σ A ]
   
   π₁∘
     : (τ : Sub Δ (Θ ,C A)) (σ : Sub Γ Δ)
@@ -219,3 +228,9 @@ record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ�
       ≡⟨ π₂∘ _ _ ⟩
     π₂ idS [ σ ]t
       ∎
+
+  tyOf[]≡U
+    : (p : tyOf u ≡ U)
+    → tyOf (u [ σ ]t) ≡ U
+  tyOf[]≡U {σ = σ} p =
+    tyOf[] ∙ cong (λ A → A [ σ ]T) p ∙ U[]

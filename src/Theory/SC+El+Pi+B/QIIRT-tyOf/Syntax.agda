@@ -1,10 +1,3 @@
--- Type theory as a quotient inductive-inductive-recursive type, inspired by the formulation of natural models
--- whereas the recursion part is impredicative.
-
-
--- See https://github.com/agda/agda/issues/5362 for the current limitation of Agda
--- that affects the definition of our encoding
-
 open import Prelude
   hiding (_,_)
 
@@ -23,11 +16,13 @@ module Foo where
     tyOf
       : ∀ {Γ} → Tm Γ → Ty Γ
 
-    variable
-        Γ Δ Θ Ξ : Ctx
-        A B C D : Ty Γ
-        t u   : Tm Γ
-        σ τ γ δ : Sub Γ Δ
+    module Var where
+      variable
+          Γ Δ Θ Ξ : Ctx
+          A B C D : Ty Γ
+          t u   : Tm Γ
+          σ τ γ δ : Sub Γ Δ
+    open Var
 
     -- Substitution calculus
     ∅
@@ -445,6 +440,7 @@ module Foo where
     tyOfff  = [idS]T
     tyOf𝕓   = refl
  
+  open Var
   wk : Sub (Γ , A) Γ
   wk = π₁ idS
   
@@ -757,6 +753,7 @@ open Foo public
   )
 
 
+open Var
 -- syntax abbreviations
 vz : Tm (Γ , A)
 vz = π₂ idS
