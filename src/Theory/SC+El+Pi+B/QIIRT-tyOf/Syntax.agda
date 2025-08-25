@@ -39,7 +39,6 @@ module Foo where
     ∅S
       : Sub Γ ∅
     _,_∶[_]
-
       : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ A [ σ ]T
       → Sub Γ (Δ , A)
     idS
@@ -291,7 +290,7 @@ module Foo where
         : (a : Tm Γ) (pa : tyOf a ≡ U)
         → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
         → El (π a pa b pb) (tyOfπ a pa b pb) ≡ Π (El a pa) (El b pb)
-      Ty-is-set : isSet (Ty Γ)
+      -- Ty-is-set : isSet (Ty Γ)
 
     data Tm where
       _[_] : (A : Tm Δ)(σ : Sub Γ Δ)
@@ -310,7 +309,7 @@ module Foo where
         : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
         → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
       app'
-        : (t : Tm Γ) → tyOf t ≡ Π A B
+        : (t : Tm Γ) (p : tyOf t ≡ Π A B)
         → Tm (Γ , A)
       abs'
         : (t : Tm (Γ , A))
@@ -332,8 +331,8 @@ module Foo where
         : ff [ σ ]t ≡ ff
       elim𝔹'
         : (P : Ty (Γ , 𝔹)) (t u : Tm Γ)
-        → tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T)
-        → tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T)
+        → (pt : tyOf t ≡ P [ idS , tt ∶[ tyOftt ] ]T)
+        → (pu : tyOf u ≡ P [ idS , ff ∶[ tyOfff ] ]T)
         → (b : Tm Γ) → tyOf b ≡ 𝔹 [ idS ]T
         → Tm Γ
       elim𝔹[]'
@@ -643,7 +642,7 @@ module Foo where
     El (u [ σ ]t) pu' [ π₁ idS ]T
       ≡⟨ El[] (π₁ idS) (u [ σ ]t) pu' (cong _[ π₁ {A = El (u [ σ ]t) pu'} idS ] pu' ∙ U[])  ⟩
     El (u [ σ ]t [ π₁ idS ]t) _
-      ≡⟨ cong₂ El ([∘]t u (π₁ idS) σ) (isProp→PathP (λ _ → Ty-is-set _ _) _ _) ⟩
+      ≡⟨ cong₂ El ([∘]t u (π₁ idS) σ) (isProp→PathP (λ _ → UIP) _ _) ⟩
     El (u [ σ ∘ π₁ idS ]t) _
       ≡⟨ sym (El[] (σ ∘ π₁ idS) u pu (cong _[ σ ∘ π₁ {A = El (u [ σ ]t) pu'} idS ]T pu ∙ U[])) ⟩
     El u pu [ σ ∘ π₁ idS ]T

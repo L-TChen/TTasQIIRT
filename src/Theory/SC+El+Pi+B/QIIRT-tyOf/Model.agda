@@ -27,7 +27,7 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : (t : Tm Γ) → tyOf t ≡ Π A B
         → Tm (Γ  ,C A)
       tyOfapp
-        : (p : _)
+        : (p : tyOf t ≡ Π A B)
         → tyOf (app {B = B} t p) ≡ B
       abs
         : (t : Tm (Γ  ,C A ))
@@ -87,6 +87,7 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T)
         → (b : Tm Γ) → tyOf b ≡ 𝔹 [ idS ]T
         → Tm Γ
+      -- [TODO] Add tyOfelim𝔹
       elim𝔹[]
         : (P : Ty (Γ ,C 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)

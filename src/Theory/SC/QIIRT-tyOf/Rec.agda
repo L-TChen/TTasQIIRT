@@ -99,23 +99,15 @@ recSub⟨π₁,⟩≡π₁, _ _ _ = refl
 
 recTyOf {A = A} (t S.[ σ ]) p =
   tyOf[] ∙ cong _[ recSub σ ]T (recTyOf t refl) ∙ cong recTy p
---  tyOf (recTm t [ recSub σ ]t)
---    ≡⟨ tyOf[] ⟩
---  (tyOf (recTm t)) [ recSub σ ]T 
---    ≡[ i ]⟨ (recTyOf t refl i [ recSub σ ]T) ⟩
---  recTy (S.tyOf t S.[ σ ])
---    ≡[ i ]⟨ recTy (p i) ⟩
---  recTy A
---    ∎
   
-recTyOf {A = A} (S.π₂ {Γ} {Δ} {B} σ) p =
-  tyOfπ₂ (recSub σ) ∙ cong recTy p
+recTyOf {A = A} (S.π₂ {Γ} {Δ} {B} σ) p = tyOfπ₂ (recSub σ) ∙ cong recTy p
 --  tyOf (recTm (S.π₂ σ))
 --    ≡⟨ tyOfπ₂ (recSub σ) ⟩
 --  recTy B [ π₁ (recSub σ) ]T
 --    ≡[ i ]⟨ recTy (p i) ⟩
 --  recTy A
 --    ∎
+
 recTyOf {A = A} (S.βπ₂ σ t p₁ q i) = 
   isProp→PathP {B = λ i → S.tyOf (S.βπ₂ σ t p₁ q i) ≡ A → tyOf (recTm (S.βπ₂ σ t p₁ q i)) ≡ recTy A}
   (λ j → isPropΠ λ _ → UIP) (recTyOf (S.βπ₂ σ t p₁ q i0)) (recTyOf (S.βπ₂ σ t p₁ q i1)) i 
