@@ -268,8 +268,10 @@ module Foo where
         : (τ : Sub Γ Δ) (u : Tm Δ) (p : tyOf u ≡ U) (q : tyOf (u [ τ ]t) ≡ U)
         → (El u p) [ τ ]T ≡ El (u [ τ ]t) q
       El[]₂'
-        : (u : Tm Δ) (pu : tyOf u ≡ U)(pu' : tyOf (u [ σ ]t) ≡ U)
-        → tyOf (π₂ {Γ , El (u [ σ ]t) pu'} idS) ≡ El u pu [ σ ∘ π₁ idS ]T
+        : {σ : Sub Γ Δ}
+        → (u : Tm Δ) (pu : tyOf u ≡ U)(pu' : tyOf (u [ σ ]t) ≡ U)
+        → tyOf (π₂ {Γ , El (u [ σ ]t) pu'} {A = El (u [ σ ]t) pu'} idS)
+        ≡ El u pu [ σ ∘ π₁ idS ]T
       Π'
         : (A : Ty Γ) (B : Ty (Γ , A))
         → Ty Γ
@@ -280,7 +282,7 @@ module Foo where
       𝔹[]'
         : 𝔹 [ σ ]T ≡ 𝔹
       𝔹[]₂'
-        : tyOf (π₂ {Γ , 𝔹} idS) ≡ 𝔹 [ τ ]T
+        : tyOf (π₂ {Γ , 𝔹} {A = 𝔹} idS) ≡ 𝔹 [ τ ]T
       El𝕓'
         : El {Γ} 𝕓 tyOf𝕓 ≡ 𝔹
       tyOfπ'
@@ -410,7 +412,7 @@ module Foo where
     π[]     = π[]'
 
     tyOf (t [ σ ]) = tyOf t [ σ ]T
-    tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ σ ]T
+    tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ {A = A} σ ]T
     tyOf (βπ₂' σ t p q i)   = q i
     tyOf ([idS]t' t i)      = [idS]T {A = tyOf t} i
     tyOf ([∘]t' t σ τ i)    = [∘]T (tyOf t) σ τ i

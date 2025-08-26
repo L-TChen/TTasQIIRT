@@ -44,7 +44,7 @@ tyOfᴾ {Γ} {t} {Γᴾ} (Aᴾ , t' , p) = Aᴾ
 
 open SC∙
 
-LogPredᵃ : Motive _ _ _ _
+LogPredᵃ : Motive∙ _ _ _ _
 LogPredᵃ = record
   { Ctx∙  = Ctxᴾ
   ; Ty∙   = Tyᴾ

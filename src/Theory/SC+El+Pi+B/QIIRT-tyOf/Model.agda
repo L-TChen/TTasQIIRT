@@ -85,9 +85,14 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : (P : Ty (Γ ,C 𝔹)) (t u : Tm Γ)
         → tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T)
         → tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T)
-        → (b : Tm Γ) → tyOf b ≡ 𝔹 [ idS ]T
+        → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → Tm Γ
-      -- [TODO] Add tyOfelim𝔹
+      tyOfelim𝔹
+        : (P : Ty (Γ ,C 𝔹)) (t u : Tm Γ)
+        → (pt : tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T))
+        → (pu : tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T))
+        → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
+        → tyOf (elim𝔹 P t u pt pu b pb) ≡ (P [ idS , b ∶[ pb ] ]T)
       elim𝔹[]
         : (P : Ty (Γ ,C 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
