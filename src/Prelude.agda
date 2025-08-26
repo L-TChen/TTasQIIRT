@@ -38,7 +38,6 @@ syntax PathP-syntax (λ i → A) x y = x ≡[ i ⊢ A ] y
 
 syntax Σ-syntax' A (λ x → B) = [ x ∶ A ] × B
 
-
 private variable
   A : Set ℓ
 postulate
@@ -46,6 +45,11 @@ postulate
 
 UIP' : {A : Set ℓ} → isSet A 
 UIP' x y = UIP
+
+-- transport along a family of types
+tr : (P : A → Set ℓ) {x y : A} → x ≡ y → P x → P y
+tr P p = transport (cong P p)
+
 
 infixr 30 _∙_
 infix  3 _∎

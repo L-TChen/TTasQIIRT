@@ -178,7 +178,7 @@ module Foo where
 --        : isSet (Sub Γ Δ) -- Added for NbE
 
     data Tm where
-      _[_] : (A : Tm Δ)(σ : Sub Γ Δ)
+      _[_] : (t : Tm Δ)(σ : Sub Γ Δ)
         → Tm Γ
       π₂'
         : Sub Γ (Δ , A)
@@ -360,6 +360,18 @@ wk∘ σ =
     ≡⟨ π₁∘ idS σ ⟩
   wk ∘ σ
     ∎
+
+trivial : (t u : Tm Γ) → t ≡ u → tyOf t ≡ tyOf u
+trivial t u p = cong tyOf p
+
+tyOfπ₂∘
+  : (τ : Sub Δ (Θ , A))(σ : Sub Γ Δ)
+  → A [ π₁ (τ ∘ σ) ] ≡ A [ π₁ τ ] [ σ ]
+tyOfπ₂∘ τ σ = trivial _ _ (π₂∘ τ σ)
+
+-- Needs El and variables?
+-- [-]Tinj : ((A : Ty Γ) → A [ σ ] ≡ A [ τ ]) → σ ≡ τ
+-- [-]Tinj = {!!}
 
 -- syntax abbreviations
 vz : Tm (Γ , A)
