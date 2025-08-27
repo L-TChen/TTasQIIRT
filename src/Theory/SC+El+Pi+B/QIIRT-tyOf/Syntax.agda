@@ -127,13 +127,14 @@ module Foo where
     tyOfabs
       : tyOf (abs t) ≡ Π A (tyOf t)
     Π[]
-      : (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
+      : (σ : Sub Γ Δ) (B : Ty (Δ , A))
+      → (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
     abs[]
-      : (t : Tm (Γ , A))
+      : (σ : Sub Γ Δ) (t : Tm (Δ , A))
       → abs t [ σ ]t ≡ abs (t [ σ ↑ A ]t)
     Πβ
-      : (t : Tm (Γ , A)) 
-      → app (abs t) tyOfabs ≡ t
+      : (t : Tm (Γ , A)) (p : tyOf (abs t) ≡ Π A (tyOf t))
+      → app (abs t) p ≡ t
     Πη
       : (t : Tm Γ) (p : tyOf t ≡ Π A B)
       → abs (app t p) ≡ t
@@ -142,15 +143,18 @@ module Foo where
     𝔹
       : Ty Γ
     𝔹[]
-      : 𝔹 [ σ ]T ≡ 𝔹
+      : (σ : Sub Γ Δ)
+      → 𝔹 [ σ ]T ≡ 𝔹
     𝔹[]₂
       : tyOf (π₂ {Γ , 𝔹} idS) ≡ 𝔹 [ τ ]T
     tt ff
       : Tm Γ
     tt[]
-      : tt [ σ ]t ≡ tt
+      : (σ : Sub Γ Δ)
+      → tt [ σ ]t ≡ tt
     ff[]
-      : ff [ σ ]t ≡ ff
+      : (σ : Sub Γ Δ)
+      → ff [ σ ]t ≡ ff
     tyOftt : tyOf {Γ} tt ≡ 𝔹 [ idS ]T -- definitional later
     tyOfff : tyOf {Γ} ff ≡ 𝔹 [ idS ]T -- definitional later
 
@@ -177,11 +181,13 @@ module Foo where
     -- Code for the universe
     𝕓 : Tm Γ
     𝕓[]
-      : 𝕓 [ σ ]t ≡ 𝕓
+      : (σ : Sub Γ Δ)
+      → 𝕓 [ σ ]t ≡ 𝕓
     tyOf𝕓
       : tyOf {Γ} 𝕓 ≡ U
     El𝕓
-      : El {Γ} (𝕓) tyOf𝕓 ≡ 𝔹
+      : (Γ : Ctx)
+      → El {Γ} (𝕓) tyOf𝕓 ≡ 𝔹
 
     El[]₂
       : (u : Tm Δ) (pu : tyOf u ≡ U)(pu' : tyOf (u [ σ ]t) ≡ U)
@@ -276,15 +282,18 @@ module Foo where
         : (A : Ty Γ) (B : Ty (Γ , A))
         → Ty Γ
       Π[]'
-        : (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
+        : (σ : Sub Γ Δ) (B : Ty (Δ , A))
+        → (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
       𝔹'
         : Ty Γ
       𝔹[]'
-        : 𝔹 [ σ ]T ≡ 𝔹
+        : (σ : Sub Γ Δ)
+        → 𝔹 [ σ ]T ≡ 𝔹
       𝔹[]₂'
         : tyOf (π₂ {Γ , 𝔹} {A = 𝔹} idS) ≡ 𝔹 [ τ ]T
       El𝕓'
-        : El {Γ} 𝕓 tyOf𝕓 ≡ 𝔹
+        : (Γ : Ctx)
+        → El {Γ} 𝕓 tyOf𝕓 ≡ 𝔹
       tyOfπ'
         : (a : Tm Γ) (pa : tyOf a ≡ U) (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
         → tyOf (π a pa b pb) ≡ U
@@ -317,20 +326,22 @@ module Foo where
         : (t : Tm (Γ , A))
         → Tm Γ
       abs[]'
-        : (t : Tm (Γ , A)) 
+        : (σ : Sub Γ Δ) (t : Tm (Δ , A)) 
         → abs t [ σ ]t ≡ abs (t [ σ ↑ A ]t)
       Πβ'
-        : (t : Tm (Γ , A))
-        → app (abs t) tyOfabs ≡ t
+        : (t : Tm (Γ , A)) (p : tyOf (abs t) ≡ Π A (tyOf t))
+        → app (abs t) p ≡ t
       Πη'
         : (t : Tm Γ) (p : tyOf t ≡ Π A B)
         → abs (app t p) ≡ t
       tt' ff'
         : Tm Γ
       tt[]'
-        : tt [ σ ]t ≡ tt
+        : (σ : Sub Γ Δ)
+        → tt [ σ ]t ≡ tt
       ff[]'
-        : ff [ σ ]t ≡ ff
+        : (σ : Sub Γ Δ)
+        → ff [ σ ]t ≡ ff
       elim𝔹'
         : (P : Ty (Γ , 𝔹)) (t u : Tm Γ)
         → (pt : tyOf t ≡ P [ idS , tt ∶[ tyOftt ] ]T)
@@ -342,13 +353,14 @@ module Foo where
         → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
         → (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ tyOfff ] ]T)
         → (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
-        → P [ idS , b ∶[ pb ] ] [ σ ] ≡ P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ] [ idS , b [ σ ] ∶[ pb₂ ] ]
+        → (p : P [ idS , b ∶[ pb ] ] [ σ ] ≡ P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ] [ idS , b [ σ ] ∶[ pb₂ ] ])
         → (elim𝔹 P t u pt pu b pb) [ σ ]t
         ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) pt₂ pu₂ (b [ σ ]t) pb₂
       𝕓'
         : Tm Γ
       𝕓[]'
-        : 𝕓 [ σ ]t ≡ 𝕓
+        : (σ : Sub Γ Δ)
+        → 𝕓 [ σ ]t ≡ 𝕓
       π'
         : (a : Tm Γ) (pa : tyOf a ≡ U)
         → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
@@ -418,18 +430,18 @@ module Foo where
     tyOf ([∘]t' t σ τ i)    = [∘]T (tyOf t) σ τ i
     tyOf (app' {B = B} t p) = B
     tyOf (abs' {A = A} t)   = Π A (tyOf t)
-    tyOf (abs[]' {A = A} {σ = σ} t i) =
-      Π[] {A = A} {B = tyOf t} {σ = σ} i
-    tyOf (Πβ' t i) = tyOf t
+    tyOf (abs[]' σ t i) =
+      Π[] σ (tyOf t) i
+    tyOf (Πβ' t p i) = tyOf t
     tyOf (Πη' t p i) = p (~ i)
     tyOf tt' = 𝔹
     tyOf ff' = 𝔹
-    tyOf (tt[]' {σ = σ} i) = 𝔹[] {σ = σ} i
-    tyOf (ff[]' {σ = σ} i) = 𝔹[] {σ = σ} i
+    tyOf (tt[]' σ i) = 𝔹[] σ i
+    tyOf (ff[]' σ i) = 𝔹[] σ i
     tyOf (elim𝔹' P u t pu pt b pb) = P [ idS , b ∶[ pb ] ]T
     tyOf (elim𝔹[]' P u t pu pt b pb pt₂ pu₂ pb₂ q i) = q i
     tyOf 𝕓' = U
-    tyOf (𝕓[]' {σ = σ} i) = U[] {σ = σ} i
+    tyOf (𝕓[]' σ i) = U[] {σ = σ} i
     tyOf (π' a pa b pb) = U
     tyOf (π[]' {σ = σ} a pa b pb pa' pb' i) = U[] {σ = σ} i
 
@@ -517,13 +529,7 @@ module Foo where
   -- Proofs regarding Boolean
   -- Sanity check
   𝔹[σ]≡𝔹[τ] : 𝔹 [ σ ]T ≡ 𝔹 [ τ ]T
-  𝔹[σ]≡𝔹[τ] {σ = σ} {τ = τ} =
-    𝔹 [ σ ]
-      ≡⟨ 𝔹[] ⟩
-    𝔹
-      ≡⟨ sym 𝔹[] ⟩
-    𝔹 [ τ ]
-      ∎
+  𝔹[σ]≡𝔹[τ] {σ = σ} {τ = τ} = 𝔹[] σ ∙ sym (𝔹[] τ)
 
   wk∘↑𝔹
     : (σ : Sub Γ Δ)

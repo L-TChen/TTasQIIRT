@@ -35,13 +35,14 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       tyOfabs
         : tyOf (abs t) ≡ Π A  (tyOf t)
       Π[]
-        : (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
+        : (σ : Sub Γ Δ) (B : Ty (Δ ,C A))
+        → (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
       abs[]
-        : (t : Tm (Γ  ,C A))
+        : (σ : Sub Γ Δ) (t : Tm (Δ ,C A))
         → abs t [ σ ]t ≡ abs (t [ σ ↑ A  ]t)
       Πβ
-        : (t : Tm (Γ ,C A)) 
-        → app (abs t) tyOfabs ≡ t
+        : (t : Tm (Γ ,C A)) (p : tyOf (abs t) ≡ Π A (tyOf t))
+        → app (abs t) p ≡ t
       Πη
         : (t : Tm Γ ) (p : tyOf t ≡ Π A B)
         → abs (app t p) ≡ t
@@ -51,7 +52,8 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       𝔹
         : Ty Γ
       𝔹[]
-        : 𝔹 [ σ ]T ≡ 𝔹
+        : (σ : Sub Γ Δ)
+        → 𝔹 [ σ ]T ≡ 𝔹
       tt ff
         : Tm Γ 
       tyOftt
@@ -59,9 +61,11 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       tyOfff
         : tyOf {Γ} ff ≡ 𝔹 [ idS ]T
       tt[]
-        : tt [ σ ]t  ≡ tt 
+        : (σ : Sub Γ Δ)
+        → tt [ σ ]t  ≡ tt 
       ff[]
-        : ff [ σ ]t  ≡ ff
+        : (σ : Sub Γ Δ)
+        → ff [ σ ]t  ≡ ff
 
     𝔹[]₂
       : tyOf (π₂ {Γ ,C 𝔹} idS ) ≡ 𝔹 [ τ ]T
@@ -69,9 +73,9 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       tyOf (π₂ {Γ ,C 𝔹} idS )
         ≡⟨ tyOfπ₂ idS ⟩
       𝔹 [ π₁ idS ]T
-        ≡⟨ 𝔹[] ⟩
+        ≡⟨ 𝔹[] _ ⟩
       𝔹
-        ≡⟨ sym 𝔹[] ⟩
+        ≡⟨ sym (𝔹[] _) ⟩
       𝔹 [ τ ]T
         ∎
 
@@ -94,7 +98,8 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → tyOf (elim𝔹 P t u pt pu b pb) ≡ (P [ idS , b ∶[ pb ] ]T)
       elim𝔹[]
-        : (P : Ty (Γ ,C 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
+        : (P : Ty (Γ ,C 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _)
+        → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
         → (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ tyOfff ] ]T)
         → (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
@@ -110,11 +115,13 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       𝕓
         : Tm Γ
       𝕓[]
-        : 𝕓 [ σ ]t ≡ 𝕓
+        : (σ : Sub Γ Δ)
+        → 𝕓 [ σ ]t ≡ 𝕓
       tyOf𝕓
         : tyOf {Γ} 𝕓 ≡ U  -- tyOf {Γ} 𝕓 ≡ U
       El𝕓
-        : El {Γ} 𝕓 tyOf𝕓 ≡ 𝔹
+        : (Γ : Ctx)
+        → El {Γ} 𝕓 tyOf𝕓 ≡ 𝔹
   
   record UnivPi (𝒰 : Univ) (𝒫i : Pi) : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     open Univ 𝒰
