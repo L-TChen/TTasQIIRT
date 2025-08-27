@@ -25,11 +25,6 @@ recTyOf : (t : S.Tm Γ) → S.tyOf t ≡ A → tyOf (recTm t) ≡ recTy A
 recCtx S.∅ = ∅
 recCtx (Γ S., A) = recCtx Γ ,C recTy A
 
-recTm⟨π₂idS⟩≡π₂idS
-  : recTm (S.π₂ {A = A} S.idS) ≡  π₂ idS
-recTm⟨t[σ]⟩=recTmt[recSubσ]t
-  : recTm (t S.[ σ ]) ≡ recTm t [ recSub σ ]t
-
 recTy (A S.[ σ ]) = recTy A [ recSub σ ]T
 recTy S.U         = U
 recTy (S.[idS]T {A = A} i) = [idS]T {A = recTy A} i
@@ -77,11 +72,6 @@ recTy (S.Elπ a pa b pb i) = (
     ∎
   ) i
 -- recTy (S.Ty-is-set A A₁ x y i i₁) = {!!}
-
-recSub⟨π₁,⟩≡π₁,
-  : (σ : S.Sub Γ Δ) (A : S.Ty Δ) (p : S.tyOf t ≡ A S.[ σ ])
-  → recTy A [ π₁ (recSub σ , recTm t ∶[ recTyOf t p ]) ]T
-  ≡ recTy A [ recSub (S.π₁ (σ S., t ∶[ p ])) ]T
 
 recSubidS≡idS
   : recSub {Γ} S.idS ≡ idS
@@ -217,8 +207,6 @@ recSub (S.ηπ {Γ} {Δ} {A} σ i) =
 recSub (S.,∘ {A = A} τ t σ p q i) =
   (,∘ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) (recTyOf (t S.[ σ ]) q)) i
 
-recSub⟨π₁,⟩≡π₁, _ _ _ = refl
-
 recTyOf {A = A} (t S.[ σ ]) p =
   tyOf[] ∙ cong _[ recSub σ ]T (recTyOf t refl) ∙ cong recTy p
 
@@ -283,10 +271,6 @@ recTyOf {A = A} (S.π[] t pa u pu pt' pu' i) =
   (λ _ → isPropΠ λ _ → UIP) (recTyOf (S.π[] t pa u pu pt' pu' i0)) (recTyOf (S.π[] t pa u pu pt' pu' i1)) i
 
 -- the following are definitions that need strict equations given above 
-recTm⟨π₂idS⟩≡π₂idS = refl
-
-recTm⟨t[σ]⟩=recTmt[recSubσ]t = refl
-
 recSubidS≡idS = refl
 
 recSubidS,t≡idS,Subt t p q =
