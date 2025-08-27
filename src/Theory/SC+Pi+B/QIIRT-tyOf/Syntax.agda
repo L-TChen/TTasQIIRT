@@ -1,10 +1,3 @@
--- Type theory as a quotient inductive-inductive-recursive type, inspired by the formualtion of natural models
--- whereas the recursion part is impredicative.
-
-
--- See https://github.com/agda/agda/issues/5362 for the current limitation of Agda
--- that affacts the definition of our encoding
-
 open import Prelude
   hiding (_,_)
 
@@ -23,11 +16,13 @@ module Foo where
     tyOf
       : ∀ {Γ} → Tm Γ → Ty Γ
 
-    variable
-        Γ Δ Θ Ξ : Ctx
-        A B C D : Ty Γ
-        t u   : Tm Γ
-        σ τ γ δ : Sub Γ Δ
+    module Var where
+      variable
+          Γ Δ Θ Ξ : Ctx
+          A B C D : Ty Γ
+          t u   : Tm Γ
+          σ τ γ δ : Sub Γ Δ
+    open Var
 
     -- Substitution calculus
     ∅
@@ -44,7 +39,6 @@ module Foo where
     ∅S
       : Sub Γ ∅
     _,_∶[_]
-
       : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ A [ σ ]T
       → Sub Γ (Δ , A)
     idS
@@ -107,13 +101,19 @@ module Foo where
     [∘]t
       : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
       → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
-    
+
+    -- Universe
+    U
+      : Ty Γ
+    U[]
+      : U [ σ ]T ≡ U
+
     -- Π-types
     Π
       : (A : Ty Γ) (B : Ty (Γ , A))
       → Ty Γ
     app
-      : (t : Tm Γ) → tyOf t ≡ Π A B
+      : (t : Tm Γ) (B : Ty (Γ , A)) (pt : tyOf t ≡ Π A B)
       → Tm (Γ , A)
     abs
       : (t : Tm (Γ , A))
@@ -121,30 +121,34 @@ module Foo where
     tyOfabs
       : tyOf (abs t) ≡ Π A (tyOf t)
     Π[]
-      : (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
+      : (σ : Sub Γ Δ) (B : Ty (Δ , A))
+      → (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
     abs[]
-      : (t : Tm (Γ , A))
+      : (σ : Sub Γ Δ) (t : Tm (Δ , A))
       → abs t [ σ ]t ≡ abs (t [ σ ↑ A ]t)
     Πβ
-      : (t : Tm (Γ , A)) 
-      → app (abs t) tyOfabs ≡ t
+      : (t : Tm (Γ , A)) (pt : tyOf (abs t) ≡ Π A (tyOf t))
+      → app (abs t) (tyOf t) pt ≡ t
     Πη
-      : (t : Tm Γ) (p : tyOf t ≡ Π A B)
-      → abs (app t p) ≡ t
+      : (t : Tm Γ) (pt : tyOf t ≡ Π A B)
+      → abs (app t B pt) ≡ t
 
     -- The type of Booleans
     𝔹
       : Ty Γ
     𝔹[]
-      : 𝔹 [ σ ]T ≡ 𝔹
+      : (σ : Sub Γ Δ)
+      → 𝔹 [ σ ]T ≡ 𝔹
     𝔹[]₂
       : tyOf (π₂ {Γ , 𝔹} idS) ≡ 𝔹 [ τ ]T
     tt ff
       : Tm Γ
     tt[]
-      : tt [ σ ]t ≡ tt
+      : (σ : Sub Γ Δ)
+      → tt [ σ ]t ≡ tt
     ff[]
-      : ff [ σ ]t ≡ ff
+      : (σ : Sub Γ Δ)
+      → ff [ σ ]t ≡ ff
     tyOftt : tyOf {Γ} tt ≡ 𝔹 [ idS ]T -- definitional later
     tyOfff : tyOf {Γ} ff ≡ 𝔹 [ idS ]T -- definitional later
 
@@ -167,7 +171,6 @@ module Foo where
       → (P [ idS , b ∶[ pb ] ]T [ σ ]T) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T)
       → (elim𝔹 P t u pt pu b pb) [ σ ]t
       ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) pt₂ pu₂ (b [ σ ]t) pb₂
-
 
     -- the following are the actual constructors in Agda
     data Ctx where
@@ -216,18 +219,26 @@ module Foo where
       [∘]T'
         : (A : Ty Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
         → A [ τ ]T [ σ ]T ≡ A [ τ ∘ σ ]T
+      U'
+        : Ty Γ
+      U[]'
+        : U [ σ ]T ≡ U
+
       Π'
         : (A : Ty Γ) (B : Ty (Γ , A))
         → Ty Γ
       Π[]'
-        : (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
+        : (σ : Sub Γ Δ) (B : Ty (Δ , A))
+        → (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
       𝔹'
         : Ty Γ
       𝔹[]'
-        : 𝔹 [ σ ]T ≡ 𝔹
+        : (σ : Sub Γ Δ)
+        → 𝔹 [ σ ]T ≡ 𝔹
       𝔹[]₂'
-        : tyOf (π₂ {Γ , 𝔹} idS) ≡ 𝔹 [ τ ]T
-      Ty-is-set : isSet (Ty Γ)
+        : tyOf (π₂ {Γ , 𝔹} {A = 𝔹} idS) ≡ 𝔹 [ τ ]T
+
+      -- Ty-is-set : isSet (Ty Γ)
 
     data Tm where
       _[_] : (A : Tm Δ)(σ : Sub Γ Δ)
@@ -246,30 +257,32 @@ module Foo where
         : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
         → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
       app'
-        : (t : Tm Γ) → tyOf t ≡ Π A B
+        : (t : Tm Γ) (B : Ty (Γ , A)) (pt : tyOf t ≡ Π A B)
         → Tm (Γ , A)
       abs'
         : (t : Tm (Γ , A))
         → Tm Γ
       abs[]'
-        : (t : Tm (Γ , A)) 
+        : (σ : Sub Γ Δ) (t : Tm (Δ , A)) 
         → abs t [ σ ]t ≡ abs (t [ σ ↑ A ]t)
       Πβ'
-        : (t : Tm (Γ , A))
-        → app (abs t) tyOfabs ≡ t
+        : (t : Tm (Γ , A)) (pt : tyOf (abs t) ≡ Π A (tyOf t))
+        → app (abs t) (tyOf t) pt ≡ t
       Πη'
-        : (t : Tm Γ) (p : tyOf t ≡ Π A B)
-        → abs (app t p) ≡ t
+        : (t : Tm Γ) (pt : tyOf t ≡ Π A B)
+        → abs (app t B pt) ≡ t
       tt' ff'
         : Tm Γ
       tt[]'
-        : tt [ σ ]t ≡ tt
+        : (σ : Sub Γ Δ)
+        → tt [ σ ]t ≡ tt
       ff[]'
-        : ff [ σ ]t ≡ ff
+        : (σ : Sub Γ Δ)
+        → ff [ σ ]t ≡ ff
       elim𝔹'
         : (P : Ty (Γ , 𝔹)) (t u : Tm Γ)
-        → tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T)
-        → tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T)
+        → (pt : tyOf t ≡ P [ idS , tt ∶[ tyOftt ] ]T)
+        → (pu : tyOf u ≡ P [ idS , ff ∶[ tyOfff ] ]T)
         → (b : Tm Γ) → tyOf b ≡ 𝔹 [ idS ]T
         → Tm Γ
       elim𝔹[]'
@@ -277,7 +290,7 @@ module Foo where
         → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
         → (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ tyOfff ] ]T)
         → (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
-        → P [ idS , b ∶[ pb ] ] [ σ ] ≡ P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ] [ idS , b [ σ ] ∶[ pb₂ ] ]
+        → (p : P [ idS , b ∶[ pb ] ] [ σ ] ≡ P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ] [ idS , b [ σ ] ∶[ pb₂ ] ])
         → (elim𝔹 P t u pt pu b pb) [ σ ]t
         ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) pt₂ pu₂ (b [ σ ]t) pb₂
 
@@ -285,6 +298,8 @@ module Foo where
     _,_     = _,'_
     _[_]T   = _[_]
     _[_]t   = _[_]
+    U       = U'
+    U[]     = U[]'
     Π       = Π'
     Π[]     = Π[]'
     𝔹       = 𝔹'
@@ -321,20 +336,20 @@ module Foo where
     elim𝔹[] = elim𝔹[]'
 
     tyOf (t [ σ ]) = tyOf t [ σ ]T
-    tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ σ ]T
+    tyOf (π₂' {Γ} {Δ} {A} σ) = A [ π₁ {A = A} σ ]T
     tyOf (βπ₂' σ t p q i)   = q i
     tyOf ([idS]t' t i)      = [idS]T {A = tyOf t} i
     tyOf ([∘]t' t σ τ i)    = [∘]T (tyOf t) σ τ i
-    tyOf (app' {B = B} t p) = B
+    tyOf (app' t B p) = B
     tyOf (abs' {A = A} t)   = Π A (tyOf t)
-    tyOf (abs[]' {A = A} {σ = σ} t i) =
-      Π[] {A = A} {B = tyOf t} {σ = σ} i
-    tyOf (Πβ' t i) = tyOf t
+    tyOf (abs[]' σ t i) =
+      Π[] σ (tyOf t) i
+    tyOf (Πβ' t p i) = tyOf t
     tyOf (Πη' t p i) = p (~ i)
     tyOf tt' = 𝔹
     tyOf ff' = 𝔹
-    tyOf (tt[]' {σ = σ} i) = 𝔹[] {σ = σ} i
-    tyOf (ff[]' {σ = σ} i) = 𝔹[] {σ = σ} i
+    tyOf (tt[]' σ i) = 𝔹[] σ i
+    tyOf (ff[]' σ i) = 𝔹[] σ i
     tyOf (elim𝔹' P u t pu pt b pb) = P [ idS , b ∶[ pb ] ]T
     tyOf (elim𝔹[]' P u t pu pt b pb pt₂ pu₂ pb₂ q i) = q i
 
@@ -344,7 +359,9 @@ module Foo where
     tyOfabs = refl
     tyOftt  = [idS]T
     tyOfff  = [idS]T
+    tyOf𝕓   = refl
  
+  open Var
   wk : Sub (Γ , A) Γ
   wk = π₁ idS
   
@@ -420,13 +437,7 @@ module Foo where
   -- Proofs regarding Boolean
   -- Sanity check
   𝔹[σ]≡𝔹[τ] : 𝔹 [ σ ]T ≡ 𝔹 [ τ ]T
-  𝔹[σ]≡𝔹[τ] {σ = σ} {τ = τ} =
-    𝔹 [ σ ]
-      ≡⟨ 𝔹[] ⟩
-    𝔹
-      ≡⟨ sym 𝔹[] ⟩
-    𝔹 [ τ ]
-      ∎
+  𝔹[σ]≡𝔹[τ] {σ = σ} {τ = τ} = 𝔹[] σ ∙ sym (𝔹[] τ)
 
   wk∘↑𝔹
     : (σ : Sub Γ Δ)
@@ -540,12 +551,15 @@ module Foo where
   𝔹[]₂′=𝔹[]₂ = {!!} -- derivable from K
 -}
 
+
 open Foo public
   hiding
   ( ∅
   ; _,_
   ; _[_]T
   ; _[_]t
+  ; U
+  ; U[]
   ; Π
   ; Π[]
   ; 𝔹
@@ -584,6 +598,8 @@ open Foo public
   renaming
   ( ∅' to ∅
   ; _,'_ to _,_
+  ; U' to U
+  ; U[]' to U[]
   ; Π' to Π
   ; Π[]' to Π[]
   ; 𝔹' to 𝔹
@@ -620,6 +636,7 @@ open Foo public
   )
 
 
+open Var
 -- syntax abbreviations
 vz : Tm (Γ , A)
 vz = π₂ idS

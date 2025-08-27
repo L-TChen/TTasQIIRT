@@ -119,7 +119,7 @@ module Foo where
       : (A : Ty Γ) (B : Ty (Γ , A))
       → Ty Γ
     app
-      : (t : Tm Γ) → tyOf t ≡ Π A B
+      : (t : Tm Γ) (B : Ty (Γ , A)) (pt : tyOf t ≡ Π A B)
       → Tm (Γ , A)
     abs
       : (t : Tm (Γ , A))
@@ -134,10 +134,10 @@ module Foo where
       → abs t [ σ ]t ≡ abs (t [ σ ↑ A ]t)
     Πβ
       : (t : Tm (Γ , A)) (p : tyOf (abs t) ≡ Π A (tyOf t))
-      → app (abs t) p ≡ t
+      → app (abs t) (tyOf t) p ≡ t
     Πη
       : (t : Tm Γ) (p : tyOf t ≡ Π A B)
-      → abs (app t p) ≡ t
+      → abs (app t B p) ≡ t
 
     -- The type of Booleans
     𝔹
@@ -320,7 +320,7 @@ module Foo where
         : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
         → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
       app'
-        : (t : Tm Γ) (p : tyOf t ≡ Π A B)
+        : (t : Tm Γ) (B : Ty (Γ , A)) (pt : tyOf t ≡ Π A B)
         → Tm (Γ , A)
       abs'
         : (t : Tm (Γ , A))
@@ -330,10 +330,10 @@ module Foo where
         → abs t [ σ ]t ≡ abs (t [ σ ↑ A ]t)
       Πβ'
         : (t : Tm (Γ , A)) (p : tyOf (abs t) ≡ Π A (tyOf t))
-        → app (abs t) p ≡ t
+        → app (abs t) (tyOf t) p ≡ t
       Πη'
         : (t : Tm Γ) (p : tyOf t ≡ Π A B)
-        → abs (app t p) ≡ t
+        → abs (app t B p) ≡ t
       tt' ff'
         : Tm Γ
       tt[]'
@@ -428,7 +428,7 @@ module Foo where
     tyOf (βπ₂' σ t p q i)   = q i
     tyOf ([idS]t' t i)      = [idS]T {A = tyOf t} i
     tyOf ([∘]t' t σ τ i)    = [∘]T (tyOf t) σ τ i
-    tyOf (app' {B = B} t p) = B
+    tyOf (app' t B p) = B
     tyOf (abs' {A = A} t)   = Π A (tyOf t)
     tyOf (abs[]' σ t i) =
       Π[] σ (tyOf t) i

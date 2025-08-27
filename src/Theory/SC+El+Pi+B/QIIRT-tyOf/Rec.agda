@@ -116,7 +116,7 @@ recTm (S.βπ₂ {A = A} σ t p _ i) =
 recTm (S.[idS]t t i)    = [idS]t (recTm t) i
 recTm (S.[∘]t t σ τ i)  = [∘]t (recTm t) (recSub σ) (recSub τ) i
 
-recTm (S.app t p)   = app (recTm t) (recTyOf t p)
+recTm (S.app t B p)   = app (recTm t) (recTy B) (recTyOf t p)
 recTm (S.abs t)     = abs (recTm t)
 recTm (S.abs[] {A = A} σ t i) = (
   abs (recTm t) [ recSub σ ]t
@@ -127,12 +127,10 @@ recTm (S.abs[] {A = A} σ t i) = (
     ∎) i
 
 recTm (S.Πβ {Γ} {A = A} t p i) = (
-  app {B = recTy (S.tyOf t)} (abs (recTm t)) (recTyOf (S.abs t) p)
-    -- recTyOf (S.abs t) p : tyOf (abs (recTm t)) ≡ Π (recTy A) (recTy (S.tyOf t))
-    -- tyOfabs             : tyOf (abs (recTm t)) ≡ Π (recTy A) (tyOf (recTm t))
-    -- where (recTy (S.tyOf t)) is equal to (tyOf (recTm t)) using `recTyOf`
-    ≡⟨ {!!} ⟩
-  app {B = tyOf (recTm t)} (abs (recTm t)) tyOfabs
+  app (abs (recTm t)) (recTy (S.tyOf t)) (recTyOf (S.abs t) p)
+    ≡⟨ cong₂ (app (abs (recTm t))) (sym $ recTyOf t refl )
+      (toPathP (UIP _ _)) ⟩
+  app (abs (recTm t)) (tyOf (recTm t)) tyOfabs
     ≡⟨ Πβ (recTm t) tyOfabs ⟩
   recTm t 
     ∎) i  
@@ -226,7 +224,7 @@ recTyOf {A = A} (t S.[ σ ]) p =
 
 recTyOf {A = A} (S.π₂ {Γ} {Δ} {B} σ) p =
   tyOfπ₂ (recSub σ) ∙ cong recTy p
-recTyOf {A = A} (S.app t pt) p =
+recTyOf {A = A} (S.app t B pt) p =
   tyOfapp {t = recTm t} (recTyOf t pt) ∙ cong recTy p
 recTyOf {A = C} (S.abs {_} {A} t) p =
   (tyOfabs ∙ cong (Π (recTy A)) (recTyOf t refl)) ∙ cong recTy p
