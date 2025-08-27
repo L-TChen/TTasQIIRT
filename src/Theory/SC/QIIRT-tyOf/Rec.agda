@@ -26,11 +26,6 @@ recTy (S.[∘]T A σ τ i)     = [∘]T (recTy A) (recSub σ) (recSub τ) i
 recTy (S.U[] {σ = σ} i)    = U[] {σ = recSub σ} i
 -- recTy (S.Ty-is-set A B x y i j) = ?
 --  isSet→SquareP (λ _ _ → Ty-is-set) (λ i → recTy (x i)) (λ i → recTy (y i)) refl refl i j
-
-recSub⟨π₁,⟩≡π₁,
-  : (σ : S.Sub Γ Δ) (A : S.Ty Δ) (p : S.tyOf t ≡ A S.[ σ ])
-  → recTy A [ π₁ (recSub σ , recTm t ∶[ recTyOf t p ]) ]T
-  ≡ recTy A [ recSub (S.π₁ (σ S., t ∶[ p ])) ]T
   
 recTm (t S.[ σ ])       = recTm t [ recSub σ ]t
 recTm (S.π₂ σ)          = π₂ (recSub σ)
@@ -51,35 +46,16 @@ recSub ((S.idS∘ σ) i)   = (idS∘ recSub σ) i
 recSub ((σ S.∘idS) i)   = (recSub σ ∘idS) i
 recSub (S.assocS σ τ γ i) = assocS (recSub σ) (recSub τ) (recSub γ) i
 recSub (S.η∅ σ i) = η∅ (recSub σ) i
-{-
-      ηπ
-        : (σ : Sub Γ (Δ ,C A))
-        → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ _ ])
--}
 recSub (S.ηπ {Γ} {Δ} {A} σ i) =
    (ηπ (recSub σ)
    ∙ cong (π₁ (recSub σ) , π₂ (recSub σ) ∶[_]) (UIP (tyOfπ₂ (recSub σ)) (recTyOf (S.π₂ σ) (S.tyOfπ₂ σ)))) i
-{-
-wanted
-i = i0 ⊢ recSub σ
-i = i1 ⊢ recSub (π₁ σ , π₂ σ ∶[ (λ i → A [ π₁ σ ]) ])
-       = recSub (π₁ σ) , recTm (π₂ σ) ∶[ recTyof (π₂ σ) (λ → A [ π₁ σ ]) ]
-       = π₁ (recSub σ) , π₂ (resSub σ) ∶[ tyOfπ₂ (recSub σ) ∙ cong recTy (λ _ → A [ π₁ σ ]) ]
-
-actual
-i = i0 ⊢ recSub σ
-i = i1 ⊢ π₁ (recSub σ) , π₂ (recSub σ) ∶[ tyOfπ₂ (recSub σ) ]
--}
  
-recSub (S.,∘ {A = A} τ t σ p q i) = foo i
-  where
-    foo : (recSub τ , recTm t ∶[ recTyOf t p ]) ∘ recSub σ
-      ≡ (recSub τ ∘ recSub σ) , recTm t [ recSub σ ]t ∶[ recTyOf (t S.[ σ ]) q ]
-    foo =
-      (recSub τ , recTm t ∶[ recTyOf t p ]) ∘ recSub σ
-        ≡⟨ ,∘ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) (recTyOf (t S.[ σ ]) q) ⟩
-      (recSub τ ∘ recSub σ) , recTm t [ recSub σ ]t ∶[ recTyOf (t S.[ σ ]) q ]
-        ∎
+recSub (S.,∘ {A = A} τ t σ p q i) = (
+  (recSub τ , recTm t ∶[ recTyOf t p ]) ∘ recSub σ
+    ≡⟨ ,∘ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) (recTyOf (t S.[ σ ]) q) ⟩
+  (recSub τ ∘ recSub σ) , recTm t [ recSub σ ]t ∶[ recTyOf (t S.[ σ ]) q ]
+    ∎
+  ) i
 -- -- Liang-Ting (2025-06-26): The following fails to pass the termination checker in SetModel.agda
 -- --      (recSub τ , recTm t ∶[ recTyOf t p ]) ∘ recSub σ
 -- --        ≡⟨ ,∘ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) ⟩
@@ -94,8 +70,6 @@ recSub (S.,∘ {A = A} τ t σ p q i) = foo i
 -- --      (recSub τ ∘ recSub σ) , recTm t [ recSub σ ]t ∶[ recTyOf (t [ σ ]) q ]
 -- --        ∎
 -- -- recSub (Sub-is-set σ σ' p q i j) = isSet→SquareP (λ _ _ → Subᴬ-is-set) (λ i → recSub (p i)) (λ i → recSub (q i)) refl refl i j
-
-recSub⟨π₁,⟩≡π₁, _ _ _ = refl
 
 recTyOf {A = A} (t S.[ σ ]) p =
   tyOf[] ∙ cong _[ recSub σ ]T (recTyOf t refl) ∙ cong recTy p
