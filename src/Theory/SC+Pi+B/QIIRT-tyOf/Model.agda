@@ -32,8 +32,8 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : (σ : Sub Γ Δ) (t : Tm (Δ ,C A))
         → abs t [ σ ]t ≡ abs (t [ σ ↑ A  ]t)
       Πβ
-        : (t : Tm (Γ ,C A)) (p : tyOf (abs t) ≡ Π A (tyOf t))
-        → app (abs t) _ p ≡ t
+        : (t : Tm (Γ ,C A)) (pt : tyOf (abs t) ≡ Π A (tyOf t))
+        → app (abs t) _ pt ≡ t
       Πη
         : (t : Tm Γ ) (p : tyOf t ≡ Π A B)
         → abs (app t B p) ≡ t

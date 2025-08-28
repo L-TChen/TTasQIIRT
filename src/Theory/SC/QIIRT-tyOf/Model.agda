@@ -20,6 +20,7 @@ record Motive {ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level} : Set (ℓ-suc (ℓ₁ ⊔ �
       A B C D  : Ty Γ
       σ τ γ    : Sub Γ Δ
       t u v    : Tm Γ
+      pt pu pv : tyOf t ≡ A
 
 module _ (mot : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}) where
   open Motive mot

@@ -54,8 +54,7 @@ recSub,₁
 
 recSub,₂
   : (σ : S.Sub Γ Δ) (b : S.Tm Δ) (p : S.tyOf (b S.[ σ ]) ≡ S.𝔹 S.[ S.idS ]) (q : tyOf (recTm b [ recSub σ ]t) ≡ 𝔹 [ idS ]T) 
-  → recSub (S.idS S., b S.[ σ ] ∶[ p ])
-  ≡ (idS , recTm b [ recSub σ ]t ∶[ q ])
+  → recSub (S.idS S., b S.[ σ ] ∶[ p ]) ≡ (idS , recTm b [ recSub σ ]t ∶[ q ])
 
 recSubidS,t≡idS,Subt
   : (t : S.Tm Γ) (p : S.tyOf t ≡ A S.[ S.idS ]) (q : tyOf (recTm t) ≡ recTy A [ idS ]T)

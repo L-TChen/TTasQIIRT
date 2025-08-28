@@ -59,6 +59,7 @@ record Motive∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' �
       A∙ B∙ C∙ D∙ : Ty∙  Γ∙ A
       σ∙ τ∙ γ∙    : Sub∙ Γ∙ Δ∙ σ
       t∙ u∙ v∙    : Tm∙  Γ∙ t
+      pt∙ pu∙ pv∙ : tyOf∙ t∙ ≡Ty[ pt ] A∙
   open Var
 
 module _ (mot : Motive∙ ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
@@ -338,6 +339,18 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
   beginTm[_]_ {t∙} {u∙} {p} q p∙ =
     subst (λ r → t∙ ≡Tm[ r ] u∙) (UIP _ _) p∙ 
 
+  tyOfπ₂idS∙
+    : (σ∙ : Sub∙ Γ∙ Δ∙ σ) (A∙ : Ty∙ Δ∙ A)
+    → tyOf∙ (π₂∙ {A∙ = A∙ [ σ∙ ]T∙} idS∙)
+    ≡Ty[ tyOfπ₂idS σ A ]
+      A∙ [ σ∙ ∘∙ π₁∙ idS∙ ]T∙
+  tyOfπ₂idS∙ σ∙ A∙ = beginTy
+    (tyOfπ₂∙ idS∙ ∙Ty[] [∘]T∙ _ _ _)
+
+  _↑∙_
+    : (σ∙ : Sub∙ Γ∙ Δ∙ σ) (A∙ : Ty∙ Δ∙ A)
+    → Sub∙ (Γ∙ ,∙ (A∙ [ σ∙ ]T∙)) (Δ∙ ,∙ A∙) (σ ↑ A)
+  σ∙ ↑∙ A∙ = (σ∙ ∘∙ π₁∙ idS∙) , π₂∙ idS∙ ∶[ tyOfπ₂idS _ _ , tyOfπ₂idS∙ σ∙ A∙ ]∙
 -- {-
 --   ≡Ty[-]⟨⟩-syntax 
 --     : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} (p : A ≡ B) {q : B ≡ C}
