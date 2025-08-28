@@ -14,7 +14,25 @@ record Ctxᴾ (Γ : Ctx) : Set where
 open Ctxᴾ
 
 Tyᴾ : Ctxᴾ Γ → Ty Γ →  Set
-Tyᴾ Γᴾ A = Ty (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ])
+-- Tyᴾ Γᴾ A = Ty (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ])
+Tyᴾ Γᴾ A = Σ[ Δ ∈ Ctx ] (Δ ≡ (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ])) × Ty Δ
+
+ι : {Γᴾ : Ctxᴾ Γ} → {A : Ty Γ} → Tyᴾ Γᴾ A → Ty (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ])
+ι (Δ , r , Aᴾ) = subst Ty r Aᴾ
+
+ι⁻¹ : {Γᴾ : Ctxᴾ Γ} → {A : Ty Γ} → Ty (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ]) → Tyᴾ Γᴾ A
+ι⁻¹ Aᴾ = _ , refl , Aᴾ
+
+ιι⁻¹ : {Γᴾ : Ctxᴾ Γ} → {A : Ty Γ} → (A : Ty (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ])) → ι (ι⁻¹ A) ≡ A
+ιι⁻¹ A = substRefl {B = Ty} A
+
+ι⁻¹ι : {Γᴾ : Ctxᴾ Γ} → {A : Ty Γ} → (Aᴾ : Tyᴾ Γᴾ A) → ι⁻¹ (ι Aᴾ) ≡ Aᴾ
+ι⁻¹ι {Γᴾ = Γᴾ} {A = A} (Δ , r , Aᴾ) = lemma r Aᴾ
+ where
+  lemma : {A : Type}{B : A → Type}{a a' : A}
+        → (r : a ≡ a')(b : B a)
+        → _≡_ {A = Σ[ a ∈ A ] ((a ≡ a') × B a)} (a' , refl , subst B r b) (a , r , b)
+  lemma {A} {B} {a} {a'} r b = J (λ a' r → _≡_ {A = Σ[ a ∈ A ] ((a ≡ a') × B a)} (a' , refl , subst B r b) (a , r , b)) (λ i → (a , refl , substRefl {B = B} b i)) r
 
 record Subᴾ (Γᴾ : Ctxᴾ Γ)(Δᴾ : Ctxᴾ Δ)(σ : Sub Γ Δ) : Set where
   field
@@ -37,7 +55,8 @@ open Subᴾ
 
 Tmᴾ : (Γᴾ : Ctxᴾ Γ) → (t : Tm Γ) → Set
 Tmᴾ Γᴾ t = Σ[ Aᴾ ∈ Tyᴾ Γᴾ (tyOf t) ] Σ[ t' ∈ Tm (ctxᴾ Γᴾ) ]
-  tyOf t' ≡ Aᴾ [ idS , t [ wkᴾ Γᴾ ] ∶[ [idS]T ] ]
+  tyOf t' ≡ (ι Aᴾ) [ idS , t [ wkᴾ Γᴾ ] ∶[ [idS]T ] ]
+
 
 tyOfᴾ : {Γ : Ctx} {t : Tm Γ} {Γᴹ : Ctxᴾ Γ} → Tmᴾ Γᴹ t → Tyᴾ Γᴹ (tyOf t)
 tyOfᴾ {Γ} {t} {Γᴾ} (Aᴾ , t' , p) = Aᴾ
@@ -54,17 +73,22 @@ LogPredᵃ = record
   }
 
 open IsSC∙
+-- open Motive∙ LogPredᵃ
+
 
 LogPredᵐ : IsSC∙ LogPredᵃ
 LogPredᵐ .∅∙                 = record { ctxᴾ = ∅ ; wkᴾ = ∅ }
 LogPredᵐ ._,∙_ {A = A} Γᴾ Aᴾ = record
-  { ctxᴾ = (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ]) , Aᴾ
+  { ctxᴾ = (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ]) , ι Aᴾ
   ; wkᴾ  = (wkᴾ Γᴾ ↑ A) ∘ π₁ idS
   }
-LogPredᵐ ._[_]T∙ {Δ} {Δᴾ} {A} {Γ} {Γᴾ} {σ} Aᴾ σᴾ =
-    Aᴾ [ transport (λ i → Sub (ctxᴾ Γᴾ , [wkᴾnat] A σᴾ i) (ctxᴾ Δᴾ , (A [ wkᴾ Δᴾ ]))) (subᴾ σᴾ ↑ (A [ wkᴾ Δᴾ ])) ]
+LogPredᵐ ._[_]T∙ {Δ} {Δᴾ} {A} {Γ} {Γᴾ} {σ} Aᴾ σᴾ = _ , cong (Γᴾ .ctxᴾ ,_) ([wkᴾnat] A σᴾ) , (ι Aᴾ) [ subᴾ σᴾ ↑ (A [ wkᴾ Δᴾ ]) ]
+{-                 Aᴾ [
+                  subst (λ z → Sub (ctxᴾ Γᴾ , z) (ctxᴾ Δᴾ , (A [ wkᴾ Δᴾ ]))) ([wkᴾnat] A σᴾ)
+                  (subᴾ σᴾ ↑ (A [ wkᴾ Δᴾ ]))
+                  ] -}
 LogPredᵐ ._[_]t∙ {Δ} {Δᴾ} {t} {Γ} {Γᴾ} {σ} tᴾ σᴾ =
-  tyOf (π₂ idS) , t [ wkᴾ Δᴾ ] [ subᴾ σᴾ ] , [∘]T _ _ _ ∙ (λ i → tyOf t [ lemma i ]) ∙ sym ([∘]T _ _ _ ∙ [∘]T _ _ _ ∙ [∘]T _ _ _)
+  ι⁻¹ (tyOf (π₂ idS)) , t [ wkᴾ Δᴾ ] [ subᴾ σᴾ ] , [∘]T _ _ _ ∙ (λ i → tyOf t [ lemma i ]) ∙ sym ([∘]T _ _ _ ∙ [∘]T _ _ _ ∙ [∘]T _ _ _) ∙ cong (_[ idS , t [ σ ] [ wkᴾ Γᴾ ] ∶[ [idS]T ] ]) (sym (ιι⁻¹ _))
    where
     lemma : wkᴾ Δᴾ ∘ subᴾ σᴾ ≡ σ ∘ (wkᴾ Γᴾ ∘ (π₁ idS ∘ (idS , t [ σ ] [ wkᴾ Γᴾ ] ∶[ [idS]T ])))
     lemma = wkᴾnat σᴾ ∙ cong (σ ∘_) (sym (wkᴾ Γᴾ ∘idS) ∙
@@ -72,12 +96,19 @@ LogPredᵐ ._[_]t∙ {Δ} {Δᴾ} {t} {Γ} {Γᴾ} {σ} tᴾ σᴾ =
                                                      cong π₁ (sym (idS∘ _)) ∙
                                                      π₁∘ idS (idS , t [ σ ] [ wkᴾ Γᴾ ] ∶[ [idS]T ])))
 
-LogPredᵐ .tyOf[]∙    = toPathP {!!}
+LogPredᵐ .tyOf[]∙ {Δ∙ = Δ∙} {t} {Γ∙ = Γ∙} {σ} {t∙ = t∙} {σ∙ = σ∙} = cong ι⁻¹ goal ∙ ι⁻¹ι _
+ where
+  goal : tyOf t [ σ ] [ wkᴾ Γ∙ ] [ π₁ idS ] ≡ subst Ty (cong (Γ∙ .ctxᴾ ,_) ([wkᴾnat] (tyOf t) σ∙)) (ι (tyOfᴾ t∙) [ subᴾ σ∙ ↑ (tyOf t [ wkᴾ Δ∙ ]) ])
+  goal = fromPathP⁻ goal'
+   where
+    goal' : PathP (λ i → Ty (cong (Γ∙ .ctxᴾ ,_) ([wkᴾnat] (tyOf t) σ∙) (~ i))) (tyOf t [ σ ] [ wkᴾ Γ∙ ] [ π₁ idS ]) (ι (tyOfᴾ t∙) [ subᴾ σ∙ ↑ (tyOf t [ wkᴾ Δ∙ ]) ])
+    goal' = {!!}
 LogPredᵐ .∅S∙        = record
   { subᴾ   = ∅
   ; wkᴾnat = η∅ _ ∙ sym (η∅ _)
   }
-
+-- Ty (Γ∙ .ctxᴾ Foo., tyOf t Foo.[ wkᴾ Δ∙ ]T Foo.[ subᴾ σ∙ ]T)
+-- Ty (Γ∙ .ctxᴾ Foo., tyOf t [ σ ] [ wkᴾ Γ∙ ])
 LogPredᵐ ._,_∶[_,_]∙ {Γ} {Γ∙} {Δ} {Δ∙} {σ} {A} {t = t} σ∙ {A∙} (Aᴾ , t∙ , r) p q .subᴾ = (subᴾ σ∙ , t [ wkᴾ Γ∙  ] ∶[ cong (_[ wkᴾ Γ∙ ]) p ∙ sym ([wkᴾnat] A σ∙) ] , t∙ ∶[ r ∙ {!fromPathP q!} ])
 _,_∶[_,_]∙ LogPredᵐ σ∙ {A∙} t∙ p q .wkᴾnat = {!!}
 LogPredᵐ .idS∙       = record
@@ -116,7 +147,7 @@ LogPredᵐ .π₁∙ {Γ} {Γᴾ} {Δ} {Δᴾ} {A} {Aᴾ} {σ} σᴾ = record
         ∎
   }
 LogPredᵐ .π₂∙ {Γ} {Γᴾ} {Δ} {Δᴾ} {A} {Aᴾ} {σ} σᴾ =
-  Aᴾ [ π₁ (subᴾ σᴾ) ∘ wk ] , π₂ (subᴾ σᴾ) , cong (Aᴾ [_]) q ∙ sym ([∘]T _ _ _)
+  ι⁻¹ ((ι Aᴾ) [ π₁ (subᴾ σᴾ) ∘ wk ]) , π₂ (subᴾ σᴾ) , {!!} -- cong (ι Aᴾ [_]) q ∙ sym ([∘]T _ _ _) ∙ {!cong (_[ sym (ιι⁻¹ _)!}
   -- _ _ _ ∙ cong (A [_]) p ∙ {!tyOf (π₂ (subᴾ σᴾ))!}
   -- A [ π₁ σ ∘ (wkᴾ Γᴾ ∘ wk) ] , π₂ (π₁ (subᴾ σᴾ)) , [∘]T _ _ _ ∙ cong (A [_]) p ∙ sym ([∘]T _ _ _)
   where
@@ -166,8 +197,8 @@ LogPredᵐ .π₂∙ {Γ} {Γᴾ} {Δ} {Δᴾ} {A} {Aᴾ} {σ} σᴾ =
 -}
         ∎ -}
 LogPredᵐ .[idS]T∙  {Γ} {Γᴾ} {A} Aᴾ =
- toPathP (cong (transport (λ i → Ty (ctxᴾ Γᴾ , ([idS]T i [ wkᴾ Γᴾ ])))) ([idS]T {A = Aᴾ}) ∙ {!!})
-LogPredᵐ .U∙ = U
+ {!toPathP (cong (transport (λ i → Ty (ctxᴾ Γᴾ , ([idS]T i [ wkᴾ Γᴾ ])))) ([idS]T {A = {!Aᴾ!}}) ∙ {!!})!}
+LogPredᵐ .U∙ = ι⁻¹ U
 LogPredᵐ .tyOfπ₂∙ {Γ} {Γᴾ} {Δ} {Δᴾ} {A} {Aᴾ} {σ} σᴾ = cong (Aᴾ [_]) (goal {!!})
  where
   goal : ∀ p → π₁ (subᴾ σᴾ) ∘ wk ≡ transport p (π₁ (π₁ (subᴾ σᴾ)) ↑ (A [ wkᴾ Δᴾ ]))
@@ -183,12 +214,12 @@ LogPredᵐ .βπ₂∙ σ∙ t∙ p₁ p∙ q q∙ = {!!}
 LogPredᵐ .[∘]T∙ A∙ σ∙ τ∙ = {!!}
 LogPredᵐ .[idS]t∙ t∙ = {!!}
 LogPredᵐ .[∘]t∙ t∙ σ∙ τ∙ = {!!}
-LogPredᵐ .U[]∙ {Γ} {Δ} {σ} {Γ∙} {Δ∙} {σ∙} = toPathP (lemma (U[] {σ = σ}) ([wkᴾnat] U σ∙) ∙ U[])
- where
+LogPredᵐ .U[]∙ {Γ} {Δ} {σ} {Γ∙} {Δ∙} {σ∙} = {!!}
+{- where
   lemma : (p : (U [ σ ]) ≡ U)
         → (q : U [ wkᴾ Δ∙ ] [ subᴾ σ∙ ] ≡ U [ σ ] [ wkᴾ Γ∙ ])
         → transport (cong (Tyᴾ Γ∙) p) (U [ transport (cong (λ - → Sub (ctxᴾ Γ∙ , -) (ctxᴾ Δ∙ , (U [ wkᴾ Δ∙ ]))) q) (subᴾ σ∙ ↑ (U [ wkᴾ Δ∙ ])) ]) ≡ U [ transport ((cong (λ - → Sub (ctxᴾ Γ∙ , -) (ctxᴾ Δ∙ , (U [ wkᴾ Δ∙ ]))) q) ∙ cong (λ - → Sub (ctxᴾ Γ∙ , (- [ wkᴾ Γ∙ ])) (ctxᴾ Δ∙ , (U [ wkᴾ Δ∙ ]))) p) (subᴾ σ∙ ↑ (U [ wkᴾ Δ∙ ])) ]
-  lemma p q = {!!}
+  lemma p q = {!!}-}
 
 -- foo : {X Y : Type} → (p : X ≡ Y) → {x : X} → _≡_ {A = Σ[ X ∈ Type ] X} (X , x) (Y , transport p x)
 -- foo {X} p {x} = J {x = X} (λ Y p → (X , x) ≡ (Y , transport p x)) (λ i → (X , transportRefl x (~ i))) p
