@@ -46,6 +46,11 @@ postulate
 UIP' : {A : Set ℓ} → isSet A 
 UIP' x y = UIP
 
+UIPP
+  : (A : Type ℓ) (B : A → Type ℓ')
+  → isOfHLevelDep 2 B
+UIPP A B = isOfHLevel→isOfHLevelDep 2 {A} {B} λ _ → UIP'
+
 -- transport along a family of types
 tr : (P : A → Set ℓ) {x y : A} → x ≡ y → P x → P y
 tr P p = transport (cong P p)

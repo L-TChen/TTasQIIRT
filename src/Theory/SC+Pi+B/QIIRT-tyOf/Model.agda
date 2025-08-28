@@ -77,26 +77,26 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
 
     field
       elim𝔹
-        : (P : Ty (Γ ,C 𝔹)) (t u : Tm Γ)
-        → tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T)
-        → tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T)
+        : (P : Ty (Γ ,C 𝔹))
+        → (t : Tm Γ) (pt : tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T))
+        → (u : Tm Γ) (pu : tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T))
         → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → Tm Γ
       tyOfelim𝔹
-        : (P : Ty (Γ ,C 𝔹)) (t u : Tm Γ)
-        → (pt : tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T))
-        → (pu : tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T))
+        : (P : Ty (Γ ,C 𝔹)) 
+        → (t : Tm Γ) (pt : tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T))
+        → (u : Tm Γ) (pu : tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T))
         → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
-        → tyOf (elim𝔹 P t u pt pu b pb) ≡ (P [ idS , b ∶[ pb ] ]T)
+        → tyOf (elim𝔹 P t pt u pu b pb) ≡ (P [ idS , b ∶[ pb ] ]T)
       elim𝔹[]
-        : (P : Ty (Γ ,C 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _)
+        : (P : Ty (Γ ,C 𝔹)) (t : Tm Γ) (pt : tyOf t ≡ _) (u : Tm Γ) (pu : tyOf u ≡ _)
         → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
         → (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ tyOfff ] ]T)
         → (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
         → (P [ idS , b ∶[ pb ] ]T [ σ ]T) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T)
-        → (elim𝔹 P t u pt pu b pb) [ σ ]t
-        ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) pt₂ pu₂ (b [ σ ]t) pb₂
+        → (elim𝔹 P t pt u pu b pb) [ σ ]t
+        ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) pt₂ (u [ σ ]t) pu₂ (b [ σ ]t) pb₂
 
 record SC+Pi+B (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level)
   : Set ((ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄))) where

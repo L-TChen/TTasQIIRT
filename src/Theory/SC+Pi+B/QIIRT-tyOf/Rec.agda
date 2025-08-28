@@ -42,6 +42,21 @@ recTy (S.𝔹[]₂ {τ = τ} i) = (𝔹[] (π₁ idS) ∙ sym (𝔹[] (recSub τ
 recSubidS≡idS
   : recSub {Γ} S.idS ≡ idS
 
+recSub,≡,Sub
+  : (σ : S.Sub Γ Δ) (t : S.Tm Γ) (p : S.tyOf t ≡ A S.[ σ ]) (q : tyOf (recTm t) ≡ recTy A [ recSub σ ]T)
+  → recSub (σ S., t ∶[ p ]) ≡ (recSub σ) , (recTm t) ∶[ q ]
+
+recSub,₁
+  : (p : S.tyOf (S.π₂ S.idS) ≡ S.𝔹 S.[ σ S.∘ S.π₁ S.idS ])
+    (q : tyOf (π₂ idS) ≡ recTy S.𝔹 [ recSub σ ∘ π₁ idS ]T)
+  → recSub {Γ S., S.𝔹} {Δ S., S.𝔹} ((σ S.∘ S.π₁ S.idS) S., S.π₂ S.idS ∶[ p ])
+    ≡ (recSub σ ∘ π₁ idS) , π₂ idS ∶[ q ]
+
+recSub,₂
+  : (σ : S.Sub Γ Δ) (b : S.Tm Δ) (p : S.tyOf (b S.[ σ ]) ≡ S.𝔹 S.[ S.idS ]) (q : tyOf (recTm b [ recSub σ ]t) ≡ 𝔹 [ idS ]T) 
+  → recSub (S.idS S., b S.[ σ ] ∶[ p ])
+  ≡ (idS , recTm b [ recSub σ ]t ∶[ q ])
+
 recSubidS,t≡idS,Subt
   : (t : S.Tm Γ) (p : S.tyOf t ≡ A S.[ S.idS ]) (q : tyOf (recTm t) ≡ recTy A [ idS ]T)
   → recSub (S.idS S., t ∶[ p ])
@@ -84,8 +99,12 @@ recTm (S.abs[] {A = A} σ t i) = (
 
 recTm (S.Πβ {Γ} {A = A} t p i) = (
   app (abs (recTm t)) (recTy (S.tyOf t)) (recTyOf (S.abs t) p)
-    ≡⟨ cong₂ (app (abs (recTm t))) (sym $ recTyOf t refl )
-      (toPathP (UIP _ _)) ⟩
+    ≡⟨ cong₂ (app (abs (recTm t))) (sym $ recTyOf t refl ) 
+       (isOfHLevel→isOfHLevelDep 1 {B = λ B → tyOf (abs (recTm t)) ≡ Π (recTy A) B}
+       (λ _ → UIP)
+       (recTyOf (S.abs t) p) tyOfabs (sym $ recTyOf t refl))
+     ⟩
+
   app (abs (recTm t)) (tyOf (recTm t)) tyOfabs
     ≡⟨ Πβ (recTm t) tyOfabs ⟩
   recTm t 
@@ -95,37 +114,50 @@ recTm (S.Πη t p i) = Πη (recTm t) (recTyOf t p) i
 
 recTm S.tt = tt
 recTm S.ff = ff
-recTm (S.elim𝔹 P t u pt pu b pb) =
-  elim𝔹 (recTy P) (recTm t) (recTm u)
-    (recTyOf t pt ∙ cong (recTy P [_]T) (recSubidS,t≡idS,Subt S.tt S.[idS]T tyOftt))
-    (recTyOf u pu ∙ cong (recTy P [_]T) ((recSubidS,t≡idS,Subt S.ff S.[idS]T tyOfff)))
+recTm (S.elim𝔹 P t pt u pu b pb) =
+  elim𝔹 (recTy P)
+    (recTm t) (recTyOf t pt ∙ cong (recTy P [_]T) (recSubidS,t≡idS,Subt S.tt S.[idS]T tyOftt))
+    (recTm u) (recTyOf u pu ∙ cong (recTy P [_]T) (recSubidS,t≡idS,Subt S.ff S.[idS]T tyOfff))
     (recTm b) (recTyOf b pb ∙ cong (𝔹 [_]T) recSubidS≡idS)
     -- `recSub idS` is strictly equal to `idS`, but this equation is only introduced later
     -- and Agda cannot unfold at this point in order to type check.
 recTm (S.tt[] σ i) = tt[] (recSub σ) i
 recTm (S.ff[] σ i) = ff[] (recSub σ) i
-recTm (S.elim𝔹[] {σ = σ} P t u pt pu b pb pt₂ pu₂ pb₂ p i) = (
-  recTm (S.elim𝔹 P t u pt pu b pb) [ recSub σ ]t
+recTm (S.elim𝔹[] {Δ} {Γ} {σ} P t pt u pu b pb pt₂ pu₂ pb₂ p i) = (
+  recTm (S.elim𝔹 P t pt u pu b pb) [ recSub σ ]t
 
     ≡⟨⟩
 
-  elim𝔹 (recTy P) (recTm t) (recTm u) pt'' pu''
-    (recTm b) pb'' [ recSub σ ]t
+  elim𝔹 (recTy P) (recTm t) pt'' (recTm u) pu'' (recTm b) pb'' [ recSub σ ]t
 
-    ≡⟨ elim𝔹[] {σ = recSub σ} (recTy P) (recTm t) (recTm u) pt'' pu''
+    ≡⟨ elim𝔹[] {σ = recSub σ} (recTy P) (recTm t) pt'' (recTm u)  pu''
       (recTm b) pb'' (pt' ∙ recTyP[↑𝔹]tt≡ P tyOftt) (pu' ∙ recTyP[↑𝔹]ff≡ P tyOfff) pb' pp ⟩
 
-  elim𝔹 (recTy P [ recSub σ ↑𝔹 ]T) (recTm t [ recSub σ ]t) (recTm u [ recSub σ ]t)
-    (pt' ∙ recTyP[↑𝔹]tt≡ P tyOftt)
-    (pu' ∙ recTyP[↑𝔹]ff≡ P tyOfff) (recTm b [ recSub σ ]t) pb'
-    ≡⟨ (λ i → elim𝔹 (recTy P [ recSub↑𝔹 σ (~ i) ]T) (recTm t [ recSub σ ]t) (recTm u [ recSub σ ]t)
-         {!!} {!!} (recTm b [ recSub σ ]t) pb') 
+  elim𝔹 (recTy P [ recSub σ ↑𝔹 ]T)
+    (recTm t [ recSub σ ]t) (pt' ∙ recTyP[↑𝔹]tt≡ P tyOftt)
+    (recTm u [ recSub σ ]t) (pu' ∙ recTyP[↑𝔹]ff≡ P tyOfff)
+    (recTm b [ recSub σ ]t) pb'
+
+    ≡⟨ (λ i → elim𝔹 (recTy P [ recSub↑𝔹 σ (~ i) ]T)
+        (recTm t [ recSub σ ]t) (isOfHLevel→isOfHLevelDep 1
+          {B = λ τ → tyOf (recTm t [ recSub σ ]t) ≡ (recTy P [ τ ]T) [ idS , tt ∶[ tyOftt ] ]T}
+          (λ _ → UIP) (pt' ∙ recTyP[↑𝔹]tt≡ P tyOftt) pt' (sym $ recSub↑𝔹 σ) i)
+          -- dependent UIP
+        (recTm u [ recSub σ ]t) (isOfHLevel→isOfHLevelDep 1
+          {B = λ τ → tyOf (recTm u [ recSub σ ]t) ≡ (recTy P [ τ ]T) [ idS , ff ∶[ tyOfff ] ]T}
+          (λ _ → UIP) (pu' ∙ recTyP[↑𝔹]ff≡ P tyOfff) pu' (sym $ recSub↑𝔹 σ) i)
+          -- dependent UIP
+        (recTm b [ recSub σ ]t) pb') 
      ⟩
-  elim𝔹 (recTy P [ recSub (σ S.↑𝔹) ]T) (recTm t [ recSub σ ]t) (recTm u [ recSub σ ]t)
-    pt' pu' (recTm (b S.[ σ ])) pb'
+
+  elim𝔹 (recTy P [ recSub (σ S.↑𝔹) ]T)
+    (recTm t [ recSub σ ]t) pt'
+    (recTm u [ recSub σ ]t) pu'
+    (recTm (b S.[ σ ])) pb'
+
     ≡⟨⟩
-  recTm (S.elim𝔹 (P S.[ σ S.↑𝔹 ]) (t S.[ σ ]) (u S.[ σ ])
-    pt₂ pu₂ (b S.[ σ ]) pb₂)
+  recTm (S.elim𝔹 (P S.[ σ S.↑𝔹 ]) (t S.[ σ ]) pt₂ (u S.[ σ ])
+    pu₂ (b S.[ σ ]) pb₂)
     ∎) i
   where
     pt'' = recTyOf t pt ∙ cong (recTy P [_]T) (recSubidS,t≡idS,Subt S.tt S.[idS]T tyOftt)
@@ -134,7 +166,36 @@ recTm (S.elim𝔹[] {σ = σ} P t u pt pu b pb pt₂ pu₂ pb₂ p i) = (
     pt' = recTyOf (t S.[ σ ]) pt₂ ∙ (λ j → recTy (P S.[ σ S.↑𝔹 ]) [ recSubidS,t≡idS,Subt S.tt S.[idS]T tyOftt j ]T)
     pu' = recTyOf (u S.[ σ ]) pu₂ ∙ (λ j → recTy (P S.[ σ S.↑𝔹 ]) [ recSubidS,t≡idS,Subt S.ff S.[idS]T tyOfff j ]T)
     pb' = recTyOf (b S.[ σ ]) pb₂ ∙ (λ j → 𝔹 [ recSubidS≡idS j ]T)
-    pp  = {!!}
+    q = step-≡ (tyOf (π₂ idS))
+          (step-≡ (𝔹 [ π₁ idS ]T)
+            (step-≡ 𝔹 ((𝔹 [ recSub σ ∘ π₁ idS ]T) ∎)
+            (sym (𝔹[] (recSub σ ∘ π₁ idS))))
+          (𝔹[] (π₁ idS)))
+        (tyOfπ₂ idS)
+    pp : recTy P [ idS , recTm b ∶[ pb'' ] ]T [ recSub σ ]T ≡
+         recTy P [ (recSub σ ∘ π₁ idS) , π₂ idS ∶[ q ] ]T [ idS , recTm b [ recSub σ ]t ∶[ pb' ] ]T
+-- the proof should just follow from the definition of `rec`
+    pp  = 
+      recTy P [ idS , recTm b ∶[ _ ] ]T [ recSub σ ]T
+
+        ≡⟨ (λ i → recTy P [ recSubidS,t≡idS,Subt b pb pb'' (~ i) ]T [ recSub σ ]T) ⟩
+
+      recTy P [ recSub (S.idS S., b ∶[ _ ]) ]T [ recSub σ ]T
+
+        ≡⟨ cong recTy p ⟩
+
+      recTy (P S.[ (σ S.∘ S.π₁ S.idS) S., S.π₂ S.idS ∶[ _ ] ] S.[ S.idS S., b S.[ σ ] ∶[ _ ] ])
+
+        ≡⟨⟩
+
+      ((recTy P) [ recSub ((σ S.∘ S.π₁ S.idS) S., S.π₂ S.idS ∶[ S.𝔹[]₂ ]) ]T) [ recSub (S.idS S., b S.[ σ ] ∶[ pb₂ ]) ]T
+
+        ≡⟨ (λ i → recTy P [ recSub,₁ S.𝔹[]₂ q i ]T [ recSub,₂ σ b pb₂ pb' i ]T) ⟩
+        
+      recTy P [ (recSub σ ∘ π₁ idS) , π₂ idS ∶[ q ] ]T [ idS , recTm b [ recSub σ ]t ∶[ pb' ] ]T
+
+        ∎
+
 
 recSub S.∅              = ∅S
 recSub (σ S., t ∶[ p ]) = recSub σ , recTm t ∶[ recTyOf t p ]
@@ -165,8 +226,8 @@ recTyOf {A = A} S.tt        p =
   tyOftt ∙ sym [idS]T ∙ cong recTy p
 recTyOf {A = A} S.ff        p =
   tyOfff ∙ sym [idS]T ∙ cong recTy p
-recTyOf {A = A} (S.elim𝔹 P t u pt pu t₂ pt₂) p =
-  tyOfelim𝔹 (recTy P) (recTm t) (recTm u) _ _ (recTm t₂) _
+recTyOf {A = A} (S.elim𝔹 P t pt u pu t₂ pt₂) p =
+  tyOfelim𝔹 (recTy P) (recTm t) _ (recTm u) _ (recTm t₂) _
   ∙ cong (recTy P [_]T) (cong (idS , recTm t₂ ∶[_]) (UIP _ _))
   ∙ cong recTy p
 
@@ -207,6 +268,14 @@ recTyOf {A = A} (S.elim𝔹[] P t u pt pu t₂ pb pt₂ pu₂ pb₂ x i) =
 
 -- the following are definitions that need strict equations given above 
 recSubidS≡idS = refl
+
+recSub,₁ p q = 
+  cong (_ , _ ∶[_]) (UIP (recTyOf _ p) q)
+recSub,₂ σ b p q =
+  cong (_ , _ ∶[_]) (UIP (recTyOf _ p) q)
+
+recSub,≡,Sub σ t p q =
+  cong (recSub σ , recTm t ∶[_]) (UIP (recTyOf t p) q)
 
 recSubidS,t≡idS,Subt t p q =
   cong (idS , recTm t ∶[_]) (UIP _ _)

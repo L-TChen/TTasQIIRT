@@ -158,19 +158,21 @@ module Foo where
     σ ↑𝔹 = σ ∘ π₁ idS , π₂ idS ∶[ 𝔹[]₂ {τ = σ ∘ π₁ idS} ]
 
     elim𝔹
-      : (P : Ty (Γ , 𝔹)) (t u : Tm Γ)
-      → tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T)
-      → tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T)
+      : (P : Ty (Γ , 𝔹))
+      → (t : Tm Γ) (pt : tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T))
+      → (u : Tm Γ) (pu : tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T))
       → (b : Tm Γ) → tyOf b ≡ 𝔹 [ idS ]T
       → Tm Γ
+
     elim𝔹[]
-      : (P : Ty (Γ , 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
+      : (P : Ty (Γ , 𝔹)) (t : Tm Γ) (pt : tyOf t ≡ _) (u : Tm Γ) (pu : tyOf u ≡ _)
+      → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
       → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
       → (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ tyOfff ] ]T)
       → (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
       → (P [ idS , b ∶[ pb ] ]T [ σ ]T) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T)
-      → (elim𝔹 P t u pt pu b pb) [ σ ]t
-      ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) pt₂ pu₂ (b [ σ ]t) pb₂
+      → (elim𝔹 P t pt u pu b pb) [ σ ]t
+      ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) pt₂ (u [ σ ]t) pu₂ (b [ σ ]t) pb₂
 
     -- the following are the actual constructors in Agda
     data Ctx where
@@ -280,19 +282,21 @@ module Foo where
         : (σ : Sub Γ Δ)
         → ff [ σ ]t ≡ ff
       elim𝔹'
-        : (P : Ty (Γ , 𝔹)) (t u : Tm Γ)
-        → (pt : tyOf t ≡ P [ idS , tt ∶[ tyOftt ] ]T)
-        → (pu : tyOf u ≡ P [ idS , ff ∶[ tyOfff ] ]T)
+        : (P : Ty (Γ , 𝔹))
+        → (t : Tm Γ) (pt : tyOf t ≡ P [ idS , tt ∶[ tyOftt ] ]T)
+        → (u : Tm Γ) (pu : tyOf u ≡ P [ idS , ff ∶[ tyOfff ] ]T)
         → (b : Tm Γ) → tyOf b ≡ 𝔹 [ idS ]T
         → Tm Γ
       elim𝔹[]'
-        : (P : Ty (Γ , 𝔹)) (t u : Tm Γ) (pt : tyOf t ≡ _) (pu : tyOf u ≡ _) → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
+        : (P : Ty (Γ , 𝔹))
+        → (t : Tm Γ) (pt : tyOf t ≡ _) (u : Tm Γ) (pu : tyOf u ≡ _)
+        → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
         → (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ tyOfff ] ]T)
         → (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
         → (p : P [ idS , b ∶[ pb ] ] [ σ ] ≡ P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ] [ idS , b [ σ ] ∶[ pb₂ ] ])
-        → (elim𝔹 P t u pt pu b pb) [ σ ]t
-        ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (u [ σ ]t) pt₂ pu₂ (b [ σ ]t) pb₂
+        → (elim𝔹 P t pt u pu b pb) [ σ ]t
+        ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) pt₂ (u [ σ ]t) pu₂ (b [ σ ]t) pb₂
 
     ∅       = ∅'
     _,_     = _,'_
