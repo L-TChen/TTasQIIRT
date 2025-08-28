@@ -136,8 +136,8 @@ module Foo where
       : (t : Tm (Γ , A)) (p : tyOf (abs t) ≡ Π A (tyOf t))
       → app (abs t) (tyOf t) p ≡ t
     Πη
-      : (t : Tm Γ) (p : tyOf t ≡ Π A B)
-      → abs (app t B p) ≡ t
+      : (t : Tm Γ) (pt : tyOf t ≡ Π A B)
+      → abs (app t B pt) ≡ t
 
     -- The type of Booleans
     𝔹

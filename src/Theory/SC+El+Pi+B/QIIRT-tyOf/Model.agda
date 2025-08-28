@@ -19,9 +19,9 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : (τ : Sub Γ Δ) (u : Tm Δ) (p : tyOf u ≡ U)
         → (El u p) [ τ ]T ≡ El (u [ τ ]t) (tyOf[]≡U p)
 
-  record UnivBool (𝒰 : Univ) (ℬ : Bool 𝒞) : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
+  record Univ𝓑 (𝒰 : Univ) (ℬ : 𝓑 𝒞) : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     open Univ 𝒰
-    open Bool ℬ
+    open 𝓑 ℬ
 
     field
       𝕓
@@ -76,15 +76,15 @@ record SC+El+Pi+B (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level)
     𝒞  : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄
     𝒰  : Univ 𝒞
     𝒫i : Pi 𝒞
-    ℬ  : Bool 𝒞
+    ℬ  : 𝓑 𝒞
     𝒰𝒫i : UnivPi 𝒞 𝒰 𝒫i
-    𝒰ℬ  : UnivBool 𝒞 𝒰 ℬ
+    𝒰ℬ  : Univ𝓑 𝒞 𝒰 ℬ
 
   open SC 𝒞    public
   open Univ 𝒰  public
   open Pi 𝒫i   public
-  open Bool ℬ  public
+  open 𝓑 ℬ  public
   open UnivPi   𝒰𝒫i public 
-  open UnivBool 𝒰ℬ  public
+  open Univ𝓑 𝒰ℬ  public
 
   open Var

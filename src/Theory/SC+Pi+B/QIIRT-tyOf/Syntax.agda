@@ -62,7 +62,7 @@ module Foo where
     _↑_
       : (σ : Sub Γ Δ) (A : Ty Δ)
       → Sub (Γ , A [ σ ]T) (Δ , A)
-    σ ↑ A = σ ∘ π₁ idS , π₂ idS ∶[ tyOfπ₂idS ]
+    σ ↑ A = (σ ∘ π₁ idS) , π₂ idS ∶[ tyOfπ₂idS ]
 
     idS∘_
       : (σ : Sub Γ Δ)

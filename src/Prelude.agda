@@ -18,6 +18,7 @@ open import Cubical.Data.Nat            public
   using (ℕ; zero; suc; _+_)
 open import Cubical.Data.Bool           public
   using (Bool; true; false)
+  renaming (elim to elim-Bool)
 
 open import Cubical.Foundations.Function public 
   using (_$_; hasType)
@@ -56,13 +57,12 @@ tr : (P : A → Set ℓ) {x y : A} → x ≡ y → P x → P y
 tr P p = transport (cong P p)
 
 
-infixr 30 _∙_
-infix  3 _∎
-infixr 2 step-≡ _≡⟨⟩_
-infixr 2.5 _≡⟨_⟩≡⟨_⟩_
 
-opaque
-
+module _ where opaque
+  infixr 30 _∙_
+  infix  3 _∎
+  infixr 2 step-≡ _≡⟨⟩_
+  infixr 2.5 _≡⟨_⟩≡⟨_⟩_
   _∙∙_∙∙_
     : {x y z w : A}
     → x ≡ y → y ≡ z → z ≡ w → x ≡ w

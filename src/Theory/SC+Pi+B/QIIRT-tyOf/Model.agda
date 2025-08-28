@@ -1,5 +1,4 @@
 open import Prelude
-  hiding (Bool)
 
 module Theory.SC+Pi+B.QIIRT-tyOf.Model where
 
@@ -38,7 +37,7 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : (t : Tm Γ ) (p : tyOf t ≡ Π A B)
         → abs (app t B p) ≡ t
 
-  record Bool : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
+  record 𝓑 : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     field
       𝔹
         : Ty Γ
@@ -78,23 +77,25 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
     field
       elim𝔹
         : (P : Ty (Γ ,C 𝔹))
-        → (t : Tm Γ) (pt : tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T))
-        → (u : Tm Γ) (pu : tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T))
+        → (t : Tm Γ) (pt : tyOf t ≡ P [ idS , tt ∶[ tyOftt ] ]T)
+        → (u : Tm Γ) (pu : tyOf u ≡ P [ idS , ff ∶[ tyOfff ] ]T)
         → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → Tm Γ
       tyOfelim𝔹
         : (P : Ty (Γ ,C 𝔹)) 
-        → (t : Tm Γ) (pt : tyOf t ≡ (P [ idS , tt ∶[ tyOftt ] ]T))
-        → (u : Tm Γ) (pu : tyOf u ≡ (P [ idS , ff ∶[ tyOfff ] ]T))
+        → (t : Tm Γ) (pt : tyOf t ≡ P [ idS , tt ∶[ tyOftt ] ]T)
+        → (u : Tm Γ) (pu : tyOf u ≡ P [ idS , ff ∶[ tyOfff ] ]T)
         → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → tyOf (elim𝔹 P t pt u pu b pb) ≡ (P [ idS , b ∶[ pb ] ]T)
       elim𝔹[]
-        : (P : Ty (Γ ,C 𝔹)) (t : Tm Γ) (pt : tyOf t ≡ _) (u : Tm Γ) (pu : tyOf u ≡ _)
-        → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
+        : (P : Ty (Γ ,C 𝔹))
+          (t : Tm Γ) (pt : tyOf t ≡ P [ idS , tt ∶[ tyOftt ] ]T)
+          (u : Tm Γ) (pu : tyOf u ≡ P [ idS , ff ∶[ tyOfff ] ]T)
+          (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
         → (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ tyOfff ] ]T)
         → (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
-        → (P [ idS , b ∶[ pb ] ]T [ σ ]T) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T)
+        → (p : (P [ idS , b ∶[ pb ] ]T [ σ ]T) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T))
         → (elim𝔹 P t pt u pu b pb) [ σ ]t
         ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) pt₂ (u [ σ ]t) pu₂ (b [ σ ]t) pb₂
 
@@ -104,10 +105,10 @@ record SC+Pi+B (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level)
   field
     𝒞  : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄
     𝒫i : Pi 𝒞
-    ℬ  : Bool 𝒞
+    ℬ  : 𝓑 𝒞
 
   open SC 𝒞    public
   open Pi 𝒫i   public
-  open Bool ℬ  public
+  open 𝓑 ℬ  public
 
   open Var

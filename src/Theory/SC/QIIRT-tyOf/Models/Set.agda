@@ -72,10 +72,6 @@ module _ (UU : Set) where
 
 module _ (UU : Set) where
   open import Theory.SC.QIIRT-tyOf.Model
-  open import Theory.SC.QIIRT-tyOf.Models.Term
-    using (Term)
-  
-  open SC Term
   
   stdMot : Motive
   stdMot = record

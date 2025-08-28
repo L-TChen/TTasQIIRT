@@ -10,6 +10,7 @@ open import Prelude
 module Theory.SC+El+Pi+B.QIIRT-tyOf.SetModel where
 
 open import Theory.SC+El+Pi+B.QIIRT-tyOf.Syntax
+open Var
 
 mutual
   data UU : Set where
@@ -55,19 +56,19 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
   where
     foo : (λ i₁ → ⟦ pu' i₁ ⟧T γ) ≡ (λ i₁ → ⟦ pu i₁ ⟧T (⟦ σ ⟧S γ))
     foo = UIP _ _
-⟦ Π[] {A = A} {B} {σ = σ} i ⟧T γ = (x : ⟦ A ⟧T (⟦ σ ⟧S γ)) → ⟦ B ⟧T (⟦ σ ⟧S γ , transportRefl x (~ i))
-⟦ 𝔹[] i ⟧T γ  = Bool
+⟦ Π[] {A = A} σ B i ⟧T γ = (x : ⟦ A ⟧T (⟦ σ ⟧S γ)) → ⟦ B ⟧T (⟦ σ ⟧S γ , transportRefl x (~ i))
+⟦ 𝔹[] σ i ⟧T γ  = Bool
 ⟦ 𝔹[]₂ i ⟧T γ = Bool
-⟦ El𝕓 i ⟧T γ  = Bool
+⟦ El𝕓 σ i ⟧T γ  = Bool
 ⟦ tyOfπ a pa b pb i ⟧T γ = UU
 ⟦ Elπ a pa b pb i ⟧T γ = (x : T (transp (λ i₁ → ⟦ pa i₁ ⟧T γ) i0 (⟦ a ⟧t γ))) → T (transp (λ i₁ → ⟦ pb i₁ ⟧T (γ , x)) i0 (⟦ b ⟧t (γ , x)))
-⟦ Ty-is-set A B x y i j ⟧T γ = -- Following directly from the assumption UIP
-  isSet→SquareP (λ _ _ → λ X Y → UIP)
-    (λ i → ⟦ x i ⟧T γ)
-    (λ i → ⟦ y i ⟧T γ)
-    refl
-    refl
-    i j
+-- ⟦ Ty-is-set A B x y i j ⟧T γ = -- Following directly from the assumption UIP
+--   isSet→SquareP (λ _ _ → λ X Y → UIP)
+--     (λ i → ⟦ x i ⟧T γ)
+--     (λ i → ⟦ y i ⟧T γ)
+--     refl
+--     refl
+--     i j
 
 ⟦ ∅ ⟧S γ = ⋆
 ⟦ σ , t ∶[ p ] ⟧S γ = (⟦ σ ⟧S γ) , ⟦ t , p ⟧p (⟦ t ⟧t γ)
@@ -103,27 +104,20 @@ transportRefl' {A = A} k x i = transp (λ i → A) (i ∨ k) x
 
 ⟦ [idS]t t i ⟧t γ   = ⟦ t ⟧t γ
 ⟦ [∘]t t σ τ i ⟧t γ = ⟦ t ⟧t (⟦ τ ⟧S (⟦ σ ⟧S γ))
-⟦ app t p ⟧t (γ , a) = ⟦ t , p ⟧p (⟦ t ⟧t γ) a
+⟦ app t B p ⟧t (γ , a) = ⟦ t , p ⟧p (⟦ t ⟧t γ) a
 ⟦ abs t ⟧t γ = λ x → ⟦ t ⟧t (γ , x)
-⟦ abs[] {σ = σ} t i ⟧t γ = λ x → ⟦ t ⟧t (⟦ σ ⟧S γ , transportRefl x (~ i))
-⟦ Πβ {A = A} t i ⟧t (γ , a) = bar i
-  where
-   bar = transp (λ k → ⟦ tyOf t ⟧T (γ , transp (λ j → ⟦ A ⟧T γ) k a)) i0 (⟦ t ⟧t (γ , transp (λ j → ⟦ A ⟧T γ) i0 a))
-           ≡⟨ (λ i → transp (λ k → ⟦ tyOf t ⟧T (γ , transportRefl' k a i)) i0 ((⟦ t ⟧t (γ , transportRefl a i)))) ⟩
-         transp (λ k → ⟦ tyOf t ⟧T (γ , a))                           i0 (⟦ t ⟧t (γ , a))
-           ≡⟨ transportRefl (⟦ t ⟧t (γ , a)) ⟩
-         ⟦ t ⟧t (γ , a)
-           ∎
+⟦ abs[] σ t i ⟧t γ = λ x → ⟦ t ⟧t (⟦ σ ⟧S γ , transportRefl x (~ i))
+⟦ Πβ {A = A} t pt i ⟧t (γ , a) = {!bar i!} -- bar i
 ⟦ Πη t p i ⟧t γ = {!!}
 ⟦ tt ⟧t γ = true
 ⟦ ff ⟧t γ = false
-⟦ tt[] i ⟧t γ = true
-⟦ ff[] i ⟧t γ = false
-⟦ elim𝔹 P t u pt pu b pb ⟧t γ
+⟦ tt[] σ i ⟧t γ = true
+⟦ ff[] σ i ⟧t γ = false
+⟦ elim𝔹 P t pt u pu b pb ⟧t γ
  = Bool-elim (λ x → ⟦ P ⟧T (γ , x)) (⟦ t , pt ⟧p (⟦ t ⟧t γ)) (⟦ u , pu ⟧p (⟦ u ⟧t γ)) (⟦ b , pb ⟧p (⟦ b ⟧t γ))
 ⟦ elim𝔹[] P t t₁ pt pu t₂ pb pt₂ pu₂ pb₂ pb₂' i ⟧t γ = {!!}
 ⟦ 𝕓 ⟧t γ = bool
-⟦ 𝕓[] i ⟧t γ = bool
+⟦ 𝕓[] σ i ⟧t γ = bool
 ⟦ π a pa b pb ⟧t γ = pi (⟦ a , pa ⟧p (⟦ a ⟧t γ)) λ x → ⟦ b , pb ⟧p (⟦ b ⟧t (γ , x))
 ⟦ π[] {σ = σ} a pa b pb pa' pb' i ⟧t γ =
   pi (transp (λ k → foo₁ i k) i0 (⟦ a ⟧t (⟦ σ ⟧S γ))) {!!}

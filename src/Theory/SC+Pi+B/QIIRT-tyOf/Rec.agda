@@ -123,10 +123,6 @@ recTm (S.elim𝔹 P t pt u pu b pb) =
 recTm (S.tt[] σ i) = tt[] (recSub σ) i
 recTm (S.ff[] σ i) = ff[] (recSub σ) i
 recTm (S.elim𝔹[] {Δ} {Γ} {σ} P t pt u pu b pb pt₂ pu₂ pb₂ p i) = (
-  recTm (S.elim𝔹 P t pt u pu b pb) [ recSub σ ]t
-
-    ≡⟨⟩
-
   elim𝔹 (recTy P) (recTm t) pt'' (recTm u) pu'' (recTm b) pb'' [ recSub σ ]t
 
     ≡⟨ elim𝔹[] {σ = recSub σ} (recTy P) (recTm t) pt'' (recTm u)  pu''
@@ -155,9 +151,9 @@ recTm (S.elim𝔹[] {Δ} {Γ} {σ} P t pt u pu b pb pt₂ pu₂ pb₂ p i) = (
     (recTm (b S.[ σ ])) pb'
 
     ≡⟨⟩
-  recTm (S.elim𝔹 (P S.[ σ S.↑𝔹 ]) (t S.[ σ ]) pt₂ (u S.[ σ ])
-    pu₂ (b S.[ σ ]) pb₂)
-    ∎) i
+  recTm (S.elim𝔹 (P S.[ σ S.↑𝔹 ]) (t S.[ σ ]) pt₂ (u S.[ σ ]) pu₂ (b S.[ σ ]) pb₂)
+    ∎
+    ) i
   where
     pt'' = recTyOf t pt ∙ cong (recTy P [_]T) (recSubidS,t≡idS,Subt S.tt S.[idS]T tyOftt)
     pu'' = recTyOf u pu ∙ cong (recTy P [_]T) (recSubidS,t≡idS,Subt S.ff S.[idS]T tyOfff)
