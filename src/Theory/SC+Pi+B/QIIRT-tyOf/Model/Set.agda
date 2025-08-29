@@ -87,32 +87,6 @@ transportRefl³ a =
   a
     ∎
 
-transportRefl² : {A : Set} (a : A)
-  → transport refl (transport refl a)
-  ≡ a
-transportRefl² a =
-  transport refl (transport refl a)
-    ≡⟨ cong (transport refl) (transportRefl a) ⟩
-  transport refl a
-    ≡⟨ transportRefl a ⟩
-  a
-    ∎
-
-cong₄ : ∀ {ℓ'''''} →
-        {A : Type ℓ'''}
-        {B : A → Type ℓ''''}
-        {C : (a : A) → (b : B a) → Type ℓ}
-        {D : (a : A) (b : B a) → C a b → Type ℓ'}
-        {E : (a : A) (b : B a) → (c : C a b) → D a b c → Type ℓ'''''}
-        (f : (a : A) (b : B a) (c : C a b) → (d : D a b c) → E a b c d) →
-        {x y : A} (p : x ≡ y)
-        {u : B x} {v : B y} (q : PathP (λ i → B (p i)) u v)
-        {s : C x u} {t : C y v} (r : PathP (λ i → C (p i) (q i)) s t)
-        {h : D x u s}{k : D y v t} (w : PathP (λ i → D (p i) (q i) (r i)) h k)
-      → PathP (λ i → E (p i) (q i) (r i) (w i)) (f x u s h) (f y v t k)
-cong₄ f p q r w i = f (p i) (q i) (r i) (w i)
-{-# INLINE cong₄ #-}
-
 opaque
   unfolding _∙_
   stdModelPi : Pi stdModel
@@ -143,58 +117,33 @@ opaque
 Bool' : {Γ : Type} → Γ → Type
 Bool' = λ _ → Bool
 
-stdModel𝓑 : 𝓑 stdModel
-stdModel𝓑 .𝓑.𝔹 = Bool'
-stdModel𝓑 .𝓑.𝔹[] _ = refl
-stdModel𝓑 .𝓑.tt = Bool' , λ _ → true
-stdModel𝓑 .𝓑.ff = Bool' , λ _ → false
-stdModel𝓑 .𝓑.tyOftt = refl
-stdModel𝓑 .𝓑.tyOfff = refl
-stdModel𝓑 .𝓑.tt[] _ = refl
-stdModel𝓑 .𝓑.ff[] _ = refl
-stdModel𝓑 .𝓑.elim𝔹 P t pt u pu b pb = (λ γ → P (γ , subst (λ A → A γ) pb (b .snd γ)))
-                                    , λ γ → Bool-elim (λ x → P (γ , x))
-                                                      (subst (λ A → A γ) pt (t .snd γ))
-                                                      (subst (λ A → A γ) pu (u .snd γ))
-                                                      (subst (λ A → A γ) pb (b .snd γ))
-stdModel𝓑 .𝓑.tyOfelim𝔹 t pt u pu b pb p = refl
-stdModel𝓑 .𝓑.elim𝔹[] {Γ} {Δ} {σ = σ} P t pt u pu b pb pt₂ pu₂ pb₂ p i .fst = p i
-stdModel𝓑 .𝓑.elim𝔹[] {Γ} {Δ} {σ = σ} P t pt u pu b pb pt₂ pu₂ pb₂ p i .snd γ = ?
+opaque
+  unfolding _∎
 
-{-cong₄ Bool-elim {x = λ x → P (σ γ , x)} {y = P' γ} lem₀ {u = transport (λ j → pt j (σ γ)) (t .snd (σ γ))} {v = transport (λ j → pt₂ j γ) (t .snd (σ γ))} {!!} {s = transport (λ j → pu j (σ γ)) (u .snd (σ γ))} {t = transport (λ j → pu₂ j γ) (u .snd (σ γ))} {!!} {h = transport (λ j → pb j (σ γ)) (b .snd (σ γ))} {k = transport (λ j → pb₂ j γ) (b .snd (σ γ))} {!!} i
- where
-  P' : ∀ γ → Bool → Type
-  P' γ = λ x → P (σ γ , transport (λ j → step-≡ Bool' (step-≡ Bool' (step-≡ Bool' (Bool' ∎) refl) refl) refl j (γ , x)) x)
-  lem₀ : (λ x → P (σ γ , x)) ≡ P' γ
-  lem₀ i false = P (σ γ , {!transport-filler (λ i₂ →
-            step-≡ (λ _ → Bool)
-            (step-≡ (λ _ → Bool)
-             (step-≡ (λ _ → Bool) ((λ _ → Bool) ∎) (λ _ _ → Bool))
-             (λ _ _ → Bool))
-            (λ _ _ → Bool) i₂ (γ , false)) false i!})
-  lem₀ i true = P (σ γ , {!!})
+  stdModel𝓑 : 𝓑 stdModel
+  stdModel𝓑 .𝓑.𝔹 = Bool'
+  stdModel𝓑 .𝓑.𝔹[] _ = refl
+  stdModel𝓑 .𝓑.tt = Bool' , λ _ → true
+  stdModel𝓑 .𝓑.ff = Bool' , λ _ → false
+  stdModel𝓑 .𝓑.tyOftt = refl
+  stdModel𝓑 .𝓑.tyOfff = refl
+  stdModel𝓑 .𝓑.tt[] _ = refl
+  stdModel𝓑 .𝓑.ff[] _ = refl
+  stdModel𝓑 .𝓑.elim𝔹 P t pt u pu b pb = (λ γ → P (γ , subst (λ A → A γ) pb (b .snd γ)))
+                                      , (λ γ → Bool-elim (λ x → P (γ , x))
+                                                         (subst (λ A → A γ) pt (t .snd γ))
+                                                         (subst (λ A → A γ) pu (u .snd γ))
+                                                         (subst (λ A → A γ) pb (b .snd γ)))
+  stdModel𝓑 .𝓑.tyOfelim𝔹 t pt u pu b pb p = refl
+  stdModel𝓑 .𝓑.elim𝔹[] {Γ} {Δ} {σ = σ} P (T' , t) pt (U' , u) pu (B' , b) pb pt₂ pu₂ pb₂ p i =
+      (λ γ → P (σ γ , p₀ γ i))
+    , (λ γ → cong₃ (Bool-elim (λ x → P (σ γ , x)))
+                   (cong (λ p → transport p (t (σ γ))) (UIP (λ j → pt j (σ γ)) (λ j → pt₂ j γ)))
+                   (cong (λ p → transport p (u (σ γ))) (UIP (λ j → pu j (σ γ)) (λ j → pu₂ j γ)))
+                   (p₀ γ)
+                   i)
+    where
+      p₀ : ∀ γ → transport (λ j → pb j (σ γ)) (b (σ γ)) ≡ transport (λ j → pb₂ j γ) (b (σ γ))
+      p₀ γ = cong (λ p → transport p (b (σ γ))) (UIP (λ j → pb j (σ γ)) (λ j → pb₂ j γ))
 
 
-
-{-
-Bool-elim (λ x → p i γ) {!lem₁ γ i!} {!p i1 γ!} {!!}
- where
-  P' : ∀ γ → Bool → Type
-  P' γ x = P (σ γ , transport (λ j → step-≡ Bool' (step-≡ Bool' (step-≡ Bool' (Bool' ∎) refl) refl) refl j (γ , x)) x)
-  q : ∀ γ x → x ≡ transport (λ j → step-≡ Bool' (step-≡ Bool' (step-≡ Bool' (Bool' ∎) refl) refl) refl j (γ , x)) x
-  q γ x = {!!}
-  lem : ∀ γ → PathP (λ i → p i γ)
-                    (Bool-elim (λ x → P (σ γ , x))
-                               (transport (λ j → pt j (σ γ)) (t .snd (σ γ)))
-                               (transport (λ j → pu j (σ γ)) (u .snd (σ γ)))
-                               (transport (λ j → pb j (σ γ)) (b .snd (σ γ))))
-                    (Bool-elim (P' γ)
-                               (transport (λ j → pt₂ j γ) (t .snd (σ γ)))
-                               (transport (λ j → pu₂ j γ) (u .snd (σ γ)))
-                               (transport (λ j → pb₂ j γ) (b .snd (σ γ))))
-  lem γ i = Bool-elim (λ x → p i γ) (transport {!UIP (λ j → pt j (σ γ)) ? i!} (t .snd (σ γ))) {!!} {!!}
-  
-  lem₁ :  ∀ γ → PathP (λ i → P (σ γ , q γ true i)) (transport (λ j → pt j (σ γ)) (t .snd (σ γ))) (transport (λ j → pt₂ j γ) (t .snd (σ γ)))
-  lem₁ = {!!}
--}
--}
