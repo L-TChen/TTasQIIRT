@@ -71,21 +71,48 @@ stdModel = record
   ; isSC = stdModelSC
   }
 
-stdModelPi : Pi stdModel
-stdModelPi = record
-  { Π = λ A B → λ γ → (x : A γ) → B (γ , x) 
-  ; app = λ (ΠAB , t) B pt →
-    B , λ (γ , a) → (transport (cong (λ A → A γ) pt) (t γ)) a
-  ; tyOfapp = λ _ → refl
-  ; abs = λ {Γ} {A} (B , t) →
-    (λ γ → (x : A γ) → B (γ , x)) , λ γ x → t (γ , x) 
-  ; tyOfabs = refl
-  ; Π[]   = λ {_} {_} {A} σ B i γ → (x : A (σ γ)) → B (σ γ , {!transportRefl x (~ i)!})
-  -- unfolding _∙_
-  ; abs[] = {!!}
-  ; Πβ    = {!!}
-  ; Πη    = {!!}
-  }
+open SC stdModel
+open Pi
+
+transportRefl³ : {A : Set} (a : A)
+  → transport refl (transport refl (transport refl a))
+  ≡ a
+transportRefl³ a =
+  transport refl (transport refl (transport refl a))
+    ≡⟨ cong (transport refl) (cong (transport refl) (transportRefl a)) ⟩
+  transport refl (transport refl a)
+    ≡⟨ cong (transport refl) (transportRefl a) ⟩
+  transport refl a
+    ≡⟨ transportRefl a ⟩
+  a
+    ∎
+    
+opaque
+  unfolding _∙_
+  stdModelPi : Pi stdModel
+  stdModelPi .Π A B      = λ γ → (x : A γ) → B (γ , x) 
+  stdModelPi .app t B pt =
+    B , λ (γ , a) → (transport (cong (λ A → A γ) pt) (t .snd γ)) a
+  stdModelPi .tyOfapp    = λ _ → refl
+  stdModelPi .abs {Γ} {A} t =
+    (λ γ → (a : A γ) → tyOf t (γ , a)) , λ γ a → t .snd (γ , a)
+  stdModelPi .tyOfabs = refl
+  stdModelPi .Π[] {Γ} {Δ} {A} σ B i γ =
+    (a : A (σ γ)) → B (σ γ , transportRefl³ a (~ i))
+  stdModelPi .abs[] {_} {_} {A} σ t i =
+    (λ γ → (a : A (σ γ)) → t .fst (σ γ , transportRefl³ a (~ i))) ,
+    λ γ a → t . snd (σ γ , transportRefl³ a (~ i)) 
+  stdModelPi .Πβ {Γ} {A} t pt i = t .fst , λ γ → lem γ i
+    where -- Yuck!
+      lem : ∀ γ → transport (λ j → pt j (γ .fst)) (λ a → t .snd (γ .fst , a)) (γ .snd) ≡ t .snd γ
+      lem (γ , a) =
+        transport (λ j → pt j γ) (λ b → t .snd (γ , b)) a
+          ≡⟨ cong (λ p → transport p (λ b → t .snd (γ , b)) a) (UIP (λ j → pt j γ) refl) ⟩
+        transport (λ _ → (a : A γ) → t .fst (γ , a)) (λ b → t .snd (γ , b)) a
+          ≡⟨ cong (λ (f : (a : A γ) → t .fst (γ , a)) → f a) (transportRefl (λ b → t .snd (γ , b))) ⟩
+        t .snd (γ , a)
+          ∎
+  stdModelPi .Πη {Γ} {A} {B} t pt i = {!!}
 
 Bool' : {Γ : Type} → Γ → Type
 Bool' = λ _ → Bool
@@ -107,5 +134,5 @@ stdModel𝓑 = record
       (transport (cong (λ A → A γ) pu) (u .snd γ))
       (transport (cong (λ A → A γ) pb) (b .snd γ))
   ; tyOfelim𝔹 = λ t pt u pu b pb p → refl
-  ; elim𝔹[] = λ P t pt u pu b pb pt₂ pu₂ pb₂ p → {!!}
+  ; elim𝔹[] = λ P t pt u pu b pb pt₂ pu₂ pb₂ p i → ?
   }
