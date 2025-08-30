@@ -235,3 +235,10 @@ record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ�
     → tyOf (u [ σ ]t) ≡ U
   tyOf[]≡U {σ = σ} p =
     tyOf[] ∙ cong (λ A → A [ σ ]T) p ∙ U[]
+
+  tyOftyOf[]≡U
+    : (p : tyOf u ≡ U)
+    → PathP (λ i → tyOf ([∘]t u τ σ i) ≡ U)
+            (tyOf[]≡U {σ = τ} (tyOf[]≡U {σ = σ} p))
+            (tyOf[]≡U {σ = σ ∘ τ} p)
+  tyOftyOf[]≡U p = toPathP (UIP _ _)
