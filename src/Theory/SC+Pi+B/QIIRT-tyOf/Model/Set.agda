@@ -102,15 +102,15 @@ opaque
   stdModelPi .abs[] {_} {_} {A} σ t i =
     (λ γ → (a : A (σ γ)) → t .fst (σ γ , transportRefl³ a (~ i))) ,
     λ γ a → t . snd (σ γ , transportRefl³ a (~ i)) 
-  stdModelPi .Πβ {Γ} {A} t pt i = t .fst , λ γ → lem γ i
+  stdModelPi .Πβ {Γ} {A} (B , t) pt i = B , λ γ → lem γ i
     where -- Yuck!
-      lem : ∀ γ → transport (λ j → pt j (γ .fst)) (λ a → t .snd (γ .fst , a)) (γ .snd) ≡ t .snd γ
+      lem : ((γ , a) : Σ Γ A) → transport (λ j → pt j γ) (λ b → t (γ , b)) a ≡ t (γ , a)
       lem (γ , a) =
-        transport (λ j → pt j γ) (λ b → t .snd (γ , b)) a
-          ≡⟨ cong (λ p → transport p (λ b → t .snd (γ , b)) a) (UIP (λ j → pt j γ) refl) ⟩
-        transport (λ _ → (a : A γ) → t .fst (γ , a)) (λ b → t .snd (γ , b)) a
-          ≡⟨ cong (λ (f : (a : A γ) → t .fst (γ , a)) → f a) (transportRefl (λ b → t .snd (γ , b))) ⟩
-        t .snd (γ , a)
+        transport (λ j → pt j γ) (λ b → t (γ , b)) a
+          ≡⟨ cong (λ p → transport p (λ b → t (γ , b)) a) (UIP (λ j → pt j γ) refl) ⟩
+        transport (λ _ → (a : A γ) → B (γ , a)) (λ b → t (γ , b)) a
+          ≡⟨ cong (λ (t : (a : A γ) → B (γ , a)) → t a) (transportRefl (λ b → t (γ , b))) ⟩
+        t (γ , a)
           ∎
   stdModelPi .Πη {Γ} {A} {B} (A' , t) pt i = pt (~ i) , λ γ → transport-filler (λ i → pt i γ) (t γ) (~ i)
 
@@ -118,7 +118,7 @@ Bool' : {Γ : Type} → Γ → Type
 Bool' = λ _ → Bool
 
 opaque
-  unfolding _∎
+  unfolding _∙_
 
   stdModel𝓑 : 𝓑 stdModel
   stdModel𝓑 .𝓑.𝔹 = Bool'
@@ -145,5 +145,3 @@ opaque
     where
       p₀ : ∀ γ → transport (λ j → pb j (σ γ)) (b (σ γ)) ≡ transport (λ j → pb₂ j γ) (b (σ γ))
       p₀ γ = cong (λ p → transport p (b (σ γ))) (UIP (λ j → pb j (σ γ)) (λ j → pb₂ j γ))
-
-

@@ -3,6 +3,7 @@ module Theory.SC+Pi+B.QIIRT-tyOf.Canonicity where
 open import Prelude
 open import Theory.SC+Pi+B.QIIRT-tyOf.Syntax
 
+open Var
 Ctxᴳ : Ctx → Set₁
 Ctxᴳ Γ = Sub ∅ Γ → Set
 

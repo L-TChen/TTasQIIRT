@@ -3,7 +3,7 @@ module Prelude where
 open import Cubical.Core.Primitives     public
   hiding (Sub)
 open import Cubical.Foundations.Prelude public
-  hiding (Sub; _∙'_; step-≡; ≡⟨⟩-syntax; _≡⟨⟩_; ≡⟨⟩⟨⟩-syntax; _≡⟨_⟩≡⟨_⟩_; _∎)
+  hiding (Sub; _∙'_; step-≡; ≡⟨⟩-syntax; _≡⟨⟩_; ≡⟨⟩⟨⟩-syntax; _≡⟨_⟩≡⟨_⟩_)
   renaming (_∙_ to _∙'_; _∙∙_∙∙_ to _∙∙'_∙∙_)
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.Path    public
@@ -52,15 +52,9 @@ UIPP
   → isOfHLevelDep 2 B
 UIPP A B = isOfHLevel→isOfHLevelDep 2 {A} {B} λ _ → UIP'
 
--- transport along a family of types
-tr : (P : A → Set ℓ) {x y : A} → x ≡ y → P x → P y
-tr P p = transport (cong P p)
-
-
-
 module _ where opaque
   infixr 30 _∙_
-  infix  3 _∎
+--  infix  3 _∎
   infixr 2 step-≡ _≡⟨⟩_
   infixr 2.5 _≡⟨_⟩≡⟨_⟩_
   _∙∙_∙∙_
@@ -113,6 +107,3 @@ module _ where opaque
     : {y z w : A}
     → (x : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
   _ ≡⟨ x≡y ⟩≡⟨ y≡z ⟩ z≡w = x≡y ∙∙ y≡z ∙∙ z≡w
-
-  _∎ : (x : A) → x ≡ x
-  _ ∎ = refl

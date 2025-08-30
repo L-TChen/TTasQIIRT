@@ -216,35 +216,38 @@ open Var
 -- -- --    (isSet→isGroupoid Sub-is-set)
 -- -- --    k j i
 
-▸ᵀ≡→≡ : ∀{Γ}{A A' : Ty Γ} → ▸ᵀ A ≡ ▸ᵀ A' → A ≡ A'
-▸ᵀ≡→≡ {Γ} {A} {A'} p =
-    sym (transportRefl A)
-  ∙ (λ i → transport (UIP refl (sym (cong Ty (◂▸ᶜ Γ)) ∙ (cong Ty (◂▸ᶜ Γ))) i) A)
-  ∙ fromPathP (compPathP (symP (◂▸ᵀ A) ▷ cong ◂ᵀ p) (◂▸ᵀ A'))
-
 infixr 2 step-▸ᵀ≡
-step-▸ᵀ≡ : ∀{Γ A' A''}(A : Ty Γ) → A' ≡ A'' → ▸ᵀ A ≡ ▸ᵀ A' → A ≡ A''
-step-▸ᵀ≡ A p ▸p = ▸ᵀ≡→≡ ▸p ∙ p
 syntax step-▸ᵀ≡ A p ▸p = A ▸ᵀ≡⟨ ▸p ⟩ p
 
-▸ᵗ≡→≡ : ∀{Γ}{t t' : Tm Γ} → ▸ᵗ t ≡ ▸ᵗ t' → t ≡ t'
-▸ᵗ≡→≡ {Γ} {t} {t'} p =
-    sym (transportRefl t)
-  ∙ (λ i → transport (UIP refl (sym (cong Tm (◂▸ᶜ Γ)) ∙ (cong Tm (◂▸ᶜ Γ))) i) t)
-  ∙ fromPathP (compPathP (symP (◂▸ᵗ t) ▷ cong ◂ᵗ p) (◂▸ᵗ t'))
+opaque
+  unfolding _∙_
+  ▸ᵀ≡→≡ : ∀{Γ}{A A' : Ty Γ} → ▸ᵀ A ≡ ▸ᵀ A' → A ≡ A'
+  ▸ᵀ≡→≡ {Γ} {A} {A'} p =
+      sym (transportRefl A)
+    ∙ (λ i → transport (UIP refl (sym (cong Ty (◂▸ᶜ Γ)) ∙ (cong Ty (◂▸ᶜ Γ))) i) A)
+    ∙ fromPathP (compPathP (symP (◂▸ᵀ A) ▷ cong ◂ᵀ p) (◂▸ᵀ A'))
 
-infixr 2 step-▸ᵗ≡
-step-▸ᵗ≡ : ∀{Γ t' t''}(t : Tm Γ) → t' ≡ t'' → ▸ᵗ t ≡ ▸ᵗ t' → t ≡ t''
-step-▸ᵗ≡ t p ▸p = ▸ᵗ≡→≡ ▸p ∙ p
-syntax step-▸ᵗ≡ t p ▸p = t ▸ᵗ≡⟨ ▸p ⟩ p
+  step-▸ᵀ≡ : ∀{Γ A' A''}(A : Ty Γ) → A' ≡ A'' → ▸ᵀ A ≡ ▸ᵀ A' → A ≡ A''
+  step-▸ᵀ≡ A p ▸p = ▸ᵀ≡→≡ ▸p ∙ p
 
-▸ˢ≡ʸ→≡ : ∀{Γ Δ}{σ σ' : Sub Γ Δ} → ▸ˢ σ ≡ʸ ▸ˢ σ' → σ ≡ σ'
-▸ˢ≡ʸ→≡ {Γ} {Δ} {σ} {σ'} p =
-    sym (transportRefl σ)
-  ∙ (λ i → transport (UIP refl ((λ j → Sub (◂▸ᶜ Γ (~ j)) (◂▸ᶜ Δ (~ j))) ∙ (λ j → Sub (◂▸ᶜ Γ j) (◂▸ᶜ Δ j))) i) σ) 
-  ∙ fromPathP (compPathP (symP (◂▸ˢ σ) ▷ cong ◂ˢ (≡ʸ→≡ {σʸ = ▸ˢ σ} {▸ˢ σ'} p)) (◂▸ˢ σ'))
+  ▸ᵗ≡→≡ : ∀{Γ}{t t' : Tm Γ} → ▸ᵗ t ≡ ▸ᵗ t' → t ≡ t'
+  ▸ᵗ≡→≡ {Γ} {t} {t'} p =
+      sym (transportRefl t)
+    ∙ (λ i → transport (UIP refl (sym (cong Tm (◂▸ᶜ Γ)) ∙ (cong Tm (◂▸ᶜ Γ))) i) t)
+    ∙ fromPathP (compPathP (symP (◂▸ᵗ t) ▷ cong ◂ᵗ p) (◂▸ᵗ t'))
 
-infixr 2 step-▸ˢ≡ʸ
-step-▸ˢ≡ʸ : ∀{Γ Δ σ' σ''}(σ : Sub Γ Δ) → σ' ≡ σ'' → ▸ˢ σ ≡ʸ ▸ˢ σ' → σ ≡ σ''
-step-▸ˢ≡ʸ σ p ▸pʸ = ▸ˢ≡ʸ→≡ ▸pʸ ∙ p
-syntax step-▸ˢ≡ʸ σ p ▸pʸ = σ ▸ˢ≡ʸ⟨ ▸pʸ ⟩ p
+  infixr 2 step-▸ᵗ≡
+  step-▸ᵗ≡ : ∀{Γ t' t''}(t : Tm Γ) → t' ≡ t'' → ▸ᵗ t ≡ ▸ᵗ t' → t ≡ t''
+  step-▸ᵗ≡ t p ▸p = ▸ᵗ≡→≡ ▸p ∙ p
+  syntax step-▸ᵗ≡ t p ▸p = t ▸ᵗ≡⟨ ▸p ⟩ p
+
+  ▸ˢ≡ʸ→≡ : ∀{Γ Δ}{σ σ' : Sub Γ Δ} → ▸ˢ σ ≡ʸ ▸ˢ σ' → σ ≡ σ'
+  ▸ˢ≡ʸ→≡ {Γ} {Δ} {σ} {σ'} p =
+      sym (transportRefl σ)
+    ∙ (λ i → transport (UIP refl ((λ j → Sub (◂▸ᶜ Γ (~ j)) (◂▸ᶜ Δ (~ j))) ∙ (λ j → Sub (◂▸ᶜ Γ j) (◂▸ᶜ Δ j))) i) σ) 
+    ∙ fromPathP (compPathP (symP (◂▸ˢ σ) ▷ cong ◂ˢ (≡ʸ→≡ {σʸ = ▸ˢ σ} {▸ˢ σ'} p)) (◂▸ˢ σ'))
+
+  infixr 2 step-▸ˢ≡ʸ
+  step-▸ˢ≡ʸ : ∀{Γ Δ σ' σ''}(σ : Sub Γ Δ) → σ' ≡ σ'' → ▸ˢ σ ≡ʸ ▸ˢ σ' → σ ≡ σ''
+  step-▸ˢ≡ʸ σ p ▸pʸ = ▸ˢ≡ʸ→≡ ▸pʸ ∙ p
+  syntax step-▸ˢ≡ʸ σ p ▸pʸ = σ ▸ˢ≡ʸ⟨ ▸pʸ ⟩ p

@@ -51,65 +51,56 @@ TermSC : SC _ _ _ _
 TermSC = record { mot = TermM ; isSC = TermIsSC }
 
 TermPi : Pi TermSC
-TermPi = record
-  { Π = Π
-  ; app = app
-  ; tyOfapp = λ _ → refl
-  ; abs = abs
-  ; tyOfabs = refl
-  ; Π[] =  λ {A = A} σ B →
-    Π[] σ B ∙ cong (λ τ → Π (A [ σ ]) (B [ (σ ∘ π₁ idS) , π₂ idS ∶[ τ ] ])) (UIP _ _) 
-  ; abs[] = λ σ t →
-    abs[] σ t ∙ cong (λ τ → abs (t [ (σ ∘ π₁ idS) , π₂ idS ∶[ τ ] ])) (UIP _ _)
-  ; Πβ = Πβ
-  ; Πη = Πη
-  }
-
+TermPi .Pi.Π       = Π
+TermPi .Pi.app     = app
+TermPi .Pi.tyOfapp = λ _ → refl
+TermPi .Pi.abs     = abs
+TermPi .Pi.tyOfabs = refl
+TermPi .Pi.Π[] {_} {_} {A} σ B =
+  Π[] σ B ∙ cong (λ p → Π (A [ σ ]) (B [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] )) (UIP _ _)
+TermPi .Pi.abs[] σ t =
+  abs[] σ t ∙ cong (λ τ → abs (t [ (σ ∘ π₁ idS) , π₂ idS ∶[ τ ] ])) (UIP _ _)
+TermPi .Pi.Πβ = Πβ
+TermPi .Pi.Πη = Πη
+  
 TermBool : 𝓑 TermSC
-TermBool = record
-  { 𝔹   = 𝔹
-  ; 𝔹[] = 𝔹[]
-  ; tt = tt
-  ; ff = ff
-  ; tyOftt = [idS]T
-  ; tyOfff = [idS]T
-  ; tt[] = tt[]
-  ; ff[] = ff[]
-  ; elim𝔹 = elim𝔹
-  ; tyOfelim𝔹 = λ P t pt u pu b pb → refl
-  ; elim𝔹[] = λ {σ = σ} P t pt u pu b pb pt₂ pu₂ pb₂ p →
-    let p₁ = step-≡ (𝔹 [ π₁ idS ])
-            (step-≡ (𝔹 [ π₁ idS ])
-             (step-≡ 𝔹 (𝔹 [ σ ∘ π₁ idS ] ∎) (λ i₂ → 𝔹[] (σ ∘ π₁ idS) (~ i₂)))
-             (𝔹[] (π₁ idS)))
-            (λ _ → 𝔹 [ π₁ idS ]) 
-        p₂ = pt₂ ∙
-          (λ i₁ →
-             P [
-             (σ ∘ π₁ idS) , π₂ idS ∶[
-             UIP
-             (step-≡ (𝔹 [ π₁ idS ])
-              (step-≡ (𝔹 [ π₁ idS ])
-               (step-≡ 𝔹 (𝔹 [ σ ∘ π₁ idS ] ∎) (λ i₂ → 𝔹[] (σ ∘ π₁ idS) (~ i₂)))
-               (𝔹[] (π₁ idS)))
-              (λ _ → 𝔹 [ π₁ idS ]))
-             𝔹[]₂ i₁
-             ]
-             ]
-             [ idS , tt ∶[ [idS]T ] ])
-    in
-    elim𝔹[] P t pt u pu b pb
-      (pt₂ ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , tt ∶[ [idS]T ] ]) (UIP _ _))
-      (pu₂ ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , ff ∶[ [idS]T ] ]) (UIP _ _))
-    pb₂ (p ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , b [ σ ] ∶[ pb₂ ] ]) (UIP _ _)) ∙
-    λ i → elim𝔹 (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ UIP 𝔹[]₂ p₁ i ] ])
-      (t [ σ ]) {!isOfHLevel→isOfHLevelDep 1 {B = λ p → tyOf (t [ σ ]) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , tt ∶[ tyOftt ] ])} {!!} {!!} {!!} {!!} i !}
-      (u [ σ ]) {!!} (b [ σ ]) pb₂
-  }
-
+TermBool .𝓑.𝔹      = 𝔹
+TermBool .𝓑.𝔹[]    = 𝔹[]
+TermBool .𝓑.tt     = tt
+TermBool .𝓑.ff     = ff
+TermBool .𝓑.tyOftt = [idS]T
+TermBool .𝓑.tyOfff = [idS]T
+TermBool .𝓑.tt[]   = tt[]
+TermBool .𝓑.ff[]   = ff[]
+TermBool .𝓑.elim𝔹  = elim𝔹
+TermBool .𝓑.tyOfelim𝔹 P t pt u pu b pb = refl
+TermBool .𝓑.elim𝔹[] {σ = σ} P t pt u pu b pb pt₂ pu₂ pb₂ p = 
+  -- Liang-Ting (2025-08-30): I haven't investiaged why this case does not pass
+  -- the termination checker.
+    elim𝔹[] P t pt u pu b pb pt₂' pu₂'
+    pb₂ (p ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , b [ σ ] ∶[ pb₂ ] ]) (UIP _ _))
+    ∙ λ i → elim𝔹 (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ UIP 𝔹[]₂ p₁ i ] ])
+      (t [ σ ]) (isOfHLevel→isOfHLevelDep 1
+         {B = λ p → tyOf (t [ σ ]) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , tt ∶[ tyOftt ] ])}
+             (λ p → UIP)
+             pt₂' pt₂ (UIP 𝔹[]₂ p₁) i)
+      (u [ σ ]) (isOfHLevel→isOfHLevelDep 1
+        {B = λ p → tyOf (u [ σ ]) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , ff ∶[ tyOfff ] ])}             (λ p → UIP) pu₂' pu₂ (UIP 𝔹[]₂ p₁) i)
+      (b [ σ ]) pb₂
+    where
+      pt₂' = pt₂ ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , tt ∶[ [idS]T ] ]) (UIP _ _)
+      pu₂' = pu₂ ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , ff ∶[ [idS]T ] ]) (UIP _ _)
+      p₁ =
+        𝔹 [ π₁ idS ]
+          ≡⟨ refl ⟩
+        𝔹 [ π₁ idS ]
+          ≡⟨ 𝔹[] (π₁ idS) ⟩
+        𝔹
+          ≡⟨ sym $ 𝔹[] (σ ∘ π₁ idS) ⟩
+        𝔹 [ σ ∘ π₁ idS ]
+          ∎
+             
+      p₂ = pt₂ ∙ (λ j → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ UIP p₁ 𝔹[]₂ j ] ] [ idS , tt ∶[ [idS]T ] ])
+  
 Term : SC+Pi+B _ _ _ _
-Term = record
-  { 𝒞  = TermSC
-  ; 𝒫i = TermPi
-  ; ℬ  = TermBool
-  }
+Term = record { 𝒞  = TermSC ; 𝒫i = TermPi ; ℬ  = TermBool}

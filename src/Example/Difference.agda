@@ -3,7 +3,7 @@ open import Prelude
   
 open import Cubical.Foundations.Function
 
-module Difference (A : Set) where
+module Example.Difference (A : Set) where
 
 infixr 10 _⧺_
 

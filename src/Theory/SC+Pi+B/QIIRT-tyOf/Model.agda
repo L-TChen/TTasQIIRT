@@ -95,7 +95,8 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ tyOftt ] ]T)
         → (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ tyOfff ] ]T)
         → (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
-        → (p : (P [ idS , b ∶[ pb ] ]T [ σ ]T) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T))
+        → (p : (P [ idS , b ∶[ pb ] ]T [ σ ]T)
+             ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T))
         → (elim𝔹 P t pt u pu b pb) [ σ ]t
         ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) pt₂ (u [ σ ]t) pu₂ (b [ σ ]t) pb₂
 
