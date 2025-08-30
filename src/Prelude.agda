@@ -52,6 +52,7 @@ UIPP
   → isOfHLevelDep 2 B
 UIPP A B = isOfHLevel→isOfHLevelDep 2 {A} {B} λ _ → UIP'
 
+
 module _ where opaque
   infixr 30 _∙_
 --  infix  3 _∎
@@ -107,3 +108,16 @@ module _ where opaque
     : {y z w : A}
     → (x : A) → x ≡ y → y ≡ z → z ≡ w → x ≡ w
   _ ≡⟨ x≡y ⟩≡⟨ y≡z ⟩ z≡w = x≡y ∙∙ y≡z ∙∙ z≡w
+
+transportRefl³ : {A : Set} (a : A)
+  → transport refl (transport refl (transport refl a))
+  ≡ a
+transportRefl³ a =
+  transport refl (transport refl (transport refl a))
+    ≡⟨ cong (transport refl) (cong (transport refl) (transportRefl a)) ⟩
+  transport refl (transport refl a)
+    ≡⟨ cong (transport refl) (transportRefl a) ⟩
+  transport refl a
+    ≡⟨ transportRefl a ⟩
+  a
+    ∎

@@ -74,21 +74,9 @@ stdModel = record
 open SC stdModel
 open Pi
 
-transportRefl³ : {A : Set} (a : A)
-  → transport refl (transport refl (transport refl a))
-  ≡ a
-transportRefl³ a =
-  transport refl (transport refl (transport refl a))
-    ≡⟨ cong (transport refl) (cong (transport refl) (transportRefl a)) ⟩
-  transport refl (transport refl a)
-    ≡⟨ cong (transport refl) (transportRefl a) ⟩
-  transport refl a
-    ≡⟨ transportRefl a ⟩
-  a
-    ∎
-
 opaque
   unfolding _∙_
+  
   stdModelPi : Pi stdModel
   stdModelPi .Π A B      = λ γ → (x : A γ) → B (γ , x) 
   stdModelPi .app t B pt =
@@ -114,11 +102,8 @@ opaque
           ∎
   stdModelPi .Πη {Γ} {A} {B} (A' , t) pt i = pt (~ i) , λ γ → transport-filler (λ i → pt i γ) (t γ) (~ i)
 
-Bool' : {Γ : Type} → Γ → Type
-Bool' = λ _ → Bool
-
-opaque
-  unfolding _∙_
+  Bool' : {Γ : Type} → Γ → Type
+  Bool' = λ _ → Bool
 
   stdModel𝓑 : 𝓑 stdModel
   stdModel𝓑 .𝓑.𝔹 = Bool'
