@@ -111,6 +111,10 @@ module _ (mot : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}) where
       U[]
         : U [ σ ]T ≡ U
 
+    infixl 8  _[_]T _[_]t
+    infixr 10 _∘_
+    infixl 4  _,C_ _,_∶[_] 
+
     
     tyOfπ₂[]
       : (τ : Sub Δ (Θ ,C A))
