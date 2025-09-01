@@ -25,6 +25,18 @@ recTyOf : (t : S.Tm Γ) → S.tyOf t ≡ A → tyOf (recTm t) ≡ recTy A
 recCtx S.∅ = ∅
 recCtx (Γ S., A) = recCtx Γ ,C recTy A
 
+recTy[]T
+  : (σ : S.Sub Γ Δ) (A : S.Ty Δ)
+  → recTy (A S.[ σ ]) ≡ recTy A [ recSub σ ]T
+recTm[]t
+  : (σ : S.Sub Γ Δ) (t : S.Tm Δ)
+  → recTm (t S.[ σ ]) ≡ recTm t [ recSub σ ]t
+recTyOf[]t
+  : (σ : S.Sub Γ Δ) (t : S.Tm Δ) (p : S.tyOf (t S.[ σ ]) ≡ S.U)
+  → PathP (λ i → tyOf (recTm[]t σ t i) ≡ recTy S.U)
+    (recTyOf (t S.[ σ ]) p)
+    (tyOf[] ∙ cong _[ recSub σ ]T (recTyOf t refl) ∙ subst (λ A → A ≡ recTy S.U) (recTy[]T σ (S.tyOf t)) (cong recTy p))
+
 recTy (A S.[ σ ]) = recTy A [ recSub σ ]T
 recTy S.U         = U
 recTy (S.[idS]T {A = A} i) = [idS]T {A = recTy A} i
@@ -45,9 +57,19 @@ recTy (S.El[]₂ {Δ} {Γ} {σ} u pu pu' i) = (
   recTy ((S.El (u S.[ σ ]) pu') S.[ S.π₁ {A = S.El (u S.[ σ ]) pu'} S.idS ])
     ≡⟨⟩
   El (recTm (u S.[ σ ])) (recTyOf (u S.[ σ ]) pu') [ recSub (S.π₁ {A = S.El (u S.[ σ ]) pu'} S.idS) ]T
-    ≡⟨⟩
-  _ 
-    ≡⟨ {!El[]₂!} ⟩ 
+
+    ≡⟨ {!!} ⟩
+
+  tyOf (π₂ idS)
+
+    ≡⟨ {!El[]₂ {σ = recSub σ} (recTm u) (recTyOf u pu) !} ⟩
+    -- Liang-Ting Chen (2025-09-1): even this cannot be accepted, as their implicit arguments are different.
+    --
+    -- Goal: tyOf (π₂ idS) ≡
+    --   (El (recTm u) (recTyOf u pu) [ recSub σ ∘ π₁ idS ]T)
+    -- Have: tyOf (π₂ idS) ≡
+    --   (El (recTm u) (recTyOf u pu) [ recSub σ ∘ π₁ idS ]T)
+
   El (recTm u) (recTyOf u pu) [ recSub σ ∘ π₁ idS ]T
     ∎) i  
 
@@ -144,15 +166,6 @@ recTm (S.Πη t p i) = Πη (recTm t) (recTyOf t p) i
 
 recTm S.tt = tt
 recTm S.ff = ff
-recTm (S.elim𝔹 P t pt u pu b pb) =
-  elim𝔹 (recTy P)
-    (recTm t) (recTyOf t pt ∙ cong (recTy P [_]T) (recSubidS,t≡idS,Subt S.tt S.[idS]T tyOftt))
-    (recTm u) (recTyOf u pu ∙ cong (recTy P [_]T) (recSubidS,t≡idS,Subt S.ff S.[idS]T tyOfff))
-    (recTm b) (recTyOf b pb ∙ cong (𝔹 [_]T) recSubidS≡idS)
-    -- `recSub idS` is strictly equal to `idS`, but this equation is only introduced later
-    -- and Agda cannot unfold at this point in order to type check.
-recTm (S.tt[] σ i) = tt[] (recSub σ) i
-recTm (S.ff[] σ i) = ff[] (recSub σ) i
 recTm (S.elim𝔹 P t pt u pu b pb) =
   elim𝔹 (recTy P)
     (recTm t) (recTyOf t pt ∙ cong (recTy P [_]T) (recSubidS,t≡idS,Subt S.tt S.[idS]T tyOftt))
@@ -333,6 +346,10 @@ recTyOf {A = A} (S.π[] t pa u pu pt' pu' i) =
   (λ _ → isPropΠ λ _ → UIP) (recTyOf (S.π[] t pa u pu pt' pu' i0)) (recTyOf (S.π[] t pa u pu pt' pu' i1)) i
 
 -- the following are definitions that need strict equations given above 
+recTy[]T σ A = refl
+recTm[]t σ t = refl
+recTyOf[]t σ t p = UIP _ _
+
 recSubidS≡idS = refl
 
 recSubidS,t≡idS,Subt t p q =
