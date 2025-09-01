@@ -1,5 +1,5 @@
 {-# OPTIONS --lossy-unification #-}
-module Theory.SC.QIIRT-tyOf.IxModels.LogPred where
+module Theory.SC.QIIRT-tyOf.IxModel.LogPred where
 
 open import Prelude
 open import Theory.SC.QIIRT-tyOf.IxModel

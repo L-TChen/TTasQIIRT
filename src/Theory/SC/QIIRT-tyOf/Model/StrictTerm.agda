@@ -1,13 +1,13 @@
 open import Prelude
 
-module Theory.SC.QIIRT-tyOf.Models.StrictTerm where
+module Theory.SC.QIIRT-tyOf.Model.StrictTerm where
 
 open import Theory.SC.QIIRT-tyOf.Model
 
-open import Theory.SC.QIIRT-tyOf.Models.Term
+open import Theory.SC.QIIRT-tyOf.Model.Term
   using (Term)
-import Theory.SC.QIIRT-tyOf.Models.Yoneda          as Y
-import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient as L
+import Theory.SC.QIIRT-tyOf.Model.Yoneda          as Y
+import Theory.SC.QIIRT-tyOf.Model.LocalNoQuotient as L
 
 Termₛ = (Y.よ Term) L.!
 

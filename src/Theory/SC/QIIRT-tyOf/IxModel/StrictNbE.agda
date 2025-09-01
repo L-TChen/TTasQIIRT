@@ -8,23 +8,23 @@
   Can we just turn on lossy-unification for these definitions?
 -}
 
-module Theory.SC.QIIRT-tyOf.IxModels.StrictNbE where
+module Theory.SC.QIIRT-tyOf.IxModel.StrictNbE where
 
 open import Prelude
 open import Theory.SC.QIIRT-tyOf.Model
 
-open import Theory.SC.QIIRT-tyOf.Models.StrictTerm
+open import Theory.SC.QIIRT-tyOf.Model.StrictTerm
 open SC Termₛ
   renaming (module Var to GVar)
 open GVar
 
-open import Theory.SC.QIIRT-tyOf.Models.Term
+open import Theory.SC.QIIRT-tyOf.Model.Term
   using (Term)
 
-open import Theory.SC.QIIRT-tyOf.Models.Yoneda Term
+open import Theory.SC.QIIRT-tyOf.Model.Yoneda Term
 open Subʸ 
 
-open import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient よ
+open import Theory.SC.QIIRT-tyOf.Model.LocalNoQuotient よ
 open Ty³
 
 -- Ctx' is defined in order to pattern match in Var

@@ -2,7 +2,7 @@
 
 open import Prelude
 
-module Theory.SC.QIIRT-tyOf.Models.Set where
+module Theory.SC.QIIRT-tyOf.Model.Set where
 
 module _ (UU : Set) where
   open import Theory.SC.QIIRT-tyOf.Syntax

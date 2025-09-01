@@ -1,7 +1,7 @@
 open import Prelude
 open import Theory.SC.QIIRT-tyOf.Model
 
-module Theory.SC.QIIRT-tyOf.Models.Yoneda
+module Theory.SC.QIIRT-tyOf.Model.Yoneda
   (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
 
 open SC C

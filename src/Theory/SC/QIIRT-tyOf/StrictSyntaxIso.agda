@@ -5,12 +5,12 @@ open import Prelude
 module Theory.SC.QIIRT-tyOf.StrictSyntaxIso where
 
 open import Theory.SC.QIIRT-tyOf.Model
-open import Theory.SC.QIIRT-tyOf.Models.Term
+open import Theory.SC.QIIRT-tyOf.Model.Term
   using (Term)
-open import Theory.SC.QIIRT-tyOf.Models.StrictTerm
+open import Theory.SC.QIIRT-tyOf.Model.StrictTerm
 
-open import Theory.SC.QIIRT-tyOf.Models.Yoneda Term
-open import Theory.SC.QIIRT-tyOf.Models.LocalNoQuotient
+open import Theory.SC.QIIRT-tyOf.Model.Yoneda Term
+open import Theory.SC.QIIRT-tyOf.Model.LocalNoQuotient
 
 open Subʸ
 open Ty³

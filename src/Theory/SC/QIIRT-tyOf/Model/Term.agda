@@ -1,6 +1,6 @@
 open import Prelude
 
-module Theory.SC.QIIRT-tyOf.Models.Term where
+module Theory.SC.QIIRT-tyOf.Model.Term where
 
 open import Theory.SC.QIIRT-tyOf.Syntax
 open import Theory.SC.QIIRT-tyOf.Model

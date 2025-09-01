@@ -63,6 +63,7 @@ TermPi .Pi.abs[] σ t =
 TermPi .Pi.Πβ = Πβ
 TermPi .Pi.Πη = Πη
   
+{-# TERMINATING #-}
 TermBool : 𝓑 TermSC
 TermBool .𝓑.𝔹      = 𝔹
 TermBool .𝓑.𝔹[]    = 𝔹[]
@@ -85,7 +86,8 @@ TermBool .𝓑.elim𝔹[] {σ = σ} P t pt u pu b pb pt₂ pu₂ pb₂ p =
              (λ p → UIP)
              pt₂' pt₂ (UIP 𝔹[]₂ p₁) i)
       (u [ σ ]) (isOfHLevel→isOfHLevelDep 1
-        {B = λ p → tyOf (u [ σ ]) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , ff ∶[ tyOfff ] ])}             (λ p → UIP) pu₂' pu₂ (UIP 𝔹[]₂ p₁) i)
+        {B = λ p → tyOf (u [ σ ]) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , ff ∶[ tyOfff ] ])}
+      (λ p → UIP) pu₂' pu₂ (UIP 𝔹[]₂ p₁) i)
       (b [ σ ]) pb₂
     where
       pt₂' = pt₂ ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , tt ∶[ [idS]T ] ]) (UIP _ _)
