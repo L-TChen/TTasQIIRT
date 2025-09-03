@@ -433,3 +433,6 @@ evalTm ([∘]t t σ τ i) =
 -- Normalisation by evaluation
 normalise : (t : Tm Γ) → Σ[ tⁿ ∈ NeTm Γ ] t ≡ ⌜ tⁿ ⌝tm
 normalise t = ⇓ⱽ `idS (evalTm t .fst) , evalTm t .snd ∙ sym (⌜⇓ⱽid⌝ (evalTm t .fst))
+
+normalise' : (t : Tm Γ) → NeTm Γ
+normalise' t = normalise t .fst

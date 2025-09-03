@@ -113,7 +113,8 @@ module _ (mot : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}) where
 
     infixl 8  _[_]T _[_]t
     infixr 10 _∘_
-    infixl 4  _,C_ _,_∶[_] 
+    infix  10 _,_∶[_] 
+    infixl 4  _,C_ 
 
     
     tyOfπ₂[]

@@ -50,12 +50,7 @@ recSub (S.ηπ {Γ} {Δ} {A} σ i) =
    (ηπ (recSub σ)
    ∙ cong (π₁ (recSub σ) , π₂ (recSub σ) ∶[_]) (UIP (tyOfπ₂ (recSub σ)) (recTyOf (S.π₂ σ) (S.tyOfπ₂ σ)))) i
  
-recSub (S.,∘ {A = A} τ t σ p q i) = (
-  (recSub τ , recTm t ∶[ recTyOf t p ]) ∘ recSub σ
-    ≡⟨ ,∘ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) (recTyOf (t S.[ σ ]) q) ⟩
-  (recSub τ ∘ recSub σ) , recTm t [ recSub σ ]t ∶[ recTyOf (t S.[ σ ]) q ]
-    ∎
-  ) i
+recSub (S.,∘ {A = A} τ t σ p q i) = ,∘ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) (recTyOf (t S.[ σ ]) q) i
 -- -- Liang-Ting (2025-06-26): The following fails to pass the termination checker in SetModel.agda
 -- --      (recSub τ , recTm t ∶[ recTyOf t p ]) ∘ recSub σ
 -- --        ≡⟨ ,∘ (recSub τ) (recTm t) (recSub σ) (recTyOf t p) ⟩
