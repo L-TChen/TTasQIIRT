@@ -1,0 +1,86 @@
+
+
+@unpublished{Bense2024,
+  author =        {Bense, Viktor and Kaposi, Ambrus and Xie, Szumi},
+  note =          {Presented at TYPES'24},
+  title =         {Strict syntax of type theory via alpha-normalisation},
+  year =          {2024},
+}
+
+@inproceedings{Altenkirch2016a,
+  address =       {New York, NY, USA},
+  author =        {Altenkirch, Thorsten and Kaposi, Ambrus},
+  booktitle =     {Proceedings of the 43rd Annual ACM SIGPLAN-SIGACT
+                   Symposium on Principles of Programming Languages},
+  pages =         {18--29},
+  publisher =     {Association for Computing Machinery},
+  series =        {POPL '16},
+  title =         {Type theory in type theory using quotient inductive
+                   types},
+  year =          {2016},
+  abstract =      {We present an internal formalisation of a type heory
+                   with dependent types in Type Theory using a special
+                   case of higher inductive types from Homotopy Type
+                   Theory which we call quotient inductive types (QITs).
+                   Our formalisation of type theory avoids referring to
+                   preterms or a typability relation but defines
+                   directly well typed objects by an inductive
+                   definition. We use the elimination principle to
+                   define the set-theoretic and logical predicate
+                   interpretation. The work has been formalized using
+                   the Agda system extended with QITs using postulates.},
+  doi =           {10.1145/2837614.2837638},
+  isbn =          {9781450335492},
+}
+
+@misc{Licata2011,
+  author =        {Licata, Dan},
+  month =         {April},
+  title =         {Running circles around (in) your proof assistant; or,
+                   quotients that compute},
+  year =          {2011},
+  url =           {https://homotopytypetheory.org/2011/04/23/running-circles-
+                  around-in-your-proof-assistant/},
+}
+
+@article{Kaposi2025,
+  address =       {New York, NY, USA},
+  author =        {Kaposi, Ambrus and Pujet, Lo{\"{\i}}c},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         aug,
+  number =        {ICFP},
+  publisher =     {Association for Computing Machinery},
+  title =         {Type theory in type theory using a strictified
+                   syntax},
+  volume =        {9},
+  year =          {2025},
+  abstract =      {The metatheory of dependent types has seen a lot of
+                   progress in recent years. In particular, the
+                   development of categorical gluing finally lets us
+                   work with semantic presentations of type theory (such
+                   as categories with families) to establish fundamental
+                   properties of type theory such as canonicity and
+                   normalisation. However, proofs by gluing have yet to
+                   reach the stage of computer formalisation: formal
+                   proofs for the metatheory of dependent types are
+                   still stuck in the age of tedious syntactic proofs.
+                   The main reason for this is that semantic
+                   presentations of type theory are defined using
+                   sophisticated indexed inductive types, which are
+                   especially prone to ``transport hell''. In this
+                   paper, we introduce a new technique to work with CwFs
+                   in intensional type theory without getting stuck in
+                   transport hell. More specifically, we construct an
+                   alternative presentation of the initial CwF which
+                   encodes the substitutions as metatheoretical
+                   functions. This has the effect of strictifying all
+                   the equations that are involved in the substitution
+                   calculus, which greatly reduces the need for
+                   transports. As an application, we use our strictified
+                   initial CwF to give a short and elegant proof of
+                   canonicity for a type theory with dependent products
+                   and booleans with large elimination. The resulting
+                   proof is fully formalised in Agda.},
+  doi =           {10.1145/3747535},
+}
+

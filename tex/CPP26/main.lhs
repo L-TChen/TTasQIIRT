@@ -28,10 +28,16 @@
 %% Remove the following if there are no todo items.
 \setlength {\marginparwidth }{2cm}
 \usepackage[obeyFinal,textsize=footnotesize]{todonotes}
+\usepackage{cleveref}
+\newcommand{\LT}[2][]{\todo[inline,author={L-T},caption={},color={pink},#1]{#2}}
+\newcommand{\Fredrik}[2][]{\todo[inline,author={Fred},caption={},#1]{#2}}
+
+\usepackage{microtype}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Macros %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\CA}{\textsc{Cubical Agda}\xspace}
+\newcommand{\Agda}{\textsc{Agda}\xspace}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{newunicodechar}
@@ -215,9 +221,12 @@ Compared to untyped version:
 
 Practical considerations (eg NBE computes, support for interleaved mutual definitions)
 
-Support from proof assistant (eg safety guarantees)
+Safety guarantees from proof assistant (e.g. strict positivity check, termination check, coverage check)
 
 Easier in OTT-based proof assistant
+
+\IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
+%\bibliography{ref}
 
 \end{document}
 
