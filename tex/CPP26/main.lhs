@@ -38,6 +38,7 @@
 %%% Macros %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\CA}{\textsc{Cubical Agda}\xspace}
 \newcommand{\Agda}{\textsc{Agda}\xspace}
+\newcommand{\Set}{\mathbf{Set}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \usepackage{newunicodechar}
@@ -153,42 +154,156 @@ Cubical Agda with UIP
 
 QIIRTs
 
-\section{Type theory as a natural model}
-\subsection{Natural models}
+\LT{We give mutual definition modulo forward declarations and we will explain the trick in \Cref{sec:tt:workaround}.}
 
-\subsection{Syntax of Type Theory as a Quotient Inductive-Inductive-Recursive Type}
+\section{Type theory as a natural model} \label{sec:tt}
+It is well-known that type theory can be represented intrinsically as quotient inductive-inductive types~\cite{Altenkirch2016a}, whereas each judgement in type theory is defined as an inductive type, each typing rule a constructor, and each computational rule an equality constructor, simultaneously.
+Therefore, inhabitants consist of only valid derivations in type theory.
+However quotient inductive types were not supported by \Agda at that time, so Licata's trick~\cite{Licata2011} was used, giving up lots of supports from the proof assistant.
+
+Now, as \CA is equipped with the support of quotient inductive-inductive(-recursive) types, it is natural to ask if we can finally define type theory as QIITs in a proof assistant backed by its support for inductive types.
+Hence, we start with their definition~\cite{Altenkirch2016a} as follows.
 \begin{code}
+data Ctx : Set
+data Sub : (Γ Δ  : Ctx)  → Set
+data Ty  : (Γ    : Ctx)  → Set
+data Tm  : (Γ    : Ctx)  → Ty Γ → Set
+data _ where
+  ∅     : Ctx
+  _,_   : (Γ : Ctx)(A : Ty Γ) → Ctx
+  _[_]  : (A : Ty Δ)(σ : Sub Γ Δ) → Ty Γ
+  _[_]  : (t : Tm Δ A)(σ : Sub Γ Δ) → Tm Γ (A [ σ ]T)
+  _∘_   : Sub Δ Θ → Sub Γ Δ → Sub Γ Θ
+  _,_   : (σ : Sub Γ Δ)(t : Tm Γ (A [ σ ]T))
+        → Sub Γ (Δ , A)
+        
+  [∘]   : (A : Ty Θ)(σ : Sub Γ Δ)(τ : Sub Δ Θ)
+        → A [ τ ] [ σ ] ≡ A [ τ ∘ σ ]
+\end{code}
+Note that |_∘_| is a constructor for substitution composition and the second |_,_| a constructor for extending a substitution |σ| with a term |t| of type |A [ σ ]|.
+When we introduce the corresponding rule for the interaction between |_∘_| and |_,_| we will need a transport to fix a type mismatch and thus a transport hell inevitably:
+\begin{code}
+  ,∘   : (σ : Sub Δ Θ) (t : Tm Δ (A [ σ ]T)) (τ : Sub Γ Δ)
+       → (σ , t) ∘ τ ≡ (σ ∘ τ , 
+            subst (Tm Γ) ([∘] A τ σ) (t [ τ ]t))
+\end{code}
+since the type of |t [ τ ]| is |(A [ σ ]) [ τ ]| instead of |A [ σ ∘ τ ]| as required.
+However, as |Tm| appears as an argument of |subst|, the use of transport breaks the strict positivity check!
+Moreover, there are more such instances, once we introduce other type formers such as $\Pi$-types and the type |El| of elements.
+That is, the transport hell, which is bad for reasoning, can also appears in the definition of inductive types and breaks strict positivity.
+Of course, one could give up the safety guarantee provided by a proof assistant but that would make the formalisation less trustable.
 
+Another use of transports for equations over equations formulated in \cite{Altenkirch2016a} can be avoided by using dependent path.
+For example, that fact that the identity term substitution is an identity can be introduced as an equality constructor |[idS]t| over the equality constructor |[idS]| for the identity type substitution:
+\begin{code}
+[idS]   : A ≡ A [ idS ]
+[idS]t  : PathP (λ i → Tm Γ ([idS] i)) t (t [ idS ])
+\end{code}
+While equations over equations are more manageable, they will become `equations over equations that are yet over another equations' in its elimination rule, so it is still nice to avoid them if it does not make formalisation harder.
+We will return to this point in \Cref{sec:tt:elim}.
+
+\subsection{Terms without types as indices} \label{sec:tt:terms-without-indices}
+To avoid the transport hell in the definition of type theory itself, we observe that the problem is the mismatch of indices |A| of |Tm Γ A| and the fact that many equality constructors for types that will be soon used later in the definition itself.
+As we expect to often give an explicit proof for the typing constrain that term |t| in the substitution |(σ , t)| is of type |A [ σ ]T| when it cannot be checked definitionally, enforcing this constrain in the index of |Tm| just shoots ourselves in the foot. 
+Therefore, we apply `Fordism' transformation: \LT{citation?}
+\begin{code}
+_,_∶[_] : (σ : Sub Γ Δ) (t : Tm Γ B) (t : B ≡ A [ σ ])
+\end{code}
+to move the typing constrain from the index to its argument as an equality proof.
+Then, the equality constructor |,∘| becomes accordingly
+\begin{code}
+,∘ : (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]
+        ∶[ cong _[ τ ] p ∙ ([∘]T A τ σ) ])
+\end{code}
+where |_∙_| is the transitivity of equality proofs.
+Although no transport is needed in this definition, the use of |cong| and |_∙_|
+still prevent the definition from being strictly positive.
+This problem can be overcome by asking for another equality proof as an argument, so we derive the following definition
+\begin{code}
+,∘ : (σ : Sub Δ Θ) (t : Tm Δ B) (τ : Sub Γ Δ)
+   → (p : B ≡ A [ σ ]) (q : B [ τ ] ≡ A [ σ ∘ τ ])
+   → (σ , t ∶[ p ]) ∘ τ ≡ ((σ ∘ τ) , t [ τ ] ∶[ q ])
+\end{code}
+
+As we have applied the Fordism transformation, the index |A| in |Tm Γ A| alone do not enforce the typing constrain on terms, so we may radically remove this index completely and only ask for it when necessary.
+That is, we introduce an additional function defined simultaneously:
+\begin{code}
+tyOf : Tm Γ → Ty Γ
+\end{code}
+so the constructor |,∘| becomes
+\begin{code}
+,∘ : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ)
+   → (p : tyOf t ≡ A [ σ ]) (q : tyOf t [ τ ] ≡ A [ σ ∘ τ ])
+   → (σ , t ∶[ p ]) ∘ τ ≡ ((σ ∘ τ) , t [ τ ] ∶[ q ])
+\end{code}
+
+As a by-product, we also eliminate the use of dependent paths in its definition, since equations are only over equations between types.
+For example, the equality constructor for the identity term substitution becomes
+\begin{code}
+  [idS]t  : t ≡ t [ idS ]
+\end{code}
+as we need not know \emph{a prior} if their types are equal or not. 
+
+\subsection{Syntax of substitution calculus as an initial natural model using QIIRT}
+Adapting those changes described in \Cref{sec:tt:terms-without-indices}, we spell out the substitution calculus part of type theory. 
+Similar to the definition in \cite{Altenkirch2016a}, we define following types and a function:
+\begin{code}
 data Ctx  :  Set
 data Sub  :  (Γ Δ : Ctx) → Set
 data Ty   :  Ctx → Set
 data Tm   :  (Γ : Ctx) → Set
+tyOf : Tm Γ → Ty Γ
+\end{code}
+simultaneously, as quotient inductive-inductive-recursive types.
+Constructors for typing rules are mostly the same:
+\begin{code}
+∅        : Ctx
+_,_      : (Γ : Ctx)(A : Ty Γ) → Ctx
+_[_]T    : (A : Ty Δ)(σ : Sub Γ Δ) → Ty Γ
+_[_]t    : (A : Tm Δ)(σ : Sub Γ Δ) → Tm Γ
+∅        : Sub Γ ∅
+idS      : Sub Γ Γ
+_∘_      : Sub Δ Θ → Sub Γ Δ → Sub Γ Θ
+π₁       : Sub Γ (Δ , A) → Sub Γ Δ
+π₂       : Sub Γ (Δ , A) → Tm Γ
+_,_∶[_]  : (σ : Sub Γ Δ) (t : Tm Γ)
+  → tyOf t ≡ A [ σ ]T → Sub Γ (Δ , A)
 
-tyOf
-  : ∀ {Γ} → Tm Γ → Ty Γ
+idS∘_   : (σ : Sub Γ Δ) → idS ∘ σ ≡ σ
+_∘idS   : (σ : Sub Γ Δ) → σ ∘ idS ≡ σ
+assocS  : (σ : Sub Γ Δ) (τ : Sub Δ Θ) (γ : Sub Θ Ξ)
+       → (γ ∘ τ) ∘ σ ≡ γ ∘ (τ ∘ σ)
+,∘ : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ)
+    (p : tyOf t ≡ A [ σ ]T)
+    (q : tyOf (t [ τ ]t) ≡ A [ σ ∘ τ ]T)
+  → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
+ηπ   : (σ : Sub Γ (Δ , A)) → σ ≡ (π₁ σ , π₂ σ ∶[ refl ])
+η∅   : (σ : Sub Γ ∅) → σ ≡ ∅S
+βπ₁  : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ A [ σ ]T)
+     → π₁ (σ , t ∶[ p ]) ≡ σ
+βπ₂  : (σ : Sub Γ Δ) (t : Tm Γ) (p : tyOf t ≡ A [ σ ]T)
+     → (q : A [ π₁ (σ , t ∶[ p ]) ]T ≡ tyOf t)
+     → π₂ (σ , t ∶[ p ]) ≡ t
+[idS]T  : A ≡ A [ idS ]
+[∘]T    : (A : Ty Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
+  → A [ τ ] [ σ ] ≡ A [ τ ∘ σ ]
+[idS]t  : (t : Tm Γ) → t ≡ t [ idS ]
+[∘]t    : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
+  → t [ τ ] [ σ ] ≡ t [ τ ∘ σ ]
 
-module Var where
-  variable
-    Γ Δ Θ Ξ : Ctx
-    A B C D : Ty Γ
-    t u   : Tm Γ
-    σ τ γ δ : Sub Γ Δ
-open Var
-
--- Substitution calculus
-∅ : Ctx
-_,_ : (Γ : Ctx)(A : Ty Γ) → Ctx
-_[_]T : (A : Ty Δ)(σ : Sub Γ Δ) → Ty Γ
-_[_]t : (A : Tm Δ)(σ : Sub Γ Δ) → Tm Γ
-∅S : Sub Γ ∅
-_,_∶[_] : (σ : Sub Γ Δ) (t : Tm Γ) → tyOf t ≡ A [ σ ]T → Sub Γ (Δ , A)
-idS : Sub Γ Γ
-_∘_ : Sub Δ Θ → Sub Γ Δ → Sub Γ Θ
-π₁ : Sub Γ (Δ , A) → Sub Γ Δ
-π₂ : Sub Γ (Δ , A) → Tm Γ
+tyOf (t [ σ ])        = (tyOf t) [ σ ]
+tyOf (π₂ {A = A} σ)   = A [ π₁ σ ]
+tyOf (βπ₂ σ t p q i)  = q i
+tyOf ([idS]t t i)     = [idS]T {A = tyOf t} i
+tyOf ([∘]t t σ τ i)   = [∘]T (tyOf t) σ τ i
 \end{code}
 
-\subsection{Recursion and Elimination Principles}
+Changing the type |A : Ty| as an index of |Tm| to a function |tyOf : Tm Γ → Ty Γ| is similar to Awody's notion of \emph{natural model}~\cite{Awodey2018} where the sets of terms and of types are represented as presheaves $\mathsf{Tm}, \mathsf{Ty} \colon \mathbb{C} \to \Set$ over the category of contexts $\mathbb{C}$ and connected by a natural transformation $\mathsf{Tm} \to \mathsf{Ty}$ stable under pullbacks (i.e.\ substitution).
+
+\subsection{Syntax of type theory as an initial model using QIIRT}
+
+
+\subsection{Recursion and elimination principles} \label{sec:tt:elim}
 
 \subsection{Strictification}
 

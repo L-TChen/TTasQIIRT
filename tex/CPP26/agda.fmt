@@ -54,6 +54,8 @@
 \DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}}
 \DeclareUnicodeCharacter{03C3}{\ensuremath{\sigma}}
 \DeclareUnicodeCharacter{03C9}{\ensuremath{\omega}}
+\newunicodechar{β}{\ensuremath{\mathnormal\beta}}
+\newunicodechar{η}{\ensuremath{\mathnormal\eta}}
 \newunicodechar{Γ}{\ensuremath{\mathnormal\Gamma}}
 \newunicodechar{Δ}{\ensuremath{\mathnormal\Delta}}
 \newunicodechar{Θ}{\ensuremath{\mathnormal\Theta}}
@@ -76,6 +78,8 @@
 \DeclareUnicodeCharacter{22A5}{\ensuremath{\bot}}
 
 \DeclareUnicodeCharacter{1D57}{\ensuremath{^t}}
+\newunicodechar{∙}{\ensuremath{\mathnormal\bullet}}
+
 
 
 
