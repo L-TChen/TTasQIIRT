@@ -28,7 +28,7 @@
 %% Remove the following if there are no todo items.
 \setlength {\marginparwidth }{2cm}
 \usepackage[obeyFinal,textsize=footnotesize]{todonotes}
-\usepackage{cleveref}
+\usepackage[capitalise]{cleveref}
 \newcommand{\LT}[2][]{\todo[inline,author={L-T},caption={},color={pink},#1]{#2}}
 \newcommand{\Fredrik}[2][]{\todo[inline,author={Fred},caption={},#1]{#2}}
 
@@ -61,7 +61,7 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{Can natural models simplify the metatheory of type theory in Cubical Agda?}
+\title{Can Inspiration From Natural Models Simplify the Metatheory of Type Theory in Cubical Agda?}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -104,8 +104,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-
-  We report the folklore approach to formalising type theory in type theory, using Awodey's \emph{natural model} of type theory.
+  We report on an approach to formalising type theory in type theory, inspired by Awodey’s \emph{natural models} of type theory.
   The initial natural model is represented as strictly positive quotient inductive-inductive-recursive types in the proof assistant \CA, leading us to a syntax without any `transport hell'.
 We formalise some meta-properties such as the standard % and logical predicate
 interpretation, normalisation by evaluation for typed terms, and strictification constructions.
@@ -145,10 +144,74 @@ The effort required is about the same whether or not the notion of natural model
 \section{Introduction}
 % FNF (Fri 5 Sep)
 
-Transport hell = transports appear inside terms that you actually want to study, hence you need to do a lot of reasoning about transport rather than the actual objects of interest.
+Internalising the syntax and semantics of type theory in type theory is a longstanding problem which stretches the limits of the theory~\cite{Dybjer1995,Danielsson2006,Chapman2008,McBride2012,Kaposi2016}.
+%
+There are both practical and theoretical reasons to pursue this problem.
+%
+On the practical side, such an internal representation of type theory is needed for metaprogramming and mechanised metatheory.
+%
+More philosophically, if type theory is supposed to be a general constructive foundation of mathematics, then it should in particular be able to reason about its own syntax and semantics (up to inherent limitations due to G\"odel's Incompleteness Theorems, of course).
+%
+In dependent type theory, types can depend on terms, which means that all of contexts, types and terms need to be defined simultaneously.
+%
+This is one reason why formalising type theory in type theory is hard.
+%
+
+Early approaches to formalising type theory (see e.g.~Pollack~\cite{Pollack1994}) dealt with untyped terms that were later refined by a typing relation, or used setoid equality, and hence had to prove a lot of congruence lemmas by hand~\cite{Danielsson2006,Chapman2008}.
+%
+A breakthough was achieved by Altenkirch and Kaposi~\cite{Kaposi2016}, who showed that quotient inductive-inductive types (QIITs)~\cite{Altenkirch2018} can be employed to significantly simplify the internal representation of well typed terms, since equality constructors can be used to represent equations such as $\beta$- and $\eta$-equality.
+%
+Altenkirch and Kaposi took Dybjer's notion of a model of type theory in the form of a Category with Families~\cite{Dybjer1995}, and translated it into a QIIT definition.
+%
+In effect, this gives rise to the \emph{initial} Category with Families, with the elimination principles of the QIIT giving a unique morphism of Categories with Families to any other model.
+%
+This thus gives a both principled and practical way to formalise the syntax and dynamic semantics of type theory in type theory; the feasibility of the approach was demonstrated by e.g.\ implementing normalisation by evaluation using this representation~\cite{Altenkirch2017}.
+
+However, QIIT definitions are still cumbersome to work with, since the type of later constructors or even equations often only make sense because of earlier equations.
+%
+In an intensional type theory, such as those implemented in proof assistants, this manifests itself in transport terms across equality proofs inside other terms, and leads to so-called ``transport hell'' --- rather than just reasoning about the terms you actually want to study, you now also have to do a lot of reasoning about transports themselves and their algebraic properties.
+%
+We are interested in ways of reducing transport hell, in order to make formalisations of type theory in type theory more lightweight and feasible.
+
+In this paper, we report on an attempt to simplify such formalisations.
+%
+Our starting point is the idea of viewing Altenkirch and Kaposi's QIIT definition as the initial Category with Families.
+%
+The framework of Categories with Families is only one of several (more or less) equivalent notions of models of type theory~\cite{Hofmann1997}, and we were wondering if any of the other notions might offer any advantages.
+%
+Bense~\cite{Bense2024} suggested that Awodey's notion of \emph{natural model}~\cite{Awodey2016} might be a good candidate.
+%
+Indeed, in a natural model, the indexing of terms over their types $\mathsf{Tm} : \mathsf{Ty}(\Gamma) \to \mathsf{Set}$ (as in a Category with Families) is replaced by a ``fibred'' perspective where each term instead \emph{has} a type, as picked out by a function $\mathsf{tyOf} : \mathsf{Tm}(\Gamma) \to \mathsf{Ty}(\Gamma)$.
+%
+Terms and types are still indexed by contexts $\Gamma$, but since most ``type mismatches'' arise from equations between types, not equations between contexts (indeed many formulations of type theory does not even have a notion of context equality), this should mean that many uses of transports can be avoided.
+
+We test this hypothesis by formalising type theory in a form inspired by natural models in the proof assistant Cubical Agda~\cite{Vezzosi2019}.
+%
+Cubical Agda is a good fit for such a project, because not only does it support QIITs, it also supports inductive-recursive types~\cite{DybjerSetzer1999}, which are needed to simultaneously define the recursive $\mathsf{tyOf}$ function together with the inductively defined types $\mathsf{Tm}(\Gamma)$ and $\mathsf{Ty}(\Gamma)$.
+%
+Indeed, it could be the lack of support for inductive-recursive definitions in many proof assistants which has held back formalisation attempts based on natural models so far.
+
+While we manage to avoid many transports occurring in terms, the experiment is not an outright success.
+%
+Indeed, we found that when developing more sophisticated metatheory, such as when defining a logical predicates model, the use of transports along equations often reappeared.
+%
+Furthermore, we found that the use of natural models is less well supported in the Cubical Agda of today, compared to approaches based purely on QIITs.
+%
+This is because we are more reliant on the computational behaviour of the recursively defined $\mathsf{tyOf}$ function, and this behaviour is only available in ``later'' clauses, which leads to the need for hacks and tricks to work around this limitation.
+%
+We discuss proof assistant features and their helpfulness further towards the end of the paper, after presenting our formalisation.
+
+\paragraph{Contributions} We make the following contributions:
+\begin{itemize}
+\item We present an intrinsically well typed representation of the syntax of type theory, inspired by Awodey's natural models (\cref{sec:tt}).
+\item We derive elimination and recursion principles for the syntax (\cref{sec:tt:elim}), and show how it can be used to construct the standard model and the term model (\cref{sec:standard-model}).
+\item We discuss strictification constructions on models, and show that they also apply to our notion of natural models (\cref{sec:strictify}).
+\item We develop normalisation by evaluation for the substitution calculus phrased as a natural model (\cref{sec:nbe}); because our development is carried out in Cubical Agda, which has a computational implementation of QIITs and principles such as function extensionality, the resulting normaliser computes, and can be used to normalise terms.
+\item We discuss pros and cons of our approach compared to other approaches, and which proof assistant features would be helpful to make future formalisations easier (\cref{sec:compare}).
+\end{itemize}
 
 \LT{I think the main contribution of our work is an attempt to apply the Fordism transformation and the index elimination to the QIIT of type theory and derive a strictly positive QIIRT; this definition could be used in conjunction with stratification in other setting (such as OTT) with a proper QIT support.}
-\LT{the idea of using natural model appears at least in 2024 \cite{Bense2024}, and it is a natural idea to formalise type theory in this way.}
+%\LT{the idea of using natural model appears at least in 2024 \cite{Bense2024}, and it is a natural idea to formalise type theory in this way.}
 \section{Setting and metatheory}
 % FNF (Sun 7 Sep)
 
@@ -482,15 +545,19 @@ In the end, we remark that the introduction of additional equality proofs and co
 We turn to its elimination rule of type theory we just defined.
 
 \subsection{Strictification}
+\label{sec:strictify}
 
 \subsection{Interleaved mutual definition}  \label{sec:tt:mutual}
 \section{Metatheory}
 % LTC (Tue 9 Sep)
 % \input{meta.agda.tex}
 
+\label{sec:standard-model}
+\label{sec:nbe}
 
 
 \section{Comparison with other approaches}
+\label{sec:compare}
 % FNF (Tue 9 Sep)
 
 Compared to QIIT:
