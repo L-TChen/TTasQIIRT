@@ -54,18 +54,21 @@
 \DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}}
 \DeclareUnicodeCharacter{03C3}{\ensuremath{\sigma}}
 \DeclareUnicodeCharacter{03C9}{\ensuremath{\omega}}
-\newunicodechar{β}{\ensuremath{\mathnormal\beta}}
-\newunicodechar{η}{\ensuremath{\mathnormal\eta}}
-\newunicodechar{Γ}{\ensuremath{\mathnormal\Gamma}}
-\newunicodechar{Δ}{\ensuremath{\mathnormal\Delta}}
-\newunicodechar{Θ}{\ensuremath{\mathnormal\Theta}}
-\newunicodechar{Ξ}{\ensuremath{\mathnormal\Xi}}
-\newunicodechar{τ}{\ensuremath{\mathnormal\tau}}
-\newunicodechar{γ}{\ensuremath{\mathnormal\gamma}}
-\newunicodechar{δ}{\ensuremath{\mathnormal\delta}}
-\newunicodechar{∅}{\ensuremath{\mathnormal\emptyset}}
-\newunicodechar{≡}{\ensuremath{\mathnormal\equiv}}
-\newunicodechar{∘}{\ensuremath{\mathnormal\circ}}
+\newunicodechar{β}{\ensuremath{\beta}}
+\newunicodechar{η}{\ensuremath{\eta}}
+\newunicodechar{Γ}{\ensuremath{\Gamma}}
+\newunicodechar{Δ}{\ensuremath{\Delta}}
+\newunicodechar{Θ}{\ensuremath{\Theta}}
+\newunicodechar{Ξ}{\ensuremath{\Xi}}
+\newunicodechar{Π}{\ensuremath{\Pi}}
+\newunicodechar{τ}{\ensuremath{\tau}}
+\newunicodechar{γ}{\ensuremath{\gamma}}
+\newunicodechar{δ}{\ensuremath{\delta}}
+\newunicodechar{∅}{\ensuremath{\emptyset}}
+\newunicodechar{≡}{\ensuremath{\equiv}}
+\newunicodechar{∘}{\ensuremath{\circ}}
+\newunicodechar{𝔹}{\ensuremath{\mathbb{B}}}
+\newunicodechar{𝕓}{\ensuremath{\mathbb{b}}}
 
 \DeclareUnicodeCharacter{2032}{\ensuremath{\prime}}
 \DeclareUnicodeCharacter{2113}{\ensuremath{\ell}}
@@ -78,10 +81,7 @@
 \DeclareUnicodeCharacter{22A5}{\ensuremath{\bot}}
 
 \DeclareUnicodeCharacter{1D57}{\ensuremath{^t}}
-\newunicodechar{∙}{\ensuremath{\mathnormal\bullet}}
-
-
-
+\newunicodechar{∙}{\ensuremath{\bullet}}
 
 
 % TODO: This is in general not a good idea.
