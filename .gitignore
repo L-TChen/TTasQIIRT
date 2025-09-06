@@ -3,3 +3,7 @@ MAlonzo/**
 .DS_Store
 tex/reference.bib
 *.vtc
+reference.bib
+tex/CPP26/aux
+*.pdf
+main.tex

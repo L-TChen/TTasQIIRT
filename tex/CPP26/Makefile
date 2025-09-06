@@ -2,7 +2,7 @@
 .PHONY: main
 main: main.pdf
 
-main.pdf: tex
+main.pdf: tex bib
 	latexmk -pdf -auxdir=aux main
 
 .PHONY: watch
@@ -13,7 +13,11 @@ watch: tex
 tex: main.lhs
 	lhs2TeX --agda main.lhs -o main.tex
 
+.PHONY: bib
+bib: aux/main.aux
+	bibexport -o ref.bib aux/main.aux
+
 .PHONY: clean
 clean:
-	latexmk -C main
+	latexmk -auxdir=aux -C main
 	rm main.tex

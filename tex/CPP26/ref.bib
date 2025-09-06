@@ -1,10 +1,70 @@
 
 
-@unpublished{Bense2024,
-  author =        {Bense, Viktor and Kaposi, Ambrus and Xie, Szumi},
-  note =          {Presented at TYPES'24},
-  title =         {Strict syntax of type theory via alpha-normalisation},
-  year =          {2024},
+@incollection{Dybjer1996,
+  author =        {Dybjer, Peter},
+  booktitle =     {Types for Proofs and Programs. TYPES 1995},
+  editor =        {Berardi, Stefano and Coppo, Mario},
+  pages =         {120--134},
+  publisher =     {Springer, Berlin, Heidelberg},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Internal type theory},
+  volume =        {1158},
+  year =          {1996},
+  doi =           {10.1007/3-540-61780-9_66},
+}
+
+@inproceedings{Danielsson2006,
+  author =        {Danielsson, Nils Anders},
+  booktitle =     {Types for Proofs and Programs (TYPES 2006)},
+  editor =        {Altenkirch, Thorsten and McBride, Conor},
+  publisher =     {Springer, Berlin, Heidelberg},
+  series =        {Lecture Notes in Computer Science},
+  title =         {A formalisation of a dependently typed language as an
+                   inductive-recursive family},
+  volume =        {4502},
+  year =          {2007},
+  doi =           {10.1007/978-3-540-74464-1_7},
+}
+
+@article{Chapman2009,
+  address =       {NLD},
+  author =        {Chapman, James},
+  journal =       {Electronic Notes in Theoretical Computer Science},
+  month =         {jan},
+  pages =         {21--36},
+  publisher =     {Elsevier Science Publishers B. V.},
+  title =         {Type theory should eat itself},
+  volume =        {228},
+  year =          {2009},
+  abstract =      {In this paper I present a partial formalisation of a
+                   normaliser for type theory in Agda [Ulf Norell. Agda
+                   2, 2007. http://www.cs.chalmers.se/~ulfn/]; extending
+                   previous work on big-step normalisation [Thorsten
+                   Altenkirch and James Chapman. Big-Step Normalisation.
+                   Journal of Functional Programming, 2008. Special
+                   Issue on Mathematically Structured Functional
+                   Programming. To appear, Thorsten Altenkirch and James
+                   Chapman. Tait in one big step. In Workshop on
+                   Mathematically Structured Functional Programming,
+                   MSFP 2006, Kuressaare, Estonia, July 2, 2006,
+                   electronic Workshop in Computing (eWiC), Kuressaare,
+                   Estonia, 2006. The British Computer Society (BCS)].
+                   The normaliser in written as an environment machine.
+                   Only the computational behaviour of the normaliser is
+                   presented omitting details of termination.},
+  doi =           {10.1016/j.entcs.2008.12.114},
+  issn =          {1571-0661},
+}
+
+@article{Benton2012,
+  author =        {Benton, Nick and Hur, Chung-Kil and
+                   Kennedy, Andrew J. and McBride, Conor},
+  journal =       {Journal of Automated Reasoning},
+  pages =         {141--159},
+  title =         {Strongly typed term representations in {Coq}},
+  volume =        {49},
+  year =          {2012},
+  doi =           {10.1007/s10817-011-9219-0},
 }
 
 @inproceedings{Altenkirch2016a,
@@ -33,6 +93,137 @@
   isbn =          {9781450335492},
 }
 
+@article{McKinna1999,
+  author =        {McKinna, James and Pollack, Robert},
+  journal =       {Journal of Automated Reasoning},
+  pages =         {373--409},
+  title =         {Some lambda calculus and type theory formalized},
+  volume =        {23},
+  year =          {1999},
+  doi =           {10.1023/A:1006294005493},
+}
+
+@inproceedings{Altenkirch2018,
+  author =        {Altenkirch, Thorsten and Capriotti, Paolo and
+                   Dijkstra, Gabe and Kraus, Nicolai and
+                   Nordvall Forsberg, Fredrik},
+  booktitle =     {Foundations of Software Science and Computation
+                   Structures (FoSSaCS)},
+  editor =        {Baier, Christel and Dal Lago, Ugo},
+  pages =         {293--310},
+  publisher =     {Springer, Cham},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Quotient inductive-inductive types},
+  volume =        {10803},
+  year =          {2018},
+  abstract =      {Higher inductive types (HITs) in Homotopy Type Theory
+                   allow the definition of datatypes which have
+                   constructors for equalities over the defined type.
+                   HITs generalise quotient types, and allow to define
+                   types with non-trivial higher equality types, such as
+                   spheres, suspensions and the torus. However, there
+                   are also interesting uses of HITs to define types
+                   satisfying uniqueness of equality proofs, such as the
+                   Cauchy reals, the partiality monad, and the
+                   well-typed syntax of type theory. In each of these
+                   examples we define several types that depend on each
+                   other mutually, i.e. they are inductive-inductive
+                   definitions. We call those HITs quotient
+                   inductive-inductive types (QIITs). Although there has
+                   been recent progress on a general theory of HITs,
+                   there is not yet a theoretical foundation for the
+                   combination of equality constructors and
+                   induction-induction, despite many interesting
+                   applications. In the present paper we present a first
+                   step towards a semantic definition of QIITs. In
+                   particular, we give an initial-algebra semantics. We
+                   further derive a section induction principle, stating
+                   that every algebra morphism into the algebra in
+                   question has a section, which is close to the
+                   intuitively expected elimination rules.},
+  doi =           {10.1007/978-3-319-89366-2_16},
+}
+
+@article{Altenkirch2017,
+  author =        {Altenkirch, Thorsten and Kaposi, Ambrus},
+  journal =       {Logical Methods in Computer Science},
+  month =         oct,
+  number =        {4},
+  title =         {Normalisation by evaluation for type theory, in type
+                   theory},
+  volume =        {13},
+  year =          {2017},
+  doi =           {10.23638/LMCS-13(4:1)2017},
+}
+
+@book{Hofmann1997,
+  author =        {Hofmann, Martin},
+  publisher =     {Springer London},
+  series =        {Distinguished Dissertations},
+  title =         {Extensional Constructs in Intensional Type Theory},
+  year =          {1997},
+  doi =           {10.1007/978-1-4471-0963-1},
+}
+
+@unpublished{Bense2024,
+  author =        {Bense, Viktor and Kaposi, Ambrus and Xie, Szumi},
+  note =          {Presented at TYPES'24},
+  title =         {Strict syntax of type theory via alpha-normalisation},
+  year =          {2024},
+}
+
+@article{Awodey2018,
+  author =        {Awodey, Steve},
+  journal =       {Mathematical Structures in Computer Science},
+  number =        {2},
+  pages =         {241--286},
+  publisher =     {Cambridge University Press},
+  title =         {Natural models of homotopy type theory},
+  volume =        {28},
+  year =          {2018},
+  doi =           {10.1017/S0960129516000268},
+}
+
+@article{Vezzosi2021,
+  author =        {Vezzosi, Andrea and M{\"{o}}rtberg, Anders and
+                   Abel, Andreas},
+  journal =       {Journal of Functional Programming},
+  number =        {e8},
+  title =         {{Cubical Agda}: A dependently typed programming
+                   language with univalence and higher inductive types},
+  volume =        {31},
+  year =          {2021},
+  doi =           {10.1017/S0956796821000034},
+}
+
+@inproceedings{Dybjer1999,
+  address =       {Berlin, Heidelberg},
+  author =        {Dybjer, Peter and Setzer, Anton},
+  booktitle =     {Typed Lambda Calculi and Applications},
+  editor =        {Girard, Jean-Yves},
+  pages =         {129--146},
+  publisher =     {Springer Berlin Heidelberg},
+  series =        {Lecture Notes in Computer Science},
+  title =         {A finite axiomatization of inductive-recursive
+                   definitions},
+  volume =        {1581},
+  year =          {1999},
+  abstract =      {Induction-recursion is a schema which formalizes the
+                   principles for introducing new sets in Martin-L{\"o}f
+                   's type theory. It states that we may inductively
+                   define a set while simultaneously defining a function
+                   from this set into an arbitrary type by structural
+                   recursion. This extends the notion of an inductively
+                   defined set substantially and allows us to introduce
+                   universes and higher order universes (but not a Mahlo
+                   universe). In this article we give a finite
+                   axiomatization of inductive-recursive definitions. We
+                   prove consistency by constructing a set-theoretic
+                   model which makes use of one Mahlo cardinal.},
+  doi =           {10.1007/3-540-48959-2_11},
+  isbn =          {978-3-540-48959-7},
+}
+
 @misc{Licata2011,
   author =        {Licata, Dan},
   month =         {April},
@@ -50,18 +241,6 @@
                    Proofs},
   year =          {1999},
   url =           {https://era.ed.ac.uk/bitstream/id/600/ECS-LFCS-00-419.pdf},
-}
-
-@article{Awodey2018,
-  author =        {Awodey, Steve},
-  journal =       {Mathematical Structures in Computer Science},
-  number =        {2},
-  pages =         {241--286},
-  publisher =     {Cambridge University Press},
-  title =         {Natural models of homotopy type theory},
-  volume =        {28},
-  year =          {2018},
-  doi =           {10.1017/S0960129516000268},
 }
 
 @article{Kaposi2025,
