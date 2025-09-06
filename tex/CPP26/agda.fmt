@@ -69,6 +69,7 @@
 \newunicodechar{∘}{\ensuremath{\circ}}
 \newunicodechar{𝔹}{\ensuremath{\mathbb{B}}}
 \newunicodechar{𝕓}{\ensuremath{\mathbb{b}}}
+\newunicodechar{∎}{\ensuremath{\blacksquare}}
 
 \DeclareUnicodeCharacter{2032}{\ensuremath{\prime}}
 \DeclareUnicodeCharacter{2113}{\ensuremath{\ell}}
