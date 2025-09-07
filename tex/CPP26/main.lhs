@@ -30,7 +30,7 @@
 \usepackage[obeyFinal,textsize=footnotesize]{todonotes}
 \usepackage[capitalise]{cleveref}
 \newcommand{\LT}[2][]{\todo[inline,author={L-T},caption={},color={pink},#1]{#2}}
-\newcommand{\Fredrik}[2][]{\todo[inline,author={Fred},caption={},#1]{#2}}
+\newcommand{\FNF}[2][]{\todo[inline,author={Fred},caption={},#1]{#2}}
 
 \usepackage{microtype}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -144,8 +144,7 @@ The effort required is about the same whether or not the notion of natural model
 \section{Introduction}
 % FNF (Fri 5 Sep)
 
-Internalising the syntax and semantics of type theory in type theory is a longstanding problem which stretches the limits of the theory~\cite{Dybjer1996,Danielsson2006,Chapman2009,Benton2012,Altenkirch2016a}.
-\LT[noinline]{Is McBride2012 Bento2012?}
+Internalising the syntax and semantics of type theory in type theory is a longstanding problem which stretches the limits of the theory~\cite{Dybjer1996,Danielsson2006,Chapman2009,McBride2010,Altenkirch2016a}.
 %
 There are both practical and theoretical reasons to pursue this problem.
 %
@@ -159,6 +158,7 @@ This is one reason why formalising type theory in type theory is hard.
 %
 
 \LT[noinline]{Is this just Pollack or McKinna \& Pollack?}
+\FNF[noinline]{It was meant to be Pollack's thesis, but McKinna \& Pollack might be better.}
 Early approaches to formalising type theory (see e.g. McKinna and Pollack~\cite{McKinna1999}) dealt with untyped terms that were later refined by a typing relation, or used setoid equality, and hence had to prove a lot of congruence lemmas by hand~\cite{Danielsson2006,Chapman2009}.
 %
 A breakthough was achieved by Altenkirch and Kaposi~\cite{Altenkirch2016a}, who showed that quotient inductive-inductive types (QIITs)~\cite{Altenkirch2018} can be employed to significantly simplify the internal representation of well typed terms, since equality constructors can be used to represent equations such as $\beta$- and $\eta$-equality.
@@ -216,7 +216,18 @@ We discuss proof assistant features and their helpfulness further towards the en
 \section{Setting and metatheory}
 % FNF (Sun 7 Sep)
 
-Cubical Agda with UIP
+Our formalisation is carried out in Cubical Agda with a global assumption of Uniqueness of Identity Proofs.
+%
+We believe it should be possible to discharge this global assumption in favour of explicitly set-truncating the types we define.
+%
+Of course, since Univalence is provable in Cubical Agda, such a global assumption of Uniqueness of Identity Proofs is, in fact, inconsistent.
+%
+However, we make sure to not make use of Univalence in our development (more generally, we do not make use of the |Glue| type, which is used to prove Univalence), and so we have high confidence that our formalisation is actually consistent.
+%
+We note that a variant of Cubical Agda which is consistent with Uniqueness of Identity Proofs have also been requested by other users.\footnote{``A variant of Cubical Agda that is consistent with UIP'', \url{https://github.com/agda/agda/issues/3750}.}
+
+\FNF{Explain path types}
+\FNF{Explain QITs}
 
 QIIRTs
 
@@ -786,3 +797,7 @@ Compared to untyped version:
 %\begin{acks}
 %To Robert, for the bagels and explaining CMYK and color spaces.
 %\end{acks}
+
+%%% Local Variables:
+%%% mode: latex
+%%% End:
