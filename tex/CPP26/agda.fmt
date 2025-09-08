@@ -82,7 +82,7 @@
 \DeclareUnicodeCharacter{22A5}{\ensuremath{\bot}}
 
 \DeclareUnicodeCharacter{1D57}{\ensuremath{^t}}
-\newunicodechar{∙}{\ensuremath{\bullet}}
+\newunicodechar{∙}{\ensuremath{\cdot}}
 
 
 % TODO: This is in general not a good idea.

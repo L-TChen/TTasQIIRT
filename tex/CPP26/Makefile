@@ -2,7 +2,7 @@
 .PHONY: main
 main: main.pdf
 
-main.pdf: tex bib
+main.pdf: tex
 	latexmk -pdf -auxdir=aux main
 
 .PHONY: watch
