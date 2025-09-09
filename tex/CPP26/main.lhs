@@ -211,6 +211,9 @@ This is because we are more reliant on the computational behaviour of the recurs
 %
 We discuss proof assistant features and their helpfulness further towards the end of the paper, after presenting our formalisation.
 
+\LT{I think towards the end of this paper we should view our work as an analysis of problems with formalising type theory in a proof assistant natively.
+My tentative conclusion is that the gap between what a proof assistant provides and what is needed is still huge, so that is why Kaposi still Licata's trick to start with a type theory.}
+
 \paragraph{Contributions} We make the following contributions:
 \begin{itemize}
 \item We present an intrinsically well typed representation of the syntax of type theory, inspired by Awodey's natural models (\cref{sec:tt}).
