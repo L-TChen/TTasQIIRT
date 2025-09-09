@@ -227,25 +227,42 @@ My tentative conclusion is that the gap between what a proof assistant provides 
 \section{Setting and metatheory}
 % FNF (Sun 7 Sep)
 
-Our formalisation is carried out in Cubical Agda with a global assumption of Uniqueness of Identity Proofs.
+Our formalisation is carried out in \CA with a global assumption of Uniqueness of Identity Proofs.
 %
 We believe it should be possible to discharge this global assumption in favour of explicitly set-truncating the types we define.
 %
-Of course, since Univalence is provable in Cubical Agda, such a global assumption of Uniqueness of Identity Proofs is, in fact, inconsistent.
+Of course, since Univalence is provable in \CA, such a global assumption of Uniqueness of Identity Proofs is, in fact, inconsistent.
 %
-However, we make sure to not make use of Univalence in our development (more generally, we do not make use of the |Glue| type, which is used to prove Univalence), and so we have high confidence that our formalisation is actually consistent.
-\LT{Shouldn't it be justified by XTT~\cite{Sterling2022}?}
+However, we make sure to not make use of Univalence in our development (more generally, we do not make use of the |Glue| type, which is used to prove Univalence).
+%
+Hence, we have high confidence that our formalisation is actually consistent; for example, it could be carried out in a proof assistant implementing XTT~\cite{Sterling2022}.
 %
 We note that a variant of Cubical Agda which is consistent with Uniqueness of Identity Proofs have also been requested by other users.\footnote{``A variant of Cubical Agda that is consistent with UIP'', \url{https://github.com/agda/agda/issues/3750}.}
 
-\FNF{Explain path types}
-\FNF{Explain QITs}
+\CA implements cubical type theory, and one of the most important concepts therein is the interval type |I| with two distinguished endpoints |i0| and |i1|.
+%
+Propositional equality in a type |A| is given by \emph{paths} in |A|, i.e., by a functions |I → A|; more generally, dependent paths |PathP P a b| are given by dependent functions |(i : I) → P i| sending |i0| to |a : P i0| and |i1| to |b : P i1|. Note that |P : I → Type| itself is a path in the universe |Type|, hence a witness that |P i0 ≡ P i1|, which the dependent path is \emph{over}.
+%
+The constant path |refl = λ i → a| witnesses that equality is reflexive |a ≡ a|, and paths can be lifted to type families in the sense that there is a transport operation |subst : (P : A → Type) → x ≡ y → P x → P y|.
+%
+See the literature on cubical type theory for details~\cite{Vezzosi2021}.
+%
 
-QIIRTs
+\CA also allows paths to appear as the target of constructors in inductive definitions, i.e., \CA implements higher inductive types~\cite{Lumsdaine2020}.
+%
+When defining a function |f : H → X| by pattern matching out of a higher inductive type, |f| also needs to be defined on the path constructors: if |e : s ≡ t| is a path from |s| to |t| in |H|, then |f e : f s ≡ f t| should be a path from |f s| to |f t| in |X|.
+%
+Agda's support for simultaneous definitions allows us to define quotient inductive-inductive types~\cite{Altenkirch2018}, where a type |A : Type| and a type family |B : A → Type| are defined inductively simultaneously.
+%
+Agda even allows us to define quotient inductive-inductive-recursive types, where |A : Type| and |B : A → Type| are defined inductively together with a recursive function |f : A → C|.
+%
+We will make use of this feature to define types, terms and the |tyOf| function from terms to types simultaneously.
 
-\LT{For brevity we have made arguments implicit for equality constructors, whereas some of them are actually explicit in our formalisation.}
-\LT{Universe levels are ignored in the paper.}
-\LT{Should we give a simple example of QIRT here?}
+For brevity, in this paper presentation we have made some arguments implicit for equality constructors, even though they are explicit in our formalisation.
+%
+Similarly, we are ignoring universe levels in the paper, but they are all present in the formalisation.
+
+% \LT{Should we give a simple example of QIRT here?}
 
 \section{Type theory as quotient inductive types} \label{sec:tt}
 This section's aim is to exhibit that Altenkirch and Kaposi's representation, which contains the transport hells and violates the syntactic restriction imposed by \CA, can be transformed to a representation based on Awodey's natural model, which is free from transports and accepted by \CA.
