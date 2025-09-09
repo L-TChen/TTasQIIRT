@@ -3,11 +3,65 @@ open import Prelude
 open import Theory.SC.QIIRT-tyOf.Model
 
 module Theory.SC.QIIRT-tyOf.Rec (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
+-- module Theory.SC.QIIRT-tyOf.Rec (C : SC ℓ ℓ ℓ ℓ) where
 
 open SC C
 
 import Theory.SC.QIIRT-tyOf.Syntax as S
 open S.Var
+
+{-
+data Tag : Set where
+  ctx tm ty tyof sub : Tag
+
+tyOfRec : Tag → Set ℓ
+{-# TERMINATING #-}
+rec : (t : Tag) → tyOfRec t
+
+tyOfRec ctx  = S.Ctx → Ctx
+tyOfRec ty   = {Γ : S.Ctx} → S.Ty Γ → Ty (rec ctx Γ)
+tyOfRec tm   = {Γ : S.Ctx} → S.Tm Γ → Tm (rec ctx Γ)
+tyOfRec sub  = {Γ Δ : S.Ctx} → S.Sub Γ Δ → Sub (rec ctx Γ) (rec ctx Δ)
+tyOfRec tyof = {Γ : S.Ctx} → {A : S.Ty Γ} → (t : S.Tm Γ)
+  → S.tyOf t ≡ A → tyOf (rec tm t) ≡ rec ty A
+
+rec ctx S.∅              = ∅
+rec ctx (Γ S., A)        = rec ctx Γ ,C rec ty A
+rec ty (S.U[] {Γ} {Δ} {σ} i) = U[] {rec ctx Γ} {rec ctx Δ} {rec sub σ} i
+rec ty (A S.[ σ ])       = (rec ty A) [ rec sub σ ]T
+rec ty (S.[idS]T {Γ} {A} i) = [idS]T {rec ctx Γ} {rec ty A} i
+rec ty (S.[∘]T A σ τ i)     = [∘]T (rec ty A) (rec sub σ) (rec sub τ) i
+rec ty S.U                  = U
+rec tm (t S.[ σ ])          = rec tm t [ rec sub σ ]t
+rec tm (S.π₂ σ)             = π₂ (rec sub σ)
+rec tm (S.βπ₂ σ t p q i)    = βπ₂ (rec sub σ) (rec tm t) {! rec tyof t p !} i
+rec tm (S.[idS]t t i) = [idS]t (rec tm t) i
+rec tm (S.[∘]t t σ τ i) = [∘]t (rec tm t) (rec sub σ) (rec sub τ) i
+rec tyof (t S.[ σ ]) pt = {!!} -- tyOf[] ∙ cong _[ rec sub σ ]T (rec tyof t refl) ∙ cong (rec ty) pt
+rec tyof (S.π₂ σ) pt    = {!!}
+rec tyof (S.βπ₂ σ t p q i) pt = {!!}
+rec tyof (S.[idS]t t i) pt = {!!}
+rec tyof (S.[∘]t t σ τ i) pt = {!!}
+rec sub S.∅              = ∅S
+rec sub S.idS            = idS
+rec sub (σ S.∘ τ) = rec sub σ ∘ rec sub τ
+rec sub (S.π₁ σ)  = π₁ (rec sub σ)
+rec sub (S.βπ₁ σ t p i)      = βπ₁ (rec sub σ) (rec tm t) {! rec tyof t p !} i
+rec sub ((S.idS∘ σ) i)       = (idS∘ rec sub σ) i
+rec sub ((σ S.∘idS) i)       = (rec sub σ ∘idS) i
+rec sub (S.assocS σ σ₁ σ₂ i) = assocS (rec sub σ) (rec sub σ₁) (rec sub σ₂) i
+rec sub (S.,∘ σ t σ₁ p q i)  = {!!}
+-- ,∘ (rec sub σ) (rec tm t) (rec sub σ₁) (rec tyOf t p) {!rec tyOf ? q!} {!!}
+rec sub (S.η∅ σ i) = {!!}
+rec sub (S.ηπ σ i) = {!!}
+rec sub (S._,_∶[_] {Γ} {Δ} {A} σ t p) = _,_∶[_] {rec ctx Γ} {rec ctx Δ} {rec ty A} (rec sub σ) (rec tm t) {! rec tyof t p !}
+
+recCtx  = rec ctx
+recSub  = rec sub
+recTy   = rec ty
+recTm   = rec tm
+recTyOf = rec tyof 
+-}
 
 recCtx  : S.Ctx → Ctx
 {-# TERMINATING #-}

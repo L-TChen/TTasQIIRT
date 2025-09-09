@@ -346,7 +346,7 @@ For instance, the equality constructor for the identity substitution becomes
 \begin{code}
   [idS]t  : t ≡ t [ idS ]
 \end{code}
-where the fact that |t| and |t [ idS ]| share the same type follows from their term equality, rather than being imposed as a \emph{requirement}.
+where the fact that |t| and |t [ idS ]| share the same type follows from their term equality, rather than being a \emph{requirement}.
 
 \subsection{Substitution calculus using QIIRT}
 Building on the changes described in \Cref{sec:tt:terms-without-indices}, we now spell out our version of substitution calculus: the following types are defined simultaneously with a recursive function:
@@ -416,10 +416,10 @@ Although |Tm| is only indexed by |Γ : Ctx|, the function |tyOf| ensures that ev
 Hence, |Tm| only consists of valid derivations and is still an intrinsic representation of type theory.
 
 Replacing the index |A : Ty| of |Tm| by a function |tyOf : Tm Γ → Ty Γ| aligns with Awodey's notion of \emph{natural model}~\cite{Awodey2018} where the collections of terms and types are represented as presheaves $\mathsf{Tm}, \mathsf{Ty} \colon \mathbb{C} \to \Set$ over the category of contexts $\mathbb{C}$ and connected by a natural transformation $\mathsf{Tm} \to \mathsf{Ty}$ stable under pullbacks, i.e.\ substitution.
-That is, we have just derived the initial natural model using QIIRT in \CA.
+That is, we have derived the intrinsic representation of type theory as a natural model using QIIRT in \CA.
 This situates our family of inductive types and their algebras within a well-studied categorical models for type theory.
 
-\subsection{Type theory with the $\Pi$-type}
+\subsection{Type theory with the \texorpdfstring{$\Pi$}{Pi}-type}
 
 We proceed with the $\Pi$-type.
 First we define the lifting of a substitution by a type:
@@ -580,7 +580,7 @@ In the end, we emphasise that the introduction of superfluous equality proofs an
 With UIP, these additional arguments are essentially unique and thus do not add any new laws to type theory, but merely serve as devices to meet the syntactic restriction of strict positivity.
 
 \subsection{Recursion and elimination principles} \label{sec:tt:elim}
-We turn to the recursion and elimination principles.
+We turn to the (internal) recursion and elimination principles.
 Our QIIRT definition of type theory syntax yields an \emph{initial model}.
 This means that for any other model (algebra) of our theory, there is a unique structure-preserving map from our syntax to that model.
 The recursion and elimination principles make this property concrete.
@@ -597,7 +597,7 @@ record SC  : Set  where
     Ty      : Ctx → Set
     Tm      : Ctx → Set
     Sub     : Ctx → Ctx → Set
-    tyOf    : {Γ : Ctx} → Tm Γ → Ty Γ
+    tyOf    : Tm Γ → Ty Γ
 
     ∅       : Ctx
     _,C_    : (Γ : Ctx)(A : Ty Γ) → Ctx
@@ -605,7 +605,7 @@ record SC  : Set  where
     _[_]t   : (t : Tm Δ)(σ : Sub Γ Δ) → Tm Γ
     idS∘_   : idS ∘ σ ≡ σ
     ...
-    βπ₂     : → π₂ (σ , t ∶[ p ]) ≡ t
+    βπ₂     : π₂ (σ , t ∶[ p ]) ≡ t
     ...
     tyOf[]  : tyOf (t [ σ ]t)      ≡ (tyOf t) [ σ ]T
     tyOfπ₂  : tyOf (π₂ {A = A} σ)  ≡ A [ π₁ σ ]T
@@ -613,7 +613,7 @@ record SC  : Set  where
 
 To distinguish syntactic constructors from the semantic methods in |SC|, we qualify the syntactic constructors with |S.| in the following discussion.
 
-Those superfluous equality constructors, like |S.tyOfπ₂idS|, are not required as fields in the record.
+Superfluous equality constructors, like |S.tyOfπ₂idS|, are not required as fields in the record.
 Instead, their semantic counterparts are defined within any given model using the other methods.
 For example,
 \begin{code}
@@ -623,7 +623,7 @@ For example,
 \end{code}
 This simplifies the definition of models, as we only need to provide interpretations for the essential constructors.
 
-The recursion principle itself consists of a family of functions that map syntax to their semantic counterparts in a given |SC|-algebra:
+The recursion principle consists of a family of functions that map syntax to their semantic counterparts:
 \begin{code}
 recCtx   : S.Ctx → Ctx
 recTy    : S.Ty Γ → Ty (recCtx Γ)
@@ -632,7 +632,7 @@ recSub   : S.Sub Γ Δ → Sub (recCtx Γ) (recCtx Δ)
 \end{code}
 We also need a function that translates proofs about syntactic types into proofs about semantic types:
 \begin{code}
-recTyOf  : S.tyOf t ≡ B → tyOf (recTm t) ≡ recTy B
+recTyOf  : S.tyOf t ≡ B → (HL(tyOf (recTm t) ≡ recTy B))
 \end{code}
 The definition of these functions proceeds by pattern matching on the syntactic structure.
 Each clause is an application of the corresponding method from the |SC| record:
@@ -700,7 +700,157 @@ As a result, we would have to specify two underlying equations as
 and equational reasoning with them would involve three equations altogether.
 It is nice that we do not have deal with this extra proof obligation in our formulation.
 
-The term |SC|-algebra is defined rather routinely as each field is given by the corresponding constructor, except that the additional equality proof in, say, |βπ₂| is replaced by an actual proof:
+The elimination principle is stated similarly to the recursion principle but indexed over the term algebra~(\Cref{sec:meta:term}), 
+\begin{code}
+elimCtx   : (Γ :  S.Ctx)      → Ctx∙ Γ
+elimTy    : (A :  S.Ty Γ)     → Ty∙ (elimCtx Γ) A
+elimTm    : (t :  S.Tm Γ)     → Tm∙ (elimCtx Γ) t
+elimSub   : (σ :  S.Sub Γ Δ)  → Sub∙ (elimCtx Γ) (elimCtx Δ) σ
+elimTyOf  : (t :  S.Tm Γ) (p : S.tyOf t ≡ A)
+  →  tyOf∙ (elimTm t) ≡Ty[ (HL(p)) ] elimTy A
+\end{code}
+
+For the coherence conditions, we may need extra steps to reason about instead of just using the semantics equation, so we use the transitivity for dependent paths:
+\begin{code}
+_∙P_ :  {x' : B x}{y' : B y}{z' : B z}
+  → {p : x ≡ y}{q : y ≡ z}
+  → PathP (λ i → B ((HL(p)) i)) x' y' → PathP (λ i → B ((HL(q)) i)) y' z'
+  → PathP (λ i → B ((HL((p ∙ q)))i)) x' z'
+\end{code}
+and also the UIP to identify the |p ∙ q| with the desired underlying equation. 
+We extend the conventional syntax for equational reasoning for displayed equations.
+\LT[noinline]{Inspired by 1Lab}
+For example, the coherence proof for |ηπ| is given by
+\begin{code}
+(HL(beginSub[ ηπ ]))
+  elimSub σ
+    ≡Sub[ (HL(ηπ)) ]⟨ (HL(ηπ∙ (elimSub σ))) ⟩
+  π₁∙ (elimSub σ) , π₂∙ (elimSub σ) ∶[ refl , (HL(tyOfπ₂∙ (elimSub σ))) ]∙
+    ≡Sub[ (HL(refl)) ]⟨ cong (π₁∙ (elimSub σ) , π₂∙ (elimSub σ)
+      ∶[ refl ,_]∙) (HL(UIP)) ⟩
+  π₁∙ (elimSub σ) , elimTm (π₂ σ) ∶[ refl , (HL(elimTyOf (π₂ σ) refl)) ]∙
+    ∎
+\end{code}
+The transitivity of dependent paths gives us an equation over |ηπ ∙ refl | instead of |ηπ|, so we use |beginSub[ ηπ ]_| to identify the underlying path |ηπ ∙ refl | with |ηπ| by the UIP.
+
+
+\subsection{Practical workarounds for mutual definitions}  \label{sec:tt:mutual}
+
+So far, we have outlined how the recursion and elimination principles should be defined \emph{ideally}.  
+In practice, however, limitations (and occasional mysterious bugs) of the proof assistant require us to adopt certain workarounds in order to implement the intended definitions.  
+This shows that the current design of \CA is not yet fully aligned with the theory of quotient inductive-inductive types~\cite{Kaposi2019}.
+
+\paragraph{Mutually interleaved QIITs}  
+Constructors of QIITs can not be interleaved~\cite{Agdaissue2021} in \CA, even within an |interleaved mutual| block.  
+The reason is that such a block is desugared into a collection of forward declarations for the |data| types, rather than constructors.
+In principle, all constructors belonging to the same family of QIITs should be declared within the same context~\cite{Kaposi2019}.
+However, due to this desugaring, equality constructors may end up depending on other constructors that are not yet in scope.
+
+We work around this issue as follows:
+\begin{enumerate*}[label=(\roman*)]
+  \item make forward declarations for the \emph{entire definition} of the QIITs, including constructors;
+  \item introduce each constructor bur only refer to forward declarations;
+  \item define the forward declarations by their corresponding constructors;
+  \item finally, expose only the actual constructors, omitting the forward declarations.
+\end{enumerate*}
+The following snippet illustrates this approach:
+\begin{code}
+module S where
+  data Ctx  : Set
+  ...
+  ∅    : Ctx
+  _,_  : (Γ : Ctx)(A : Ty Γ) → Ctx
+  ...
+  data Ctx where
+    ∅'    : Ctx 
+    _,'_  : (Γ : Ctx) (A : Ty Γ) → Ctx
+  ...
+  ∅       = ∅'
+  _,_     = _,'_
+  ...
+open S public
+  hiding ( ∅ ; _,_; ...)
+  renaming ( ∅' to ∅ ; _,'_ to _,_; ...)
+\end{code}
+
+This translation from QIITs in theory to their actual definitions in \CA may be sufficient to define mutually interleaved QIITs.  
+Indeed, it is more natural to present each type former by its formation, introduction, elimination, and equality rules (cf.~\cite{Hofmann1997}) using mutually interleaved QIITs, rather than by a few large monolithic sets of rules.
+
+\paragraph{Mutual interleaved QIIRTs}  
+Interleaving function clauses with inductive types is a different matter, since we cannot declare a function clause together with its computational behaviour.\footnote{Custom rewrite rules are not allowed in \CA.}
+However, because we have `Forded' the typing constraints into equality proofs, what we actually need at the point of introducing constructors is only the existence of such an equality proof, not its computational content.  
+
+Our workaround is therefore as follows:
+\begin{enumerate*}[label=(\roman*)]
+  \item declare the existence of the required equality proof before it is used,
+  \item define |tyOf| only after all datatype declarations have been given, and
+  \item provide the actual definition corresponding to the forward declaration.
+\end{enumerate*}
+For instance, the equality constructor |ηπ| asks for a proof of |tyOf (π₂ σ) ≡ A [ π₁ σ ]|.  
+In this case, we simply declare such a proof:
+\begin{code}
+tyOfπ₂  : tyOf (π₂ σ) ≡ A [ π₁ σ ]
+ηπ      : σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ ])
+\end{code}
+Then, once |tyOf| has been defined, simply set |tyOfπ₂| to |refl|:  
+\begin{code}
+tyOf (π₂' {Γ} {Δ} {A} {σ}) = A [ π₁ {A = A} σ ]
+...
+tyOfπ₂ = refl
+\end{code}
+
+This translation is valid as long as the computational behaviour of the interleaved function clauses is irrelevant.\footnote{A general scheme of QIIRTs may be developed to allow mutually interleaving inductive types with function clauses, by extending the type theory of QIITs~\cite{Kaposi2019} with an additional identity type for function clauses.}
+
+\paragraph{Mutually-defined functions}  
+\LT[noinline]{Agda issue?}
+Since the constructors of QII(R)Ts can be mutually interleaved, their recursion and elimination principles also need to be given in the same vein.
+However, \Agda does not allow us to interleave clauses of different functions directly.
+One workaround is to use forward declarations as a lifting of the entire clause and then perform the necessary coercions along the corresponding equality proofs by hand.  
+
+Another possibility is to define a single family of functions indexed by tags.
+For instance, the recursion principle can be implemented by introducing a datatype |Tag| with one constructor for each motive:  
+\begin{code}
+data Tag : Set where
+  ctx ty sub tm tyof : Tag
+\end{code}
+Then, we define the recursion principle uniformly as |rec|, with |tyOfRec| computing its type.  
+Each actual function is introduced as a synonym for |rec| at the appropriate tag:  
+\begin{code}
+tyOfRec : Tag    → Set
+rec : (t : Tag)  → tyOfRec t
+tyOfRec ctx   = S.Ctx → Ctx
+
+rec ctx S.∅              = ∅
+rec ctx (Γ S., A)        = rec ctx Γ ,C rec ty A
+...
+
+recCtx   = rec ctx
+...
+\end{code}
+
+At the time of writing, however, this encoding cannot be fully carried out in \CA: some terms that should be strictly equal are not recognised as such during type checking.
+For example, in the following clause of |rec|:  
+\begin{code}
+rec sub (S._,_∶[_] {Γ} {Δ} {A} σ t p) = _,_∶[_]
+  {rec ctx Γ} {rec ctx Δ} {rec ty A} (rec sub σ) (rec tm t)
+  (HL({! rec tyof t p !}))
+\end{code}
+the subterm in the hole is accepted by \Agda, but refining it results an error, as the terms |rec ty (A S.[ σ ])| and |rec ty A [ rec sub σ ]T| are not recognised as equal---even though the first was already defined to be the second.
+
+In our formalisation, we fall back on forward declarations alone with coercions.  
+We are still investigating the root cause of this behaviour, but it may point to a design flaw.
+
+
+\section{Metatheory}
+Having defined type theory as QIIRTs, we now turn to models of type theory.
+We also consider constructions of new models from existing ones.
+
+%We find that reasoning with this definition \emph{per se} in \CA is hard even with substitution calculus: the lack of strict equalities in type theory is known to cause the transport hell~\cite{Altenkirch2016a} and even worse it cannot be mitigated by using custom rewriting rules~\cite{Cockx2020,Cockx2021} in \CA.
+%Nevertheless, programming with type theory seems doable, as normalisation can be 
+
+\subsection{Term model} \label{sec:meta:term}
+The term model provides a direct interpretation of syntax, allowing displayed models to be instantiated over it and ensuring that the elimination rule computes.  
+The definition is routine: each field is interpreted by the corresponding constructor, except that additional equality constraints (such as the one in |βπ₂|) are replaced by actual proofs:
 \begin{code}
 Term : SC
 Term = record
@@ -711,149 +861,13 @@ Term = record
     → S.βπ₂ σ t p (HL((cong (A [_]) (S.βπ₁ σ t p) ∙ sym p))) }
 \end{code}
 
-By instantiating displayed algebras over the term algebra, the elimination principle is stated similarly to the recursion principle but indexed by the term algebra:
-\begin{code}
-elimCtx   : (Γ :  S.Ctx)      → Ctx∙ Γ
-elimTy    : (A :  S.Ty Γ)     → Ty∙ (elimCtx Γ) A
-elimTm    : (t :  S.Tm Γ)     → Tm∙ (elimCtx Γ) t
-elimSub   : (σ :  S.Sub Γ Δ)  → Sub∙ (elimCtx Γ) (elimCtx Δ) σ
-elimTyOf  : (t :  S.Tm Γ) (p : S.tyOf t ≡ A)
-  →  tyOf∙ (elimTm t) ≡Ty[ (HL(p)) ] elimTy A
-\end{code}
+Other type formers are given similarly.
 
-For the coherence conditions of elimination, it sometimes extra steps to reason about instead of using the corresponding displayed equation, so we need the transitivity for dependent paths:
-\begin{code}
-_∙P_
-  : {x' : B x}{y' : B y}{z' : B z}{p : x ≡ y}{q : y ≡ z}
-  → PathP (λ i → B (p i)) x' y' → PathP (λ i → B (q i)) y' z'
-  → PathP (λ i → B ((HL((p ∙ q) i)))) x' z'
-\end{code}
-and also use UIP to identify the |p ∙ q| with the desired underlying equation. 
-We extend the conventional syntax for equational reasoning with another equation for the index.
-\LT[noinline]{Inspired by 1Lab}
-For example, the coherence proof for |ηπ| is given by
-\begin{code}
-elimSub (ηπ {Γ} {Δ} {A} σ i) = ((HL(beginSub[ ηπ ]))
-  (elimSub σ
-    ≡Sub[ (HL(ηπ)) ]⟨ (HL(ηπ∙ (elimSub σ))) ⟩
-  π₁∙ (elimSub σ) , π₂∙ (elimSub σ)
-    ∶[ refl , (HL(tyOfπ₂∙ (elimSub σ))) ]∙
-    ≡Sub[ (HL(refl)) ]⟨ cong (π₁∙ (elimSub σ) , π₂∙ (elimSub σ)
-      ∶[ refl ,_]∙) (HL(UIP)) ⟩
-  π₁∙ (elimSub σ) , elimTm (π₂ σ)
-    ∶[ refl , (HL(elimTyOf (π₂ σ) refl)) ]∙
-    ∎)) i
-\end{code}
-The transitivity of dependent paths gives us an equation over |ηπ ∙ refl | instead of |ηπ|, so we use |beginSub[ ηπ ]_| to identify the underlying path |ηπ ∙ refl | with |ηπ| by the UIP.
+\subsection{Standard model} \label{sec:standard-model}
+\LT[noinline]{sets or types?}
 
-
-\subsection{Practical workarounds for mutual definitions}  \label{sec:tt:mutual}
-So far, we have sketched how the recursion and elimination principles are defined \emph{ideally}.
-Due the syntactic limitations of \Agda (and mysterious bugs), we employ some workarounds to implement the desired definitions.
-Nevertheless, these workarounds should be treated as temporary hacks and may not be needed if the support of mutually interleaved definitions is improved over time.
-
-\paragraph{Mutually interleaved QIITs} Constructors of QIITs cannot be interleaved~\cite{Agdaissue2021} even within an |interleaved mutual| block, since such a block is desugared to a set of forward declarations for the |data| types, not constructors.
-In theory constructors declared within the same family of QIITs should be placed in the same context~\cite{Kaposi2019}, the desugaring results a definition that equality constructors may depend on other constructors which are not currently in the scope.
-
-We resolve this issue by 
-\begin{enumerate*}[label=(\roman*)]
-  \item using forward declarations for \emph{the whole definition} of QIITs including constructors;
-  \item introducing constructors of QIITs using these declarations if previously introduced constructors are referred;
-  \item defining forward declarations by their corresponding constructors;
-  \item finally, exposing only actual constructors without those forward declarations.
-\end{enumerate*}
-The following is a snippet of our actual formalisation in \CA:
-
-\begin{code}
-module S where
-  data Ctx  : Set
-  data Sub  : (Γ Δ : Ctx) → Set
-  data Ty   : Ctx → Set
-  data Tm   : (Γ : Ctx) → Set
-  tyOf      : ∀ {Γ} → Tm Γ → Ty Γ
-
-  ∅    : Ctx
-  _,_  : (Γ : Ctx)(A : Ty Γ) → Ctx
-  ...
-  data Ctx where
-    ∅'    : Ctx 
-    _,'_  : (Γ : Ctx) (A : Ty Γ) → Ctx
-
-  ∅       = ∅'
-  _,_     = _,'_
-  ...
-open S public
-  hiding ( ∅ ; _,_; ...)
-  renaming ( ∅' to ∅ ; _,'_ to _,_; ...)
-\end{code}
-We suspect this translation from QIITs in theory to actual definitions in \CA should suffice to allow mutually interleaved QIITs.
-Indeed, it is more natural to present each type former introduced by its formation, introduction, elimination, and equality rules (e.g.\ \cite{Hofmann1997}) using mutually interleaved QIITs instead of few gigantic sets of rules.
-
-\paragraph{Mutual interleaved QIIRTs}
-Interleaving function clauses with inductive types is different, since we cannot declare a function clause with their computational behaviour.
-However, as we have `Forded' the typing constraints as equality proofs, we only need to know there is an equality proof when introducing constructors without knowing its computational behaviour.
-So, we 
-\begin{enumerate*}[label=(\roman*)]
-  \item declare that there is such an equality proof before its usage,
-  \item define |tyOf| after the end of datatype declarations, and
-  \item give the actual definition of the forward declaration.
-\end{enumerate*}
-
-For example, the equality constructor |ηπ| requires a proof |tyOf (π₂ σ) ≡ A [ π₁ σ ]|, so we simply declare one:
-\begin{code}
-tyOfπ₂  : tyOf (π₂ σ) ≡ A [ π₁ σ ]
-ηπ      : σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ ])
-\end{code}
-Then, after the definition of |tyOf|, we can define |tyOfπ₂| as |refl|:
-\begin{code}
-tyOf (π₂' {Γ} {Δ} {A} {σ}) = A [ π₁ {A = A} σ ]
-...
-tyOfπ₂ = refl
-\end{code}
-This translation works if the computational behaviour of interleaved function clauses is irrelevant.\footnote{We suspect that a general scheme of QIIRTs may allow mutually interleaving inductive types with function clauses, by extending the type theory of QIITs~\cite{Kaposi2019} with another identity type for function clauses.}
-
-\paragraph{Mutually-defined functions}
-\LT[noinline]{Agda issue?}
-Constructors of our QIITs and QIIRTs need to be (truly) mutually interleaved, so are their recursion and elimination principles in general.
-Yet, \Agda does not allow us to interleave clauses of different functions directly.
-We can still use forward declarations and carry out the coercion along the equality proof manually.
-
-Another possibility is to define a set of functions indexed by tags.
-For example, the family of functions for the recursion principle can be implemented with |Tag| for each motive:
-\begin{code}
-data Tag : Set where
-  ctx ty sub tm tyof : Tag
-\end{code}
-Define each function for the recursion principle uniformly as |rec| with |tyOfRec| computing the corresponding type:
-\begin{code}
-tyOfRec : Tag    → Set
-rec : (t : Tag)  → tyOfRec t
-
-tyOfRec ctx   = S.Ctx → Ctx
-tyOfRec ty    = ∀ {Γ}    → S.Ty Γ → Ty (recCtx Γ)
-tyOfRec tm    = ∀ {Γ}    → S.Tm Γ → Tm (recCtx Γ)
-tyOfRec sub   = ∀ {Γ Δ}  → S.Sub Γ Δ
-  → Sub (recCtx Γ) (recCtx Δ)
-tyOfRec tyof  = ∀ {Γ A} → (t : S.Tm Γ)
-  → S.tyOf t ≡ A → tyOf (recTm t) ≡ recTy A
-\end{code}
-followed by their actual function clauses of |rec|.
-\begin{code}
-Then, define a function as a synonym of |rec| on each tag:
-recCtx   = rec ctx
-recSub   = rec sub
-recTy    = rec ty
-recTm    = rec tm
-recTyOf  = rec tyof 
-\end{code}
-At the time of writing, some function invocations in the recursion principle that are supposed to unfold do not in \CA during type checking.
-In our formalisation, we resort to using forward declarations only and carry out the computation manually using the path type.
-We are still investigating the root cause of this mysterious behaviour but suspect this is a design flaw in \Agda.
-
-\section{Metatheory}
-\subsection{Standard model}
-\LT{sets or types?}
-In the standard model, contexts are interpreted as sets in \CA, types as sets indexed by some set |Γ|, substitutions are functions between sets, terms are \emph{pairs} of a |Γ|-indexed set |A| and a dependent function from |γ : Γ| to |A γ|, and the interpretation of |tyOf| is just the first component |A| applied to the given value in the interpreted context:
+In the standard model, contexts are interpreted as sets in \CA, types as sets indexed by a context~|Γ|, substitutions as functions between these sets, and terms as \emph{pairs} consisting of an interpreted type |A : Γ → Set| together with a dependent function |(γ : Γ) → A γ|.
+The interpretation of |tyOf| is simply the first component |A| applied to the given element of the context:
 \begin{code}
   std : SC
   std .Ctx              = Set
@@ -862,8 +876,9 @@ In the standard model, contexts are interpreted as sets in \CA, types as sets in
   std .Tm  Γ            = Σ[ A ∈ (Γ → Set) ] ((γ : Γ) → A γ)
   std .tyOf (A , t)     = λ γ → A γ
 \end{code}
-The rest is similar to the standard model of the QIIT definition~\cite[Section~4]{Altenkirch2017}, except that the typing constraint |p| in | σ , t ∶[ p ]| is not strict any more.
-Therefore, we need to transport the value |t γ| along the equality |A ≡ λ γ → B (σ γ)|:
+
+The remainder of the construction follows the standard model of type theory using QIITs~\cite[Section~4]{Altenkirch2017}, except that the typing constraint |p| in |σ , t ∶[ p ]| is only weak.  
+As a result, the value |t γ| below must be transported along |p|:
 \begin{code}
   std .∅                = Unit
   std ._,C_ Γ A         = Σ Γ A
@@ -871,23 +886,84 @@ Therefore, we need to transport the value |t γ| along the equality |A ≡ λ γ
   std ._[_]t (A , t) σ  = (λ γ → A (σ γ)) , (λ γ → t (σ γ))
   std .tyOf[]           = refl
   ...
-  std ._,_∶[_] σ (A , t) p = λ γ → 
-    σ γ , transport (λ i → p i γ) (t γ)
-  ...
+  std ._,_∶[_] σ (A , t) p γ =
+    σ γ , (HL(transport (λ i → p i γ) (t γ)))
 \end{code}
-and accordingly use properties of the transport to prove the coherence conditions.
-\LT{there is one hole unfinished in |SC+El+Pi+B|...}
 
+Coherence conditions are then verified using standard properties of transport.  
+We have formalised the standard model for type theory with $\Pi$-types, Booleans, and a Tarski universe, except the case for |π[]|.
 
-\subsection{Strictification}
-\label{sec:strictify}
+The main effort in the formalisation arises from the lack of \emph{regularity}~\cite{Sterling2022}, so a transport along reflexivity is only weakly equal to the identity.
+For instance, the coherence condition for |Π[]| is given as
+\begin{code}
+stdPi .Π[] {Γ} {Δ} {A} σ B i γ =
+  (a : A (σ γ)) → B (σ γ , (HL(transportRefl³ a)) (~ i))
+\end{code}
+where |transportRefl³| amounts to applying |transportRefl| three times.  
+The case |π[]| above involves an equation over a transport of another transported term.
+If regularity were available, this would collapse to the trivial reflexivity proof.
 
-% LTC (Tue 9 Sep)
-% \input{meta.agda.tex}
+\subsection{Normalisation by evaluation} \label{sec:nbe}
+We implement normalisation by evaluation (NbE) for the substitution calculus.  
+Following the approach for type theory~\cite{Altenkirch2017}, we define inductive-recursively both the type of variables (with their embedding into terms) and the type of renamings (with their embedding into substitutions).  
+Since the implementation is straightforward, we omit the details here.
 
-\label{sec:standard-model}
-\label{sec:nbe}
+This yields a normalisation function that produces, for every term, a de Bruijn variable---and importantly, it computes:
+\begin{code}
+normalise : (t : Tm Γ) → Σ[ tⁿ ∈ NeTm Γ ] t ≡ ⌜ tⁿ ⌝
+\end{code}
+Compared to NbE for substitution calculus defined using QIITs, our formalisation is simpler: no transports appear at all, because variables and terms are not indexed by their types.
 
+\subsection{Logical predicate} \label{sec:tt:logpred}
+The picture is very different for the logical predicate interpretation.  
+Although NbE works cleanly, the logical predicate interpretation---often considered a benchmark challenge~\cite{Abel2019} for language formalisation---remains at least as difficult as in the QIIT-based setting, even for substitution calculus.
+
+To see why, recall that the motives for |Ctx| and |Ty| in the logical predicate interpretation are given by
+\begin{code}
+record Ctxᴾ (Γ : Ctx) : Set where
+  field
+    ctxᴾ : Ctx
+    wkᴾ  : Sub ctxᴾ Γ
+
+Tyᴾ : Ctxᴾ Γ → Ty Γ →  Set
+Tyᴾ Γᴾ A = Ty (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ])
+\end{code}
+Here the typing constraint |ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ]| already mirrors the familiar shape of |Tm Γ A|, but with an additional complication: the index explicitly demands a type substitution.
+Since the QIIRT representation only provides equality constructors for type substitutions, the development quickly results in repeated and tedious use of transports.
+
+In short, NbE benefits directly from removing typing indices and avoids transports altogether, whereas the logical predicate interpretation still inherits the need for coercions with type substitutions.  
+We therefore did not pursue the latter further, as Altenkirch and Kaposi~\cite{Altenkirch2016a} have already shown that such tedious use of transports is in theory possible.
+
+\subsection{Strictification} \label{sec:strictify}
+Instead, we turn our attention to \emph{strictification}~\cite{Donko2022,Kaposi2025}: given a model of type theory, certain equality constructors can be made strict to form a new model.  
+A familiar analogy is the transition from lists to difference lists, where a list is represented by a list-appending function, and the associativity of concatenation becomes strict.
+
+In the same spirit, we may attempt to `strictify' the category part of substitution calculus using the Yoneda embedding, so that the unit laws and associativity law hold strictly, \emph{modulo} naturality.  
+Given any |SC|-algebra, we define an alternative interpretation of |Sub| by
+\begin{code}
+record Subʸ (Γ Δ : Ctx) : Set where
+  constructor _,_
+  field
+    y    : ∀{Θ} → Sub Θ Γ → Sub Θ Δ
+    nat  : (τ : Sub Ξ Θ) (δ : Sub Θ Γ) → y δ ∘ τ ≡ y (δ ∘ τ)
+\end{code}
+By UIP, any two morphisms |σ| and |σ'| in the presheaf category are equal whenever their functionals agree:
+\begin{code}
+≡ʸ→≡ : {σ σ' : Subʸ Γ Δ} → σ ≡ʸ σ' → σ ≡ σ'
+\end{code}
+where |_≡ʸ_| denotes the path type between their functionals.  
+Completing the Yoneda embedding then gives us strict unit and associativity laws, up to |≡ʸ→≡|:
+\begin{code}
+Yoneda .SC.idS∘_   _      = ≡ʸ→≡ refl
+Yoneda .SC._∘idS   _      = ≡ʸ→≡ refl
+Yoneda .SC.assocS  _ _ _  = ≡ʸ→≡ refl
+\end{code}
+It is possible to adapt the local universe construction~\cite{Lumsdaine2015,Donko2022} to strictify the laws for type substitutions.
+
+Nevertheless, this strictification technique does not resolve the difficulties with the logical predicate interpretation.  
+Although \Agda provides a form of strict propositions |Prop|, it is not designed work with \CA and interacts poorly with cubical primitives in \CA.  
+In particular, the lack of strict propositions in \CA (or the definitional UIP) prevents |σ ≡ʸ σ'| from being strictly equal, since the paths between their properties must still be identified manually using UIP.  
+As a consequence, coercions along equations identified by UIP remain unavoidable.
 
 \section{Comparison with other approaches}
 \label{sec:compare}
@@ -910,7 +986,7 @@ Compared to untyped version:
 \item Untyped version might still be easiest to work with, with current proof assistant technology
 \end{itemize}
 
-\section{Discussion}
+\section{Discussion and conclusions}
 % LTC (at first)
 
 \begin{itemize}
@@ -923,6 +999,7 @@ Compared to untyped version:
 
   \item Safety guarantees from proof assistant (e.g. strict positivity check, termination check, coverage check)
   \item Easier in OTT-based proof assistant
+  \item the current support of HIIT and dependent pattern matching in \CA is not quite up to the task of developing type theory; it is often their user resort to use Licata's trick to define QIITs and their elimination principle using custom rewrite rules after HIITs are introduced to \CA several years ago.
 \end{itemize}
 
 \IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}

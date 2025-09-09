@@ -72,6 +72,11 @@
 \newunicodechar{∎}{\ensuremath{\blacksquare}}
 \newunicodechar{∈}{\ensuremath{\in}}
 \newunicodechar{⋆}{\ensuremath{\star}}
+\newunicodechar{⌜}{\ensuremath{\ulcorner}}
+\newunicodechar{⌝}{\ensuremath{\urcorner}}
+\newunicodechar{ʸ}{\ensuremath{{}^y}}
+\newunicodechar{ⁿ}{\ensuremath{{}^n}}
+\newunicodechar{ᴾ}{\ensuremath{{}^P}}
 
 \DeclareUnicodeCharacter{2032}{\ensuremath{\prime}}
 \DeclareUnicodeCharacter{2113}{\ensuremath{\ell}}
