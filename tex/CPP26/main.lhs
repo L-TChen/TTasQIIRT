@@ -224,7 +224,7 @@ We discuss proof assistant features and their helpfulness further towards the en
 \item We derive elimination and recursion principles for the syntax (\cref{sec:tt:elim}), and show how it can be used to construct the standard model and the term model (\cref{sec:standard-model}).
 \item We discuss strictification constructions on models, and show that they also apply to our notion of natural models (\cref{sec:strictify}).
 \item We develop normalisation by evaluation for the substitution calculus phrased as a natural model (\cref{sec:nbe}); because our development is carried out in Cubical Agda, which has a computational implementation of QIITs and principles such as function extensionality, the resulting normaliser computes, and can be used to normalise terms.
-\item We discuss pros and cons of our approach compared to other approaches, and which proof assistant features would be helpful to make future formalisations easier (\cref{sec:compare}).
+\item We discuss pros and cons of our approach compared to other approaches, and which proof assistant features would be helpful to make future formalisations easier (\cref{sec:discussion}).
 \end{itemize}
 
 %\LT{the idea of using natural model appears at least in 2024 \cite{Bense2024}, and it is a natural idea to formalise type theory in this way.}
@@ -875,7 +875,7 @@ In our formalisation, we fall back on forward declarations alone with coercions.
 We are still investigating the root cause of this behaviour, but it may point to a design flaw.
 
 
-\section{Metatheory}
+\section{Metatheory}\label{sec:meta}
 Having defined type theory as QIIRTs, we now turn to models of type theory as well as constructions of new models from existing ones.
 
 %We find that reasoning with this definition \emph{per se} in \CA is hard even with substitution calculus: the lack of strict equalities in type theory is known to cause the transport hell~\cite{Altenkirch2016a} and even worse it cannot be mitigated by using custom rewriting rules~\cite{Cockx2020,Cockx2021} in \CA.
@@ -1016,35 +1016,21 @@ In particular, the lack of strict propositions (or just the definitional UIP) in
 Although \Agda provides a form of strict propositions |Prop|, it is not designed to work with \CA and interacts poorly with cubical primitives for now~\cite{Agda-issue2022}.  
 As a consequence, coercions along equations identified by UIP remain unavoidable.
 
-\section{Comparison with other approaches}
-\label{sec:compare}
-% FNF (Tue 9 Sep)
-
-Compared to QIIT:
-
-\begin{itemize}
-\item Fewer transports in the syntax, but they tend to come back in concrete models
-\item Strictification orthogonal
-
-Even the strictification technique~\cite{Kaposi2025}, which turn most of equality constructors about substitution to strict equalities, cannot help, as it can only be applied \emph{after} the inductive types are defined.
-
-Moreover, strictification only address substitution rules and does not help us other issues such as equations over equations over equations for the universe of types.
-
-\end{itemize}
-
-Compared to untyped version:
-\begin{itemize}
-\item Untyped version might still be easiest to work with, with current proof assistant technology
-\end{itemize}
-
-
-\LT{Practical considerations (eg NBE computes) here?}
-
 \section{Discussion and conclusion}
+\label{sec:discussion}
+
 It is well-known that type theory in type theory is possible in theory, but in practice its formalisation often requires giving up some of the support and safety checks provided by proof assistants.  
-In hindsight, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?  
+From one particular point of view, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?  
 Regrettably, based on our experimental formalisation in \CA, our answer is: not yet.
 
+\paragraph{Comparison with QIIT approach}
+
+Compared to approaches based on encoding well typed syntax as a QIIT~\cite{Altenkirch2016a}, our approach leads to fewer transports appearing in the syntax of terms. However, the same transports (and the same equations for them) seem to have a tendency to come back in concrete model constructions, as explained in \cref{sec:meta}. However, the lack of transports is a real advantage for avoiding strict positivity issues in the current implementation of \CA.
+It is also worth remarking that by using native \CA features such as higher inductive types, rather than postulates in ordinary \Agda, we do get computational interpretations --- for example, our implementation of normalization by evaluation in \cref{sec:nbe} can actually be used to normalize terms.
+
+Kaposi and Pujet~\cite{Kaposi2025} have shown how strictification techniques can simplify definitions, but this is an orthogonal issue; in \cref{sec:strictify}, we have sketched how also our notion of models can be strictified using the same ideas. However, even though strictification turns most of the equality constructors about substitution to strict equalities, this does not help with transports appearing in the QIIT definition of terms and the resulting strict positivity issues, as strictification can only be applied \emph{after} the inductive types are defined. Moreover, strictification only address substitution rules and does not help with other issues such as equations over equations over equations for the universe of types.
+
+% Untyped version might still be easiest to work with, with current proof assistant technology
 
 \paragraph{The support of HII(R)Ts}
 The support for higher inductive-inductive types and QIITs in \CA still falls short of their theoretical capabilities~\cite{Kaposi2020b,Kaposi2019}.  
