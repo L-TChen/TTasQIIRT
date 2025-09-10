@@ -239,6 +239,18 @@
   doi =           {10.46298/lmcs-18(1:43)2022},
 }
 
+@article{Lumsdaine2020,
+  author =        {Lumsdaine, Peter LeFanu and Shulman, Michael},
+  journal =       {Mathematical Proceedings of the Cambridge
+                   Philosophical Society},
+  number =        {1},
+  pages =         {159--208},
+  title =         {Semantics of higher inductive types},
+  volume =        {169},
+  year =          {2020},
+  doi =           {10.1017/S030500411900015X},
+}
+
 @misc{Licata2011,
   author =        {Licata, Dan},
   month =         {April},
@@ -415,35 +427,206 @@
   issn =          {1529-3785},
 }
 
-@article{Ko2016,
-  author =        {Ko, Hsiang-Shang and Gibbons, Jeremy},
-  journal =       {Journal of Functional Programming},
-  pages =         {e2},
-  title =         {Programming with ornaments},
-  volume =        {27},
-  year =          {2016},
-  doi =           {10.1017/S0956796816000307},
+@misc{Agda-issue2022,
+  author =        {{Agda issue}},
+  title =         {Fix {\#5816}: skip generating cubical clauses for
+                   Prop stuff},
+  year =          {2022},
+  url =           {https://github.com/agda/agda/pull/5897},
 }
 
-@article{Dagand2017,
-  author =        {Dagand, Pierre-{\'E}variste},
-  journal =       {Journal of Functional Programming},
-  number =        {e9},
-  title =         {The essence of ornaments},
-  volume =        {27},
-  year =          {2017},
-  doi =           {10.1017/S0956796816000356},
-}
-
-@article{Lumsdaine2020,
-  author =        {Lumsdaine, Peter LeFanu and Shulman, Michael},
-  journal =       {Mathematical Proceedings of the Cambridge
-                   Philosophical Society},
+@article{Kaposi2020b,
+  author =        {Kaposi, Ambrus and Kov{\'a}cs, Andr{\'a}s},
+  journal =       {Logical Methods in Computer Science},
   number =        {1},
-  pages =         {159--208},
-  title =         {Semantics of higher inductive types},
-  volume =        {169},
+  pages =         {10:1--10:30},
+  title =         {Signatures and induction principles for higher
+                   inductive-inductive types},
+  volume =        {16},
   year =          {2020},
-  doi =           {10.1017/S030500411900015X},
+  abstract =      {Higher inductive-inductive types (HIITs) generalize
+                   inductive types of dependent type theories in two
+                   ways. On the one hand they allow the simultaneous
+                   definition of multiple sorts that can be indexed over
+                   each other. On the other hand they support equality
+                   constructors, thus generalizing higher inductive
+                   types of homotopy type theory. Examples that make use
+                   of both features are the Cauchy real numbers and the
+                   well-typed syntax of type theory where conversion
+                   rules are given as equality constructors. In this
+                   paper we propose a general definition of HIITs using
+                   a small type theory, named the theory of signatures.
+                   A context in this theory encodes a HIIT by listing
+                   the constructors. We also compute notions of
+                   induction and recursion for HIITs by using variants
+                   of syntactic logical relation translations. Building
+                   full categorical semantics and constructing initial
+                   algebras is left for future work. The theory of HIIT
+                   signatures was formalised in Agda together with the
+                   syntactic translations. We also provide a Haskell
+                   implementation, which takes signatures as input and
+                   outputs translation results as valid Agda code.},
+  doi =           {10.23638/LMCS-16(1:10)2020},
+  issn =          {18605974},
+}
+
+@phdthesis{Kaposi2017,
+  author =        {Kaposi, Ambrus},
+  school =        {University of Nottingham},
+  title =         {Type theory in a type theory with quotient inductive
+                   types},
+  year =          {2017},
+  url =           {https://eprints.nottingham.ac.uk/41385/},
+}
+
+@article{Pujet2022,
+  address =       {New York, NY, USA},
+  author =        {Pujet, Lo{\"{\i}c} and Tabareau, Nicolas},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  publisher =     {Association for Computing Machinery},
+  title =         {Observational equality: now for good},
+  volume =        {6},
+  year =          {2022},
+  abstract =      {Building on the recent extension of dependent type
+                   theory with a universe of definitionally
+                   proof-irrelevant types, we introduce TTobs, a new
+                   type theory based on the setoidal interpretation of
+                   dependent type theory. TTobs equips every type with
+                   an identity relation that satisfies function
+                   extensionality, propositional extensionality, and
+                   definitional uniqueness of identity proofs (UIP).
+                   Compared to other existing proposals to enrich
+                   dependent type theory with these principles, our
+                   theory features a notion of reduction that is
+                   normalizing and provides an algorithmic canonicity
+                   result, which we formally prove in Agda using the
+                   logical relation framework of Abel et al. Our paper
+                   thoroughly develops the meta-theoretical properties
+                   of TTobs, such as the decidability of the conversion
+                   and of the type checking, as well as consistency. We
+                   also explain how to extend our theory with quotient
+                   types, and we introduce a setoidal version of Swan's
+                   Id types that turn it into a proper extension of MLTT
+                   with inductive equality.},
+  doi =           {10.1145/3498693},
+}
+
+@article{Pujet2023,
+  address =       {New York, NY, USA},
+  author =        {Pujet, Lo{\"\i}c and Tabareau, Nicolas},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  publisher =     {Association for Computing Machinery},
+  title =         {Impredicative observational equality},
+  volume =        {7},
+  year =          {2023},
+  abstract =      {In dependent type theory, impredicativity is a
+                   powerful logical principle that allows the definition
+                   of propositions that quantify over arbitrarily large
+                   types, potentially resulting in self-referential
+                   propositions. Impredicativity can provide a system
+                   with increased logical strength and flexibility, but
+                   in counterpart it comes with multiple incompatibility
+                   results. In particular, Abel and Coquand showed that
+                   adding definitional uniqueness of identity proofs
+                   (UIP) to the main proof assistants that support
+                   impredicative propositions (Coq and Lean) breaks the
+                   normalization procedure, and thus the type-checking
+                   algorithm. However, it was not known whether this
+                   stems from a fundamental incompatibility between UIP
+                   and impredicativity or if a more suitable algorithm
+                   could decide type-checking for a type theory that
+                   supports both. In this paper, we design a theory that
+                   handles both UIP and impredicativity by extending the
+                   recently introduced observational type theory TTobs
+                   with an impredicative universe of definitionally
+                   proof-irrelevant types, as initially proposed in the
+                   seminal work on observational equality of Altenkirch
+                   et al. We prove decidability of conversion for the
+                   resulting system, that we call CCobs, by harnessing
+                   proof-irrelevance to avoid computing with
+                   impredicative proof terms. Additionally, we prove
+                   normalization for CCobs in plain Martin-L{\"o}f type
+                   theory, thereby showing that adding proof-irrelevant
+                   impredicativity does not increase the computational
+                   content of the theory.},
+  doi =           {10.1145/3571739},
+  url =           {https://doi.org/10.1145/3571739},
+}
+
+@inproceedings{Pujet2024,
+  author =        {Pujet, Lo{\"\i}c and Tabareau, Nicolas},
+  booktitle =     {Programming Languages and Systems (ESOP)},
+  editor =        {Weirich, Stephanie},
+  pages =         {275--301},
+  publisher =     {Springer, Cham},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Observational equality meets {CIC}},
+  volume =        {14576},
+  year =          {2024},
+  doi =           {10.1007/978-3-031-57262-3_12},
+}
+
+@article{Gilbert2019,
+  address =       {New York, NY, USA},
+  author =        {Gilbert, Ga{\"e}tan and Cockx, Jesper and
+                   Sozeau, Matthieu and Tabareau, Nicolas},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         jan,
+  number =        {POPL},
+  publisher =     {Association for Computing Machinery},
+  title =         {Definitional proof-irrelevance without {K}},
+  volume =        {3},
+  year =          {2019},
+  abstract =      {Definitional equality---or conversion---for a type
+                   theory with a decidable type checking is the simplest
+                   tool to prove that two objects are the same, letting
+                   the system decide just using computation. Therefore,
+                   the more things are equal by conversion, the simpler
+                   it is to use a language based on type theory.
+                   Proof-irrelevance, stating that any two proofs of the
+                   same proposition are equal, is a possible way to
+                   extend conversion to make a type theory more
+                   powerful. However, this new power comes at a price if
+                   we integrate it naively, either by making type
+                   checking undecidable or by realizing new
+                   axioms---such as uniqueness of identity proofs
+                   (UIP)---that are incompatible with other extensions,
+                   such as univalence. In this paper, taking inspiration
+                   from homotopy type theory, we propose a general way
+                   to extend a type theory with definitional proof
+                   irrelevance, in a way that keeps type checking
+                   decidable and is compatible with univalence. We
+                   provide a new criterion to decide whether a
+                   proposition can be eliminated over a type (correcting
+                   and improving the so-called singleton elimination of
+                   Coq) by using techniques coming from recent
+                   development on dependent pattern matching without
+                   UIP. We show the generality of our approach by
+                   providing implementations for both Coq and Agda, both
+                   of which are planned to be integrated in future
+                   versions of those proof assistants.},
+  doi =           {10.1145/3290316},
+}
+
+@misc{Pujet2024a,
+  author =        {Pujet, Lo{\"{\i}}c},
+  howpublished =  {GitHub repository},
+  title =         {Observational Coq},
+  year =          {2024},
+  url =           {https://github.com/loic-p/observational-coq},
+}
+
+@unpublished{Felicissimo2025a,
+  author =        {Felicissimo, Thiago and Tabareau, Nicolas},
+  note =          {Presented at TYPES'25},
+  title =         {Towards quotient inductive types in observational
+                   type theory},
+  year =          {2025},
+  url =           {https://msp.cis.strath.ac.uk/types2025/abstracts/
+                  TYPES2025_paper85.pdf},
 }
 
