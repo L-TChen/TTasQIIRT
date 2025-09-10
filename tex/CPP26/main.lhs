@@ -4,9 +4,7 @@
 \copyrightyear{2025}
 \acmYear{2025}
 \acmDOI{XXXXXXX.XXXXXXX}
-\acmConference[Conference acronym 'XX]{Make sure to enter the correct
-  conference title from your rights confirmation email}{June 03--05,
-  2018}{Woodstock, NY}
+\acmConference[CPP '26]{Certified Programs and Proofs}{January 12--13, 2026}{Rennes, France}
 %%
 %%  Uncomment \acmBooktitle if the title of the proceedings is different
 %%  from ``Proceedings of ...''!
@@ -59,7 +57,10 @@
 %format (HL(t)) = "\highlight{addition}{" t "}"
 %format ≡ = "\mathop\equiv"
 %format [ = "[\kern-1.5pt"
-%format ] = "\kern-1.5pt]"
+%format ]T = "\kern-1.5pt]_{\text{T}}"
+%format _[_]T = "\_[\_]_{\text{T}}"
+%format ]t = "\kern-1.5pt]_{\text{t}}"
+%format _[_]t = "\_[\_]_{\text{t}}"
 
 %% end of the preamble, start of the body of the document source.
 
@@ -71,7 +72,7 @@
 %% allowing the author to define a "short title" to be used in page headers.
 %\title[Can Natural Model Simplify the Metatheory of Type Theory?]{Can Inspiration From Natural Models Simplify the Metatheory of Type Theory in Cubical Agda?}
 
-\title[Can we formalise type theory intrinsicaly without any compromise?]{Can we formalise type theory intrinsicaly without any compromise? A case study in \CA}
+\title[Can we formalise type theory intrinsically without any compromise?]{Can we formalise type theory intrinsically without any compromise? A case study in \CA}
 %%
 %% The "author" command and its associated commands are used to define
 %% the authors and their affiliations.
@@ -269,52 +270,58 @@ Similarly, we are ignoring universe levels in the paper, but they are all presen
 % \LT{Should we give a simple example of QIRT here?}
 
 \section{Type theory as quotient inductive types} \label{sec:tt}
-This section's aim is to exhibit that Altenkirch and Kaposi's representation, which contains the transport hells and violates the syntactic restriction imposed by \CA, can be transformed to a representation based on Awodey's natural model, which is free from transports and accepted by \CA.
-Then, we will show how other type formers can be represented in this way.
-In the reminder of this section, we will give its elimination principle and explain how these definitions are formalised in \CA.
+
+In this section, we show how Altenkirch and Kaposi's representation~\cite{Altenkirch2016a}, which is rejected by \CA due to syntactic strict positivity restrictions arising from transports, can be transformed to a representation based on Awodey's natural models.
+This representation is accepted by \CA, since it is free from transports.
+
+%This section's aim is to exhibit that Altenkirch and Kaposi's representation, which contains the transport hells and violates the syntactic restriction imposed by \CA, can be transformed to a representation based on Awodey's natural model, which is free from transports and accepted by \CA.
+%Then, we will show how other type formers can be represented in this way.
+%In the reminder of this section, we will give its elimination principle and explain how these definitions are formalised in \CA.
 
 \subsection{Type theory as the initial CwF model} \label{sec:tt:cwf}
 \LT{CwF or cwf?}
-In the QIIT representation~\cite{Altenkirch2016a}, each judgement is defined as an inductive type, each typing rule as a constructor, and each equality between types, terms, and substitutions as an \emph{equality constructor}.
+In Altenkirch and Kaposi's QIIT representation~\cite{Altenkirch2016a}, each judgement is defined as an inductive type, each typing rule as a constructor, and each equality between types, terms, and substitutions as an \emph{equality constructor}.
 The inhabitants of these types are valid derivations in type theory, because their validity is enforced by typing constraints.
-Previously, \Agda did not natively allow equality constructors, so a workaround known as `Licata's trick'~\cite{Licata2011} was used, which meant giving up many features of the proof assistant.
-With \CA now equipped with the support for QIITs, it is natural to ask if we can use this support to define type theory.
+At the time of publication of Altenkirch and Kaposi~\cite{Altenkirch2016a},
+\Agda did not allow equality constructors in datatype declarations, so a workaround known as ``Licata's trick''~\cite{Licata2011} was used, which meant giving up many features of the proof assistant.
+With \CA now equipped with native support for QIITs, it is natural to ask if we can use this support to define a representation of type theory.
 
 We briefly recall the representation given by Altenkirch and Kaposi.
-Those four types of judgements in type theory are represented inductive-inductively and indexed by their context and by their types for terms as
+The four types of judgements in type theory are represented inductive-inductively %and indexed by their context and by their types for terms
+as
 \begin{code}
-data Ctx : Set
-data Sub : (Γ Δ  : Ctx)  → Set
-data Ty  : (Γ    : Ctx)  → Set
-data Tm  : (Γ    : Ctx)  → Ty Γ → Set
+data Ctx  : Set
+data Sub  : (Γ : Ctx)  → (Δ : Ctx) → Set
+data Ty   : (Γ : Ctx)  → Set
+data Tm   : (Γ : Ctx)  → Ty Γ → Set
 \end{code}
-For example, an inhabitant of |Tm Γ A| represents a derivation for a term of type $A$ under the context |Γ|.
+For example, an inhabitant of |Tm Γ A| represents a derivation for a term of type $A$ in context |Γ|.
 Rules are represented by constructors of these inductive types:
 \begin{code}
 data _ where
   ∅     : Ctx
   _,_   : (Γ : Ctx)(A : Ty Γ) → Ctx
-  _[_]  : (A : Ty Δ)(σ : Sub Γ Δ) → Ty Γ
-  _[_]  : (t : Tm Δ A)(σ : Sub Γ Δ) → Tm Γ (A [ σ ]T)
+  _[_]T  : (A : Ty Δ)(σ : Sub Γ Δ) → Ty Γ
+  _[_]t  : (t : Tm Δ A)(σ : Sub Γ Δ) → Tm Γ (A [ σ ]T)
   _∘_   : Sub Δ Θ → Sub Γ Δ → Sub Γ Θ
   _,_   : (σ : Sub Γ Δ)(t : Tm Γ (A [ σ ]T))
         → Sub Γ (Δ , A)
-  [∘]   : A [ τ ] [ σ ] ≡ A [ τ ∘ σ ]
+  [∘]   : A [ τ ]T [ σ ]T ≡ A [ τ ∘ σ ]T
   ...
 \end{code}
-Here, |_∘_| is the constructor for substitution composition, and the second |_,_| is the constructor for extending a substitution |σ| with a term |t| of type |A [ σ ]|.
-The equality constructor~|[∘]| represents the rule that the type substitution for a composition |τ ∘ σ| is equal to a type substitution |τ| followed by another |σ|.
-When formulating the corresponding rule for the interaction between |_∘_| and |_,_|, we encounter a type mismatch that needs to be resolved by a transport, leading to the transport hell when reasoning with this equality:
+ The constructor |∅| represents the empty context, and |Γ , A| a context extension, while |A [ σ ]T| and |t [ σ ]t| represent substituted types and terms, respectively. Further, |_∘_| is the constructor for substitution composition, and the second |_,_| is the constructor for extending a substitution |σ| with a term |t| of type |A [ σ ]| (making use of \Agda's support for overloaded constructor names).
+The equality constructor~|[∘]| states that type substitution by |τ| followed by type substitution by |σ| is the same as a single substitution by the composition |τ ∘ σ|.
+When formulating the corresponding rule for the interaction between |_∘_| and |_,_|, we encounter a type mismatch that needs to be resolved by a inserting a transport |subst (Tm Γ) ([∘] A τ σ)| (highlighted in \highlight{addition}{\text{green}}): %, leading to the transport hell when reasoning with this equality:
 \begin{code}
 ,∘   : (σ : Sub Δ Θ) (t : Tm Δ (A [ σ ]T)) (τ : Sub Γ Δ)
-  → (σ , t) ∘ τ ≡ σ ∘ τ , (HL(subst (Tm Γ) ([∘] A τ σ))) (t [ τ ]t)
+  → (σ , t) ∘ τ ≡ (σ ∘ τ , (HL(subst (Tm Γ) ([∘] A τ σ))) (t [ τ ]t))
 \end{code}
-The reason is that the type of |t [ τ ]| is |A [ σ ] [ τ ]| rather than the required |A [ σ ∘ τ ]|.
-However, since |Tm| appears as an argument to |subst|, the use of transport violates the syntactic restriction: strict positivity check.
-In theory, transports are allowed in QIITs~\cite{Kaposi2019}, but it is not clear to us how this syntactic restriction should be relaxed for higher inductive types supported by \CA to tack account of other cubical primitives (such as |hcomp|).
+The reason is that the type of |t [ τ ]t| is |A [ σ ]T [ τ ]T| rather than the required |A [ σ ∘ τ ]T|.
+However, since |Tm| appears as an argument to |subst|, the use of transport violates a syntactic restriction of \Agda, namely its strict positivity check.
+In theory, transports are allowed in QIITs~\cite{Kaposi2019}, but it is not clear to us how this syntactic restriction should be relaxed for higher inductive types supported by \CA to take into account other cubical primitives (such as |hcomp|).
 
-In other words, the transport hell is not only an obstacle for reasoning but also breaks strict positivity when arising in inductive definitions themselves.
-The situation becomes worse once additional type formers are introduced---such as $\Pi$-types and the type |El| of elements~\cite{Altenkirch2016a}---since each brings further instances of this problem.  
+In other words, ``transport hell'' is not only an obstacle for reasoning, but also breaks strict positivity in \CA when arising in inductive definitions themselves.
+The situation becomes worse once additional type formers are introduced---such as $\Pi$-types and the type |El| of elements~\cite{Altenkirch2016a}---since each brings further instances of this problem.
 
 On the other hand, another source of transports arises from equations over equations, but this can be avoided by using dependent paths.
 For example, the fact that the identity term substitution really acts as an identity is introduced as an equality constructor |[idS]t|, defined over the equality constructor |[idS]| for the identity type substitution:  
@@ -1101,4 +1108,8 @@ We hope that the lessons learned here can help the design of future proof assist
 
 %%% Local Variables:
 %%% mode: latex
+%%% TeX-master: "main.tex"
+%%% eval: (add-hook 'after-save-hook (lambda () (shell-command "make tex")) t)
 %%% End:
+
+
