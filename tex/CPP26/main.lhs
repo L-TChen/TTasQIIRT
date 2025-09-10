@@ -240,7 +240,7 @@ However, we make sure to not make use of Univalence in our development (more gen
 %
 Hence, we have high confidence that our formalisation is actually consistent; for example, it could be carried out in a proof assistant implementing XTT~\cite{Sterling2022}.
 %
-We note that a variant of Cubical Agda which is consistent with Uniqueness of Identity Proofs have also been requested by other users.\footnote{``A variant of Cubical Agda that is consistent with UIP'', \url{https://github.com/agda/agda/issues/3750}.}
+We note that a variant of Cubical Agda which is consistent with Uniqueness of Identity Proofs have also been requested by other users~\cite{Agda-issue2019}.
 \LT{Shall we call types (satisfying UIP) uniformly \emph{sets} instead?}
 
 \CA implements cubical type theory, and one of the most important concepts therein is the interval type |I| with two distinguished endpoints |i0| and |i1|.
@@ -1042,11 +1042,13 @@ Regrettably, based on our experimental formalisation in \CA, our answer is: not 
 \paragraph{The support of HII(R)Ts}
 The support for higher inductive-inductive types and QIITs in \CA still falls short of their theoretical capabilities~\cite{Kaposi2020b,Kaposi2019}.  
 As shown in \Cref{sec:tt:cwf}, the legitimate definition of type theory based on CwF with transports violates the syntactic restriction of strict positivity.
-
 Even though the transport hell is better avoided in practice, this is not a justification for excluding otherwise valid definitions.
+
 The alternative definition, based on natural models, does not violate strict positivity but still requires workarounds, as discussed in \Cref{sec:tt:mutual}.  
+
 Previous formalisations~\cite{Kaposi2025,Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} have resorted to Licata's trick to define type theory.  
-However, this comes at a cost: the proof assistant no longer performs coverage or termination checks for functions defined from quotient inductive types, nor does it provide the usual interactive support for reasoning.  
+However, this comes at a cost: the proof assistant no longer performs coverage or termination checks for functions defined from quotient inductive types, nor does it provide the usual interactive support for theorem proving.
+One can minimise the loss by giving up dependent pattern matching and only using the hand-crafted eliminator (e.g.~\Cref{sec:tt:elim}) instead, so the coverage check for record types is still in place.
 
 \paragraph{The support of QIIRTs}
 We work around the problem by defining type theory using QIIRTs, but this raises another question: what is the theory of QIIRTs?  
@@ -1062,7 +1064,7 @@ Furthermore, our definitions appear to reach the limits of the termination check
 
 \paragraph{The need for strict propositions}
 The recent work on strictified syntax~\cite{Kaposi2025} addresses transport hell using observational type theory (OTT)~\cite{Pujet2022,Pujet2023,Pujet2024}, with strict propositions in the metatheory playing a central role.  
-While \Agda does support strict propositions~\cite{Gilbert2019}, this feature was not designed to integrate with \CA.  
+While \Agda does support strict propositions~\cite{Gilbert2019}, this feature was not designed to work with \CA~\cite{Agda-issue2022}.  
 
 \paragraph{The implementation of OTT or XTT}
 To formalise the metatheory of type theory using QIITs, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory provided by \Agda or \CA. 
@@ -1071,15 +1073,17 @@ The use of QIITs in OTT~\cite{Kaposi2025} in \Agda requires the user themselves 
 Quotient inductive types are not supported in the implementation of OTT in Rocq~\cite{Pujet2024a} and its theory is still being developed~\cite{Felicissimo2025a}.
 
 XTT, a cubical variant of OTT~\cite{Sterling2022}, is another possibility.  
-In particular, definitional UIP, supported by XTT, would simplify our formalisation (\Cref{sec:standard-model}) and make the Yoneda embedding and the local universe construction usable as strictification techniques.  
-Since \CA already supports HIITs (though with caveats noted earlier), extending it with QIITs as a variant of \CA may be within reach.  
+In particular, the regularity and the definitional UIP, supported by XTT, would simplify our formalisation (\Cref{sec:standard-model}) and make the Yoneda embedding and the local universe construction usable as strictification techniques.  
+Since \CA already supports HIITs (though with caveats noted earlier), extending it with QIITs as a variant of \CA may be within reach~\cite{Agda-issue2019}.  
 
-\paragraph{Fordism and XTT}
-The Fordism transformation also seems to work well with XTT, even without strict propositions.  
+\paragraph{Fordism and the definitional UIP}
+The Fordism is known to work well with the definitional UIP~\cite{Altenkirch2006}, even without strict propositions.
 So far, we have only `Forded' the \verb|Tm| constructors, but what if every constructor were Forded, with indices removed entirely?  
-The resulting representation of type theory would remain intrinsic, but all typing constraints would appear as equality proofs, which are definitionally proof-irrelevant in XTT.  
+The resulting representation of type theory would remain intrinsic, but all typing constraints would appear as equality proofs, which are definitionally proof-irrelevant in XTT or OTT.
 This could provide a way to escape transport hell without relying on strictification.  
-Of course, explicitly carrying these typing constraints as equality proofs would still be tedious, so an elaboration from QIITs to their Forded presentation via QIIRTs would be desirable.  
+
+Of course, explicitly transforming these typing constraints to equality proofs would still be tedious and error-prone, so an elaboration from QIITs to their Forded presentation using QIIRTs would be useful.
+The connection between QIITs and its Forded definition with the index eliminated echoes the notion of reornament~\cite{Dagand2014,Ko2016,Dagand2017}, so this translation itself may be of interest in general.
 
 \paragraph{Conclusion}
 Without further advances in the technology of proof assistants, formalising type theory within a proof assistant remains a difficult task.  
