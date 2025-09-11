@@ -382,8 +382,8 @@ For instance, the equality constructor for the identity substitution becomes
 \end{code}
 where the fact that |t| and |t [ idS ]t| share the same type follows from their term equality, rather than being a \emph{requirement}.
 
-\subsection{Substitution calculus using QIIRT}
-Building on the changes described in \Cref{sec:tt:terms-without-indices}, we now spell out our version of substitution calculus: the following types are defined simultaneously with a recursive function:
+\subsection{Representing the Substitution calculus using QIIRT}
+Building on the changes described in \Cref{sec:tt:terms-without-indices}, we now spell out our version of the substitution calculus. The following types are defined simultaneously with a recursive function (changes compared to the QIIT version highlighted):
 \begin{code}
 data Ctx  : Set
 data Sub  : (Γ : Ctx) → (Δ : Ctx) → Set
@@ -391,7 +391,7 @@ data Ty   : (Γ : Ctx) → Set
 data Tm   : (HL((Γ : Ctx) → Set))
 (HL(tyOf : Tm Γ → Ty Γ))
 \end{code}
-Similar to the QIIT representation, constructors are introduced for rules and equalities as follows, where we highlight constructors that are different from their QIIT counterpart:
+Similarly to the QIIT representation, constructors are introduced for rules and equalities as follows, where we highlight constructors that are different from their QIIT counterpart:
 \begin{code}
 data _ where
   ∅              : Ctx
@@ -412,26 +412,26 @@ data _ where
   (HL([idS]t))   : t  ≡  t  [ idS ]t
   [∘]T           : A  [ τ ]T  [ σ ]T  ≡ A  [ τ ∘ σ ]T
   (HL([∘]t))     : t  [ τ ]t  [ σ ]t  ≡ t  [ τ ∘ σ ]t
-  (HL(,∘))       : (q : tyOf (t [ τ ]t) ≡ A [ σ ∘ τ ]T)
-    → (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
+  (HL(,∘))       : (q :  tyOf (t [ τ ]t) ≡ A [ σ ∘ τ ]T)
+                         → (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
 \end{code}
 ... except that we have to interleave the function clauses of |tyOf| with constructors.
 We need define the function clause for |π₂ σ| before the $\eta$-law for substitution:
 \begin{code}
 tyOf (π₂ {Γ} {Δ} {A} σ)   = A [ π₁ σ ]T
 data _ where
-  ηπ : σ ≡ (π₁ σ , π₂ σ ∶[ (HL(refl)) ])
+  ηπ : σ ≡ (π₁ σ , π₂ σ ∶[ refl ])
 \end{code}
 Otherwise, the proof obligation |tyOf (π₂ σ) ≡ A [ π₁ σ ]T| on the right hand side of |ηπ| cannot be fulfilled by |refl|.
 We proceed with other equality constructors:
 \begin{code}
 data _ where
-  η∅         : σ ≡ ∅S
-  βπ₁        : π₁ (σ , t ∶[ p ]) ≡ σ
-  (HL(βπ₂))  : (HL((q : A [ π₁ (σ , t ∶[ p ]) ]T ≡ tyOf t)))
+  η∅   : σ ≡ ∅S
+  βπ₁  : π₁ (σ , t ∶[ p ]) ≡ σ
+  βπ₂  : (HL((q : A [ π₁ (σ , t ∶[ p ]) ]T ≡ tyOf t)))
     → π₂ (σ , t ∶[ p ]) ≡ t
 \end{code}
-Note that |βπ₂| has an additional derivable equality proof.
+Note that |βπ₂| has an additional derivable equality proof (highlighted above).
 This argument is needed as the coherence condition for
 \begin{code}
 tyOf (βπ₂ σ t p q i)  = q i
