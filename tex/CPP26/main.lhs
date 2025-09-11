@@ -184,7 +184,7 @@ They took Dybjer's notion of a model of type theory in the form of a category wi
 %
 In effect, this gives rise to the \emph{initial} category with families, with the elimination principles of the QIIT giving a unique morphism of categories with families to any other model.
 %
-This thus gives a both principled and practical way to formalise the syntax and dynamic semantics of type theory in type theory; the feasibility of the approach was demonstrated by e.g.\ implementing normalisation by evaluation using this representation~\cite{Altenkirch2017}.
+This thus gives a both principled and practical way to formalise the syntax and equational theory of type theory in type theory; the feasibility of the approach was demonstrated by e.g.\ implementing normalisation by evaluation using this representation~\cite{Altenkirch2017}.
 
 At the time of publication of Altenkirch and Kaposi~\cite{Altenkirch2016a}, the proof assistant \Agda did not allow equality constructors in data type declarations, so a workaround known as ``Licata's trick''~\cite{Licata2011} was used, which meant giving up many features of the proof assistant such as coverage check, termination check, strict positivity check, program extraction as well as interactive features including case split.
 \CA, the cubical variant of \Agda~\cite{Vezzosi2021}, is now equipped with a native support for QIITs, so it is natural to ask if we can use this support to formalise the intrinsic representation of type theory without using the trick or any other compromise.
@@ -832,8 +832,7 @@ tyOf (π₂' {Γ} {Δ} {A} {σ}) = A [ π₁ {A = A} σ ]
 tyOfπ₂ = refl
 \end{code}
 
-This translation is valid as long as the computational behaviour of the interleaved function clauses is irrelevant.\footnote{A general scheme of QIIRTs may be developed to allow mutually interleaving inductive types with function clauses, by extending the type theory of QIITs~\cite{Kaposi2019} with an additional identity type for function clauses.}
-
+This translation is valid as long as the computational behaviour of the interleaved function clauses is irrelevant.
 \paragraph{Mutually-defined functions}  
 \LT[noinline]{Agda issue?}
 Since the constructors of QII(R)Ts can be mutually interleaved, their recursion and elimination principles also need to be given in the same vein.
