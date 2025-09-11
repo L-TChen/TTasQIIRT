@@ -50,6 +50,8 @@
 \newcommand{\awa}[2]{\mathrlap{#2}\phantom{#1}} % as wide as
 
 \definecolor{addition}{RGB}{204,255,216}
+\definecolor{keyword}{RGB}{204,255,216}
+\definecolor{identifier}{RGB}{204,255,216}
 \newcommand{\highlight}[2]{\smash{\text{\colorbox{#1}{\kern-.1em\vphantom{\vrule height 1.2ex depth 0.1ex}\smash{\ensuremath{#2}}\kern-.1em}}}}
 
 \let\Bbbk\relax
@@ -61,6 +63,10 @@
 %format _[_]T = "\_[\_]_{\text{T}}"
 %format ]t = "\kern-1.5pt]_{\text{t}}"
 %format _[_]t = "\_[\_]_{\text{t}}"
+
+\renewcommand\Varid[1]{\mathord{\textsf{#1}}}
+%\let\Conid\Varid
+%\newcommand\Keyword[1]{\textsf{\textbf{#1}}}
 
 %% end of the preamble, start of the body of the document source.
 
@@ -153,7 +159,7 @@ The effort required is about the same whether or not the notion of natural model
 
 \section{Introduction}
 % FNF (Fri 5 Sep)
-\LT{Which dialect of English shall we use? We have used `formalise' instead of `formalize', and so on. I am in favour of BrE, but I am okay with either choice.}
+\LT[noinline]{Which dialect of English shall we use? We have used `formalise' instead of `formalize', and so on. I am in favour of BrE, but I am okay with either choice.}
 
 Internalising the syntax and semantics of type theory in type theory is a longstanding problem which stretches the limits of the theory~\cite{Dybjer1996,Danielsson2006,Chapman2009,McBride2010,Altenkirch2016a}.
 %
@@ -161,7 +167,7 @@ There are both practical and theoretical reasons to pursue this problem.
 %
 On the practical side, such an internal representation of type theory is needed for metaprogramming and mechanised metatheory.
 %
-More philosophically, if type theory is supposed to be a general constructive foundation of mathematics, then it should in particular be able to reason about its own syntax and semantics (up to inherent limitations due to G\"odel's Incompleteness Theorems, of course).
+More philosophically, if type theory is supposed to be a general constructive foundation of mathematics, then it should in particular be able to reason about its own syntax and semantics (up to inherent limitations due to G\"odel's Incompleteness Theorems ).
 %
 In dependent type theory, types can depend on terms, which means that all of contexts, types and terms need to be defined simultaneously.
 %
@@ -172,36 +178,37 @@ This is one reason why formalising type theory in type theory is hard.
 %\FNF[noinline]{It was meant to be Pollack's thesis, but McKinna \& Pollack might be better.}
 Early approaches to formalising type theory, e.g.\ McKinna and Pollack~\cite{McKinna1999}, dealt with untyped terms that were later refined by a typing relation, or used setoid equality, and hence had to prove a lot of congruence lemmas by hand~\cite{Danielsson2006,Chapman2009}.
 %
-A breakthough was achieved by Altenkirch and Kaposi~\cite{Altenkirch2016a}, who showed that quotient inductive-inductive types (QIITs)~\cite{Altenkirch2018} can be employed to significantly simplify the internal representation of well typed terms, since equality constructors can be used to represent equations such as $\beta$- and $\eta$-equality.
+A breakthrough was achieved by Altenkirch and Kaposi~\cite{Altenkirch2016a}, who showed that quotient inductive-inductive types (QIITs)~\cite{Altenkirch2018} can be employed to significantly simplify the internal representation of well typed terms, since equality constructors can be used to represent equations such as $\beta$- and $\eta$-equality.
 %
-Altenkirch and Kaposi took Dybjer's notion of a model of type theory in the form of a Category with Families~\cite{Dybjer1996}, and translated it into a QIIT definition.
+They took Dybjer's notion of a model of type theory in the form of a category with families~\cite{Dybjer1996}, and translated it into a QIIT definition.
 %
-In effect, this gives rise to the \emph{initial} Category with Families, with the elimination principles of the QIIT giving a unique morphism of Categories with Families to any other model.
+In effect, this gives rise to the \emph{initial} category with families, with the elimination principles of the QIIT giving a unique morphism of categories with families to any other model.
 %
 This thus gives a both principled and practical way to formalise the syntax and dynamic semantics of type theory in type theory; the feasibility of the approach was demonstrated by e.g.\ implementing normalisation by evaluation using this representation~\cite{Altenkirch2017}.
 
-However, QIIT definitions are still cumbersome to work with, since the type of later constructors or even equations often only make sense because of earlier equations.
+At the time of publication of Altenkirch and Kaposi~\cite{Altenkirch2016a}, the proof assistant \Agda did not allow equality constructors in data type declarations, so a workaround known as ``Licata's trick''~\cite{Licata2011} was used, which meant giving up many features of the proof assistant such as coverage check, termination check, strict positivity check, program extraction as well as interactive features including case split.
+\CA, the cubical variant of \Agda~\cite{Vezzosi2021}, is now equipped with a native support for QIITs, so it is natural to ask if we can use this support to formalise the intrinsic representation of type theory without using the trick or any other compromise.
+
+In this paper, we report on such an attempt.
+We quickly find that their QIIT definitions breaks the strict positivity, i.e.\ a syntactic restriction imposed by \CA to ensure consistency.
+Moreover, their definition is cumbersome to work with, since the type of later constructors or even equations often only make sense because of earlier equations.
 %
 In an intensional type theory, such as those implemented in proof assistants, this manifests itself in transport terms across equality proofs inside other terms, and leads to so-called ``transport hell'' --- rather than just reasoning about the terms you actually want to study, you now also have to do a lot of reasoning about transports themselves and their algebraic properties.
 %
-We are interested in ways of reducing transport hell, in order to make formalisations of type theory in a type-theoretic proof assistant more lightweight and feasible.
+It turns out that we need an alternative way of representing type theory intrinsically without any transport hell, in order to make formalisations of type theory more lightweight and accepted by \CA.
 
-In this paper, we report on an attempt to simplify such formalisations.
 %
-\LT{The motivation can be rephrased as we want to use a proof assistant as it is without any compromise, e.g., extending its metatheory, giving up the support of pattern matching, and so on.}
-Our starting point is the idea of viewing Altenkirch and Kaposi's QIIT definition as the initial Category with Families.
-%
-The framework of Categories with Families is only one of several (more or less) equivalent notions of models of type theory~\cite{Hofmann1997}, and we were wondering if any of the other notions might offer any advantages.
+The framework of categories with families is only one of several (more or less) equivalent notions of models of type theory~\cite{Hofmann1997}, and we were wondering if any of the other notions might offer any advantages.
 %
 Bense~\cite{Bense2024} suggested that Awodey's notion of \emph{natural model}~\cite{Awodey2018} might be a good candidate.
 %
-Indeed, in a natural model, the indexing of terms over their types $\mathsf{Tm} : \mathsf{Ty}(\Gamma) \to \mathsf{Set}$ (as in a Category with Families) is replaced by a ``fibred'' perspective where each term instead \emph{has} a type, as picked out by a function $\mathsf{tyOf} : \mathsf{Tm}(\Gamma) \to \mathsf{Ty}(\Gamma)$.
+Indeed, in a natural model, the indexing of terms over their types $\mathsf{Tm}_{\Gamma} : \mathsf{Ty}(\Gamma) \to \mathsf{Set}$ (as in a category with families) is replaced by a ``fibred'' perspective where each term instead \emph{has} a type, as picked out by a function $\mathsf{tyOf} : \mathsf{Tm}(\Gamma) \to \mathsf{Ty}(\Gamma)$.
 %
 Terms and types are still indexed by contexts $\Gamma$, but since most ``type mismatches'' arise from equations between types, not equations between contexts (indeed many formulations of type theory does not even have a notion of context equality), this should mean that many uses of transports can be avoided.
 
-We test this hypothesis by formalising type theory in a form inspired by natural models in the proof assistant Cubical Agda~\cite{Vezzosi2021}.
+We test this hypothesis by formalising type theory in a form inspired by natural models.
 %
-Cubical Agda is a good fit for such a project, because not only does it support QIITs, it also supports inductive-recursive types~\cite{Dybjer1999}, which are needed to simultaneously define the recursive $\mathsf{tyOf}$ function together with the inductively defined types $\mathsf{Tm}(\Gamma)$ and $\mathsf{Ty}(\Gamma)$.
+Cubical Agda is particularly a good fit for such a project, because not only does it support QIITs, it also supports inductive-recursive types~\cite{Dybjer1999}, which are needed to simultaneously define the recursive $\mathsf{tyOf}$ function together with the inductively defined types $\mathsf{Tm}(\Gamma)$ and $\mathsf{Ty}(\Gamma)$.
 %
 Indeed, it could be the lack of support for inductive-recursive definitions in many proof assistants which has held back formalisation attempts based on natural models so far.
 
@@ -215,15 +222,12 @@ This is because we are more reliant on the computational behaviour of the recurs
 %
 We discuss proof assistant features and their helpfulness further towards the end of the paper, after presenting our formalisation.
 
-\LT{I think towards the end of this paper we should view our work as an analysis of problems with formalising type theory in a proof assistant natively, so it is more like an expository paper with a case study.}
-\LT{My tentative observation is that the gap between what a proof assistant provides and what is needed is still huge, so that is why Kaposi still Licata's trick to start with a type theory.}
-
 \paragraph{Contributions} We make the following contributions:
 \begin{itemize}
 \item We present an intrinsically well typed representation of the syntax of type theory, inspired by Awodey's natural models (\cref{sec:tt}).
 \item We derive elimination and recursion principles for the syntax (\cref{sec:tt:elim}), and show how it can be used to construct the standard model and the term model (\cref{sec:standard-model}).
 \item We discuss strictification constructions on models, and show that they also apply to our notion of natural models (\cref{sec:strictify}).
-\item We develop normalisation by evaluation for the substitution calculus phrased as a natural model (\cref{sec:nbe}); because our development is carried out in Cubical Agda, which has a computational implementation of QIITs and principles such as function extensionality, the resulting normaliser computes, and can be used to normalise terms.
+\item We develop normalisation by evaluation for the substitution calculus~(\cref{sec:nbe}) as a proof of concept: our development is carried out in \CA, which has a computational implementation of QIITs and principles such as function extensionality, so the resulting normaliser computes, and can potentially be extracted as a verified program.
 \item We discuss pros and cons of our approach compared to other approaches, and which proof assistant features would be helpful to make future formalisations easier (\cref{sec:discussion}).
 \end{itemize}
 
@@ -231,17 +235,17 @@ We discuss proof assistant features and their helpfulness further towards the en
 \section{Setting and metatheory}
 % FNF (Sun 7 Sep)
 
-Our formalisation is carried out in \CA with a global assumption of Uniqueness of Identity Proofs.
+Our formalisation is carried out in \CA with a global assumption of uniqueness of identity Proofs (UIP).
 %
-We believe it should be possible to discharge this global assumption in favour of explicitly set-truncating the types we define.
+We believe it should be possible to discharge this assumption in favour of explicitly set-truncating the types we define.
 %
-Of course, since Univalence is provable in \CA, such a global assumption of Uniqueness of Identity Proofs is, in fact, inconsistent.
+Of course, since univalence is provable in \CA, such an assumption is inconsistent.
 %
-However, we make sure to not make use of Univalence in our development (more generally, we do not make use of the |Glue| type, which is used to prove Univalence).
+However, we make sure to not make use of univalence in our development (more generally, we do not make use of the |Glue| type, which is used to prove univalence).
 %
-Hence, we have high confidence that our formalisation is actually consistent; for example, it could be carried out in a proof assistant implementing XTT~\cite{Sterling2022}.
+Hence, we are confident that our formalisation is actually consistent; for example, it could be carried out in a proof assistant implementing the cubical type theory XTT~\cite{Sterling2022} which supports the definitional UIP.
 %
-We note that a variant of Cubical Agda which is consistent with Uniqueness of Identity Proofs have also been requested by other users~\cite{Agda-issue2019}.
+We note that a variant of \CA which is consistent with UIP have also been requested by other users~\cite{Agda-issue2019}.
 \LT{Shall we call types (satisfying UIP) uniformly \emph{sets} instead?}
 
 \CA implements cubical type theory, and one of the most important concepts therein is the interval type |I| with two distinguished endpoints |i0| and |i1|.
@@ -267,8 +271,6 @@ For brevity, in this paper presentation we have made some arguments implicit for
 %
 Similarly, we are ignoring universe levels in the paper, but they are all present in the formalisation.
 
-% \LT{Should we give a simple example of QIRT here?}
-
 \section{Type theory as quotient inductive types} \label{sec:tt}
 
 In this section, we show how Altenkirch and Kaposi's representation~\cite{Altenkirch2016a}, which is rejected by \CA due to syntactic strict positivity restrictions arising from transports, can be transformed to a representation based on Awodey's natural models.
@@ -282,9 +284,6 @@ This representation is accepted by \CA, since it is free from transports.
 \LT{CwF or cwf?}
 In Altenkirch and Kaposi's QIIT representation~\cite{Altenkirch2016a}, each judgement is defined as an inductive type, each typing rule as a constructor, and each equality between types, terms, and substitutions as an \emph{equality constructor}.
 The inhabitants of these types are valid derivations in type theory, because their validity is enforced by typing constraints.
-At the time of publication of Altenkirch and Kaposi~\cite{Altenkirch2016a},
-\Agda did not allow equality constructors in datatype declarations, so a workaround known as ``Licata's trick''~\cite{Licata2011} was used, which meant giving up many features of the proof assistant.
-With \CA now equipped with native support for QIITs, it is natural to ask if we can use this support to define a representation of type theory.
 
 We briefly recall the representation given by Altenkirch and Kaposi.
 The four types of judgements in type theory are represented inductive-inductively %and indexed by their context and by their types for terms
@@ -446,7 +445,7 @@ without any warnings or errors.
 Although |Tm| is only indexed by |Γ : Ctx|, the function |tyOf| ensures that every |t : Tm Γ| has a type.
 Hence, |Tm| only consists of valid derivations and is still an intrinsic representation of type theory.
 
-Replacing the index |A : Ty| of |Tm| by a function |tyOf : Tm Γ → Ty Γ| aligns with Awodey's notion of \emph{natural model}~\cite{Awodey2018} where the collections of terms and types are represented as presheaves $\mathsf{Tm}, \mathsf{Ty} \colon \mathbb{C} \to \Set$ over the category of contexts $\mathbb{C}$ and connected by a natural transformation $\mathsf{Tm} \to \mathsf{Ty}$ stable under pullbacks, i.e.\ substitution.
+Replacing the index |A : Ty| of |Tm| by a function |tyOf : Tm Γ → Ty Γ| aligns with Awodey's notion of natural model~\cite{Awodey2018} where the collections of terms and types are represented as presheaves $\mathsf{Tm}, \mathsf{Ty} \colon \mathbb{C} \to \Set$ over the category of contexts $\mathbb{C}$ and connected by a natural transformation $\mathsf{Tm} \to \mathsf{Ty}$ satisfying that each substitution into a non-empty context is equivalent to a pair of substitution and a term.
 That is, we have derived the intrinsic representation of type theory as a natural model using QIIRT in \CA.
 This situates our family of inductive types and their algebras within a well-studied categorical models for type theory.
 
@@ -1089,7 +1088,8 @@ We hope that the lessons learned here can help the design of future proof assist
 
 
 %\begin{acks}
-%To Robert, for the bagels and explaining CMYK and color spaces.
+% Amélia Liao for the syntax of equational reasoning for displayed categories
+% Shu-Hung You for his comments on the early draft
 %\end{acks}
 
 %%% Local Variables:
