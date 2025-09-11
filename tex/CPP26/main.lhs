@@ -38,7 +38,7 @@
 
 %%% Macros %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\CA}{\textrm{Cubical Agda}\xspace}
-\newcommand{\Agda}{\textsc{Agda}\xspace}
+\newcommand{\Agda}{\textrm{Agda}\xspace}
 \newcommand{\Set}{\mathbf{Set}}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -63,6 +63,11 @@
 %format _[_]T = "\_[\_]_{\text{T}}"
 %format ]t = "\kern-1.5pt]_{\text{t}}"
 %format _[_]t = "\_[\_]_{\text{t}}"
+%format [idS]T = "[\mathsf{idS}]_{\text{T}}"
+%format [idS]t = "[\mathsf{idS}]_{\text{t}}"
+%format [∘]T = "[\circ]_{\text{T}}"
+%format [∘]t = "[\circ]_{\text{t}}"
+
 
 \renewcommand\Varid[1]{\mathord{\textsf{#1}}}
 %\let\Conid\Varid
@@ -319,50 +324,52 @@ In theory, transports are allowed in QIITs~\cite{Kaposi2019}, but it is not clea
 
 In other words, `transport hell' is not only an obstacle for reasoning, but also breaks strict positivity in \CA when arising in inductive definitions themselves.
 The situation becomes worse once additional type formers are introduced --- such as $\Pi$-types and the type |El| of elements~\cite{Altenkirch2016a} --- since each brings further instances of this problem.
+%
+Of course, one could bypass the strict positivity check, but doing so would undermine the general trustworthiness of formalisation.
+Another possibility is to fix the syntactic restriction for HIITs, but it is unclear what conditions should be.
+Therefore, we seek for an equivalent definition without transports first.
 
-On the other hand, another source of transports arises from equations over equations, but this can be avoided by using dependent paths.
-For example, the fact that the identity term substitution really acts as an identity is introduced as an equality constructor |[idS]t|, defined over the equality constructor |[idS]| for the identity type substitution:  
+Another source of transports arises from equations over equations, but this can be avoided by using dependent paths.
+For example, the fact that the identity term substitution really acts as an identity is introduced as an equality constructor |[idS]t|, defined over the highlighted equality constructor |[idS]T : A ≡ A [ idS ]T| for the identity type substitution:  
 \begin{code}
-[idS]T : A ≡ A [ idS ]T
 [idS]t : PathP (λ i → Tm Γ ((HL([idS]T i)))) t (t [ idS ]t)
 \end{code}
-Although equations over equations are in principle more manageable, it quickly leads us to \emph{equations over equations over yet another equations} in their elimination rules.  
+Although equations over equations are in principle more manageable, it quickly leads us to \emph{equations over equations over yet more equations} in their elimination rules.  
 Therefore, it is still preferable to avoid them if possible.
 
-Of course, one could bypass the strict positivity check, but doing so would undermine the general trustworthiness of the formalisation.
-Another possibility is to fix the syntactic restriction for HIITs, but it is unclear what conditions should be.
-Therefore, we seek for an equivalent definition without transport hells first. 
+\subsection{The `Ford transformation' and index elimination} \label{sec:tt:terms-without-indices}
 
-\subsection{Fordism and the index elimination} \label{sec:tt:terms-without-indices}
-To avoid the transport hell in the definition itself, we note that the index |A| of |Tm Γ A| is rigid under operations on types, such as substitutions.
-Since we often need to provide an explicit proof for the typing constraints that, for example, the term |t| in the substitution |(σ , t)| has type |A [ σ ]T| if this does not hold strictly, enforcing this constraint in the index of |Tm| just shoots ourselves in the foot.
-Hence, we apply `Fordism' transformation~\cite{McBride1999} to move the constraint on its index to its argument as an equality proof:
+To avoid transports in the definition itself, we note that the index |A| of |Tm Γ A| is rigid under operations on types, such as substitutions.
+\FNF[noinline]{What does rigid mean here?}
+Since we often need to provide an explicit proof for typing constraints
+--- for example, that the term |t| in the substitution |(σ , t)| has type |A [ σ ]T| --- if this does not happen to hold strictly (i.e., up to judgemental equality), enforcing this constraint in the index of |Tm| just shoots ourselves in the foot.
+Hence, we apply the `Ford transformation'~\cite{McBride1999} (``You can have any index you want, as long as it is equal to the specified one'') to move the constraint on its index to its argument as an equality proof (highlighted below):
 \begin{code}
 _,_∶[_] : (σ : Sub Γ Δ) (t : Tm Γ B) (HL((t : B ≡ A [ σ ]T)))
   → Sub Γ (Δ , A)
 \end{code}
-Then, the constructor |,∘| becomes accordingly
+The constructor |,∘|, which had a transport in its type above, then becomes
 \begin{code}
-,∘ : (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t
-        ∶[ (HL(cong _[ τ ]T p ∙ ([∘]T A τ σ))) ])
+,∘  : (σ  , t ∶[ p ]) ∘ τ
+          ≡ (σ ∘ τ , t [ τ ]t ∶[ cong _[ τ ]T p ∙ ([∘]T A τ σ) ])
 \end{code}
 where |_∙_| is the transitivity of equality.
 Although transport is not needed this time, the use of |cong| and |_∙_|
-still prevent the definition from being strictly positive.
-Similar to the Fordism transformation, this problem can be overcome by asking for another equality proof as an argument:
+still prevent the definition from being seen as strictly positive.
+Similar to the Ford transformation, this problem can be overcome by asking for another equality proof, highlighted below, as an argument:
 \begin{code}
 ,∘ : ... (HL((q : B [ τ ] ≡ A [ σ ∘ τ ]T)))
-   → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ (HL(q)) ]
+   → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ q ]
 \end{code}
 As we assume UIP, the additional argument is essentially unique, so this updated constructor does not require any information but only defers the proof obligation.
 %This redundant argument can be removed later when defining its eliminator (\Cref{sec:tt:elim}).
 
-Once the Fordism transformation has been applied, the index |B| in |Tm Γ B| no longer plays the role of enforcing constraints.
+Once the Ford transformation has been applied, the index |B| in |Tm Γ B| no longer plays the role of enforcing constraints.
 This opens the door to a simpler design: instead of carrying the index around, we can `Ford' all |Tm| constructors uniformly and remove the index entirely.
 To preserve the necessary typing information, we simultaneously introduce an auxiliary function |tyOf : Tm Γ → Ty Γ| that records it explicitly.
 In the end, the constructor |,∘| becomes
 \begin{code}
-,∘ : (σ : Sub Δ Θ) (t : (HL(Tm Δ))) (τ : Sub Γ Δ)
+,∘ : (σ : Sub Δ Θ) (t : Tm Δ)) (τ : Sub Γ Δ)
    → (p : tyOf t ≡ A [ σ ]T) (q : tyOf (t [ τ ]t) ≡ A [ σ ∘ τ ]T)
    → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ q ]
 \end{code}
