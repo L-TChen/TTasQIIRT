@@ -1049,8 +1049,8 @@ In short, NbE benefits directly from removing typing indices and avoids transpor
 We did not bother to finish all cases of the logical predicate interpretation, as Altenkirch and Kaposi~\cite{Altenkirch2016a} have already shown that such tedious use of transports is possible (but impractical) in theory.
 
 \subsection{Strictification} \label{sec:strictify}
-Instead, we turn our attention to \emph{strictification}~\cite{Donko2022,Kaposi2025}: given a model of type theory, certain equality constructors can be made strict to form a new model.  
-A familiar analogy is the transition from lists to difference lists, where a list is represented by a list-appending function and list concatenation is function composition, and the associativity of concatenation becomes strict.
+Instead, we turn our attention to \emph{strictification}~\cite{Donko2022,Kaposi2025}: given a model of type theory, certain equality constructors can be made strict (i.e., made to hold judgementally) to form a new model.
+A familiar analogy is the transition from lists to difference lists, where a list is represented by a list-appending function and list concatenation is function composition, which is associative judgementally.
 
 In the same spirit, we may attempt to `strictify' the category part of substitution calculus using the Yoneda embedding, so that the unit laws and associativity law hold strictly, \emph{modulo} the property of naturality.
 Given any |SC|-algebra, we define a presheaf interpretation of |Sub| by
@@ -1065,7 +1065,7 @@ By UIP, any two morphisms |σ| and |σ'| in the presheaf category are equal when
 \begin{code}
 ≡ʸ→≡ : {σ σ' : Subʸ Γ Δ} → σ ≡ʸ σ' → σ ≡ σ'
 \end{code}
-where |_≡ʸ_| denotes the path type between their functionals.  
+where |_≡ʸ_| denotes the path type between their functionals.
 Completing the Yoneda embedding then gives us strict unit and associativity laws, up to |≡ʸ→≡|:
 \begin{code}
 Yoneda .idS∘_   _      = ≡ʸ→≡ refl
@@ -1082,7 +1082,7 @@ record Ty³ (Γ : Ctx) : Set where
     E   : Ty V
     ⌜_⌝ : Sub Γ V
 \end{code}
-Define the type substitution by delaying (or viewing the substitution |⌜ A ⌝| as an accumulator parameter).
+Type substitution is defined by ``delaying'' the substitution, i.e., by viewing the substitution |⌜ A ⌝| as an accumulator parameter.
 Then, we can show that the laws about type substitution boil down the right unit and the associativity laws for substitutions:
 \begin{code}
   (M !) .[idS]T {Γ} {A}  =
@@ -1091,10 +1091,11 @@ Then, we can show that the laws about type substitution boil down the right unit
     cong (ty³ (A .V) (E A)) (HL((assocS σ τ ⌜ A ⌝)))
 \end{code}
 If |M| is strictified by the Yoneda embedding, then the laws for identity substitution and substitution composition in |M !| will be strict up to |≡ʸ→≡|.
+Hence, combining both techniques, we can construct models where both the category laws and substitution laws are strict.
 
 Nevertheless, strictification does \emph{not} resolve our difficulties with the logical predicate interpretation.
-In particular, the lack of strict propositions (or just definitional UIP) in \CA prevents |σ ≡ʸ σ'| from being strictly equal, since the paths between their properties must still be identified manually using UIP.  
-Although \Agda provides a form of strict propositions |Prop|, it is not designed to work with \CA and interacts poorly with cubical primitives for now~\cite{Agda-issue2022}.  
+In particular, the lack of strict propositions (or just definitional UIP) in \CA prevents |σ ≡ʸ σ'| from being strictly equal, since the paths between their properties must still be identified manually using UIP.
+Although \Agda provides a form of strict propositions |Prop|, it is not designed to work with \CA and interacts poorly with cubical primitives for now~\cite{Agda-issue2022}.
 As a consequence, coercions along equations identified by UIP remain unavoidable.
 
 \section{Discussion and conclusion}
