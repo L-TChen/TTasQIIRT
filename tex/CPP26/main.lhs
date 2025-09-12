@@ -828,85 +828,85 @@ These steps give us an equation over |ηπ ∙ (refl ∙ refl) |, and |beginSub[
 
 \subsection{Practical workarounds for mutual definitions}  \label{sec:tt:mutual}
 
-So far, we have outlined how the recursion and elimination principles should be defined \emph{ideally}.  
-In practice, however, limitations (and occasional mysterious bugs) of the proof assistant require us to adopt certain workarounds in order to implement the intended definitions.  
+So far, we have outlined how the recursion and elimination principles should be defined \emph{ideally}.
+In practice, however, limitations (and occasional mysterious bugs) of the proof assistant require us to adopt certain workarounds in order to implement the intended definitions.
 %This shows that the current design of \CA is not yet fully aligned with the theory of quotient inductive-inductive types~\cite{Kaposi2019}.
 
-\paragraph{Mutually interleaved QIITs}  
-Constructors of QIITs can not be interleaved~\cite{Agdaissue2021}, even within an |interleaved mutual| block.  
-The reason is that such a block is desugared into a collection of forward declarations for the |data| types, rather than constructors.
+\paragraph{Mutually interleaved QIITs}
+Constructors of QIITs currently can not be interleaved in \CA~\cite{Agdaissue2021}, even within an |interleaved mutual| block.
+The reason is that such a block is desugared into a collection of forward declarations for the |data| types, rather than for the constructors.
 In principle, all constructors belonging to the same family of QIITs should be declared within the same context~\cite{Kaposi2019}.
 However, due to this desugaring, equality constructors may end up depending on other constructors that are not yet in scope.
 
 We work around this issue as follows:
 \begin{enumerate*}[label=(\roman*)]
-  \item make forward declarations for the \emph{entire definition} of the QIITs, including constructors;
-  \item introduce each constructor bur only refer to forward declarations;
-  \item define the forward declarations by their corresponding constructors;
-  \item finally, expose only the actual constructors, omitting the forward declarations.
+  \item we make forward declarations for the \emph{entire definition} of the QIITs, including the constructors;
+  \item we introduce each constructor but only refer to forward declarations when referring to other constructors;
+  \item we define the forward declarations by their corresponding constructors;
+  \item finally, we expose only the actual constructors, omitting the forward declarations.
 \end{enumerate*}
 The following snippet illustrates this approach:
 \begin{code}
 module S where
   data Ctx  : Set
   ...
-  ∅    : Ctx
+  ∅    : Ctx -- note indentation, not a constructor!
   _,_  : (Γ : Ctx)(A : Ty Γ) → Ctx
   ...
   data Ctx where
-    ∅'    : Ctx 
+    ∅'    : Ctx -- this is a constructor
     _,'_  : (Γ : Ctx) (A : Ty Γ) → Ctx
   ...
-  ∅       = ∅'
+  ∅       = ∅' -- make definition for forward declarations
   _,_     = _,'_
   ...
-open S public
+open S public --expose actual constructors
   hiding ( ∅ ; _,_; ...)
   renaming ( ∅' to ∅ ; _,'_ to _,_; ...)
 \end{code}
 
-This translation from QIITs in theory to their actual definitions in \CA should be sufficient to define mutually interleaved QIITs.  
-Indeed, the pedagogical presentation of type theory typically introduces one type former at a time, together with its formation, introduction, elimination, and equality rules (see, e.g.~\cite{Hofmann1997}), rather than presenting all type formers at once using a few large monolithic sets of rules.
+This translation from QIITs in theory to their actual definitions in \CA should be sufficient to define mutually interleaved QIITs.
+Indeed, pedagogical presentations of type theory typically introduces one type former at a time, together with its formation, introduction, elimination, and equality rules (see, e.g.~\cite{Hofmann1997}), rather than presenting all type formers at once using a few large monolithic sets of rules.
 
-
-\paragraph{Mutual interleaved QIIRTs}  
-Interleaving function clauses with inductive types is a different matter, since we cannot declare a function clause together with its computational behaviour.\footnote{Custom rewrite rules are not allowed in \CA.}
-However, because we have `Forded' the typing constraints into equality proofs, what we actually need at the point of introducing constructors is only the existence of such an equality proof, not its computational content.  
+\paragraph{Mutual interleaved QIIRTs}
+Interleaving function clauses with inductive types is a different matter, since we cannot forward declare a function clause together with its computational behaviour.\footnote{Custom rewrite rules are not allowed in \CA.}
+However, because we have `Forded' the typing constraints into equality proofs, what we actually need at the point of introducing constructors is only the existence of such an equality proof, not its computational content.
 
 Our workaround is therefore as follows:
 \begin{enumerate*}[label=(\roman*)]
-  \item declare the existence of the required equality proof before it is used,
-  \item define |tyOf| only after all datatype declarations have been given, and
-  \item provide the actual definition corresponding to the forward declaration.
+  \item we declare the existence of the required equality proof before it is used,
+  \item we define |tyOf| only after all datatype declarations have been given, and
+  \item we provide the actual definition corresponding to the forward declaration.
 \end{enumerate*}
-For instance, the equality constructor |ηπ| asks for a proof of |tyOf (π₂ σ) ≡ A [ π₁ σ ]T|.  
-In this case, we simply declare such a proof:
+For instance, the equality constructor |ηπ| asks for a proof of |tyOf (π₂ σ) ≡ A [ π₁ σ ]T|.
+In this case, we simply forward declare such a proof:
 \begin{code}
 tyOfπ₂  : tyOf (π₂ σ) ≡ A [ π₁ σ ]T
 ηπ      : σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ ])
 \end{code}
-Then, once |tyOf| has been defined, simply set |tyOfπ₂| to |refl|:  
+Then, once |tyOf| has been defined, we simply set |tyOfπ₂| to |refl|:
 \begin{code}
 tyOf (π₂' {Γ} {Δ} {A} {σ}) = A [ π₁ {A = A} σ ]T
 ...
 tyOfπ₂ = refl
 \end{code}
 
-This translation is valid as long as the computational behaviour of the interleaved function clauses is not yet needed.
-\paragraph{Mutually-defined functions}  
+This translation is valid as long as the computational behaviour of the interleaved function clauses is not needed up to judgemental equality.
+
+\paragraph{Mutually-defined functions}
 \LT[noinline]{Agda issue?}
 Since the constructors of QII(R)Ts can be mutually interleaved, their recursion and elimination principles also need to be given in the same vein.
 However, \Agda does not allow us to interleave clauses of different functions directly.
-One workaround is to use forward declarations as a lifting of the entire clause and then perform the necessary coercions along the corresponding equality proofs by hand.  
+One workaround is to use forward declarations as a lifting of the entire clause and then perform the necessary coercions along the corresponding equality proofs by hand.
 
 Another possibility is to define a single family of functions indexed by tags.
-For instance, the recursion principle can be implemented by introducing a datatype |Tag| with one constructor for each motive:  
+For instance, the recursion principle can be implemented by introducing a datatype |Tag| with one constructor for each motive:
 \begin{code}
 data Tag : Set where
   ctx ty sub tm tyof : Tag
 \end{code}
-Then, we define the recursion principle uniformly as |rec|, with |tyOfRec| computing its type.  
-Each actual function is introduced as a synonym for |rec| at the appropriate tag:  
+Then, we define the recursion principle uniformly as |rec|, with |tyOfRec| computing its type.
+Each actual function is introduced as a synonym for |rec| at the appropriate tag:
 \begin{code}
 tyOfRec : Tag    → Set
 rec : (t : Tag)  → tyOfRec t
@@ -921,7 +921,7 @@ recCtx   = rec ctx
 \end{code}
 
 At the time of writing, however, this encoding cannot be fully carried out in \CA: some terms that should be strictly equal are not recognised as such during type checking.
-For example, in the following clause of |rec|:  
+For example, in the following clause of |rec|:
 \begin{code}
 rec sub (S._,_∶[_] {Γ} {Δ} {A} σ t p) = _,_∶[_]
   {rec ctx Γ} {rec ctx Δ} {rec ty A} (rec sub σ) (rec tm t)
@@ -929,7 +929,7 @@ rec sub (S._,_∶[_] {Γ} {Δ} {A} σ t p) = _,_∶[_]
 \end{code}
 the subterm in the hole is accepted by \Agda, but refining it results an error, as the terms |rec ty (A S.[ σ ]T)| and |rec ty A [ rec sub σ ]T| are not recognised as equal --- even though the former was already defined to be the latter.
 
-In our formalisation, we fall back on forward declarations alone with coercions.  
+In our formalisation, we fall back on forward declarations alone with coercions.
 We are still investigating the root cause of this behaviour, but it may point to a design flaw.
 
 
