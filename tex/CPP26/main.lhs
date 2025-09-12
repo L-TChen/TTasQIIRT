@@ -940,8 +940,8 @@ Having defined type theory as QIIRTs, we now turn to models of type theory as we
 %Nevertheless, programming with type theory seems doable, as normalisation can be 
 
 \subsection{Term model} \label{sec:meta:term}
-The term model is a self-interpretation of syntax, allowing displayed models to be instantiated over it and ensuring that the elimination rule computes.  
-The definition is routine: each field is interpreted by the corresponding constructor, except that additional equality constraints (such as the one in |βπ₂|) are replaced by actual proofs:
+The term model is a self-interpretation of syntax, allowing displayed models to be instantiated over it and ensuring that the elimination rule computes.
+The definition is routine: each field is interpreted by the corresponding constructor, except that additional equality constraints (such as the one in |βπ₂| highlighted below) are replaced by actual proofs:
 \begin{code}
 Term : SC
 Term = record
@@ -953,22 +953,24 @@ Term = record
 \end{code}
 
 Other type formers are given similarly.
+Constructing the term model also justifies the claim that indeed the syntax makes up the initial model.
 
 \subsection{Standard model} \label{sec:standard-model}
 
-In the standard model, contexts are interpreted as sets in \CA, types as sets indexed by a context~|Γ|, substitutions as functions between these sets, and terms as \emph{pairs} consisting of an interpreted type |A : Γ → Set| together with a dependent function |(γ : Γ) → A γ|.
-The interpretation of |tyOf| is simply the first component |A| applied to the given element of the context:
+In the standard model, contexts are interpreted as sets in \CA, types as sets indexed by a context~|Γ|, substitutions as functions between these sets, and terms as \emph{pairs} |(A, t)| consisting of an interpreted type |A : Γ → Set| together with a dependent function |t : (γ : Γ) → A γ|.
+The interpretation of |tyOf| is simply the first component |A|.
+In other words, terms are interpreted as a type |A|, together with a ``section'' |t : (γ : Γ) → A γ| of that type, as usual:
 \begin{code}
   std : SC
   std .Ctx              = Set
   std .Ty  Γ            = Γ → Set
   std .Sub Γ Δ          = Γ → Δ
   std .Tm  Γ            = Σ[ A ∈ (Γ → Set) ] ((γ : Γ) → A γ)
-  std .tyOf (A , t)     = λ γ → A γ
+  std .tyOf (A , t)     = A
 \end{code}
 
-The main construction of the model follows similarly to the standard model of type theory using QIITs~\cite[Section~4]{Altenkirch2017}, except that the typing constraint |p| in |σ , t ∶[ p ]| is only weak.  
-As a result, the value |t γ| below must be transported along |p|:
+The main construction of the model is the same as in the standard model of type theory using QIITs~\cite[Section~4]{Altenkirch2017}, except that the typing constraint |p| in |σ , t ∶[ p ]| is `Forded'.
+As a result, the value |t γ| below must be transported along |p|, as highlighted below:
 \begin{code}
   std .∅                = Unit
   std ._,C_ Γ A         = Σ Γ A
@@ -976,10 +978,10 @@ As a result, the value |t γ| below must be transported along |p|:
   std ._[_]t (A , t) σ  = (λ γ → A (σ γ)) , (λ γ → t (σ γ))
   std .tyOf[]           = refl
   ...
-  std ._,_∶[_] σ (A , t) p γ = σ γ , (HL(transport (λ i → p i γ) (t γ)))
+  std ._,_∶[_] σ (A , t) p γ = (σ γ , (HL(transport (λ i → p i γ) (t γ))))
 \end{code}
 
-To extend the standard model for the universe |U|, we define a Tarski universe of code and its interpretation
+To extend the standard model for the universe |U|, we define a Tarski universe of codes and its interpretation
 \begin{code}
 data UU : Set
 T : UU → Set
@@ -992,7 +994,7 @@ T : UU → Set
 T bool      = Bool
 T (pi a b)  = (x : T a) → T (b x)
 \end{code}
-Each of constructs in \Cref{sec:tt:univ} can now be interpreted:
+Each of the constructs in \Cref{sec:tt:univ} can now be interpreted:
 \begin{code}
 std  .U   _             = UU
 std  .U[]               = refl
@@ -1003,8 +1005,7 @@ std  .π (A , a) pa (B , b) pb = (λ _ → UU) , λ γ → pi
    (λ a → transport (λ i → pb i (γ , a)) (b (γ , a)))
 ...
 \end{code}
-
-Coherence conditions are then verified using standard properties of transport.  
+Coherence conditions are then verified using standard properties of transport.
 We have formalised the standard model for type theory with $\Pi$-types, Booleans, and a Tarski universe, except the case for |π[]|.
 
 The main effort in the formalisation arises from the lack of \emph{regularity}~\cite{Sterling2022}: there is a path |transportRefl| between the transport along reflexivity and the identity but they are not strictly equal.
@@ -1013,12 +1014,12 @@ For instance, the coherence condition for |Π[]| is given as
 stdPi .Π[] {Γ} {Δ} {A} σ B i γ =
   (a : A (σ γ)) → B (σ γ , (HL(transportRefl³ a)) (~ i))
 \end{code}
-where |transportRefl³| amounts to using |transportRefl| three times.  
+where the highlighted |transportRefl³| amounts to using |transportRefl| three times.
 The case |π[]| above involves an equation over a transport of another transported term.
 If regularity were available, this would collapse to the trivial reflexivity proof.
 \LT{try to finish it if we have time.}
 
-\subsection{Normalisation by evaluation} \label{sec:nbe}
+\subsection{Normalisation by evaluation, and the logical predicate interpretation} \label{sec:nbe}
 We implement normalisation by evaluation (NbE) for the substitution calculus.  
 Following the approach for type theory~\cite{Altenkirch2017}, we define inductive-recursively both the type of variables (with their embedding into terms) and the type of renamings (with their embedding into substitutions).  
 The implementation is straightforward, so we omit the details here.
@@ -1028,9 +1029,8 @@ normalise : (t : Tm Γ) → Σ[ tⁿ ∈ NeTm Γ ] t ≡ ⌜ tⁿ ⌝
 \end{code}
 Compared to NbE for substitution calculus using QIITs, our formalisation is simpler: no transports appear at all, because variables and terms are not indexed by their types.
 
-\subsection{Logical predicate interpretation} \label{sec:tt:logpred}
 The picture is very different for the logical predicate interpretation.  
-Although NbE works cleanly, the logical predicate interpretation --- often considered a benchmark challenge~\cite{Abel2019} for language formalisation --- remains at least as difficult as in the QIIT-based setting, even for substitution calculus.
+Although NbE works cleanly, the logical predicate interpretation --- often considered a benchmark challenge~\cite{Abel2019} for language formalisation --- remains at least as difficult as in the QIIT-based setting, even for the substitution calculus.
 
 To see why, recall that the motives for |Ctx| and |Ty| in the logical predicate interpretation are given by
 \begin{code}
@@ -1042,11 +1042,11 @@ record Ctxᴾ (Γ : Ctx) : Set where
 Tyᴾ : Ctxᴾ Γ → Ty Γ →  Set
 Tyᴾ Γᴾ A = Ty (ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ]T)
 \end{code}
-Here the typing constraint |ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ]T| already shares the familiar shape of |Tm Γ A|, but with an additional complication: the index explicitly demands a type substitution.
+Here the typing constraint |(ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ]T)| already shares the familiar shape of |Tm Γ A|, but with an additional complication: the index explicitly demands a type substitution.
 Since the QIIRT representation only provides equality constructors for type substitutions, the development quickly results in repeated and tedious use of transports.
 
-In short, NbE benefits directly from removing typing indices and avoids transports altogether, whereas the logical predicate interpretation still inherits the need for coercions with type substitutions.  
-As Altenkirch and Kaposi~\cite{Altenkirch2016a} have already shown that such tedious use of transports is possible in theory but impractical, we therefore did not complete the logical predicate interpretation.
+In short, NbE benefits directly from removing typing indices and avoids transports altogether, whereas the logical predicate interpretation still inherits the need for coercions with type substitutions.
+We did not bother to finish all cases of the logical predicate interpretation, as Altenkirch and Kaposi~\cite{Altenkirch2016a} have already shown that such tedious use of transports is possible (but impractical) in theory.
 
 \subsection{Strictification} \label{sec:strictify}
 Instead, we turn our attention to \emph{strictification}~\cite{Donko2022,Kaposi2025}: given a model of type theory, certain equality constructors can be made strict to form a new model.  
