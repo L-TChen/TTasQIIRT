@@ -210,8 +210,6 @@ In dependent type theory, types can depend on terms, which means that all of con
 This is one reason why formalising type theory in type theory is hard.
 %
 
-%\LT[noinline]{Is this just Pollack or McKinna \& Pollack?}
-%\FNF[noinline]{It was meant to be Pollack's thesis, but McKinna \& Pollack might be better.}
 Early approaches to formalising type theory, e.g.\ McKinna and Pollack~\cite{McKinna1999}, dealt with untyped terms that were later refined by a typing relation or setoid equality, and thus had to prove a lot of congruence lemmas by hand~\cite{Danielsson2006,Chapman2009}.
 %
 A breakthrough was achieved by Altenkirch and Kaposi~\cite{Altenkirch2016a}, who showed that quotient inductive-inductive types (QIITs)~\cite{Altenkirch2018} can be employed to significantly simplify the internal representation of well typed terms (or, more precisely, derivations), since equality constructors can be used to represent equations such as $\beta$- and $\eta$-equality.
@@ -451,9 +449,9 @@ data _ where
   (HL([∘]t))     : t  [ τ ]t  [ σ ]t  ≡ t  [ τ ∘ σ ]t
   (HL(,∘))       : (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ qt ])
 \end{code}
-... except that we have to interleave the function clauses of |tyOf| with constructors.
-\FNF{Introduce |wk|, explain |π₁| and |π₂|}
-We need define the function clause for |π₂ σ| before the $\eta$-law for substitution:
+We write |wk| for the ``weakening'' substitution |wk = π₁ idS : Sub (Γ , A) Γ|, and |vz| for the ``top variable'' |vz = π₂ idS : Tm (Γ , A)|.
+This works well\ldots{}except that we have to interleave the function clauses of |tyOf| with constructors.
+For example, we need define the function clause for |π₂ σ| before the $\eta$-law for substitution:
 \begin{code}
 tyOf (π₂ {Γ} {Δ} {A} σ)   = A [ π₁ σ ]T
 data _ where
@@ -1012,12 +1010,12 @@ The main effort in the formalisation arises from the lack of \emph{regularity}~\
 For instance, the coherence condition for |Π[]| is given as
 \begin{code}
 stdPi .Π[] {Γ} {Δ} {A} σ B i γ =
-  (a : A (σ γ)) → B (σ γ , (HL(transportRefl³ a)) (~ i))
+  (a : A (σ γ)) → B (σ γ , transportRefl³ a) (~ i))
 \end{code}
-where the highlighted |transportRefl³| amounts to using |transportRefl| three times.
+where |transportRefl³| amounts to using |transportRefl| three times.
 The case |π[]| above involves an equation over a transport of another transported term.
 If regularity were available, this would collapse to the trivial reflexivity proof.
-\LT{try to finish it if we have time.}
+\LT[noinline]{try to finish it if we have time.}
 
 \subsection{Normalisation by evaluation, and the logical predicate interpretation} \label{sec:nbe}
 We implement normalisation by evaluation (NbE) for the substitution calculus.  
@@ -1091,7 +1089,7 @@ Then, we can show that the laws about type substitution boil down the right unit
     cong (ty³ (A .V) (E A)) (HL((assocS σ τ ⌜ A ⌝)))
 \end{code}
 If |M| is strictified by the Yoneda embedding, then the laws for identity substitution and substitution composition in |M !| will be strict up to |≡ʸ→≡|.
-Hence, combining both techniques, we can construct models where both the category laws and substitution laws are strict.
+Hence, combining both techniques, we can construct models where both the category laws and substitution laws are strict after applying |≡ʸ→≡|.
 
 Nevertheless, strictification does \emph{not} resolve our difficulties with the logical predicate interpretation.
 In particular, the lack of strict propositions (or just definitional UIP) in \CA prevents |σ ≡ʸ σ'| from being strictly equal, since the paths between their properties must still be identified manually using UIP.
@@ -1101,20 +1099,20 @@ As a consequence, coercions along equations identified by UIP remain unavoidable
 \section{Discussion and conclusion}
 \label{sec:discussion}
 
-It is well-known that type theory in type theory is possible in theory, but in practice its formalisation often requires giving up some of the support and safety checks provided by proof assistants.  
-From one point of view, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?  
+It is well known that type theory in type theory is possible in theory, but in practice its formalisation often requires giving up some of the support and safety checks provided by proof assistants.
+From one point of view, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?
 Based on our experimental formalisation in \CA, our answer is regrettably: not yet.
 
 \paragraph{Comparison with QIIT approaches}
-Previous formalisations~\cite{Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} of type theory using QIITs have resorted to using postulated constructors and custom rewrite rules to manually define QIITs and their elimination.
+Previous formalisations~\cite{Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} of type theory using QIITs have resorted to using postulated constructors and custom rewrite rules to manually define QIITs and their eliminators.
 However, this comes at a cost: the proof assistant no longer performs strict positivity, coverage, or termination checks for functions defined from quotient inductive types, nor does it supports dependent pattern matching, program extraction, and interactive theorem proving.
-The loss of coverage check for inductive types is mitigated by the hand-crafted eliminator (e.g.~\Cref{sec:tt:elim}), since the coverage check is also performed for record types.
+The loss of coverage check for inductive types is mitigated by using hand-crafted eliminators (see \Cref{sec:tt:elim}), since the coverage check is also performed for record types.
 
 Our approach leads to fewer transports appearing in the syntax of terms.
 However, the same transports (and the same equations for them) seem to have a tendency to come back in concrete model constructions, as explained in \cref{sec:meta}.
 However, the lack of transports is a real advantage for avoiding strict positivity issues in the current implementation of \CA.
 It is also worth remarking that by using native features such as higher inductive types, rather than postulates in ordinary \Agda, we do get computational interpretations.
-For example, our implementation of normalization by evaluation in \cref{sec:nbe} can actually normalise terms and could be potentially extracted as Haskell programs with the cubical information explicitly erased (and with the option \verb|--erased-cubical| enabled).
+For example, our implementation of normalization by evaluation in \cref{sec:nbe} can actually normalise terms and could be potentially extracted as Haskell programs with the cubical information explicitly erased using \Agda's \verb|--erased-cubical| feature.
 
 Kaposi and Pujet~\cite{Kaposi2025} have shown how strictification techniques can simplify proofs, but this is an orthogonal issue.
 In \cref{sec:strictify}, we have sketched how also our notion of models can be strictified using the same ideas.
@@ -1125,46 +1123,47 @@ Moreover, strictification only address substitution rules and does not help with
 
 \paragraph{A proper syntax for HII(R)Ts}
 The syntax for declaring higher inductive-inductive types and QIITs in \CA falls short of their theoretical capabilities~\cite{Kaposi2020b,Kaposi2019}.  
-As shown in \Cref{sec:tt:cwf}, the legitimate definition of type theory based on CwF with transports violates the syntactic restriction of strict positivity.
-Even though the transport hell is better avoided in practice, this is not a justification for excluding otherwise valid definitions.
+As shown in \Cref{sec:tt:cwf}, the legitimate definition of type theory based on CwF with transports violates the syntactic restriction of strict positivity in \CA.
+Even though transport hell is better avoided in practice, this is not a justification for excluding otherwise valid definitions.
 The alternative definition, based on natural models, does not violate strict positivity but still requires forward declarations (\Cref{sec:tt:mutual}) to overcome the inconvenience of syntax.
 
 \paragraph{A theory of QIIRTs}
-We work around the problem by defining type theory using QIIRTs, but this raises another question: what is the theory of QIIRTs, anyway? 
+We work around the problem by defining type theory using QIIRTs, but this raises another question: what is the theory of QIIRTs, anyway?
 
-Different combinations of QIITs and inductive-recursive types have been used to develop type theory in type theory.
-QIITs and QIIRTs are used for the intrinsic representations of type theory; large and infinitary inductive-recursive types (IRTs) for the standard model of universe; small inductive-recursive types~\cite{Hancock2013} for implementing normalisation by evaluation~\cite{Altenkirch2017}.
+Different combinations of QIITs and inductive-recursive types (IRTs) have been used to develop type theory in type theory.
+QIITs and QIIRTs are used for the intrinsic representations of type theory; large and infinitary IRTs for the standard model of universe; small inductive-recursive types~\cite{Hancock2013} for implementing normalisation by evaluation~\cite{Altenkirch2017}.
 Moreover, the target of |tyOf| is the inductive type |Ty| being defined simultaneously, so the QIIRTs used to define our representation is neither large nor small.
 We expect that the encoding of small inductive-recursive types as indexed inductive-recursive types still applies in general, as we have derived our representation by `undoing' the encoding.
 
-A unified framework to encompass all variants will be convenient for the implementation of a proof assistant.
-Such a scheme may be developed by first extending the type theory of QIITs~\cite{Kaposi2019,Kovacs2020a} with an additional construct to distinguish strict and weak equalities and a coverage condition for function clauses.
+A unified framework to encompass all variants will be convenient for proof assistant implementation.
+Such a scheme may be developed by extending the type theory of QIITs~\cite{Kaposi2019,Kovacs2020a} with an additional construct to distinguish strict and weak equalities and a coverage condition for function clauses.
 
 \paragraph{The support of interleaved mutual definitions}
-Another challenge concerns interleaved mutual definitions.  
-Since constructors of QIITs may be mutually interleaved, the elaboration from dependent pattern matching to eliminators need to take account this.  
-Our workaround, using forward declarations to lift function clauses to fix the dependency, sacrifices their computational behaviour.  
-Furthermore, our definitions appear to reach the limits of the termination checker: even seemingly harmless functions for the recursion principle fail to pass termination checking.  
+Another challenge concerns interleaved mutual definitions.
+Since constructors of QIITs may be mutually interleaved, the elaboration from dependent pattern matching to eliminators need to take this into account.
+Our workaround, using forward declarations to lift function clauses to fix the dependency, sacrifices their computational behaviour.
+Furthermore, our definitions appear to reach the limits of the termination checker: even seemingly harmless functions when defining the recursion principle fail to pass termination checking.
 
-\paragraph{The need for strict propositions}
+% \paragraph{The need for strict propositions}
+\paragraph{Strict propositions, and Observational Type Theory}
 The recent work on strictified syntax~\cite{Kaposi2025} addresses transport hell using observational type theory (OTT)~\cite{Pujet2022,Pujet2023,Pujet2024}, with strict propositions in the metatheory playing a central role.  
 While \Agda does support strict propositions~\cite{Gilbert2019}, this feature was not designed to work with \CA~\cite{Agda-issue2022}.  
-
-\paragraph{The implementation of OTT or XTT}
-To formalise the metatheory of type theory using QIITs, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory provided by \Agda or \CA. 
+%
+%\paragraph{The implementation of OTT or XTT}
+To formalise the metatheory of type theory using QIITs, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory provided by \CA. 
 
 The use of QIITs in OTT~\cite{Kaposi2025} in \Agda requires the user themselves to implement the coercion rules for inductive types~\cite{Pujet2024} as well as their elimination principles.
 Quotient inductive types are not supported in the implementation of OTT in Rocq~\cite{Pujet2024a} and its theory is still being developed~\cite{Felicissimo2025a}.
 
-XTT, a cubical variant of OTT~\cite{Sterling2022}, is another possibility.  
-In particular, the regularity and the definitional UIP, supported by XTT, would immediately simplify our standard model~(\Cref{sec:standard-model}) and make the Yoneda embedding and the local universe construction usable as strictification techniques.  
-Since \CA already supports HIITs (though with caveats noted earlier), extending it with QIITs as a variant of \CA may be within reach~\cite{Agda-issue2019}.  
+Using XTT, a cubical variant of OTT~\cite{Sterling2022}, is another possibility.
+In particular, regularity and definitional UIP, supported by XTT, would immediately simplify our standard model~(\Cref{sec:standard-model}) and make the Yoneda embedding and the local universe construction usable as strictification techniques.
+Since \CA already supports HIITs (though with caveats noted earlier), implementing XTT with QIITs as a variant of \CA may be within reach~\cite{Agda-issue2019}.
 
-\paragraph{Fordism and definitional UIP}
-The Fordism is known to work well with definitional UIP~\cite{Altenkirch2006}.
-So far, we have only `Forded' the \verb|Tm| constructors, but what if every constructor were Forded, with indices removed entirely?  
+\paragraph{The Ford transformation and definitional UIP}
+The Ford transformation is known to work well with definitional UIP~\cite{Altenkirch2006}.
+So far, we have only `Forded' the \verb|Tm| constructors, but what if every constructor were Forded, with indices removed entirely?
 The resulting representation of type theory would remain intrinsic, but all typing constraints would appear as equality proofs, which are definitionally proof-irrelevant in XTT or OTT.
-This could provide a way to escape transport hell without relying on strictification.  
+This could provide a way to escape transport hell without relying on strictification.
 
 Of course, explicitly transforming these typing constraints to equality proofs would still be tedious and error-prone, so an elaboration from QIITs to their Forded presentation using QIIRTs would be useful.
 The connection between QIITs and its Forded definition with the index eliminated echoes the notion of reornament~\cite{Dagand2014,Ko2016,Dagand2017}, so this translation itself may be of interest in general.
