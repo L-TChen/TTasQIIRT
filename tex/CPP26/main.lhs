@@ -68,6 +68,44 @@
 %format [∘]T = "[\circ]_{\text{T}}"
 %format [∘]t = "[\circ]_{\text{t}}"
 
+%format _,C_ = "\_,^{\mathsf{C}}\_"
+%format ,C = , "^{\mathsf{C}}"
+
+%format SC∙ = "\mathsf{SC}^{\bullet}"
+%format Ctx∙ = "\mathsf{Ctx}^{\bullet}"
+%format Ty∙ = "\mathsf{Ty}^{\bullet}"
+%format Tm∙ = "\mathsf{Tm}^{\bullet}"
+%format Sub∙ = "\mathsf{Sub}^{\bullet}"
+%format tyOf∙ = "\mathsf{tyOf}^{\bullet}"
+
+%format Γ∙ = Γ "^{\bullet}"
+%format t∙ = t "^{\bullet}"
+%format u∙ = u "^{\bullet}"
+%format σ∙ = σ "^{\bullet}"
+%format τ∙ = τ "^{\bullet}"
+%format p∙ = p "^{\bullet}"
+
+%format ∅∙ = ∅ "^{\bullet}"
+%format _,∙_ = "\_,^{\bullet}\_"
+%format ,∙ = , "^{\bullet}"
+%format _[_]T∙ = "\_[\_]^{\bullet}_{\text{T}}"
+%format _[_]t∙ = "\_[\_]^{\bullet}_{\text{t}}"
+%format ]t∙ = "\kern-1.5pt]^{\bullet}_{\text{t}}"
+%format ]T∙ = "\kern-1.5pt]^{\bullet}_{\text{t}}"
+%format tyOf[]∙ = tyOf[] "^{\bullet}"
+%format [idS]t∙ = [idS]t "^{\bullet}"
+%format [∘]t∙ = [∘]t "^{\bullet}"
+%format π₁∙ = π₁ "^{\bullet}"
+%format π₂∙ = π₂ "^{\bullet}"
+%format tyOfπ₂∙ = tyOfπ₂ "^{\bullet}"
+
+
+%format idS∙ = idS "^{\bullet}"
+%format ∘∙ = ∘ "^{\bullet}"
+
+%format _∙P_ = "\_" ∙ "_{\mathsf{P}}\_"
+%format ∙P = ∙ "_{\mathsf{P}}"
+
 
 \renewcommand\Varid[1]{\mathord{\textsf{#1}}}
 %\let\Conid\Varid
@@ -628,16 +666,16 @@ In the end, we emphasise that the introduction of superfluous equality proofs an
 These additional arguments are essentially unique and thus do not add any new laws to type theory, but merely serve as devices to meet the syntactic restriction of strict positivity in the current implementation of \CA.
 
 \subsection{Recursion and elimination principles} \label{sec:tt:elim}
-We turn to the (internal) recursion and elimination principles.
-Our QIIRT definition of type theory syntax yields an \emph{initial model}.
+We turn to recursion and elimination principles for our syntax.
+Our QIIRT definition yields an \emph{initial model}.
 This means that for any other model (algebra) of our theory, there is a unique structure-preserving map from our syntax to that model.
 The recursion and elimination principles make this property concrete.
 Here, we only discuss the part for substitution calculus, since other type formers are addressed similarly.
 For the interested reader, see our formalisation.
 
-The signature for an algebra is packed in a record type~|SC|.
-Inductive types and the function |tyOf| are interpreted as indexed types and a function between sets. 
-Constructor of our syntax, except superfluous ones, correspond to function fields in this record, including equality constructors and clauses of |tyOf|.
+The signature for an algebra is packed in a record type~|SC| (short for Substitution Calculus).
+Inductive types and the function |tyOf| are interpreted as indexed types and a function between sets.
+Constructors of our syntax, except superfluous ones, correspond to function fields in this record, including equality constructors and clauses of |tyOf|.
 \begin{code}
 record SC  : Set  where
   field
@@ -659,7 +697,7 @@ record SC  : Set  where
     tyOfπ₂  : tyOf (π₂ {A = A} σ)  ≡ A [ π₁ σ ]T
 \end{code}
 
-To distinguish syntactic constructors from the semantic methods in |SC|, we qualify the syntactic constructors with |S.| in the following discussion.
+To distinguish syntactic constructors from the semantic methods in |SC|, we qualify the syntactic constructors with ``|S.|'' in the following discussion.
 
 Superfluous equality constructors, like |S.tyOfπ₂idS|, are not required as fields in the record.
 Instead, their semantic counterparts are defined within any given model using the other methods.
@@ -680,7 +718,7 @@ recSub   : S.Sub Γ Δ  → Sub (recCtx Γ) (recCtx Δ)
 \end{code}
 We also need a function that translates proofs about syntactic equalities into semantic equalities:
 \begin{code}
-recTyOf  : S.tyOf t ≡ B → (HL(tyOf (recTm t) ≡ recTy B))
+recTyOf  : S.tyOf t ≡ B → tyOf (recTm t) ≡ recTy B
 \end{code}
 The definition of these functions proceeds by pattern matching on the syntactic structure.
 Each clause is an application of the corresponding method from the |SC| record:
@@ -713,11 +751,11 @@ record SC∙ (M : SC) : Set where
   open SC M
 
   field
-    Ctx∙   : (HL(Ctx)) → Set
-    Ty∙    : Ctx∙ Γ → (HL(Ty Γ)) → Set
-    Tm∙    : Ctx∙ Γ → (HL(Tm Γ)) → Set
-    Sub∙   : Ctx∙ Γ → Ctx∙ Δ → (HL(Sub Γ Δ)) → Set
-    tyOf∙  : Tm∙  Γ∙ t → Ty∙ Γ∙ (HL((tyOf t)))
+    Ctx∙   : Ctx → Set
+    Ty∙    : Ctx∙ Γ → Ty Γ → Set
+    Tm∙    : Ctx∙ Γ → Tm Γ → Set
+    Sub∙   : Ctx∙ Γ → Ctx∙ Δ → Sub Γ Δ → Set
+    tyOf∙  : Tm∙  Γ∙ t → Ty∙ Γ∙ (tyOf t)
 \end{code}
 As motives are indexed by their underlying model, we will have equations over equations of the underlying model.
 It is convenient to specialise dependent paths for them, e.g.,
@@ -726,7 +764,7 @@ It is convenient to specialise dependent paths for them, e.g.,
   _≡Tm[_]_ {Γ∙ = Γ∙} t∙ e u∙ =
     PathP (λ i → Tm∙ Γ∙ (HL((e i)))) t∙ u∙
 \end{code}
-The signature for |SC∙|-algebras is similar to |SC|-algebras
+The signature for |SC∙|-algebras is similar to the one for |SC|-algebras.
 The difference here is that each displayed operation is indexed by their underlying operation and thus equations become equations over equations.
 \begin{code}
   field
@@ -734,11 +772,10 @@ The difference here is that each displayed operation is indexed by their underly
     _,∙_     : Ctx∙ Γ → Ty∙ Γ∙ A → Ctx∙ (Γ ,C A)
     _[_]T∙   : Ty∙ Δ∙ A → Sub∙ Γ∙ Δ∙ σ → Ty∙ Γ∙ (A [ σ ]T)
     _[_]t∙   : Tm∙ Δ∙ t → Sub∙ Γ∙ Δ∙ σ → Tm∙ Γ∙ (t [ σ ]t)
-    tyOf[]∙  : tyOf∙ (t∙ [ σ∙ ]t∙)
-      ≡Ty[ (HL(tyOf[])) ] (tyOf∙ t∙ [ σ∙ ]T∙)
+    tyOf[]∙  : tyOf∙  (t∙ [ σ∙ ]t∙) ≡Ty[ tyOf[] ] (tyOf∙ t∙ [ σ∙ ]T∙)
     ...
-    [idS]t∙  : t∙                    ≡Tm[ (HL([idS]t)) ]  t∙ [ idS∙ ]t∙
-    [∘]t∙    : t∙ [ τ∙ ]t∙ [ σ∙ ]t∙  ≡Tm[ (HL([∘]t)) ]    t∙ [ τ∙ ∘∙ σ∙ ]t∙
+    [idS]t∙  : t∙                    ≡Tm[ [idS]t ]  t∙ [ idS∙ ]t∙
+    [∘]t∙    : t∙ [ τ∙ ]t∙ [ σ∙ ]t∙  ≡Tm[ [∘]t ]    t∙ [ τ∙ ∘∙ σ∙ ]t∙
 \end{code}
 Note that if |[idS]t| in its QIIT definition is formulated with a dependent path, the equality proof in the middle of |_≡Tm[_]_| has to be a dependent path.
 As a result, we would have to specify two underlying equations as
@@ -755,32 +792,38 @@ elimTy    : (A :  S.Ty Γ)     → Ty∙ (elimCtx Γ) A
 elimTm    : (t :  S.Tm Γ)     → Tm∙ (elimCtx Γ) t
 elimSub   : (σ :  S.Sub Γ Δ)  → Sub∙ (elimCtx Γ) (elimCtx Δ) σ
 elimTyOf  : (t :  S.Tm Γ) (p : S.tyOf t ≡ A)
-  →  tyOf∙ (elimTm t) ≡Ty[ (HL(p)) ] elimTy A
+  →  tyOf∙ (elimTm t) ≡Ty[ p ] elimTy A
 \end{code}
 
-For the coherence conditions, we may need extra steps to reason about instead of just using the semantics equation, so we use the transitivity for dependent paths:
+For the coherence conditions in the definition of the eliminators, we may need additional reasoning steps instead of just using the semantics equation, so we use transitivity of dependent paths:
 \begin{code}
 _∙P_ :  {x' : B x}{y' : B y}{z' : B z}
   → {p : x ≡ y}{q : y ≡ z}
-  → PathP (λ i → B ((HL(p)) i)) x' y' → PathP (λ i → B ((HL(q)) i)) y' z'
+  → PathP (λ i → B (p i)) x' y' → PathP (λ i → B (q i)) y' z'
   → PathP (λ i → B ((HL((p ∙ q)))i)) x' z'
 \end{code}
-and also UIP to identify the |p ∙ q| with the desired underlying equation. 
-We extend the conventional syntax for equational reasoning for displayed equations.
+We also use UIP to identify the highlighted |p ∙ q| with the desired underlying equation in special-purpose equational reasoning combinators such as the following:
+\begin{code}
+  beginSub[_]_
+    : ({p} q : σ ≡ τ) → σ∙ ≡Sub[ p ] τ∙ → σ∙ ≡Sub[ q ] τ∙
+  beginSub[_]_ {σ∙} {τ∙} {p} q p∙ =
+    subst (λ r → σ∙ ≡Sub[ r ] τ∙) (UIP p q) p∙
+\end{code}
+
 For example, the coherence proof for |ηπ| is given by
 \begin{code}
-(HL(beginSub[ ηπ ]))
+beginSub[ ηπ ]
   elimSub σ
-    ≡Sub[ (HL(ηπ)) ]⟨ (HL(ηπ∙ (elimSub σ))) ⟩
-  π₁∙ (elimSub σ) , π₂∙ (elimSub σ)
-    ∶[ refl , (HL(tyOfπ₂∙ (elimSub σ))) ]∙
-    ≡Sub[ (HL(refl)) ]⟨ cong (π₁∙ (elimSub σ) , π₂∙ (elimSub σ)
-      ∶[ refl ,_]∙) (HL(UIP)) ⟩
-  π₁∙ (elimSub σ) , elimTm (π₂ σ)
-    ∶[ refl , (HL(elimTyOf (π₂ σ) refl)) ]∙
+    ≡Sub[ ηπ ]⟨ ηπ∙ (elimSub σ) ⟩
+  π₁∙ (elimSub σ) ,
+  π₂∙ (elimSub σ) ∶[ refl , tyOfπ₂∙ (elimSub σ) ]t∙
+    ≡Sub[ refl ]⟨ cong (λ z → ... , ... ∶[ refl , z ]t∙) (UIP _ _) ⟩
+  π₁∙ (elimSub σ) ,
+  elimTm (π₂ σ) ∶[ refl , elimTyOf (π₂ σ) refl ]t∙
     ∎
 \end{code}
-The transitivity of dependent paths gives us an equation over |ηπ ∙ refl | instead of |ηπ|, so we use |beginSub[ ηπ ]_| to identify the underlying path |ηπ ∙ refl | with |ηπ| by UIP.
+with the steps |σ∙ ≡Sub[ p ]⟨ p∙ ⟩ τ∙| implemented using |_∙P_|.
+These steps give us an equation over |ηπ ∙ (refl ∙ refl) |, and |beginSub[ ηπ ]_| gives us an easy way to correct this to an equation over |ηπ| as desired instead.
 
 
 \subsection{Practical workarounds for mutual definitions}  \label{sec:tt:mutual}
