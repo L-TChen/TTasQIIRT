@@ -184,7 +184,7 @@ In effect, this gives rise to the \emph{initial} category with families, with th
 %
 This thus gives a both principled and practical way to formalise the syntax and equational theory of type theory in type theory; the feasibility of the approach was demonstrated by e.g.\ formalising normalisation by evaluation using this representation~\cite{Altenkirch2017}.
 
-At the time of publication of Altenkirch and Kaposi~\cite{Altenkirch2016a}, the proof assistant \Agda did not allow equality constructors in data type declarations, so a workaround known as `Licata's trick'~\cite{Licata2011} was used, which meant giving up many features of the proof assistant such as coverage check and program extraction.
+At the time of publication of Altenkirch and Kaposi~\cite{Altenkirch2016a}, the proof assistant \Agda did not allow equality constructors in data type declarations, so a workaround known as `Licata's trick'~\cite{Licata2011} was used by postulating (equality) constructors and writing down the eliminator explicitly, which meant giving up features of the proof assistant such as dependent pattern matching.
 \CA, the cubical variant of \Agda~\cite{Vezzosi2021}, is now equipped with a native support for QIITs, so it is natural to ask if we can use this support to formalise the intrinsic representation of type theory without the trick or any other compromise.
 
 In this paper, we explore this question and see what the proof assistant provides and lacks to achieve this goal.
@@ -276,7 +276,8 @@ Similarly, we are ignoring universe levels, but they are all present in the form
 
 \section{Type theory as quotient inductive types} \label{sec:tt}
 
-In this section, we show how Altenkirch and Kaposi's representation~\cite{Altenkirch2016a}, which is rejected by \CA due to syntactic strict positivity restrictions arising from transports, can be transformed to a representation based on Awodey's natural models.
+In this section, we will explain why Altenkirch and Kaposi's representation~\cite{Altenkirch2016a} is hard to use in practice and rejected by \CA arising from transports in its definition.
+Then, we show how their representation can be transformed to a representation based on Awodey's natural models.
 This representation is accepted by \CA, since it is free from transports.
 
 %This section's aim is to exhibit that Altenkirch and Kaposi's representation, which contains the transport hells and violates the syntactic restriction imposed by \CA, can be transformed to a representation based on Awodey's natural model, which is free from transports and accepted by \CA.
@@ -303,17 +304,20 @@ data _ where
   _,_    : (Γ : Ctx)(A : Ty Γ) → Ctx
   _[_]T  : (A : Ty Δ)(σ : Sub Γ Δ) → Ty Γ
   _[_]t  : (t : Tm Δ A)(σ : Sub Γ Δ) → Tm Γ (A [ σ ]T)
+  idS    : Sub Γ Γ
   _∘_    : Sub Δ Θ → Sub Γ Δ → Sub Γ Θ
   _,_    : (σ : Sub Γ Δ)(t : Tm Γ (A [ σ ]T))
     → Sub Γ (Δ , A)
-  [∘]    : A [ τ ]T [ σ ]T ≡ A [ τ ∘ σ ]T
+  [∘]T   : A [ τ ]T [ σ ]T ≡ A [ τ ∘ σ ]T
   ...
 \end{code}
- The constructor |∅| represents the empty context, and |Γ , A| a context extension, while |A [ σ ]T| and |t [ σ ]t| represent substituted types and terms, respectively. Further, |_∘_| is the constructor for substitution composition, and the second |_,_| is the constructor for extending a substitution |σ| with a term |t| of type |A [ σ ]T| (making use of \Agda's support for overloaded constructor names).
-The equality constructor~|[∘]| states that type substitution by |τ| followed by type substitution by |σ| is the same as a single substitution by the composition |τ ∘ σ|.
-When formulating the corresponding rule for the interaction between |_∘_| and |_,_|, we encounter a type mismatch that needs to be resolved by inserting a transport |subst (Tm Γ) ([∘] A τ σ)| (highlighted in \highlight{addition}{\text{green}}): %, leading to the transport hell when reasoning with this equality:
+ The constructor |∅| represents the empty context, and |Γ , A| a context extension, while |A [ σ ]T| and |t [ σ ]t| represent substituted types and terms, respectively.
+Further, |idS| is the identity substitution, |_∘_| the constructor for substitution composition, and the second |_,_| the constructor for extending a substitution |σ| with a term |t| of type |A [ σ ]T| (making use of \Agda's support for overloaded constructor names).
+The equality constructor~|[∘]T| states that type substitution by |τ| followed by type substitution by |σ| is the same as a single substitution by the composition |τ ∘ σ|.
+
+When formulating the corresponding rule for the interaction between |_∘_| and |_,_|, we encounter a type mismatch that needs to be resolved by a transport (highlighted in \highlight{addition}{\text{green}}): %, leading to the transport hell when reasoning with this equality:
 \begin{code}
-,∘  : (σ , t) ∘ τ ≡ (σ ∘ τ , (HL(subst (Tm Γ) ([∘] A τ σ))) (t [ τ ]t))
+,∘  : (σ , t) ∘ τ ≡ (σ ∘ τ , (HL(subst (Tm Γ) [∘]T)) (t [ τ ]t))
 \end{code}
 The reason is that the type of |t [ τ ]t| is |A [ σ ]T [ τ ]T| rather than the required |A [ σ ∘ τ ]T|.
 However, since |Tm| is an argument to |subst|, the use of transport violates a syntactic restriction of \Agda, namely its strict positivity check.
@@ -339,21 +343,21 @@ Hence, it is still preferable to avoid them if possible.
 To avoid transports in the definition itself, we note that the index |A| of |Tm Γ A| often needs an explicit proof for the typing constraint --- for example, that the term |t| in the substitution |(σ , t)| has type |A [ σ ]T| --- if this does not happen to hold strictly (i.e., up to judgemental equality), so enforcing this constraint in the index of |Tm| just shoots ourselves in the foot.
 Hence, we apply the `Ford transformation'~\cite{McBride1999} (``You can have any index you want, as long as it is equal to the specified one'') to move the constraint on its index to its argument as an equality proof (highlighted below):
 \begin{code}
-_,_∶[_] : (σ : Sub Γ Δ) (t : Tm Γ B) (HL((t : B ≡ A [ σ ]T)))
+_,_∶[_] : (σ : Sub Γ Δ) (t : Tm Γ B) (HL((pt : B ≡ A [ σ ]T)))
   → Sub Γ (Δ , A)
 \end{code}
 The constructor |,∘|, which had a transport in its type above, then becomes
 \begin{code}
-,∘  : (σ  , t ∶[ p ]) ∘ τ
-          ≡ (σ ∘ τ , t [ τ ]t ∶[ cong _[ τ ]T p ∙ ([∘]T A τ σ) ])
+,∘  : ... (σ , t ∶[ pt ]) ∘ τ
+          ≡ (σ ∘ τ , t [ τ ]t ∶[ cong _[ τ ]T pt ∙ [∘]T ])
 \end{code}
 where |_∙_| is the transitivity of equality.
 Although transport is not needed this time, the use of |cong| and |_∙_|
 still prevent the definition from being seen as strictly positive.
 Similar to the Ford transformation, this problem can be overcome by asking for another equality proof, highlighted below, as an argument:
 \begin{code}
-,∘ : ... (HL((q : B [ τ ] ≡ A [ σ ∘ τ ]T)))
-   → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ q ]
+,∘ : ... (HL((qt : B [ τ ]T ≡ A [ σ ∘ τ ]T)))
+   → (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ qt ]
 \end{code}
 As we assume UIP, the additional argument is essentially unique, so this updated constructor does not require any information but only defers the proof obligation.
 %This redundant argument can be removed later when defining its eliminator (\Cref{sec:tt:elim}).
@@ -363,9 +367,10 @@ This opens the door to a simpler design: instead of carrying the index around, w
 To preserve the necessary typing information, we simultaneously introduce an auxiliary function |tyOf : Tm Γ → Ty Γ| that records it explicitly.
 In the end, the constructor |,∘| becomes
 \begin{code}
-,∘ : (σ : Sub Δ Θ) (t : Tm Δ)) (τ : Sub Γ Δ)
-   → (p : tyOf t ≡ A [ σ ]T) (q : tyOf (t [ τ ]t) ≡ A [ σ ∘ τ ]T)
-   → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ q ]
+,∘ : (σ : Sub Δ Θ) (t : (HL(Tm Δ))) (τ : Sub Γ Δ)
+   → (pt : (HL(tyOf t)) ≡ A [ σ ]T)
+   → (qt : (HL(tyOf (t [ τ ]t))) ≡ A [ σ ∘ τ ]T)
+   → (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ qt ]
 \end{code}
 
 As a side effect, this approach also removes the need for dependent paths in the definition.
@@ -406,8 +411,7 @@ data _ where
   (HL([idS]t))   : t  ≡  t  [ idS ]t
   [∘]T           : A  [ τ ]T  [ σ ]T  ≡ A  [ τ ∘ σ ]T
   (HL([∘]t))     : t  [ τ ]t  [ σ ]t  ≡ t  [ τ ∘ σ ]t
-  (HL(,∘))       : (q :  tyOf (t [ τ ]t) ≡ A [ σ ∘ τ ]T)
-                         → (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
+  (HL(,∘))       : (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ qt ])
 \end{code}
 ... except that we have to interleave the function clauses of |tyOf| with constructors.
 \FNF{Introduce |wk|, explain |π₁| and |π₂|}
@@ -423,20 +427,20 @@ We proceed with other equality constructors:
 data _ where
   η∅   : σ ≡ ∅S
   βπ₁  : π₁ (σ , t ∶[ p ]) ≡ σ
-  βπ₂  : (HL((q : A [ π₁ (σ , t ∶[ p ]) ]T ≡ tyOf t)))
+  βπ₂  : ... (HL((q : A [ π₁ (σ , t ∶[ p ]) ]T ≡ tyOf t)))
     → π₂ (σ , t ∶[ p ]) ≡ t
 \end{code}
-Note that |βπ₂| has an additional derivable equality proof (highlighted above).
+Note that |βπ₂| has an additional derivable equality proof |(HL(q))|.
 This argument is needed as the coherence condition for
 \begin{code}
-tyOf (βπ₂ σ t p q i)  = q i
+tyOf (βπ₂ ... q i)  = q i
 \end{code}
 since again using any other function while defining inductive types breaks the strict positivity check. 
 The remaining clauses are given as
 \begin{code}
-tyOf (t [ σ ]t)        = (tyOf t) [ σ ]T
-tyOf ([idS]t t i)     = [idS]T i
-tyOf ([∘]t t σ τ i)   = [∘]T i
+tyOf (t [ σ ]t)  = (tyOf t) [ σ ]T
+tyOf ([idS]t i)  = [idS]T i
+tyOf ([∘]t i)    = [∘]T i
 \end{code}
 This definition is accepted by \CA\footnote{At the time of writing, \CA does not support interleaved mutual definitions, but it can be equivalently defined using forward declarations.
 We will discuss this idiom in \Cref{sec:tt:mutual}.}
@@ -1056,7 +1060,7 @@ From one point of view, our work addresses the following question: is there any 
 Regrettably, based on our experimental formalisation in \CA, our answer is: not yet.
 
 \paragraph{Comparison with QIIT approaches}
-Previous formalisations~\cite{Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} of type theory using QIITs have resorted to Licata's trick which uses postulates and rewrite rules to manually define QIITs and their elimination.
+Previous formalisations~\cite{Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} of type theory using QIITs have resorted to using postulated constructors and custom rewrite rules to manually define QIITs and their elimination.
 However, this comes at a cost: the proof assistant no longer performs strict positivity, coverage, or termination checks for functions defined from quotient inductive types, nor does it supports dependent pattern matching, program extraction, and interactive theorem proving.
 The loss of coverage check for inductive types is mitigated by the hand-crafted eliminator (e.g.~\Cref{sec:tt:elim}), since the coverage check is also performed for record types.
 
