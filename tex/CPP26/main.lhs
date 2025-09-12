@@ -1017,13 +1017,19 @@ It is well-known that type theory in type theory is possible in theory, but in p
 From one particular point of view, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?  
 Regrettably, based on our experimental formalisation in \CA, our answer is: not yet.
 
-\paragraph{Comparison with QIIT approach}
+\paragraph{Comparison with QIIT approaches}
+Previous formalisations~\cite{Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} of type theory using QIITs have resorted to Licata's trick which uses postulates and rewrite rules to manually define QIITs and their elimination.
+However, this comes at a cost: the proof assistant no longer performs strict positivity, coverage, or termination checks for functions defined from quotient inductive types, nor does it supports dependent pattern matching, program extraction, and interactive theorem proving.
+The loss of coverage check for inductive types is mitigated by the hand-crafted eliminator (e.g.~\Cref{sec:tt:elim}), since the coverage check is also performed for record types.
 
-Compared to approaches based on encoding well typed syntax as a QIIT~\cite{Altenkirch2016a}, our approach leads to fewer transports appearing in the syntax of terms. However, the same transports (and the same equations for them) seem to have a tendency to come back in concrete model constructions, as explained in \cref{sec:meta}. However, the lack of transports is a real advantage for avoiding strict positivity issues in the current implementation of \CA.
-It is also worth remarking that by using native \CA features such as higher inductive types, rather than postulates in ordinary \Agda, we do get computational interpretations --- for example, our implementation of normalization by evaluation in \cref{sec:nbe} can actually be used to normalize terms and could be extracted as Haskell programs.
-\LT{maybe we can try it in the last minute.}
+Our approach leads to fewer transports appearing in the syntax of terms.
+However, the same transports (and the same equations for them) seem to have a tendency to come back in concrete model constructions, as explained in \cref{sec:meta}.
+However, the lack of transports is a real advantage for avoiding strict positivity issues in the current implementation of \CA.
+It is also worth remarking that by using native features such as higher inductive types, rather than postulates in ordinary \Agda, we do get computational interpretations.
+For example, our implementation of normalization by evaluation in \cref{sec:nbe} can actually normalise terms and could be potentially extracted as Haskell programs with the cubical information explicitly erased (and with the option \verb|--erased-cubical| enabled).
 
-Kaposi and Pujet~\cite{Kaposi2025} have shown how strictification techniques can simplify definitions, but this is an orthogonal issue; in \cref{sec:strictify}, we have sketched how also our notion of models can be strictified using the same ideas.
+Kaposi and Pujet~\cite{Kaposi2025} have shown how strictification techniques can simplify proofs, but this is an orthogonal issue.
+In \cref{sec:strictify}, we have sketched how also our notion of models can be strictified using the same ideas.
 However, even though strictification turns most of the equality constructors about substitution to strict equalities, this does not help with transports appearing in the QIIT definition of terms and the resulting strict positivity issues, as strictification can only be applied \emph{after} the inductive types are defined.
 Moreover, strictification only address substitution rules and does not help with other issues such as equations over equations over equations for the universe of types.
 
@@ -1036,9 +1042,6 @@ Even though the transport hell is better avoided in practice, this is not a just
 
 The alternative definition, based on natural models, does not violate strict positivity but still requires workarounds, as discussed in \Cref{sec:tt:mutual}.  
 
-Previous formalisations~\cite{Kaposi2025,Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} have resorted to Licata's trick to define type theory.  
-However, this comes at a cost: the proof assistant no longer performs coverage or termination checks for functions defined from quotient inductive types, nor does it provide the usual interactive support for theorem proving.
-One can minimise the loss by giving up dependent pattern matching and only using the hand-crafted eliminator (e.g.~\Cref{sec:tt:elim}) instead, so the coverage check for record types is still in place.
 
 \paragraph{The support of QIIRTs}
 We work around the problem by defining type theory using QIIRTs, but this raises another question: what is the theory of QIIRTs?  
@@ -1068,8 +1071,8 @@ XTT, a cubical variant of OTT~\cite{Sterling2022}, is another possibility.
 In particular, the regularity and the definitional UIP, supported by XTT, would simplify our formalisation (\Cref{sec:standard-model}) and make the Yoneda embedding and the local universe construction usable as strictification techniques.  
 Since \CA already supports HIITs (though with caveats noted earlier), extending it with QIITs as a variant of \CA may be within reach~\cite{Agda-issue2019}.  
 
-\paragraph{Fordism and the definitional UIP}
-The Fordism is known to work well with the definitional UIP~\cite{Altenkirch2006}, even without strict propositions.
+\paragraph{Fordism and definitional UIP}
+The Fordism is known to work well with definitional UIP~\cite{Altenkirch2006}.
 So far, we have only `Forded' the \verb|Tm| constructors, but what if every constructor were Forded, with indices removed entirely?  
 The resulting representation of type theory would remain intrinsic, but all typing constraints would appear as equality proofs, which are definitionally proof-irrelevant in XTT or OTT.
 This could provide a way to escape transport hell without relying on strictification.  
