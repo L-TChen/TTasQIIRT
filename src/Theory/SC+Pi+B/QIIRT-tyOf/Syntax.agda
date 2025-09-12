@@ -357,7 +357,7 @@ module Foo where
     tyOf (elim𝔹' P u t pu pt b pb) = P [ idS , b ∶[ pb ] ]T
     tyOf (elim𝔹[]' P u t pu pt b pb pt₂ pu₂ pb₂ q i) = q i
 
-    -- equaitons derivable from the computational behaviour of `tyOf
+    -- equations derivable from the computational behaviour of `tyOf'
     tyOfπ₂ σ = refl
     tyOfπ₂idS {A = A} {σ = σ} = [∘]T A (π₁ idS) σ
     tyOfabs = refl

@@ -68,10 +68,6 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : {σ : Sub Δ Γ}
         → (a : Tm Γ) (pa : tyOf a ≡ U)
         → (b : Tm (Γ ,C El a pa)) (pb : tyOf b ≡ U)
-{-
-        → (pa' : tyOf (a [ σ ]t) ≡ U)
-        → (pb' : tyOf (b [ σ ↑El ]t) ≡ U)
--}
         → (π a pa b pb) [ σ ]t ≡ π (a [ σ ]t) (tyOf[]≡U pa) (b [ σ ↑El ]t) (tyOf[]≡U pb)
       tyOfπ
         : (a : Tm Γ) (pa : tyOf a ≡ U) (b : Tm (Γ ,C El a pa)) (pb : tyOf b ≡ U)

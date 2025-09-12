@@ -76,7 +76,7 @@ TermBool .𝓑.ff[]   = ff[]
 TermBool .𝓑.elim𝔹  = elim𝔹
 TermBool .𝓑.tyOfelim𝔹 P t pt u pu b pb = refl
 TermBool .𝓑.elim𝔹[] {σ = σ} P t pt u pu b pb pt₂ pu₂ pb₂ p = 
-  -- Liang-Ting (2025-08-30): I haven't investiaged why this case does not pass
+  --  (2025-08-30): I haven't investiaged why this case does not pass
   -- the termination checker.
     elim𝔹[] P t pt u pu b pb pt₂' pu₂'
     pb₂ (p ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , b [ σ ] ∶[ pb₂ ] ]) (UIP _ _))

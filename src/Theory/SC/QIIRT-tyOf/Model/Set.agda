@@ -1,5 +1,3 @@
--- [TODO] Use the identity type to define the interface instead.
-
 open import Prelude
 
 module Theory.SC.QIIRT-tyOf.Model.Set where

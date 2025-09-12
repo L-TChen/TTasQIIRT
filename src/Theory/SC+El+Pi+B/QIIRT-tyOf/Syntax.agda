@@ -449,7 +449,7 @@ module Foo where
     tyOf (π' a pa b pb) = U
     tyOf (π[]' {σ = σ} a pa b pb pa' pb' i) = U[] {σ = σ} i
 
-    -- equaitons derivable from the computational behaviour of `tyOf
+    -- equations derivable from the computational behaviour of `tyOf
     tyOfπ₂ σ = refl
     tyOfπ₂idS {A = A} {σ = σ} = [∘]T A (π₁ idS) σ
     tyOfabs = refl

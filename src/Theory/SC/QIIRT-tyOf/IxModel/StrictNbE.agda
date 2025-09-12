@@ -1,7 +1,7 @@
 {-# OPTIONS -WnoUnsupportedIndexedMatch --lossy-unification #-}
 
 {-
-  LIANG-TING (2025-08-15): With --lossy-unification enabled,
+  With --lossy-unification enabled,
   we even don't need to fill in impicit arguments! 
   As strict interpretation of constructors are injective, using lossy unification shall be consistent.
 
@@ -301,15 +301,3 @@ _⊙idR : (ρ : Ren Γ' Δ') → ρ ⊙ idR ≡ ρ
 ⊙-assoc ρ ρ' ∅R = refl
 ⊙-assoc ρ ρ' (ρ'' ,R x ∶[ p ]) =
   cong,∶[]ᴿ (⊙-assoc ρ ρ' ρ'') (lookupVar⊙ ρ' ρ x)
-
-
--- Evaluate substitutions and terms to renamings and variables
-{- It seems that we have to convert strictified syntax back and forth?
-evalSub
-  : (σ : Sub [ Γ' ]ᶜ [ Δ' ]ᶜ)
-  → Σ[ ρ ∈ Ren Γ' Δ' ] σ ≡ ⌜ ρ ⌝ᴿ
-evalTm : (t : Tm [ Γ' ]ᶜ) → Σ[ x ∈ Var Γ' ] t ≡ ⌜ x ⌝ⱽ
-
-evalSub σ = {!  !}
-evalTm t  = {!   !}
--}

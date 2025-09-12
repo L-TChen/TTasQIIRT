@@ -63,7 +63,7 @@ recTy (S.El[]₂ {Δ} {Γ} {σ} u pu pu' i) = (
   tyOf (π₂ idS)
 
     ≡⟨ {!El[]₂ {σ = recSub σ} (recTm u) (recTyOf u pu) !} ⟩
-    -- Liang-Ting Chen (2025-09-1): even this cannot be accepted, as their implicit arguments are different.
+    -- Even this cannot be accepted, as their implicit arguments are different.
     --
     -- Goal: tyOf (π₂ idS) ≡
     --   (El (recTm u) (recTyOf u pu) [ recSub σ ∘ π₁ idS ]T)
