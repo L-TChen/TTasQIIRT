@@ -957,6 +957,7 @@ std  .𝕓                 = (λ _ → UU) , λ _ → bool
 std  .π (A , a) pa (B , b) pb = (λ _ → UU) , λ γ → pi
    (transport (λ i → pa i γ) (a γ))
    (λ a → transport (λ i → pb i (γ , a)) (b (γ , a)))
+...
 \end{code}
 
 Coherence conditions are then verified using standard properties of transport.  
@@ -1057,7 +1058,7 @@ As a consequence, coercions along equations identified by UIP remain unavoidable
 
 It is well-known that type theory in type theory is possible in theory, but in practice its formalisation often requires giving up some of the support and safety checks provided by proof assistants.  
 From one point of view, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?  
-Regrettably, based on our experimental formalisation in \CA, our answer is: not yet.
+Based on our experimental formalisation in \CA, our answer is regrettably: not yet.
 
 \paragraph{Comparison with QIIT approaches}
 Previous formalisations~\cite{Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} of type theory using QIITs have resorted to using postulated constructors and custom rewrite rules to manually define QIITs and their elimination.
@@ -1111,7 +1112,7 @@ The use of QIITs in OTT~\cite{Kaposi2025} in \Agda requires the user themselves 
 Quotient inductive types are not supported in the implementation of OTT in Rocq~\cite{Pujet2024a} and its theory is still being developed~\cite{Felicissimo2025a}.
 
 XTT, a cubical variant of OTT~\cite{Sterling2022}, is another possibility.  
-In particular, the regularity and the definitional UIP, supported by XTT, would simplify our formalisation (\Cref{sec:standard-model}) and make the Yoneda embedding and the local universe construction usable as strictification techniques.  
+In particular, the regularity and the definitional UIP, supported by XTT, would immediately simplify our standard model~(\Cref{sec:standard-model}) and make the Yoneda embedding and the local universe construction usable as strictification techniques.  
 Since \CA already supports HIITs (though with caveats noted earlier), extending it with QIITs as a variant of \CA may be within reach~\cite{Agda-issue2019}.  
 
 \paragraph{Fordism and definitional UIP}
