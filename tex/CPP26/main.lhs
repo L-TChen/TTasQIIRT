@@ -4,7 +4,7 @@
 \copyrightyear{2025}
 \acmYear{2025}
 \acmDOI{XXXXXXX.XXXXXXX}
-%\acmConference[CPP '26]{Certified Programs and Proofs}{January 12--13, 2026}{Rennes, France}
+\acmConference[CPP '26]{Certified Programs and Proofs}{January 12--13, 2026}{Rennes, France}
 %%
 %%  Uncomment \acmBooktitle if the title of the proceedings is different
 %%  from ``Proceedings of ...''!
@@ -473,7 +473,7 @@ which can be identified with the proof derivable from |[∘]T| using UIP afterwa
 The required equality proof |p| above is then given by this constructor.
 
 Other constructors are introduced following the `Ford transformation', with differences compared to the usual QIIT presentation highlighted:
-\begin{code} 
+\begin{code}
 data _ where
   Π            : (A : Ty Γ) (B : Ty (Γ , A)) → Ty Γ
   (HL(app))    : (t : Tm Γ) (B : Ty (Γ , A)) (HL((pt : tyOf t ≡ Π A B)))
@@ -511,7 +511,7 @@ and indeed using the equality constructors, we have a proof of |tyOf (idid A) �
 \subsection{The type of Booleans}
 
 To introduce the inductive type of Booleans, we need to specialise the substitution lifting.
-Let us see its constructors and explain why a specialisation is needed.
+Let us see its constructors (with differences highlighted) and explain why a specialisation is needed.
 \begin{code}
 data _ where
   𝔹      : Ty Γ
@@ -535,7 +535,7 @@ tyOf (elim𝔹 P u t pu pt b pb) = P [ idS , b ∶[ pb ] ]T
 \end{code}
 The only thing missing from the above definition is the substitution rule for |elim𝔹|:
 applying the substitution |σ| to `|elim𝔹 P t pt u pu b pb|' is equal to applying a lifted substitution  |σ ↑ 𝔹| to |P| and |σ| to |t|, |u|, and |b|.
-However, |P [ σ ↑ 𝔹 ]T| gives us a type in the context |Δ , 𝔹 [ σ ]T| instead of |Δ , 𝔹|, so we provide a lifting with a type |Sub Γ Δ → Sub (Γ , 𝔹) (Δ , 𝔹)| and also a superfluous equality constructor |𝔹[]₂| to satisfy its proof obligation:
+However, |P [ σ ↑ 𝔹 ]T| gives us a type in the context |Δ , 𝔹 [ σ ]T| instead of |Δ , 𝔹|, so we provide a lifting with a type |Sub Γ Δ → Sub (Γ , 𝔹) (Δ , 𝔹)| and also a superfluous equality constructor |𝔹[]₂| to satisfy its proof obligation (highlighted):
 \begin{code}
 data _ where
   𝔹[]₂   : tyOf (π₂ {Γ , 𝔹} idS) ≡ 𝔹 [ τ ]T
@@ -548,21 +548,22 @@ Finally, we introduce the equality constructor for the interaction between |elim
 \begin{code}
 data _ where
   elim𝔹[] : ...
-    (HL((pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ [idS]T ] ]T)))
-    (HL((pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ [idS]T ] ]T)))
-    (HL((pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)))
-    → (HL((q : P [ idS , b ∶[ pb ] ]T [ σ ]T)))
-    (HL(≡ P [ σ ∘ wk , vz ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T))
-    → (elim𝔹 P t pt u pu b pb) [ σ ]t
-    ≡ elim𝔹 (P [ σ ↑𝔹 ]T) (t [ σ ]t) (HL(pt₂)) (u [ σ ]t) (HL(pu₂)) (b [ σ ]t) (HL(pb₂))
+    (pt₂ : tyOf (t [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , tt ∶[ [idS]T ] ]T)
+    (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ [idS]T ] ]T)
+    (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
+    (q :  P [ idS , b ∶[ pb ] ]T [ σ ]T
+          ≡ P [ σ ∘ wk , vz ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T)
+    → (elim𝔹  P t pt u pu b pb) [ σ ]t
+          ≡ elim𝔹 (P [ σ ↑𝔹 ]T)  (t [ σ ]t) pt₂ (u [ σ ]t) pu₂
+                                 (b [ σ ]t) pb₂
 
-tyOf (elim𝔹[] P u t pu pt b pb pt₂ pu₂ pb₂ (HL(q)) i) = (HL(q i))
+tyOf (elim𝔹[] P u t pu pt b pb pt₂ pu₂ pb₂ q i) = q i
 \end{code}
 Note again that we also defer the coherence proof of |tyOf| for |elim𝔹[]| by introducing another argument |q| in |elim𝔹| which can be removed when defining its elimination rule.
 
 \subsection{A Tarski universe} \label{sec:tt:univ}
 Using the same idiom described previously, a Tarski universe of types is introduced to our type theory in the same vein.
-First we need |U : Ty Γ| as the type of code and a type former |El| as the type of elements:
+First we need |U : Ty Γ| as the type of codes, and a type family |El| of elements for a given code (differences compared to the usual presentation highlighted):
 \begin{code}
 data _ where
   U     : Ty Γ
@@ -572,7 +573,7 @@ data _ where
     → (El u (HL(pu))) [ τ ]T ≡ El (u [ τ ]t) (HL(q))
 \end{code}
 
-For the type |𝔹| of Boolean, its code |𝕓| is introduced with a type equality |El𝕓| such that the elements of |𝕓| is exactly |𝔹|:
+For the type |𝔹| of Boolean, its code |𝕓| is introduced with a type equality |El𝕓| such that the elements of |𝕓| are exactly |𝔹|:
 \begin{code}
 data _ where
   𝕓     : Tm Γ
@@ -586,7 +587,7 @@ data _ where
 \end{code}
 
 For the |Π|-type, we again need a specialised substitution lifting.
-This continues the pattern of introducing superfluous constructors to satisfy the proof obligation.
+This continues the pattern of introducing superfluous constructors to satisfy proof obligations (differences again highlighted).
 \begin{code}
 data _ where
   El[]₂ : (u : Tm Δ) (pu : tyOf u ≡ U)
@@ -624,7 +625,7 @@ tyOf (π[] _ _ _ _ _ _ i) = U[] i
 \end{code}
 
 In the end, we emphasise that the introduction of superfluous equality proofs and constructors only makes sense under the assumption of UIP. 
-These additional arguments are essentially unique and thus do not add any new laws to type theory, but merely serve as devices to meet the syntactic restriction of strict positivity.
+These additional arguments are essentially unique and thus do not add any new laws to type theory, but merely serve as devices to meet the syntactic restriction of strict positivity in the current implementation of \CA.
 
 \subsection{Recursion and elimination principles} \label{sec:tt:elim}
 We turn to the (internal) recursion and elimination principles.
