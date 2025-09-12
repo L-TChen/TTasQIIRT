@@ -241,16 +241,18 @@ Our formalisation is carried out in \CA with a global assumption of uniqueness o
 %
 Of course, this assumption is inconsistent, since univalence is provable in \CA.
 %
-However, we make sure to not make any use of univalence in our development (more generally, we do not make use of the |Glue| type, which is used to prove univalence), and we are confident that this metatheory and our formalisation is actually consistent.
+However, we make sure to not make any use of univalence in our development (more generally, we do not make use of the |Glue| type, which is used to prove univalence), and we are confident that this metatheory and our formalisation are actually consistent.
 %
-The cubical type theory XTT~\cite{Sterling2022}, which enjoys definitional UIP without univalence, justifies our choice of metatheory.
+The cubical type theory XTT~\cite{Sterling2022}, which enjoys definitional UIP without univalence, justifies our assumption.
 We note that a variant of \CA which is consistent with UIP has also been requested by other users~\cite{Agda-issue2019}.
 By this assumption, the term \emph{set} is used interchangeably with type, since sets are exactly types satisfying UIP in homotopy type theory~\cite{UFP2013}.
 
 
-\CA implements cubical type theory, and one of the most important concepts therein is the interval type |I| with two distinguished endpoints |i0| and |i1|.
+\CA implements cubical type theory, and one of the important concepts therein is the interval type |I| with two distinguished endpoints |i0| and |i1|.
 %
-Propositional equality in a type |A| is given by \emph{paths} in |A|, i.e., by a functions |I → A|; more generally, dependent paths |PathP P a b| are given by dependent functions |(i : I) → P i| sending |i0| to |a : P i0| and |i1| to |b : P i1|. Note that |P : I → Type| itself is a path in the universe |Type|, hence a witness that |P i0 ≡ P i1|, which the dependent path is \emph{over}.
+Propositional equality |x ≡ y| in a type |A| is given by \emph{paths} in |A|, i.e., by a functions |I → A|.
+More generally, dependent paths |PathP P a b| are given by dependent functions |(i : I) → P i| sending |i0| to |a : P i0| and |i1| to |b : P i1|.
+Note that |P : I → Type| itself is a path in the universe |Type|, hence a witness that |P i0 ≡ P i1|, which the dependent path is \emph{over}, so paths are special cases of |PathP| with |P| being a constant path.
 %
 The constant path |refl = λ i → a| witnesses that equality is reflexive |a ≡ a|, and paths can be lifted to type families in the sense that there is a transport operation |subst : (P : A → Type) → x ≡ y → P x → P y|.
 %
@@ -268,10 +270,9 @@ Agda even allows us to define quotient inductive-inductive-recursive types (QIIR
 %
 We will make use of this feature to define types, terms and the |tyOf| function from terms to types simultaneously.
 
-For brevity, in this paper presentation we have made some arguments implicit for equality constructors, even though they are explicit in our formalisation.
+For the brevity of presentation, we have made arguments implicit for equality constructors, even though they are explicit in our formalisation.
 %
-Similarly, we are ignoring universe levels in the paper, but they are all present in the formalisation.
-We use \emph{strict} equality to mean judgemental equality and \emph{weak} equality for propositional equality.
+Similarly, we are ignoring universe levels, but they are all present in the formalisation.
 
 \section{Type theory as quotient inductive types} \label{sec:tt}
 
