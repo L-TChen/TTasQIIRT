@@ -238,6 +238,69 @@
   isbn =          {978-3-540-48959-7},
 }
 
+@inproceedings{Donko2022,
+  address =       {Dagstuhl, Germany},
+  author =        {Donk{\'{o}}, Istv{\'{a}}n and Kaposi, Ambrus},
+  booktitle =     {27th International Conference on Types for Proofs and
+                   Programs (TYPES 2021)},
+  editor =        {Basold, Henning and Cockx, Jesper and
+                   Ghilezan, Silvia},
+  pages =         {6:1--6:21},
+  publisher =     {Schloss Dagstuhl -- Leibniz-Zentrum f{\"u}r
+                   Informatik},
+  series =        {Leibniz International Proceedings in Informatics
+                   (LIPIcs)},
+  title =         {Internal strict propositions using point-free
+                   equations},
+  volume =        {239},
+  year =          {2022},
+  doi =           {10.4230/LIPIcs.TYPES.2021.6},
+  isbn =          {978-3-95977-254-9},
+  issn =          {1868-8969},
+  urn =           {urn:nbn:de:0030-drops-167759},
+}
+
+@article{Kaposi2025,
+  address =       {New York, NY, USA},
+  author =        {Kaposi, Ambrus and Pujet, Lo{\"{\i}}c},
+  journal =       {Proceedings of the ACM on Programming Languages},
+  month =         aug,
+  number =        {ICFP},
+  publisher =     {Association for Computing Machinery},
+  title =         {Type theory in type theory using a strictified
+                   syntax},
+  volume =        {9},
+  year =          {2025},
+  abstract =      {The metatheory of dependent types has seen a lot of
+                   progress in recent years. In particular, the
+                   development of categorical gluing finally lets us
+                   work with semantic presentations of type theory (such
+                   as categories with families) to establish fundamental
+                   properties of type theory such as canonicity and
+                   normalisation. However, proofs by gluing have yet to
+                   reach the stage of computer formalisation: formal
+                   proofs for the metatheory of dependent types are
+                   still stuck in the age of tedious syntactic proofs.
+                   The main reason for this is that semantic
+                   presentations of type theory are defined using
+                   sophisticated indexed inductive types, which are
+                   especially prone to ``transport hell''. In this
+                   paper, we introduce a new technique to work with CwFs
+                   in intensional type theory without getting stuck in
+                   transport hell. More specifically, we construct an
+                   alternative presentation of the initial CwF which
+                   encodes the substitutions as metatheoretical
+                   functions. This has the effect of strictifying all
+                   the equations that are involved in the substitution
+                   calculus, which greatly reduces the need for
+                   transports. As an application, we use our strictified
+                   initial CwF to give a short and elegant proof of
+                   canonicity for a type theory with dependent products
+                   and booleans with large elimination. The resulting
+                   proof is fully formalised in Agda.},
+  doi =           {10.1145/3747535},
+}
+
 @article{Sterling2022,
   author =        {Sterling, Jonathan and Angiuli, Carlo and
                    Gratzer, Daniel},
@@ -254,6 +317,7 @@
   title =         {A variant of Cubical Agda that is consistent with
                    UIP},
   year =          {2019},
+  url =           {https://github.com/agda/agda/issues/3750},
 }
 
 @book{UFP2013,
@@ -453,6 +517,15 @@
   url =           {https://github.com/agda/agda/pull/5897},
 }
 
+@phdthesis{Kaposi2017,
+  author =        {Kaposi, Ambrus},
+  school =        {University of Nottingham},
+  title =         {Type theory in a type theory with quotient inductive
+                   types},
+  year =          {2017},
+  url =           {https://eprints.nottingham.ac.uk/41385/},
+}
+
 @article{Kaposi2020b,
   author =        {Kaposi, Ambrus and Kov{\'a}cs, Andr{\'a}s},
   journal =       {Logical Methods in Computer Science},
@@ -488,13 +561,74 @@
   issn =          {18605974},
 }
 
-@phdthesis{Kaposi2017,
-  author =        {Kaposi, Ambrus},
-  school =        {University of Nottingham},
-  title =         {Type theory in a type theory with quotient inductive
+@inproceedings{Hancock2013,
+  address =       {Berlin, Heidelberg},
+  author =        {Hancock, Peter and McBride, Conor and Ghani, Neil and
+                   Malatesta, Lorenzo and Altenkirch, Thorsten},
+  booktitle =     {Typed Lambda Calculi and Applications},
+  editor =        {Hasegawa, Masahito},
+  pages =         {156--172},
+  publisher =     {Springer Berlin Heidelberg},
+  series =        {Lecture Notes in Computer Science},
+  title =         {Small induction recursion},
+  volume =        {7941},
+  year =          {2013},
+  abstract =      {There are several different approaches to the theory
+                   of data types. At the simplest level, polynomials and
+                   containers give a theory of data types as free
+                   standing entities. At a second level of complexity,
+                   dependent polynomials and indexed containers handle
+                   more sophisticated data types in which the data have
+                   an associated indices which can be used to store
+                   important computational information. The crucial and
+                   salient feature of dependent polynomials and indexed
+                   containers is that the index types are defined in
+                   advance of the data. At the most sophisticated level,
+                   induction-recursion allows us to define data and
+                   indices simultaneously.},
+  doi =           {10.1007/978-3-642-38946-7_13},
+  isbn =          {978-3-642-38946-7},
+}
+
+@inproceedings{Kovacs2020a,
+  address =       {New York, NY, USA},
+  author =        {Kov{\'a}cs, Andr{\'a}s and Kaposi, Ambrus},
+  booktitle =     {Proceedings of the 35th Annual ACM/IEEE Symposium on
+                   Logic in Computer Science},
+  pages =         {648--661},
+  publisher =     {Association for Computing Machinery},
+  series =        {LICS '20},
+  title =         {Large and infinitary quotient inductive-inductive
                    types},
-  year =          {2017},
-  url =           {https://eprints.nottingham.ac.uk/41385/},
+  year =          {2020},
+  abstract =      {Quotient inductive-inductive types (QIITs) are
+                   generalized inductive types which allow sorts to be
+                   indexed over previously declared sorts, and allow
+                   usage of equality constructors. QIITs are especially
+                   useful for algebraic descriptions of type theories
+                   and constructive definitions of real, ordinal and
+                   surreal numbers. We develop new metatheory for large
+                   QIITs, large elimination, recursive equations and
+                   infinitary constructors. As in prior work, we
+                   describe QIITs using a type theory where each context
+                   represents a QIIT signature. However, in our case the
+                   theory of signatures can also describe its own
+                   signature, modulo universe sizes. We bootstrap the
+                   model theory of signatures using self-description and
+                   a Church-coded notion of signature, without using
+                   complicated raw syntax or assuming an existing
+                   internal QIIT of signatures. We give semantics to
+                   described QIITs by modeling each signature as a
+                   finitely complete CwF (category with families) of
+                   algebras. Compared to the case of finitary QIITs, we
+                   additionally need to show invariance under algebra
+                   isomorphisms in the semantics. We do this by modeling
+                   signature types as isofibrations. Finally, we show by
+                   a term model construction that every QIIT is
+                   constructible from the syntax of the theory of
+                   signatures.},
+  doi =           {10.1145/3373718.3394770},
+  isbn =          {9781450371049},
 }
 
 @article{Pujet2022,
