@@ -4,7 +4,7 @@
 \copyrightyear{2025}
 \acmYear{2025}
 \acmDOI{XXXXXXX.XXXXXXX}
-\acmConference[CPP '26]{Certified Programs and Proofs}{January 12--13, 2026}{Rennes, France}
+%\acmConference[CPP '26]{Certified Programs and Proofs}{January 12--13, 2026}{Rennes, France}
 %%
 %%  Uncomment \acmBooktitle if the title of the proceedings is different
 %%  from ``Proceedings of ...''!
@@ -163,9 +163,9 @@ Internalising the syntax and semantics of type theory in type theory is a long-s
 %
 There are both practical and theoretical reasons to pursue this problem.
 %
-On the practical side, such an internal representation of type theory is needed for metaprogramming and mechanised metatheory.
+On the practical side, an internal representation of type theory is needed for mechanised metatheory and metaprogramming.
 %
-More philosophically, if type theory is supposed to be a general constructive foundation of mathematics, then it should in particular be able to reason about its own syntax and semantics (up to inherent limitations due to G\"odel's Incompleteness Theorems ).
+On the theoretic side, if type theory is supposed to be a general constructive foundation of mathematics, then it should in particular be able to reason about its own syntax and semantics (up to inherent limitations due to G\"odel's incompleteness theorems).
 %
 In dependent type theory, types can depend on terms, which means that all of contexts, types and terms need to be defined simultaneously.
 %
@@ -174,31 +174,31 @@ This is one reason why formalising type theory in type theory is hard.
 
 %\LT[noinline]{Is this just Pollack or McKinna \& Pollack?}
 %\FNF[noinline]{It was meant to be Pollack's thesis, but McKinna \& Pollack might be better.}
-Early approaches to formalising type theory, e.g.\ McKinna and Pollack~\cite{McKinna1999}, dealt with untyped terms that were later refined by a typing relation, or used setoid equality, and hence had to prove a lot of congruence lemmas by hand~\cite{Danielsson2006,Chapman2009}.
+Early approaches to formalising type theory, e.g.\ McKinna and Pollack~\cite{McKinna1999}, dealt with untyped terms that were later refined by a typing relation or setoid equality, and thus had to prove a lot of congruence lemmas by hand~\cite{Danielsson2006,Chapman2009}.
 %
-A breakthrough was achieved by Altenkirch and Kaposi~\cite{Altenkirch2016a}, who showed that quotient inductive-inductive types (QIITs)~\cite{Altenkirch2018} can be employed to significantly simplify the internal representation of well typed terms, since equality constructors can be used to represent equations such as $\beta$- and $\eta$-equality.
+A breakthrough was achieved by Altenkirch and Kaposi~\cite{Altenkirch2016a}, who showed that quotient inductive-inductive types (QIITs)~\cite{Altenkirch2018} can be employed to significantly simplify the internal representation of well typed terms (or, more precisely, derivations), since equality constructors can be used to represent equations such as $\beta$- and $\eta$-equality.
 %
 They took Dybjer's notion of a model of type theory in the form of a category with families~\cite{Dybjer1996}, and translated it into a QIIT definition.
 %
 In effect, this gives rise to the \emph{initial} category with families, with the elimination principles of the QIIT giving a unique morphism of categories with families to any other model.
 %
-This thus gives a both principled and practical way to formalise the syntax and equational theory of type theory in type theory; the feasibility of the approach was demonstrated by e.g.\ implementing normalisation by evaluation using this representation~\cite{Altenkirch2017}.
+This thus gives a both principled and practical way to formalise the syntax and equational theory of type theory in type theory; the feasibility of the approach was demonstrated by e.g.\ formalising normalisation by evaluation using this representation~\cite{Altenkirch2017}.
 
-At the time of publication of Altenkirch and Kaposi~\cite{Altenkirch2016a}, the proof assistant \Agda did not allow equality constructors in data type declarations, so a workaround known as `Licata's trick'~\cite{Licata2011} was used, which meant giving up many features of the proof assistant such as coverage check, termination check, strict positivity check, program extraction as well as interactive features including case split.
-\CA, the cubical variant of \Agda~\cite{Vezzosi2021}, is now equipped with a native support for QIITs, so it is natural to ask if we can use this support to formalise the intrinsic representation of type theory without using the trick or any other compromise.
+At the time of publication of Altenkirch and Kaposi~\cite{Altenkirch2016a}, the proof assistant \Agda did not allow equality constructors in data type declarations, so a workaround known as `Licata's trick'~\cite{Licata2011} was used, which meant giving up many features of the proof assistant such as coverage check and program extraction.
+\CA, the cubical variant of \Agda~\cite{Vezzosi2021}, is now equipped with a native support for QIITs, so it is natural to ask if we can use this support to formalise the intrinsic representation of type theory without the trick or any other compromise.
 
-In this paper, we report on such an attempt.
+In this paper, we explore this question and see what the proof assistant provides and lacks to achieve this goal.
 We quickly find that their QIIT definitions break the strict positivity --- a syntactic restriction imposed by \CA to ensure consistency.
 Moreover, their definition is cumbersome to work with, since the type of later constructors or even equations often only make sense because of earlier equations.
 %
-In an intensional type theory, such as those implemented in proof assistants, this manifests itself in transport terms across equality proofs inside other terms, and leads to so-called `transport hell' --- rather than just reasoning about the terms you actually want to study, you now also have to do a lot of reasoning about transports themselves and their algebraic properties.
+In an intensional type theory, such as those implemented in proof assistants, this manifests itself in transport terms across equality proofs \emph{inside} other terms, and leads to the so-called `transport hell' --- rather than just reasoning about the terms you actually want to study, you now also have to do a lot of reasoning about transports themselves and their algebraic properties.
 %
 It turns out that we need an alternative way of representing type theory intrinsically without any transport hell, in order to make formalisations of type theory more lightweight and accepted by \CA.
 
 %
 The framework of categories with families is only one of several (more or less) equivalent notions of models of type theory~\cite{Hofmann1997}, and we were wondering if any of the other notions might offer any advantages.
 %
-Bense~\cite{Bense2024} suggested that Awodey's notion of \emph{natural model}~\cite{Awodey2018} might be a good candidate.
+Bense~\cite{Bense2024} suggested that Awodey's notion of natural model~\cite{Awodey2018} might be a good candidate.
 %
 Indeed, in a natural model, the indexing of terms over their types $\mathsf{Tm}_{\Gamma} : \mathsf{Ty}(\Gamma) \to \mathsf{Set}$ (as in a category with families) is replaced by a `fibred' perspective where each term instead \emph{has} a type, as picked out by a function $\mathsf{tyOf} : \mathsf{Tm}(\Gamma) \to \mathsf{Ty}(\Gamma)$.
 %
@@ -212,7 +212,9 @@ Indeed, it could be the lack of support for inductive-recursive definitions in m
 
 While we manage to avoid transports occurring in its own syntax, the experiment is not an outright success.
 %
-Indeed, we found that when developing more sophisticated metatheory, such as when defining a logical predicates model, the use of transports along equations often reappeared.
+Indeed, we found that when developing more sophisticated metatheory, such as when defining a logical predicate model, the use of transports along equations often reappeared.
+%
+Strictification~\cite{Donko2022,Kaposi2025}, a recent technique for strictifying equations, cannot be applied directly because of the lack of strict proposition in the metatheory.
 %
 Furthermore, we found that the use of natural models is less well supported in the Cubical Agda of today, compared to approaches based purely on QIITs.
 %
