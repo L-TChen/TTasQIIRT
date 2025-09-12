@@ -541,7 +541,7 @@ tyOf (elim𝔹[] P u t pu pt b pb pt₂ pu₂ pb₂ (HL(q)) i) = (HL(q i))
 \end{code}
 Note again that we also defer the coherence proof of |tyOf| for |elim𝔹[]| by introducing another argument |q| in |elim𝔹| which can be removed when defining its elimination rule.
 
-\subsection{A Tarski universe}
+\subsection{A Tarski universe} \label{sec:tt:univ}
 Using the same idiom described previously, a Tarski universe of types is introduced to our type theory in the same vein.
 First we need |U : Ty Γ| as the type of code and a type former |El| as the type of elements:
 \begin{code}
@@ -904,7 +904,7 @@ The interpretation of |tyOf| is simply the first component |A| applied to the gi
   std .tyOf (A , t)     = λ γ → A γ
 \end{code}
 
-The remainder of the construction follows the standard model of type theory using QIITs~\cite[Section~4]{Altenkirch2017}, except that the typing constraint |p| in |σ , t ∶[ p ]| is only weak.  
+The main construction of the model follows similarly to the standard model of type theory using QIITs~\cite[Section~4]{Altenkirch2017}, except that the typing constraint |p| in |σ , t ∶[ p ]| is only weak.  
 As a result, the value |t γ| below must be transported along |p|:
 \begin{code}
   std .∅                = Unit
@@ -913,8 +913,31 @@ As a result, the value |t γ| below must be transported along |p|:
   std ._[_]t (A , t) σ  = (λ γ → A (σ γ)) , (λ γ → t (σ γ))
   std .tyOf[]           = refl
   ...
-  std ._,_∶[_] σ (A , t) p γ =
-    σ γ , (HL(transport (λ i → p i γ) (t γ)))
+  std ._,_∶[_] σ (A , t) p γ = σ γ , (HL(transport (λ i → p i γ) (t γ)))
+\end{code}
+
+To extend the standard model for the universe |U|, we define a Tarski universe of code and its interpretation
+\begin{code}
+data UU : Set
+T : UU → Set
+
+data UU where
+  bool : UU
+  pi : (a : UU) → (T a → UU) → UU
+
+T : UU → Set
+T bool      = Bool
+T (pi a b)  = (x : T a) → T (b x)
+\end{code}
+Each of constructs in \Cref{sec:tt:univ} can now be interpreted:
+\begin{code}
+std  .U   _             = UU
+std  .U[]               = refl
+std  .El  (A , u) pu γ  = T (subst (λ A → A γ) pu (u γ))
+std  .𝕓                 = (λ _ → UU) , λ _ → bool
+std  .π (A , a) pa (B , b) pb = (λ _ → UU) , λ γ → pi
+   (transport (λ i → pa i γ) (a γ))
+   (λ a → transport (λ i → pb i (γ , a)) (b (γ , a)))
 \end{code}
 
 Coherence conditions are then verified using standard properties of transport.  
@@ -959,7 +982,7 @@ Here the typing constraint |ctxᴾ Γᴾ , A [ wkᴾ Γᴾ ]T| already shares th
 Since the QIIRT representation only provides equality constructors for type substitutions, the development quickly results in repeated and tedious use of transports.
 
 In short, NbE benefits directly from removing typing indices and avoids transports altogether, whereas the logical predicate interpretation still inherits the need for coercions with type substitutions.  
-As Altenkirch and Kaposi~\cite{Altenkirch2016a} have already shown that such tedious use of transports is in theory possible, we therefore did not complete the logical predicate interpretation.
+As Altenkirch and Kaposi~\cite{Altenkirch2016a} have already shown that such tedious use of transports is possible in theory but impractical, we therefore did not complete the logical predicate interpretation.
 
 \subsection{Strictification} \label{sec:strictify}
 Instead, we turn our attention to \emph{strictification}~\cite{Donko2022,Kaposi2025}: given a model of type theory, certain equality constructors can be made strict to form a new model.  
@@ -981,9 +1004,9 @@ By UIP, any two morphisms |σ| and |σ'| in the presheaf category are equal when
 where |_≡ʸ_| denotes the path type between their functionals.  
 Completing the Yoneda embedding then gives us strict unit and associativity laws, up to |≡ʸ→≡|:
 \begin{code}
-Yoneda .SC.idS∘_   _      = ≡ʸ→≡ refl
-Yoneda .SC._∘idS   _      = ≡ʸ→≡ refl
-Yoneda .SC.assocS  _ _ _  = ≡ʸ→≡ refl
+Yoneda .idS∘_   _      = ≡ʸ→≡ refl
+Yoneda ._∘idS   _      = ≡ʸ→≡ refl
+Yoneda .assocS  _ _ _  = ≡ʸ→≡ refl
 \end{code}
 We can adapt the local universe construction~\cite{Lumsdaine2015,Donko2022} for |M : SC| to further strictify the laws for type substitutions for substitution.
 Types under the context $\Gamma$ in the local universe construction are interpreted as a triple consisting of a context $V$ as the local universe, a type under the context $V$, and a substitution from $\Gamma$ to $V$:
@@ -998,9 +1021,9 @@ record Ty³ (Γ : Ctx) : Set where
 Define the type substitution by delaying (or viewing the substitution |⌜ A ⌝| as an accumulator parameter).
 Then, we can show that the laws about type substitution boil down the right unit and the associativity laws for substitutions:
 \begin{code}
-  (M !) .SC.[idS]T {Γ} {A}  =
+  (M !) .[idS]T {Γ} {A}  =
     cong (ty³ (A .V) (E A)) (HL((sym (⌜ A ⌝ ∘idS))))
-  (M !) .SC.[∘]T A σ τ      =
+  (M !) .[∘]T A σ τ      =
     cong (ty³ (A .V) (E A)) (HL((assocS σ τ ⌜ A ⌝)))
 \end{code}
 If |M| is strictified by the Yoneda embedding, then the laws for identity substitution and substitution composition in |M !| will be strict up to |≡ʸ→≡|.
@@ -1014,7 +1037,7 @@ As a consequence, coercions along equations identified by UIP remain unavoidable
 \label{sec:discussion}
 
 It is well-known that type theory in type theory is possible in theory, but in practice its formalisation often requires giving up some of the support and safety checks provided by proof assistants.  
-From one particular point of view, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?  
+From one point of view, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?  
 Regrettably, based on our experimental formalisation in \CA, our answer is: not yet.
 
 \paragraph{Comparison with QIIT approaches}
@@ -1035,21 +1058,22 @@ Moreover, strictification only address substitution rules and does not help with
 
 % Untyped version might still be easiest to work with, with current proof assistant technology
 
-\paragraph{The support of HII(R)Ts}
-The support for higher inductive-inductive types and QIITs in \CA still falls short of their theoretical capabilities~\cite{Kaposi2020b,Kaposi2019}.  
+\paragraph{A proper syntax for HII(R)Ts}
+The syntax for declaring higher inductive-inductive types and QIITs in \CA falls short of their theoretical capabilities~\cite{Kaposi2020b,Kaposi2019}.  
 As shown in \Cref{sec:tt:cwf}, the legitimate definition of type theory based on CwF with transports violates the syntactic restriction of strict positivity.
 Even though the transport hell is better avoided in practice, this is not a justification for excluding otherwise valid definitions.
+The alternative definition, based on natural models, does not violate strict positivity but still requires forward declarations (\Cref{sec:tt:mutual}) to overcome the inconvenience of syntax.
 
-The alternative definition, based on natural models, does not violate strict positivity but still requires workarounds, as discussed in \Cref{sec:tt:mutual}.  
+\paragraph{A theory of QIIRTs}
+We work around the problem by defining type theory using QIIRTs, but this raises another question: what is the theory of QIIRTs, anyway? 
 
+Different combinations of QIITs and inductive-recursive types have been used to develop type theory in type theory.
+QIITs and QIIRTs are used for the intrinsic representations of type theory; large and infinitary inductive-recursive types (IRTs) for the standard model of universe; small inductive-recursive types~\cite{Hancock2013} for implementing normalisation by evaluation~\cite{Altenkirch2017}.
+Moreover, the target of |tyOf| is the inductive type |Ty| being defined simultaneously, so the QIIRTs used to define our representation is neither large nor small.
+We expect that the encoding of small inductive-recursive types as indexed inductive-recursive types still applies in general, as we have derived our representation by `undoing' the encoding.
 
-\paragraph{The support of QIIRTs}
-We work around the problem by defining type theory using QIIRTs, but this raises another question: what is the theory of QIIRTs?  
-\footnote{A general scheme of QIIRTs may be developed to allow mutually interleaving inductive types with function clauses, by extending the type theory of QIITs~\cite{Kaposi2019} with an additional identity type for function clauses.}
-
-It is reasonable to expect that the definition of type theory based on CwFs is isomorphic to the one based on natural models, but we currently lack a formal proof.  
-More broadly, it remains essential to develop a unified theory that encompasses both QIITs and inductive-recursive types.  
-For instance, QIITs were used to define type theory by Altenkirch and Kaposi~\cite{Altenkirch2016a}, while inductive--recursive types were later employed to implement normalisation by evaluation~\cite{Altenkirch2017} in the same metatheory. 
+A unified framework to encompass all variants will be convenient for the implementation of a proof assistant.
+Such a scheme may be developed by first extending the type theory of QIITs~\cite{Kaposi2019,Kovacs2020a} with an additional construct to distinguish strict and weak equalities and a coverage condition for function clauses.
 
 \paragraph{The support of interleaved mutual definitions}
 Another challenge concerns interleaved mutual definitions.  
@@ -1081,7 +1105,8 @@ Of course, explicitly transforming these typing constraints to equality proofs w
 The connection between QIITs and its Forded definition with the index eliminated echoes the notion of reornament~\cite{Dagand2014,Ko2016,Dagand2017}, so this translation itself may be of interest in general.
 
 \paragraph{Conclusion}
-Without further advances in the technology of proof assistants, formalising type theory within a proof assistant remains a difficult task.  
+There are still gaps between a pen-and-paper type theory and a fully formalised type theory in a proof assistant, on both the theoretical and practical sides.
+Without further advances in the technology of proof assistants, formalising type theory intrinsically within a proof assistant remains a difficult task.
 We hope that the lessons learned here can help the design of future proof assistants, so that one day we may implement a proof assistant within a proof assistant without (too much) sweat and tears.
 
 \IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
