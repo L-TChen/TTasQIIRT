@@ -410,6 +410,7 @@ data _ where
                          → (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ q ])
 \end{code}
 ... except that we have to interleave the function clauses of |tyOf| with constructors.
+\FNF{Introduce |wk|, explain |π₁| and |π₂|}
 We need define the function clause for |π₂ σ| before the $\eta$-law for substitution:
 \begin{code}
 tyOf (π₂ {Γ} {Δ} {A} σ)   = A [ π₁ σ ]T
@@ -447,18 +448,18 @@ Replacing the index |A : Ty| of |Tm| by a function |tyOf : Tm Γ → Ty Γ| alig
 That is, we have derived the intrinsic representation of type theory as a natural model using QIIRT in \CA.
 This situates our family of inductive types and their algebras within a well-studied categorical models for type theory.
 
-\subsection{The \texorpdfstring{$\Pi$}{Pi}-type}
+\subsection{\texorpdfstring{$\Pi$}{Pi}-types}
 
-We proceed with the $\Pi$-type.
-First we need the lifting of a substitution by a type:
+We extend our object type theory with dependent function types.
+First we define the lifting of a substitution by a type as the following abbreviation:
 \begin{code}
 _↑_ : (σ : Sub Γ Δ) (A : Ty Δ) → Sub (Γ , A [ σ ]T) (Δ , A)
-_↑_ {Γ} σ A = σ ∘ π₁ {Γ , A [ σ ]T} idS
-  , π₂ (idS {Γ , A [ σ ]T}) ∶[ (HL(p)) ]
+_↑_ {Γ} σ A =  σ ∘ π₁ {Γ , A [ σ ]T} idS,
+               π₂ (idS {Γ , A [ σ ]T}) ∶[ p ]
 \end{code}
-where |p : tyOf (π₂ idS) ≡ A (HL([ σ ∘ π₁ idS ]T))|.
-We may be tempted to use |[∘]T| to define |p|, as |tyOf (π₂ (idS {Γ , A [ σ ]T}))| is equal to |A (HL([ σ ]T [ π₁ idS ]T))| by definition.
-Yet, again, we must refrain ourself from doing so during defining inductive types, so we introduce a \emph{superfluous} equality constructor
+where |p : tyOf (π₂ idS) ≡ A [ σ ∘ π₁ idS ]T|.
+We may be tempted to use |[∘]T| to define |p|, as |tyOf (π₂ (idS {Γ , A [ σ ]T}))| is equal to |A [ σ ]T [ π₁ idS ]T| by definition.
+Yet, again, we must refrain ourself from doing so during the definition of the inductive types, as \CA would see this as a strict positivity problem. Instead we introduce a \emph{superfluous} equality constructor
 \begin{code}
 data _ where
   tyOfπ₂idS : tyOf (π₂ {A = A [ σ ]T} idS)
@@ -467,7 +468,7 @@ data _ where
 which can be identified with the proof derivable from |[∘]T| using UIP afterwards.
 The required equality proof |p| above is then given by this constructor.
 
-Other constructors are introduced following the Fordism:
+Other constructors are introduced following the `Ford transformation', with differences compared to the usual QIIT presentation highlighted:
 \begin{code} 
 data _ where
   Π            : (A : Ty Γ) (B : Ty (Γ , A)) → Ty Γ
@@ -488,7 +489,21 @@ tyOf (Πη t pt i)      = pt (~ i)
 
 Apart from the extra clauses of |tyOf|, the main change happens in the constructor |app|.
 The constraint that |t| is of type |Π A B| is enforced there, but every other constructor remains as almost the same as their QIIT definition.
-\LT{any example?}
+We have formulated application and abstraction as an isomorphism between terms of type |B| in context |Γ , A| and terms of type |Π A B| in context |Γ|, but we can also derive ordinary application:
+\begin{code}
+_∶[_]$$_∶[_]  : (t : Tm Γ) → tyOf t ≡ Π A B
+              → (s : Tm Γ) → tyOf s ≡ A
+              → Tm Γ
+t ∶[ p ]$$ s ∶[ q ] = app t _ p [ idS , s ∶[ q ∙ [idS]T ] ]t
+\end{code}
+
+As an example, we can write the identity function at type |A| as |id A = abs {A = A} (π₂ idS)|, and the identity function at type |Π A (A [ wk ]T)| applied to the identity function at type |A| is represented by
+\begin{code}
+idid : (A : Ty Γ) → Tm Γ
+idid A = id (Π A (A [ wk ])) ∶[ refl ]$$ id A ∶[ refl ]
+\end{code}
+and indeed using the equality constructors, we have a proof of |tyOf (idid A) ≡ Π A (A [ wk ]T)| as expected.
+
 \subsection{The type of Booleans}
 
 To introduce the inductive type of Booleans, we need to specialise the substitution lifting.

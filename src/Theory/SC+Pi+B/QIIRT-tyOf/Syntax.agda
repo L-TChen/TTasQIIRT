@@ -651,3 +651,33 @@ vs x = x [ wk ]
 
 -- -- vz:= : (t : Tm Γ) → let (_ , (σ , A)) = tyOf t in Sub Γ (Γ , A [ σ ])
 -- -- vz:= {Γ} t = idS , t ∶[ {!!} ]
+
+_∶[_]$$_∶[_] : (t : Tm Γ) → tyOf t ≡ Π A B
+             → (s : Tm Γ) → tyOf s ≡ A
+             → Tm Γ
+t ∶[ p ]$$ s ∶[ q ] = app t _ p [ idS , s ∶[ q ∙ [idS]T ] ]
+
+private
+  _ : (t : Tm Γ) → (p : tyOf t ≡ Π A B)(s : Tm Γ)(q : tyOf s ≡ A)
+    → tyOf (t ∶[ p ]$$ s ∶[ q ]) ≡ B [ idS , s ∶[ q ∙ [idS]T ] ]
+  _ = λ t p s q → refl
+
+private
+  id : (A : Ty Γ) → Tm Γ
+  id A = abs {A = A} vz
+
+  idid : (A : Ty Γ) → Tm Γ
+  idid A = id (Π A (A [ wk ])) ∶[ refl ]$$ id A ∶[ refl ]
+
+  _ : (A : Ty Γ) → tyOf (idid A) ≡ Π A (A [ wk ])
+  _ = λ A →
+      Π A (A [ wk ]) [ wk ] [ idS , id A ∶[ refl ∙ [idS]T ] ]
+    ≡⟨ [∘]T (Π A (A [ wk ])) _ wk ⟩
+      Π A (A [ wk ]) [ wk ∘ (idS , id A ∶[ refl ∙ [idS]T ]) ]
+    ≡⟨ cong (λ z → Π A (A [ wk ]) [ z ])
+            (sym (wk∘ (idS , id A ∶[ refl ∙ [idS]T ])) ∙
+             βπ₁ idS (id A) (refl ∙ [idS]T)) ⟩
+      Π A (A [ wk ]) [ idS ]
+    ≡⟨ sym [idS]T  ⟩
+      Π A (A [ wk ])
+    ∎
