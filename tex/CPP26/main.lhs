@@ -920,7 +920,7 @@ As a result, the value |t γ| below must be transported along |p|:
 Coherence conditions are then verified using standard properties of transport.  
 We have formalised the standard model for type theory with $\Pi$-types, Booleans, and a Tarski universe, except the case for |π[]|.
 
-The main effort in the formalisation arises from the lack of \emph{regularity}~\cite{Sterling2022}, so there is a path |transportRefl| between the transport along reflexivity and the identity but they are not strictly equal.
+The main effort in the formalisation arises from the lack of \emph{regularity}~\cite{Sterling2022}: there is a path |transportRefl| between the transport along reflexivity and the identity but they are not strictly equal.
 For instance, the coherence condition for |Π[]| is given as
 \begin{code}
 stdPi .Π[] {Γ} {Δ} {A} σ B i γ =
@@ -963,7 +963,7 @@ As Altenkirch and Kaposi~\cite{Altenkirch2016a} have already shown that such ted
 
 \subsection{Strictification} \label{sec:strictify}
 Instead, we turn our attention to \emph{strictification}~\cite{Donko2022,Kaposi2025}: given a model of type theory, certain equality constructors can be made strict to form a new model.  
-A familiar analogy is the transition from lists to difference lists, where a list is represented by a list-appending function, and the associativity of concatenation becomes strict.
+A familiar analogy is the transition from lists to difference lists, where a list is represented by a list-appending function and list concatenation is function composition, and the associativity of concatenation becomes strict.
 
 In the same spirit, we may attempt to `strictify' the category part of substitution calculus using the Yoneda embedding, so that the unit laws and associativity law hold strictly, \emph{modulo} the property of naturality.
 Given any |SC|-algebra, we define a presheaf interpretation of |Sub| by
