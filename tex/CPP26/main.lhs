@@ -121,18 +121,12 @@
 %% of authors' names for this purpose.
 %\renewcommand{\shortauthors}{Trovato et al.}
 
-%%
-%% The abstract is a short summary of the work to be presented in the
-%% article.
 \begin{abstract}
-  We report on an approach to formalising type theory in type theory, inspired by Awodey’s natural models of type theory.
-  The initial natural model is represented as quotient inductive-inductive-recursive types in the proof assistant \CA, leading us to a syntax without any `transport hell'.
-We formalise some meta-properties such as the standard % and logical predicate
-model, normalisation by evaluation for typed terms, and strictification constructions.
+  We present an intrinsic representation of type theory in the proof assistant \CA, inspired by Awodey’s natural models of type theory.
+  The initial natural model is represented as quotient inductive-inductive-recursive types, leading us to a syntax accepted by \CA without using any transports, postulates, or rewrite rules.
+We formalise some meta-properties such as the standard model, normalisation by evaluation for typed terms, and strictification constructions.
 Since our formalisation is carried out using \CA's native support for quotient inductive types, all our constructions compute at a reasonable speed.
-
-However, the `transport hell' problem reappears when we try to develop more sophisticated metatheory.
-Ultimately, it remains a considerable struggle to develop the metatheory of type theory using an intrinsic representation that lacks strict equations.
+When we try to develop more sophisticated metatheory, however, the `transport hell' problem reappears.  Ultimately, it remains a considerable struggle to develop the metatheory of type theory using an intrinsic representation that lacks strict equations.
 The effort required is about the same whether or not the notion of natural model is used.
 \end{abstract}
 
