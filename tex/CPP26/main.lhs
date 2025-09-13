@@ -1,4 +1,4 @@
-\documentclass[sigplan,10pt,anonymous,review]{acmart}
+\documentclass[sigplan,10pt,anonymous,review,final]{acmart}
 \settopmatter{printfolios=true,printccs=false,printacmref=false}
 \setcopyright{acmlicensed}
 \copyrightyear{2025}
@@ -263,7 +263,7 @@ We discuss proof assistant features and their helpfulness further towards the en
 \item We present an intrinsically well typed representation of the syntax of type theory, inspired by Awodey's natural models (\cref{sec:tt}).
 \item We derive elimination and recursion principles for the syntax (\cref{sec:tt:elim}), and show how it can be used to construct the standard model and the term model (\cref{sec:standard-model}).
 \item We discuss strictification constructions on models, and show that they also apply to our notion of natural models (\cref{sec:strictify}).
-\item We develop normalisation by evaluation for the substitution calculus~(\cref{sec:nbe}) as a proof of concept: our development is carried out in \CA, which has a computational implementation of QIITs and principles such as function extensionality, so the resulting normaliser computes, and can potentially be extracted as a verified program.
+\item We develop normalisation by evaluation for substitution calculus~(\cref{sec:nbe}) as a proof of concept: our development is carried out in \CA, which has a computational implementation of QIITs and principles such as function extensionality, so the resulting normaliser computes, and can potentially be extracted as a verified program.
 \item We discuss pros and cons of our approach compared to other approaches, and which proof assistant features would be helpful to make future formalisations easier (\cref{sec:discussion}).
 \end{itemize}
 
@@ -385,7 +385,7 @@ _,_∶[_] : (σ : Sub Γ Δ) (t : Tm Γ B) (HL((pt : B ≡ A [ σ ]T)))
 The constructor |,∘|, which had a transport in its type above, then becomes
 \begin{code}
 ,∘  : ... (σ , t ∶[ pt ]) ∘ τ
-          ≡ (σ ∘ τ , t [ τ ]t ∶[ cong _[ τ ]T pt ∙ [∘]T ])
+          ≡ (σ ∘ τ , t [ τ ]t ∶[ (HL(cong _[ τ ]T pt ∙ [∘]T)) ])
 \end{code}
 where |_∙_| is the transitivity of equality.
 Although transport is not needed this time, the use of |cong| and |_∙_|
@@ -393,7 +393,7 @@ still prevent the definition from being seen as strictly positive.
 Similar to the Ford transformation, this problem can be overcome by asking for another equality proof, highlighted below, as an argument:
 \begin{code}
 ,∘ : ... (HL((qt : B [ τ ]T ≡ A [ σ ∘ τ ]T)))
-   → (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ qt ]
+   → (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ (HL(qt)) ]
 \end{code}
 As we assume UIP, the additional argument is essentially unique, so this updated constructor does not require any information but only defers the proof obligation.
 %This redundant argument can be removed later when defining its eliminator (\Cref{sec:tt:elim}).
@@ -418,7 +418,7 @@ For instance, the equality constructor for the identity substitution becomes
 where the fact that |t| and |t [ idS ]t| share the same type follows from their term equality, rather than being a \emph{requirement}.
 
 \subsection{Representing substitution calculus using QIIRT}
-Building on the changes described in \Cref{sec:tt:terms-without-indices}, we now spell out our version of the substitution calculus. The following types are defined simultaneously with a recursive function (changes compared to the QIIT version highlighted):
+Building on the changes described in \Cref{sec:tt:terms-without-indices}, we now spell out our version of substitution calculus. The following types are defined simultaneously with a recursive function (changes compared to the QIIT version highlighted):
 \begin{code}
 data Ctx  : Set
 data Sub  : (Γ : Ctx) → (Δ : Ctx) → Set
@@ -858,7 +858,7 @@ module S where
   ∅       = ∅' -- make definition for forward declarations
   _,_     = _,'_
   ...
-open S public --expose actual constructors
+open S public -- expose actual constructors
   hiding ( ∅ ; _,_; ...)
   renaming ( ∅' to ∅ ; _,'_ to _,_; ...)
 \end{code}
@@ -1028,7 +1028,7 @@ normalise : (t : Tm Γ) → Σ[ tⁿ ∈ NeTm Γ ] t ≡ ⌜ tⁿ ⌝
 Compared to NbE for substitution calculus using QIITs, our formalisation is simpler: no transports appear at all, because variables and terms are not indexed by their types.
 
 The picture is very different for the logical predicate interpretation.  
-Although NbE works cleanly, the logical predicate interpretation --- often considered a benchmark challenge~\cite{Abel2019} for language formalisation --- remains at least as difficult as in the QIIT-based setting, even for the substitution calculus.
+Although NbE works cleanly, the logical predicate interpretation --- often considered a benchmark challenge~\cite{Abel2019} for language formalisation --- remains at least as difficult as in the QIIT-based setting, even for substitution calculus.
 
 To see why, recall that the motives for |Ctx| and |Ty| in the logical predicate interpretation are given by
 \begin{code}
@@ -1110,7 +1110,7 @@ The loss of coverage check for inductive types is mitigated by using hand-crafte
 
 Our approach leads to fewer transports appearing in the syntax of terms.
 However, the same transports (and the same equations for them) seem to have a tendency to come back in concrete model constructions, as explained in \cref{sec:meta}.
-However, the lack of transports is a real advantage for avoiding strict positivity issues in the current implementation of \CA.
+However, the lack of transports is an advantage for avoiding strict positivity issues in the current implementation of \CA.
 It is also worth remarking that by using native features such as higher inductive types, rather than postulates in ordinary \Agda, we do get computational interpretations.
 For example, our implementation of normalization by evaluation in \cref{sec:nbe} can actually normalise terms and could be potentially extracted as Haskell programs with the cubical information explicitly erased using \Agda's \verb|--erased-cubical| feature.
 
@@ -1145,7 +1145,7 @@ Our workaround, using forward declarations to lift function clauses to fix the d
 Furthermore, our definitions appear to reach the limits of the termination checker: even seemingly harmless functions when defining the recursion principle fail to pass termination checking.
 
 % \paragraph{The need for strict propositions}
-\paragraph{Strict propositions, and Observational Type Theory}
+\paragraph{Strict propositions, and observational type theory}
 The recent work on strictified syntax~\cite{Kaposi2025} addresses transport hell using observational type theory (OTT)~\cite{Pujet2022,Pujet2023,Pujet2024}, with strict propositions in the metatheory playing a central role.  
 While \Agda does support strict propositions~\cite{Gilbert2019}, this feature was not designed to work with \CA~\cite{Agda-issue2022}.  
 %
