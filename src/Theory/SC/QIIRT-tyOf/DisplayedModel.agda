@@ -351,6 +351,23 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
     : (σ∙ : Sub∙ Γ∙ Δ∙ σ) (A∙ : Ty∙ Δ∙ A)
     → Sub∙ (Γ∙ ,∙ (A∙ [ σ∙ ]T∙)) (Δ∙ ,∙ A∙) (σ ↑ A)
   σ∙ ↑∙ A∙ = (σ∙ ∘∙ π₁∙ idS∙) , π₂∙ idS∙ ∶[ tyOfπ₂idS _ _ , tyOfπ₂idS∙ σ∙ A∙ ]∙
+
+  tyOf[]≡U∙
+    : {σ∙ : Sub∙ Γ∙ Δ∙ σ}
+    → (pt∙ : tyOf∙ u∙ ≡Ty[ pt ] U∙)
+    → tyOf∙ (u∙ [ σ∙ ]t∙) ≡Ty[ tyOf[]≡U pt ] U∙
+  tyOf[]≡U∙  {σ = σ} {u∙ = u∙} {pt = pt} {σ∙ = σ∙} pt∙ = beginTy
+    tyOf∙ (u∙ [ σ∙ ]t∙)
+      ≡Ty[ tyOf[] ]⟨ tyOf[]∙ ⟩
+    (tyOf∙ u∙) [ σ∙ ]T∙
+      ≡Ty[ cong _[ σ ]T pt ]⟨ (λ i → pt∙ i [ σ∙ ]T∙) ⟩
+    U∙ [ σ∙ ]T∙
+      ≡Ty[ U[] ]⟨ U[]∙ ⟩
+    U∙
+      ∎
+
+--    tyOf[] ∙ cong (λ A → A [ σ ]T) p ∙ U[]
+
 -- {-
 --   ≡Ty[-]⟨⟩-syntax 
 --     : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} (p : A ≡ B) {q : B ≡ C}
