@@ -1,4 +1,4 @@
-\documentclass[sigplan,10pt,anonymous,review,final]{acmart}
+\documentclass[sigplan,10pt,review]{acmart}
 \settopmatter{printfolios=true,printccs=false,printacmref=false}
 \setcopyright{acmlicensed}
 \copyrightyear{2025}
@@ -79,6 +79,7 @@
 %format tyOf∙ = "\mathsf{tyOf}^{\bullet}"
 
 %format Γ∙ = Γ "^{\bullet}"
+%format Δ∙ = Δ "^{\bullet}"
 %format t∙ = t "^{\bullet}"
 %format u∙ = u "^{\bullet}"
 %format σ∙ = σ "^{\bullet}"
@@ -91,7 +92,7 @@
 %format _[_]T∙ = "\_[\_]^{\bullet}_{\text{T}}"
 %format _[_]t∙ = "\_[\_]^{\bullet}_{\text{t}}"
 %format ]t∙ = "\kern-1.5pt]^{\bullet}_{\text{t}}"
-%format ]T∙ = "\kern-1.5pt]^{\bullet}_{\text{t}}"
+%format ]T∙ = "\kern-1.5pt]^{\bullet}_{\text{T}}"
 %format tyOf[]∙ = tyOf[] "^{\bullet}"
 %format [idS]t∙ = [idS]t "^{\bullet}"
 %format [∘]t∙ = [∘]t "^{\bullet}"
@@ -130,26 +131,28 @@
 %% used to denote shared contribution to the research.
 \author{Liang-Ting Chen}
 \affiliation{%
-  \institution{Institute of Information Science, Academia Sinica}
+  \institution{Academia Sinica}
   \city{Taipei}
   \country{Taiwan}}
 \email{liangtingchen@@as.edu.tw}
 
 \author{Fredrik Nordvall Forsberg}
 \affiliation{%
-  \institution{Department of Computer and Information Sciences, University of Strathclyde}
+  \institution{University of Strathclyde}
   \city{Glasgow}
   \country{United Kingdom}}
+\email{fredrik.nordvall-forsberg@@strath.ac.uk}
 
 \author{Tzu-Chun Tsai}
 \affiliation{%
-  \institution{Institute of Information Science, Academia Sinica}
+  \institution{Academia Sinica}
   \city{Taipei}
   \country{Taiwan}}
-%\affiliation{%
-%  \institution{Institute for Logic, Language and Computation, University of Amsterdam}
-%  \city{Amsterdam}
-%  \country{Netherlands}}
+\affiliation{%
+  \institution{University of Amsterdam}
+  \city{Amsterdam}
+  \country{Netherlands}}
+\authornote{The work is mainly carried out during the employment at Academia Sinica.}
 
 %%
 %% By default, the full list of authors will be used in the page
@@ -195,6 +198,12 @@ The effort required is about the same whether or not the notion of natural model
 \bibliographystyle{ACM-Reference-Format}
 
 \section{Introduction}
+
+\LT[inline]{Clearly articulate what has been formalised and what has not, when appropriate? (R1, R3)}
+\LT[inline]{TERMINATION checker? (R1, R3)}
+\LT[inline]{Work further on the idea of strictification? (R2)}
+\LT[inline]{Alternative formulation? E.g., \url{https://web.archive.org/web/20241004151846/https://lists.chalmers.se/pipermail/agda/2019/011176.html} (R2)}
+
 % FNF (Fri 5 Sep)
 
 Internalising the syntax and semantics of type theory in type theory is a long-standing problem which stretches the limits of the theory~\cite{Dybjer1996,Danielsson2006,Chapman2009,McBride2010,Altenkirch2016a}.
@@ -229,7 +238,7 @@ Moreover, their definition is cumbersome to work with, since the type of later c
 %
 In an intensional type theory, such as those implemented in proof assistants, this manifests itself in transport terms across equality proofs \emph{inside} other terms, and leads to the so-called `transport hell' --- rather than just reasoning about the terms you actually want to study, you now also have to do a lot of reasoning about transports themselves and their algebraic properties.
 %
-It turns out that we need an alternative way of representing type theory intrinsically without any transport hell, in order to make formalisations of type theory more lightweight and accepted by \CA.
+It turns out that we need an alternative way of representing type theory intrinsically without any transport hell, in order to make our formalisation of type theory more lightweight and accepted by \CA.
 
 %
 The framework of categories with families is only one of several (more or less) equivalent notions of models of type theory~\cite{Hofmann1997}, and we were wondering if any of the other notions might offer any advantages.
@@ -272,6 +281,7 @@ We discuss proof assistant features and their helpfulness further towards the en
 % FNF (Sun 7 Sep)
 
 Our formalisation is carried out in \CA with a global assumption of uniqueness of identity proofs (UIP).
+\LT{Should we discharge this assumption in our formalisation?}
 %
 We believe it should be possible to discharge this assumption in favour of explicitly set-truncating the types we define.
 %
@@ -377,12 +387,12 @@ Hence, it is still preferable to avoid them if possible.
 \subsection{The `Ford transformation' and index elimination} \label{sec:tt:terms-without-indices}
 
 To avoid transports in the definition itself, we note that the index |A| of |Tm Γ A| often needs an explicit proof for the typing constraint --- for example, that the term |t| in the substitution |(σ , t)| has type |A [ σ ]T| --- if this does not happen to hold strictly (i.e., up to judgemental equality), so enforcing this constraint in the index of |Tm| just shoots ourselves in the foot.
-Hence, we apply the `Ford transformation'~\cite{McBride1999} (``You can have any index you want, as long as it is equal to the specified one'') to move the constraint on its index to its argument as an equality proof (highlighted below):
+Hence, we apply the `Ford transformation'~\cite{McBride1999} (`You can have any index you want, as long as it is equal to the specified one') to move the constraint on its index to its argument as an equality proof (highlighted below):
 \begin{code}
 _,_∶[_] : (σ : Sub Γ Δ) (t : Tm Γ B) (HL((pt : B ≡ A [ σ ]T)))
   → Sub Γ (Δ , A)
 \end{code}
-The constructor |,∘|, which had a transport in its type above, then becomes
+The constructor |,∘| which had a transport in its type becomes
 \begin{code}
 ,∘  : ... (σ , t ∶[ pt ]) ∘ τ
           ≡ (σ ∘ τ , t [ τ ]t ∶[ (HL(cong _[ τ ]T pt ∙ [∘]T)) ])
@@ -449,8 +459,8 @@ data _ where
   (HL([∘]t))     : t  [ τ ]t  [ σ ]t  ≡ t  [ τ ∘ σ ]t
   (HL(,∘))       : (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ qt ])
 \end{code}
-We write |wk| for the ``weakening'' substitution |wk = π₁ idS : Sub (Γ , A) Γ|, and |vz| for the ``top variable'' |vz = π₂ idS : Tm (Γ , A)|.
-This works well\ldots{}except that we have to interleave the function clauses of |tyOf| with constructors.
+We write |wk| for the `weakening' substitution |wk = π₁ idS : Sub (Γ , A) Γ|, and |vz| for the `top variable' |vz = π₂ idS : Tm (Γ , A)|.
+This works well except that we have to interleave the function clauses of |tyOf| with constructors.
 For example, we need define the function clause for |π₂ σ| before the $\eta$-law for substitution:
 \begin{code}
 tyOf (π₂ {Γ} {Δ} {A} σ)   = A [ π₁ σ ]T
@@ -500,6 +510,7 @@ _↑_ {Γ} σ A =  σ ∘ π₁ {Γ , A [ σ ]T} idS,
 where |p : tyOf (π₂ idS) ≡ A [ σ ∘ π₁ idS ]T|.
 We may be tempted to use |[∘]T| to define |p|, as |tyOf (π₂ (idS {Γ , A [ σ ]T}))| is equal to |A [ σ ]T [ π₁ idS ]T| by definition.
 Yet, again, we must refrain ourself from doing so during the definition of the inductive types, as \CA would see this as a strict positivity problem. Instead we introduce a \emph{superfluous} equality constructor
+\LT{Make our formalisation consistent with the presentation?}
 \begin{code}
 data _ where
   tyOfπ₂idS : tyOf (π₂ {A = A [ σ ]T} idS)
@@ -695,7 +706,7 @@ record SC  : Set  where
     tyOfπ₂  : tyOf (π₂ {A = A} σ)  ≡ A [ π₁ σ ]T
 \end{code}
 
-To distinguish syntactic constructors from the semantic methods in |SC|, we qualify the syntactic constructors with ``|S.|'' in the following discussion.
+To distinguish syntactic constructors from the semantic methods in |SC|, we qualify the syntactic constructors with `|S.|' in the following discussion.
 
 Superfluous equality constructors, like |S.tyOfπ₂idS|, are not required as fields in the record.
 Instead, their semantic counterparts are defined within any given model using the other methods.
@@ -952,12 +963,13 @@ Term = record
 
 Other type formers are given similarly.
 Constructing the term model also justifies the claim that indeed the syntax makes up the initial model.
+\LT{the recursion and elimination principles justify that the term model is the initial model.}
 
 \subsection{Standard model} \label{sec:standard-model}
 
 In the standard model, contexts are interpreted as sets in \CA, types as sets indexed by a context~|Γ|, substitutions as functions between these sets, and terms as \emph{pairs} |(A, t)| consisting of an interpreted type |A : Γ → Set| together with a dependent function |t : (γ : Γ) → A γ|.
 The interpretation of |tyOf| is simply the first component |A|.
-In other words, terms are interpreted as a type |A|, together with a ``section'' |t : (γ : Γ) → A γ| of that type, as usual:
+In other words, terms are interpreted as a type |A|, together with a `section' |t : (γ : Γ) → A γ| of that type, as usual:
 \begin{code}
   std : SC
   std .Ctx              = Set
@@ -1080,7 +1092,7 @@ record Ty³ (Γ : Ctx) : Set where
     E   : Ty V
     ⌜_⌝ : Sub Γ V
 \end{code}
-Type substitution is defined by ``delaying'' the substitution, i.e., by viewing the substitution |⌜ A ⌝| as an accumulator parameter.
+Type substitution is defined by `delaying' the substitution, i.e., by viewing the substitution |⌜ A ⌝| as an accumulator parameter.
 Then, we can show that the laws about type substitution boil down the right unit and the associativity laws for substitutions:
 \begin{code}
   (M !) .[idS]T {Γ} {A}  =
@@ -1115,7 +1127,8 @@ It is also worth remarking that by using native features such as higher inductiv
 For example, our implementation of normalization by evaluation in \cref{sec:nbe} can actually normalise terms and could be potentially extracted as Haskell programs with the cubical information explicitly erased using \Agda's \verb|--erased-cubical| feature.
 
 Kaposi and Pujet~\cite{Kaposi2025} have shown how strictification techniques can simplify proofs, but this is an orthogonal issue.
-In \cref{sec:strictify}, we have sketched how also our notion of models can be strictified using the same ideas.
+\LT{Clarify why this is an orthogonal issue?}
+In \cref{sec:strictify}, we have sketched how also our notion of models can be strictified using a similar idea.
 However, even though strictification turns most of the equality constructors about substitution to strict equalities, this does not help with transports appearing in the QIIT definition of terms and the resulting strict positivity issues, as strictification can only be applied \emph{after} the inductive types are defined.
 Moreover, strictification only address substitution rules and does not help with other issues such as equations over equations over equations for the universe of types.
 
@@ -1130,12 +1143,12 @@ The alternative definition, based on natural models, does not violate strict pos
 \paragraph{A theory of QIIRTs}
 We work around the problem by defining type theory using QIIRTs, but this raises another question: what is the theory of QIIRTs, anyway?
 
-Different combinations of QIITs and inductive-recursive types (IRTs) have been used to develop type theory in type theory.
-QIITs and QIIRTs are used for the intrinsic representations of type theory; large and infinitary IRTs for the standard model of universe; small inductive-recursive types~\cite{Hancock2013} for implementing normalisation by evaluation~\cite{Altenkirch2017}.
-Moreover, the target of |tyOf| is the inductive type |Ty| being defined simultaneously, so the QIIRTs used to define our representation is neither large nor small.
-We expect that the encoding of small inductive-recursive types as indexed inductive-recursive types still applies in general, as we have derived our representation by `undoing' the encoding.
+Different forms of QIITs and inductive-recursive types (IRTs) have been used to develop type theory in type theory.
+Large and infinitary IRTs are used for the standard model of universe; small inductive-recursive types~\cite{Hancock2013} for implementing normalisation by evaluation~\cite{Altenkirch2017}; QIITs and QIIRTs for the intrinsic representations of type theory.
+Note further that the target of |tyOf| is the inductive type |Ty| being defined simultaneously, so the QIIRTs used to define our representation is neither large nor small.
+Nevertheless, we expect that the encoding of small inductive-recursive types as indexed inductive types still applies to this `self-referring' induction-recursion, as we have derived our representation by `undoing' the encoding.
 
-A unified framework to encompass all variants will be convenient for proof assistant implementation.
+A framework to encompass all variants will be convenient for proof assistant implementation.
 Such a scheme may be developed by extending the type theory of QIITs~\cite{Kaposi2019,Kovacs2020a} with an additional construct to distinguish strict and weak equalities and a coverage condition for function clauses.
 
 \paragraph{The support of interleaved mutual definitions}
@@ -1143,6 +1156,7 @@ Another challenge concerns interleaved mutual definitions.
 Since constructors of QIITs may be mutually interleaved, the elaboration from dependent pattern matching to eliminators need to take this into account.
 Our workaround, using forward declarations to lift function clauses to fix the dependency, sacrifices their computational behaviour.
 Furthermore, our definitions appear to reach the limits of the termination checker: even seemingly harmless functions when defining the recursion principle fail to pass termination checking.
+\LT{Clarify this in \Cref{sec:tt:elim}}
 
 % \paragraph{The need for strict propositions}
 \paragraph{Strict propositions, and observational type theory}
@@ -1173,16 +1187,21 @@ There are still gaps between a pen-and-paper type theory and a fully formalised 
 Without further advances in the technology of proof assistants, formalising type theory intrinsically within a proof assistant remains a difficult task.
 We hope that the lessons learned here can help the design of future proof assistants, so that one day we may implement a proof assistant within a proof assistant without (too much) sweat and tears.
 
+\begin{acks}
+  \begin{itemize}
+    \item anonymous reviewers' feedback;
+    \item inspired by Amélia Liao's work on 1Lab for the syntax of equational reasoning for displayed categories;
+    \item Shu-Hung You for his comments on the early draft;
+    \item National Science and Technology Council of Taiwan under grant NSTC 114-2222-E-001-001-MY3.
+  \end{itemize}
+\end{acks}
+
 \IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
 %\bibliography{ref}
 
 \end{document}
 
 
-%\begin{acks}
-% Amélia Liao for the syntax of equational reasoning for displayed categories
-% Shu-Hung You for his comments on the early draft
-%\end{acks}
 
 %%% Local Variables:
 %%% mode: latex
