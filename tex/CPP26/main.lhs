@@ -199,7 +199,7 @@ The effort required is about the same whether or not the notion of natural model
 
 \section{Introduction}
 
-\LT[inline]{Clearly articulate what has been formalised and what has not, when appropriate? (R1, R3)}
+\LT[inline]{Clearly articulate what has been formalised and what has not, when appropriate? Ideally finish formalisation, otherwise scale back and discuss what has been done. (R1, R3)}
 \LT[inline]{TERMINATION checker? (R1, R3)}
 \LT[inline]{Work further on the idea of strictification? (R2)}
 \LT[inline]{Alternative formulation? E.g., \url{https://web.archive.org/web/20241004151846/https://lists.chalmers.se/pipermail/agda/2019/011176.html} (R2)}
@@ -281,7 +281,7 @@ We discuss proof assistant features and their helpfulness further towards the en
 % FNF (Sun 7 Sep)
 
 Our formalisation is carried out in \CA with a global assumption of uniqueness of identity proofs (UIP).
-\LT{Should we discharge this assumption in our formalisation?}
+\LT{Should we discharge this assumption in our formalisation, eg set-truncate where needed instead? (R1, R2)}
 %
 We believe it should be possible to discharge this assumption in favour of explicitly set-truncating the types we define.
 %
@@ -321,6 +321,8 @@ For the brevity of presentation, we have made arguments implicit for equality co
 Similarly, we are ignoring universe levels, but they are all present in the formalisation.
 
 \section{Type theory as quotient inductive types} \label{sec:tt}
+
+\FNF{Discuss ``another approach is staying completely indexed and always using PathP instead of transports'' here, or in Discussion (R2)}
 
 In this section, we will explain why Altenkirch and Kaposi's representation~\cite{Altenkirch2016a} is hard to use in practice and rejected by \CA arising from transports in its definition.
 Then, we show how their representation can be transformed to a representation based on Awodey's natural models.
@@ -377,11 +379,11 @@ Another possibility is to fix the syntactic restriction for HIITs, but it is unc
 Therefore, we seek for an equivalent definition without transports first.
 
 Another source of transports arises from equations over equations, but this can be avoided by using dependent paths.
-For example, the fact that the identity term substitution really acts as an identity is introduced as an equality constructor |[idS]t|, defined over the highlighted equality constructor |[idS]T : A ≡ A [ idS ]T| for the identity type substitution:  
+For example, the fact that the identity term substitution really acts as an identity is introduced as an equality constructor |[idS]t|, defined over the highlighted equality constructor |[idS]T : A ≡ A [ idS ]T| for the identity type substitution:
 \begin{code}
 [idS]t : PathP (λ i → Tm Γ ((HL([idS]T i)))) t (t [ idS ]t)
 \end{code}
-Although equations over equations are in principle more manageable, it quickly leads us to \emph{equations over equations over yet more equations} in their elimination rules.  
+Although equations over equations are in principle more manageable, it quickly leads us to \emph{equations over equations over yet more equations} in their elimination rules.
 Hence, it is still preferable to avoid them if possible.
 
 \subsection{The `Ford transformation' and index elimination} \label{sec:tt:terms-without-indices}
@@ -481,7 +483,7 @@ This argument is needed as the coherence condition for
 \begin{code}
 tyOf (βπ₂ ... q i)  = q i
 \end{code}
-since again using any other function while defining inductive types breaks the strict positivity check. 
+since again using any other function while defining inductive types breaks the strict positivity check.
 The remaining clauses are given as
 \begin{code}
 tyOf (t [ σ ]t)  = (tyOf t) [ σ ]T
@@ -490,7 +492,7 @@ tyOf ([∘]t i)    = [∘]T i
 \end{code}
 This definition is accepted by \CA\footnote{At the time of writing, \CA does not support interleaved mutual definitions, but it can be equivalently defined using forward declarations.
 We will discuss this idiom in \Cref{sec:tt:mutual}.}
-without any warnings or errors. 
+without any warnings or errors.
 Although |Tm| is only indexed by |Γ : Ctx|, the function |tyOf| ensures that every |t : Tm Γ| has a type.
 Hence, |Tm| only consists of valid derivations and is still an intrinsic representation of type theory.
 
@@ -588,7 +590,7 @@ data _ where
   𝔹[]₂   : tyOf (π₂ {Γ , 𝔹} idS) ≡ 𝔹 [ τ ]T
 
 _↑𝔹 : (σ : Sub Γ Δ) → Sub (Γ , 𝔹) (Δ , 𝔹)
-_↑𝔹 {Γ} {Δ} σ = σ ∘ π₁ {Γ , 𝔹} idS , π₂ idS ∶[ (HL(𝔹[]₂)) ] 
+_↑𝔹 {Γ} {Δ} σ = σ ∘ π₁ {Γ , 𝔹} idS , π₂ idS ∶[ (HL(𝔹[]₂)) ]
 \end{code}
 
 Finally, we introduce the equality constructor for the interaction between |elim𝔹| and substitution:
@@ -671,7 +673,7 @@ data _ where
 tyOf (π[] _ _ _ _ _ _ i) = U[] i
 \end{code}
 
-In the end, we emphasise that the introduction of superfluous equality proofs and constructors only makes sense under the assumption of UIP. 
+In the end, we emphasise that the introduction of superfluous equality proofs and constructors only makes sense under the assumption of UIP.
 These additional arguments are essentially unique and thus do not add any new laws to type theory, but merely serve as devices to meet the syntactic restriction of strict positivity in the current implementation of \CA.
 
 \subsection{Recursion and elimination principles} \label{sec:tt:elim}
@@ -794,7 +796,7 @@ As a result, we would have to specify two underlying equations as
 and equational reasoning with them would involve three equations altogether.
 It is nice that we do not have to deal with this extra proof obligation in our formulation.
 
-The elimination principle is stated similarly to the recursion principle but indexed over the term algebra~(\Cref{sec:meta:term}), 
+The elimination principle is stated similarly to the recursion principle but indexed over the term algebra~(\Cref{sec:meta:term}),
 \begin{code}
 elimCtx   : (Γ :  S.Ctx)      → Ctx∙ Γ
 elimTy    : (A :  S.Ty Γ)     → Ty∙ (elimCtx Γ) A
@@ -946,7 +948,7 @@ We are still investigating the root cause of this behaviour, but it may point to
 Having defined type theory as QIIRTs, we now turn to models of type theory as well as constructions of new models from existing ones.
 
 %We find that reasoning with this definition \emph{per se} in \CA is hard even with substitution calculus: the lack of strict equalities in type theory is known to cause the transport hell~\cite{Altenkirch2016a} and even worse it cannot be mitigated by using custom rewriting rules~\cite{Cockx2020,Cockx2021} in \CA.
-%Nevertheless, programming with type theory seems doable, as normalisation can be 
+%Nevertheless, programming with type theory seems doable, as normalisation can be
 
 \subsection{Term model} \label{sec:meta:term}
 The term model is a self-interpretation of syntax, allowing displayed models to be instantiated over it and ensuring that the elimination rule computes.
@@ -1030,8 +1032,8 @@ If regularity were available, this would collapse to the trivial reflexivity pro
 \LT[noinline]{try to finish it if we have time.}
 
 \subsection{Normalisation by evaluation, and the logical predicate interpretation} \label{sec:nbe}
-We implement normalisation by evaluation (NbE) for the substitution calculus.  
-Following the approach for type theory~\cite{Altenkirch2017}, we define inductive-recursively both the type of variables (with their embedding into terms) and the type of renamings (with their embedding into substitutions).  
+We implement normalisation by evaluation (NbE) for the substitution calculus.
+Following the approach for type theory~\cite{Altenkirch2017}, we define inductive-recursively both the type of variables (with their embedding into terms) and the type of renamings (with their embedding into substitutions).
 The implementation is straightforward, so we omit the details here.
 In the end, this yields a normalisation function that produces, for every term, a de Bruijn variable and computes:
 \begin{code}
@@ -1039,7 +1041,7 @@ normalise : (t : Tm Γ) → Σ[ tⁿ ∈ NeTm Γ ] t ≡ ⌜ tⁿ ⌝
 \end{code}
 Compared to NbE for substitution calculus using QIITs, our formalisation is simpler: no transports appear at all, because variables and terms are not indexed by their types.
 
-The picture is very different for the logical predicate interpretation.  
+The picture is very different for the logical predicate interpretation.
 Although NbE works cleanly, the logical predicate interpretation --- often considered a benchmark challenge~\cite{Abel2019} for language formalisation --- remains at least as difficult as in the QIIT-based setting, even for substitution calculus.
 
 To see why, recall that the motives for |Ctx| and |Ty| in the logical predicate interpretation are given by
@@ -1111,6 +1113,8 @@ As a consequence, coercions along equations identified by UIP remain unavoidable
 \section{Discussion and conclusion}
 \label{sec:discussion}
 
+\FNF{Also discuss alternative choices such as basing the formalisation on (split) comprehension categories, see Brunerie and de Boer (R2)}
+
 It is well known that type theory in type theory is possible in theory, but in practice its formalisation often requires giving up some of the support and safety checks provided by proof assistants.
 From one point of view, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?
 Based on our experimental formalisation in \CA, our answer is regrettably: not yet.
@@ -1135,7 +1139,7 @@ Moreover, strictification only address substitution rules and does not help with
 % Untyped version might still be easiest to work with, with current proof assistant technology
 
 \paragraph{A proper syntax for HII(R)Ts}
-The syntax for declaring higher inductive-inductive types and QIITs in \CA falls short of their theoretical capabilities~\cite{Kaposi2020b,Kaposi2019}.  
+The syntax for declaring higher inductive-inductive types and QIITs in \CA falls short of their theoretical capabilities~\cite{Kaposi2020b,Kaposi2019}.
 As shown in \Cref{sec:tt:cwf}, the legitimate definition of type theory based on CwF with transports violates the syntactic restriction of strict positivity in \CA.
 Even though transport hell is better avoided in practice, this is not a justification for excluding otherwise valid definitions.
 The alternative definition, based on natural models, does not violate strict positivity but still requires forward declarations (\Cref{sec:tt:mutual}) to overcome the inconvenience of syntax.
@@ -1160,11 +1164,11 @@ Furthermore, our definitions appear to reach the limits of the termination check
 
 % \paragraph{The need for strict propositions}
 \paragraph{Strict propositions, and observational type theory}
-The recent work on strictified syntax~\cite{Kaposi2025} addresses transport hell using observational type theory (OTT)~\cite{Pujet2022,Pujet2023,Pujet2024}, with strict propositions in the metatheory playing a central role.  
-While \Agda does support strict propositions~\cite{Gilbert2019}, this feature was not designed to work with \CA~\cite{Agda-issue2022}.  
+The recent work on strictified syntax~\cite{Kaposi2025} addresses transport hell using observational type theory (OTT)~\cite{Pujet2022,Pujet2023,Pujet2024}, with strict propositions in the metatheory playing a central role.
+While \Agda does support strict propositions~\cite{Gilbert2019}, this feature was not designed to work with \CA~\cite{Agda-issue2022}.
 %
 %\paragraph{The implementation of OTT or XTT}
-To formalise the metatheory of type theory using QIITs, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory provided by \CA. 
+To formalise the metatheory of type theory using QIITs, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory provided by \CA.
 
 The use of QIITs in OTT~\cite{Kaposi2025} in \Agda requires the user themselves to implement the coercion rules for inductive types~\cite{Pujet2024} as well as their elimination principles.
 Quotient inductive types are not supported in the implementation of OTT in Rocq~\cite{Pujet2024a} and its theory is still being developed~\cite{Felicissimo2025a}.
@@ -1208,5 +1212,3 @@ We hope that the lessons learned here can help the design of future proof assist
 %%% TeX-master: "main.tex"
 %%% eval: (add-hook 'after-save-hook (lambda () (shell-command "make tex")) t)
 %%% End:
-
-
