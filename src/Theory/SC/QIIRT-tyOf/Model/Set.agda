@@ -2,6 +2,10 @@ open import Prelude
 
 module Theory.SC.QIIRT-tyOf.Model.Set where
 
+-- TODO: change to hSets instead of global UIP
+postulate
+  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
+
 module _ (UU : Set) where
   open import Theory.SC.QIIRT-tyOf.Syntax
   open Var
@@ -25,13 +29,13 @@ module _ (UU : Set) where
   ⟦ [idS]T {A = A} i ⟧T γ = ⟦ A ⟧T γ
   ⟦ [∘]T A σ τ i     ⟧T γ = ⟦ A ⟧T (⟦ τ ⟧S (⟦ σ ⟧S γ))
   ⟦ U[] i            ⟧T γ = UU
---  ⟦ Ty-is-set A B x y i j ⟧T γ =
---    isSet→SquareP (λ _ _ → λ X Y → UIP)
---      (λ i → ⟦ x i ⟧T γ)
---      (λ i → ⟦ y i ⟧T γ)
---      refl
---      refl
---      i j
+  ⟦ Ty-is-set A B x y i j ⟧T γ =
+    isSet→SquareP (λ _ _ → λ X Y → UIP)
+      (λ i → ⟦ x i ⟧T γ)
+      (λ i → ⟦ y i ⟧T γ)
+      refl
+      refl
+      i j
 
   ⟦ ∅              ⟧S γ = ⋆
   ⟦ σ , t ∶[ p ]   ⟧S γ = ⟦ σ ⟧S γ , transport (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ)
@@ -48,8 +52,8 @@ module _ (UU : Set) where
       foo = UIP _ _
   ⟦ η∅ σ i         ⟧S γ = ⋆
   ⟦ ηπ σ i         ⟧S γ = ⟦ σ ⟧S γ .fst , transportRefl (⟦ σ ⟧S γ .snd) (~ i)
- --  ⟦ Sub-is-set σ τ p q i j ⟧S γ =
- --    isSet→SquareP (λ _ _ → λ _ _ → UIP) (λ i → ⟦ p i ⟧S γ) (λ i → ⟦ q i ⟧S γ) refl refl i j
+  ⟦ Sub-is-set σ τ p q i j ⟧S γ =
+    isSet→SquareP (λ _ _ → λ _ _ → UIP) (λ i → ⟦ p i ⟧S γ) (λ i → ⟦ q i ⟧S γ) refl refl i j
 
   ⟦ t [ σ ] ⟧t γ = ⟦ t ⟧t (⟦ σ ⟧S γ)
   ⟦ π₂ σ    ⟧t γ = ⟦ σ ⟧S γ .snd
@@ -65,12 +69,18 @@ module _ (UU : Set) where
 
   ⟦ [idS]t t i   ⟧t γ = ⟦ t ⟧t γ
   ⟦ [∘]t t σ τ i ⟧t γ = ⟦ t ⟧t (⟦ τ ⟧S (⟦ σ ⟧S γ))
- --  ⟦ Tm-is-set t u p q i j ⟧t γ = UIP (cong (λ t → ⟦ t ⟧t γ) {!p!}) (cong (λ t → ⟦ t ⟧t γ) {!!}) i j  
+  ⟦ Tm-is-set t u p q i j ⟧t γ =
+   isSet→SquareP {A = λ i j → isSet→SquareP (λ _ _ X Y → UIP) (λ i₁ → ⟦ tyOf (p i₁) ⟧T γ) (λ i₁ → ⟦ tyOf (q i₁) ⟧T γ) (λ _ → ⟦ tyOf t ⟧T γ) (λ _ → ⟦ tyOf u ⟧T γ) i j}
+                 (λ i j _ _ → UIP)
+                 (λ j → ⟦ p j ⟧t γ)
+                 (λ j → ⟦ q j ⟧t γ)
+                 (λ j → ⟦ t ⟧t γ)
+                 (λ j → ⟦ u ⟧t γ) i j
 
 
 module _ (UU : Set) where
   open import Theory.SC.QIIRT-tyOf.Model
-  
+
   stdMot : Motive
   stdMot = record
       { Ctx  = Set
@@ -78,13 +88,13 @@ module _ (UU : Set) where
       ; Sub  = λ Γ Δ → Γ → Δ
       ; Tm   = λ Γ → Σ[ A ∈ (Γ → Set) ] ((γ : Γ) → A γ)
       ; tyOf = λ (A , t) γ → A γ
-  --    ; Tyᴬ-is-set = λ _ _ → UIP
-  --    ; Tmᴬ-is-set = λ {_} → isSetΣ (isSetΠ (λ γ → λ _ _ → UIP)) (λ A → isSetΠ (λ γ → λ _ _ → UIP))
-  --    ; Subᴬ-is-set = isSetΠ (λ γ → λ _ _ → UIP)
+      ; Ty-is-set = λ _ _ → UIP
+      ; Tm-is-set = λ {_} → isSetΣ (isSetΠ (λ γ → λ _ _ → UIP)) (λ A → isSetΠ (λ γ → λ _ _ → UIP))
+      ; Sub-is-set = isSetΠ (λ γ → λ _ _ → UIP)
       }
 
   open IsSC
-  
+
   stdModelSC : IsSC stdMot
   stdModelSC .∅               = Unit
   stdModelSC ._,C_ Γ A        = Σ Γ A
@@ -108,12 +118,12 @@ module _ (UU : Set) where
   stdModelSC .,∘ {Δ} {Θ} {Γ} {A} σ (B , t) τ p q i γ =
     σ (τ γ) , transport (UIP (λ j → p j (τ γ)) (λ j → q j γ) i) (t (τ γ))
 -- The following is ideal, but it does not work well with Agda's termination checker.
---    σ (τ γ) , foo γ (~ i) -- [TODO] Why does it trigger the termination checker? 
+--    σ (τ γ) , foo γ (~ i) -- [TODO] Why does it trigger the termination checker?
 --    where
 --    foo : (γ : Γ) →
 --      transport (λ _ → A (σ (τ γ))) _ ≡ transport (λ j → p j (τ γ)) (t (τ γ))
 --    foo γ =
---      transportRefl _  ∙ transportRefl _ ∙ transportRefl _ ∙ 
+--      transportRefl _  ∙ transportRefl _ ∙ transportRefl _ ∙
 --       (λ i → transport (λ j → p j (τ γ)) (transportRefl (transport (λ _ → B (τ γ)) (transport (λ _ → B (τ γ)) (t (τ γ)))) i)) ∙
 --       (λ i → transport (λ j → p j (τ γ)) (transportRefl (transport (λ _ → B (τ γ)) (t (τ γ))) i)) ∙
 --        (λ i → transport (λ j → p j (τ γ)) (transportRefl (t (τ γ)) i))

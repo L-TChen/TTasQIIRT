@@ -12,9 +12,9 @@ TermM = record
   ; Sub  = Sub
   ; Tm   = Tm
   ; tyOf = tyOf
---  ; Tyᴬ-is-set = Ty-is-set
---  ; Subᴬ-is-set = Sub-is-set
---  ; Tmᴬ-is-set = Tm-is-set
+  ; Ty-is-set = Ty-is-set
+  ; Sub-is-set = Sub-is-set
+  ; Tm-is-set = Tm-is-set
   }
 
 TermIsSC : IsSC TermM
@@ -50,3 +50,6 @@ TermIsSC = record
 
 Term : SC _ _ _ _
 Term = record { mot = TermM ; isSC = TermIsSC }
+
+Ctx-is-Set : isSet Ctx
+Ctx-is-Set = Ctx-is-set

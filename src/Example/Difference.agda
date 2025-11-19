@@ -1,6 +1,6 @@
 open import Prelude
-  hiding (⋆; rec)
-  
+  hiding (⋆)
+
 open import Cubical.Foundations.Function
 
 module Example.Difference (A : Set) where
@@ -9,7 +9,7 @@ infixr 10 _⧺_
 
 record IsModel (X : Set) (XisSet : isSet X) : Set₁ where
   infixr 10 _*_
-  
+
   field
     _*_
       : X → X → X
@@ -29,11 +29,11 @@ record Model : Set₁ where
     isModel : IsModel X XisSet
 
   open IsModel isModel public
-    
+
 record IsDepModel (M : Model)
   (P : Model.X M → Set) (PisSet : ∀ x → isSet (P x)) : Set₁ where
   open Model M
-  
+
   infixr 10 _⋆_
 
   field
@@ -87,7 +87,7 @@ record ModelProp (M : Model) : Set₁ where
     MP : IsModelProp M P PisProp
 
   open IsModelProp MP public
-  
+
 ModelProp→DepModel
   : {M : Model} → ModelProp M → DepModel M
 ModelProp→DepModel {M} mp =
@@ -179,7 +179,7 @@ module Recursor (M : Model) where
   rec : JList → X
   rec = elim (Model→DepModel M)
 open Recursor
-    
+
 module _ {M : Model} where
   open Model M
   rec=elim
@@ -220,7 +220,7 @@ DListMod = record { X = DList ; XisSet = DListIsSet ; isModel = DListIsModel }
       }
 
 ◁_ : JList → DList
-◁_ = rec DListMod 
+◁_ = rec DListMod
 
 ▷◁ : (xs : JList) → ▷ ◁ xs ≡ xs
 ▷◁ = elim $ ModelProp→DepModel
@@ -244,7 +244,7 @@ DListMod = record { X = DList ; XisSet = DListIsSet ; isModel = DListIsModel }
       }
 
 ◁≡→≡ : {xs ys : JList} → (◁ xs) .fst ≡ (◁ ys) .fst → xs ≡ ys
-◁≡→≡ {xs} {ys} p = 
+◁≡→≡ {xs} {ys} p =
   xs
     ≡⟨ sym (▷◁ xs) ⟩
   ▷ ◁ xs
@@ -303,7 +303,7 @@ reverse xs = rec revᵣ (▷ xs)
 
 -- lem₁ : DepModel DListMod → DepModel Term
 
--- -- Church encoding? 
+-- -- Church encoding?
 -- {-
 -- module _ {A B : Set} (BisSet : isSet B) (e : B) (_*_ : B → B → B) (i : A → B)
 --   (assoc : ∀ x y z → (x * y) * z ≡ x * (y * z))
@@ -335,7 +335,7 @@ reverse xs = rec revᵣ (▷ xs)
 --     elimJ (⧺-assoc xs ys zs i) = assocP (elimJ xs) (elimJ ys) (elimJ zs) i
 --     elimJ (⧺-idʳ xs i) = idʳP (elimJ xs) i
 --     elimJ (⧺-idˡ xs i) = idˡP (elimJ xs) i
---     elimJ (trunc xs ys p q i j) = 
+--     elimJ (trunc xs ys p q i j) =
 --       isOfHLevel→isOfHLevelDep 2 (λ x → PisSet (recJ x)) (elimJ xs) (elimJ ys) (cong elimJ p) (cong elimJ q) (trunc xs ys p q) i j
 
 --   module _ {P : B → Set} (PisProp : ∀ x → isProp (P x))
@@ -355,10 +355,10 @@ reverse xs = rec revᵣ (▷ xs)
 
 -- -- -- -- -- data ∥_∥ (A : Set) : Prop where
 -- -- -- -- --   ∣_∣ : A → ∥ A ∥
--- -- -- -- -- 
+-- -- -- -- --
 -- -- -- -- -- rec : {A : Set} {B : Prop} → (A → B) → ∥ A ∥ → B
 -- -- -- -- -- rec f ∣ x ∣ = f x
--- -- -- -- -- 
+-- -- -- -- --
 -- -- -- -- -- rec2 : {A B : Set} {C : Prop} → (A → B → C) → ∥ A ∥ → ∥ B ∥ → C
 -- -- -- -- -- rec2 f ∣ x ∣ ∣ y ∣ = f x y
 
@@ -368,12 +368,12 @@ reverse xs = rec revᵣ (▷ xs)
 -- -- -- -- --     fst : A
 -- -- -- -- --     snd : B fst
 -- -- -- -- -- open Σp public
--- -- -- -- -- 
+-- -- -- -- --
 -- -- -- -- -- infixr 4 _,_
--- -- -- -- -- 
+-- -- -- -- --
 -- -- -- -- -- Σp-syntax : (A : Set) (B : A → Prop) → Set
 -- -- -- -- -- Σp-syntax = Σp
--- -- -- -- -- 
+-- -- -- -- --
 -- -- -- -- -- syntax Σp-syntax A (λ x → B) = Σp[ x ∈ A ] B
 
 -- -- -- -- -- data List (A : Set) : Set where
@@ -423,7 +423,7 @@ reverse xs = rec revᵣ (▷ xs)
 -- -- -- -- --   [_] : A → JList A
 -- -- -- -- --   _⧺_ : JList A → JList A → JList A
 -- -- -- -- --   nf : (xs ys : JList A) → flatten xs ≡ flatten ys → xs ≡ ys
-  
+
 -- -- -- -- -- flatten []        = []
 -- -- -- -- -- flatten [ x ]     = x ∷ []
 -- -- -- -- -- flatten (xs ⧺ ys) = flatten xs ++ flatten ys
@@ -453,7 +453,7 @@ reverse xs = rec revᵣ (▷ xs)
 -- -- -- -- -- --  (λ ys → xs ([] ++ ys)) , p
 -- -- -- -- -- --    ≡⟨ refl ⟩
 -- -- -- -- -- --  xs , p
--- -- -- -- -- --    ∎ 
+-- -- -- -- -- --    ∎
 
 -- -- -- -- -- toList-fromList : (xs : List A) → toList (fromList xs) ≡ xs
 -- -- -- -- -- toList-fromList = ++-identityʳ
@@ -461,7 +461,7 @@ reverse xs = rec revᵣ (▷ xs)
 -- -- -- -- -- fromList++
 -- -- -- -- --   : (xs ys : List A)
 -- -- -- -- --   → fromList (xs ++ ys) ≡ fromList xs ++' fromList ys
--- -- -- -- -- fromList++ xs ys i = (λ zs → ++-assoc xs ys zs i) , ∣ (λ ys zs → {!!}) ∣ -- requires that List is a set 
+-- -- -- -- -- fromList++ xs ys i = (λ zs → ++-assoc xs ys zs i) , ∣ (λ ys zs → {!!}) ∣ -- requires that List is a set
 
 -- -- -- -- -- example
 -- -- -- -- --   : (xs ys zs : List A)
@@ -490,7 +490,7 @@ reverse xs = rec revᵣ (▷ xs)
 -- -- -- -- -- example2 xs ys zs =
 -- -- -- -- --     sym (toJList-fromJList (xs ⧺ (ys ⧺ zs)))
 -- -- -- -- -- --  ∙ cong toJList lemma
--- -- -- -- --   ∙ toJList-fromJList ((xs ⧺ ys) ⧺ zs) 
+-- -- -- -- --   ∙ toJList-fromJList ((xs ⧺ ys) ⧺ zs)
 -- -- -- -- --   where
 -- -- -- -- --     lemma : fromJList (xs ⧺ (ys ⧺ zs)) ≡ fromJList ((xs ⧺ ys) ⧺ zs)
 -- -- -- -- --     lemma = refl

@@ -2,7 +2,7 @@
 
 {-
   With --lossy-unification enabled,
-  we even don't need to fill in impicit arguments! 
+  we even don't need to fill in impicit arguments!
   As strict interpretation of constructors are injective, using lossy unification shall be consistent.
 
   Can we just turn on lossy-unification for these definitions?
@@ -19,12 +19,12 @@ open SC Termₛ
 open GVar
 
 open import Theory.SC.QIIRT-tyOf.Model.Term
-  using (Term)
+  using (Term; Ctx-is-Set)
 
 open import Theory.SC.QIIRT-tyOf.Model.Yoneda Term
-open Subʸ 
+open Subʸ
 
-open import Theory.SC.QIIRT-tyOf.Model.LocalNoQuotient よ
+open import Theory.SC.QIIRT-tyOf.Model.LocalNoQuotient よ Ctx-is-Set
 open Ty³
 
 -- Ctx' is defined in order to pattern match in Var
@@ -50,7 +50,7 @@ data NfTy (Γ : Ctx) : Set where
   `U : NfTy Γ
 
 ⌜_⌝ty : NfTy Γ → Ty Γ
-⌜ `U ⌝ty = U 
+⌜ `U ⌝ty = U
 
 data NeSub (Γ : Ctx) : Ctx → Set where
   `∅S
@@ -75,7 +75,7 @@ data NeTm (Γ : Ctx) : Set where
   : NeTm Γ
   → Tm Γ
 ⌜ `π₂ A σⁿᵉ ⌝tm = π₂ ⌜ σⁿᵉ ⌝subⁿᵉ
--- 
+--
 data NfSub (Γ : Ctx) : Ctx → Set
 ⌜_⌝subⁿᶠ
   : NfSub Γ Δ
@@ -143,8 +143,7 @@ cong,∶[]ᴿ
   → ρ ≡ ρ' → x ≡ x'
   → ρ ,R x ∶[ p ] ≡ ρ' ,R x' ∶[ p' ]
 cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i = _,R_∶[_] (ρ≡ρ' i) (x≡x' i)
-    (isSet→SquareP (λ _ _ → UIP') p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]T) i)
---    (isSet→SquareP (λ _ _ → Tyₛ-is-set) p p' (λ i → tyOfₛ ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]ₛ) i)
+    (isSet→SquareP (λ _ _ → Ty³-is-set) p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]T) i)
 
 ⌜ ∅R ⌝ᴿ              = ∅S
 ⌜ _,R_∶[_] ρ x p ⌝ᴿ = ⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]
@@ -196,7 +195,7 @@ wkᴿ
 wkᴿ A ∅R = ∅R
 wkᴿ A (_,R_∶[_] {A = A'} ρ x p) =
   wkᴿ A ρ  ,R there x ∶[
-    cong _[ π₁ idS ]T p ∙ cong (ty³ _ (E (A' [ ⌜ ρ ⌝ᴿ ]T))) (≡ʸ→≡ refl) ∙ cong (A' [_]T) (⌜wkᴿ⌝ A ρ) 
+    cong _[ π₁ idS ]T p ∙ cong (ty³ _ (E (A' [ ⌜ ρ ⌝ᴿ ]T))) (≡ʸ→≡ refl) ∙ cong (A' [_]T) (⌜wkᴿ⌝ A ρ)
   ]
 ⌜wkᴿ⌝ A ∅R = ≡ʸ→≡ refl
 ⌜wkᴿ⌝ A (_,R_∶[_] {A = A'} ρ x p) =
@@ -213,9 +212,9 @@ idR : Ren Γ' Γ'
 ⌜idR⌝
   : idS {[ Γ' ]ᶜ} ≡ ⌜ idR {Γ'} ⌝ᴿ
 idR {∅'}      = ∅R
-idR {Γ' ,' A} = wkᴿ A idR ,R here ∶[ cong (A [_]T) (≡ʸ→≡ refl ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) ] 
+idR {Γ' ,' A} = wkᴿ A idR ,R here ∶[ cong (A [_]T) (≡ʸ→≡ refl ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) ]
 ⌜idR⌝ {∅'}      = η∅ _
-⌜idR⌝ {Γ' ,' A} = 
+⌜idR⌝ {Γ' ,' A} =
   idS
     ≡⟨ ηπ idS ⟩
   (π₁ idS) , (π₂ idS) ∶[ tyOfπ₂ idS ]
@@ -227,7 +226,7 @@ idR {Γ' ,' A} = wkᴿ A idR ,R here ∶[ cong (A [_]T) (≡ʸ→≡ refl ∙ co
   where
     p : π₁ idS ≡ ⌜ wkᴿ A idR ⌝ᴿ
     p = ≡ʸ→≡ refl ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR
-    pf : tyOf (π₂ idS) ≡ (A [ ⌜_⌝ᴿ (wkᴿ A idR) ]T) 
+    pf : tyOf (π₂ idS) ≡ (A [ ⌜_⌝ᴿ (wkᴿ A idR) ]T)
     pf = cong (A [_]T)
       (≡ʸ→≡ refl ∙ (cong (_∘ π₁ idS) ⌜idR⌝) ∙ (⌜wkᴿ⌝ A idR))
 
@@ -258,7 +257,7 @@ _⊙_
     q = cong tyOf (sym (⌜lookupVar⌝ ρ' x))
       ∙ (λ i → p i [ ⌜ ρ' ⌝ᴿ ]T)
       ∙ (λ i → ⟨ E A , ≡ʸ→≡ {σʸ = ⌜ A [ ⌜ ρ ⌝ᴿ ]T ⌝ ∘ ⌜ ρ' ⌝ᴿ} {⌜ A ⌝ ∘ (⌜ ρ ⌝ᴿ ∘ ⌜ ρ' ⌝ᴿ)} refl i ⟩!)
-      ∙ cong (A [_]T) (⌜⊙⌝ ρ ρ') 
+      ∙ cong (A [_]T) (⌜⊙⌝ ρ ρ')
 ⌜⊙⌝ ∅R ρ'                       = ≡ʸ→≡ refl
 ⌜⊙⌝ (_,R_∶[_] {A = A} ρ x p) ρ' =
   (⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]) ∘ ⌜ ρ' ⌝ᴿ

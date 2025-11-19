@@ -2,7 +2,7 @@ open import Prelude
   hiding (_,_)
 
 module Theory.SC+El+Pi+B.QIIRT-tyOf.Syntax where
-  
+
 module Foo where
   module _ where -- delimit the scope of forward declarations
     infixl 8  _[_] _[_]T _[_]t
@@ -220,7 +220,7 @@ module Foo where
 
     -- the following are the actual constructors in Agda
     data Ctx where
-      ∅' : Ctx 
+      ∅' : Ctx
       _,'_ : (Γ : Ctx) (A : Ty Γ) → Ctx
     data Sub where
       ∅'
@@ -257,6 +257,9 @@ module Foo where
       ηπ'
         : (σ : Sub Γ (Δ , A))
         → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
+      Sub-is-set
+        : isSet (Sub Γ Δ)
+
     data Ty where
       _[_] : (A : Ty Δ) (σ : Sub Γ Δ)
         → Ty Γ
@@ -303,7 +306,7 @@ module Foo where
         : (a : Tm Γ) (pa : tyOf a ≡ U)
         → (b : Tm (Γ , El a pa)) (pb : tyOf b ≡ U)
         → El (π a pa b pb) (tyOfπ a pa b pb) ≡ Π (El a pa) (El b pb)
-      -- Ty-is-set : isSet (Ty Γ)
+      Ty-is-set : isSet (Ty Γ)
 
     data Tm where
       _[_] : (A : Tm Δ)(σ : Sub Γ Δ)
@@ -328,7 +331,7 @@ module Foo where
         : (t : Tm (Γ , A))
         → Tm Γ
       abs[]'
-        : (σ : Sub Γ Δ) (t : Tm (Δ , A)) 
+        : (σ : Sub Γ Δ) (t : Tm (Δ , A))
         → abs t [ σ ]t ≡ abs (t [ σ ↑ A ]t)
       Πβ'
         : (t : Tm (Γ , A)) (p : tyOf (abs t) ≡ Π A (tyOf t))
@@ -375,6 +378,7 @@ module Foo where
         → (pa' : tyOf (a [ σ ]t) ≡ U)
         → (pb' : tyOf (b [ σ ↑El ]t) ≡ U)
         → (π a pa b pb) [ σ ]t ≡ π (a [ σ ]t) pa' (b [ σ ↑El ]t) pb'
+      Tm-is-set : isSet (Tm Γ)
 
     ∅       = ∅'
     _,_     = _,'_
@@ -448,6 +452,8 @@ module Foo where
     tyOf (𝕓[]' σ i) = U[] {σ = σ} i
     tyOf (π' a pa b pb) = U
     tyOf (π[]' {σ = σ} a pa b pb pa' pb' i) = U[] {σ = σ} i
+    tyOf (Tm-is-set t u p q i j) =
+      Ty-is-set (tyOf t) (tyOf u) (λ i → tyOf (p i)) (λ i → tyOf (q i)) i j
 
     -- equations derivable from the computational behaviour of `tyOf
     tyOfπ₂ σ = refl
@@ -456,11 +462,11 @@ module Foo where
     tyOftt  = [idS]T
     tyOfff  = [idS]T
     tyOf𝕓   = refl
- 
+
   open Var
   wk : Sub (Γ , A) Γ
   wk = π₁ idS
-  
+
   ⟨,∘⟩
     : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≡ A [ σ ]T)
     → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ cong _[ τ ] p ∙ [∘]T A τ σ ])
@@ -483,11 +489,11 @@ module Foo where
       ≡⟨ βπ₁ (π₁ τ ∘ σ) (π₂ τ [ σ ]) (cong (_[ σ ]) (λ _ → tyOf (π₂ τ)) ∙ [∘]T _ σ (π₁ τ)) ⟩
     π₁ τ ∘ σ
       ∎
-      
+
   π₂∘
     : (τ : Sub Δ (Θ , A))(σ : Sub Γ Δ)
     → π₂ (τ ∘ σ) ≡ (π₂ τ) [ σ ]
-  π₂∘ {Θ = Θ} {A} τ σ = 
+  π₂∘ {Θ = Θ} {A} τ σ =
     π₂ (τ ∘ σ)
       ≡⟨ cong π₂ (cong (_∘ σ) (ηπ τ)) ⟩
     π₂ ((π₁ τ , π₂ τ ∶[ refl ]) ∘ σ)
@@ -500,7 +506,7 @@ module Foo where
   π₁idS
     : (σ : Sub Γ (Δ , A))
     → π₁ σ ≡ π₁ idS ∘ σ
-  π₁idS σ = 
+  π₁idS σ =
     π₁ σ
       ≡⟨ cong π₁ (sym (idS∘ σ)) ⟩
     π₁ (idS ∘ σ)
@@ -511,7 +517,7 @@ module Foo where
   π₂idS
     : (σ : Sub Γ (Δ , A))
     → π₂ σ ≡ π₂ idS [ σ ]t
-  π₂idS σ = 
+  π₂idS σ =
     π₂ σ
       ≡⟨ cong π₂ (sym (idS∘ σ)) ⟩
     π₂ (idS ∘ σ)
@@ -522,7 +528,7 @@ module Foo where
   wk∘
     : (σ : Sub Γ (Δ , A))
     → π₁ σ ≡ wk ∘ σ
-  wk∘ σ = 
+  wk∘ σ =
     π₁ σ
       ≡⟨ cong π₁ (sym (idS∘ σ)) ⟩
     π₁ (idS ∘ σ)
@@ -580,13 +586,13 @@ module Foo where
     : (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T) (pb' : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
     → ⟨ b ∶[ pb ]⟩𝔹 ∘ σ ≡ (σ ↑𝔹) ∘ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹
   ⟨⟩∘=↑∘[] {Δ} {Γ} {σ} b pb pb' =
-    ⟨ b ∶[ pb ]⟩𝔹 ∘ σ 
+    ⟨ b ∶[ pb ]⟩𝔹 ∘ σ
       ≡⟨ ,∘ idS b σ pb _ ⟩
     idS ∘ σ , b [ σ ]t ∶[ _ ]
       ≡[ i ]⟨ (idS∘ σ) i , b [ σ ]t ∶[ pb' ∙ 𝔹[σ]≡𝔹[τ] ] ⟩
     σ , b [ σ ]t ∶[ _ ]
       ≡[ i ]⟨ (σ ∘idS) (~ i) , b [ σ ]t ∶[ pb' ∙ 𝔹[σ]≡𝔹[τ] ] ⟩
-    σ ∘ idS , b [ σ ]t ∶[ pb' ∙ 𝔹[σ]≡𝔹[τ] ] 
+    σ ∘ idS , b [ σ ]t ∶[ pb' ∙ 𝔹[σ]≡𝔹[τ] ]
       ≡[ i ]⟨ σ ∘ wk∘⟨⟩ (b [ σ ]) pb' (~ i) , vz[⟨b⟩] (b [ σ ]) pb' (~ i) ∶[ {!!} ] ⟩
             -- [TODO]: derivable from K?
     σ ∘ (π₁ idS ∘ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹) , π₂ idS [ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹 ]t ∶[ _ ]
@@ -601,7 +607,7 @@ module Foo where
     : (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T) (pb' : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
     → A [ ⟨ b ∶[ pb ]⟩𝔹 ]T [ σ ]T
     ≡ A [ σ ↑𝔹 ]T [ ⟨ b [ σ ]t ∶[ pb' ]⟩𝔹 ]T
-  [⟨⟩∘]=[↑∘[]] {Δ} {Γ} {σ} {A} b pb pb' = 
+  [⟨⟩∘]=[↑∘[]] {Δ} {Γ} {σ} {A} b pb pb' =
     A [ ⟨ b ∶[ pb ]⟩𝔹 ]T [ σ ]T
       ≡⟨ [∘]T _ _ _ ⟩
     A [ ⟨ b ∶[ pb ]⟩𝔹 ∘ σ ]T
@@ -654,7 +660,7 @@ module Foo where
     El (u [ σ ]t) pu' [ π₁ idS ]T
       ≡⟨ El[] (π₁ idS) (u [ σ ]t) pu' (cong _[ π₁ {A = El (u [ σ ]t) pu'} idS ] pu' ∙ U[])  ⟩
     El (u [ σ ]t [ π₁ idS ]t) _
-      ≡⟨ cong₂ El ([∘]t u (π₁ idS) σ) (isProp→PathP (λ _ → UIP) _ _) ⟩
+      ≡⟨ cong₂ El ([∘]t u (π₁ idS) σ) (isProp→PathP (λ _ → Ty-is-set _ _) _ _) ⟩
     El (u [ σ ∘ π₁ idS ]t) _
       ≡⟨ sym (El[] (σ ∘ π₁ idS) u pu (cong _[ σ ∘ π₁ {A = El (u [ σ ]t) pu'} idS ]T pu ∙ U[])) ⟩
     El u pu [ σ ∘ π₁ idS ]T
@@ -730,7 +736,7 @@ open Foo public
   ; idS' to idS
   ; _∘'_ to _∘_
   ; π₁'  to π₁
-  ; π₂'  to π₂ 
+  ; π₂'  to π₂
   ; [idS]T' to [idS]T
   ; [∘]T' to [∘]T
   ; βπ₁' to βπ₁

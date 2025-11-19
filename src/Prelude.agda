@@ -19,10 +19,13 @@ open import Cubical.Data.Nat            public
 open import Cubical.Data.Bool           public
   using (Bool; true; false)
   renaming (elim to elim-Bool)
+open import Cubical.Relation.Nullary.Base using (Discrete; Dec; yes; no; decRec) public
+open import Cubical.Relation.Nullary.Properties using (Discrete→isSet) public
 
-open import Cubical.Foundations.Function public 
+
+open import Cubical.Foundations.Function public
   using (_$_; hasType)
-  
+
 open import Agda.Primitive              public
 
 variable
@@ -41,17 +44,6 @@ syntax Σ-syntax' A (λ x → B) = [ x ∶ A ] × B
 
 private variable
   A : Set ℓ
-postulate
-  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
-
-UIP' : {A : Set ℓ} → isSet A 
-UIP' x y = UIP
-
-UIPP
-  : (A : Type ℓ) (B : A → Type ℓ')
-  → isOfHLevelDep 2 B
-UIPP A B = isOfHLevel→isOfHLevelDep 2 {A} {B} λ _ → UIP'
-
 
 module _ where opaque
   infixr 30 _∙_

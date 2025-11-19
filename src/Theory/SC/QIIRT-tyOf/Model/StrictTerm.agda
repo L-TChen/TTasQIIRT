@@ -5,14 +5,14 @@ module Theory.SC.QIIRT-tyOf.Model.StrictTerm where
 open import Theory.SC.QIIRT-tyOf.Model
 
 open import Theory.SC.QIIRT-tyOf.Model.Term
-  using (Term)
+  using (Term; Ctx-is-Set)
 import Theory.SC.QIIRT-tyOf.Model.Yoneda          as Y
 import Theory.SC.QIIRT-tyOf.Model.LocalNoQuotient as L
 
-Termₛ = (Y.よ Term) L.!
+Termₛ = (Y.よ Term) L.![ Ctx-is-Set ]
 
 open Y Term using (Subʸ; _≡ʸ_; step-≡ʸ)
-open L (Y.よ Term)
+open L (Y.よ Term) Ctx-is-Set
 
 open import Theory.SC.QIIRT-tyOf.Syntax as S
 open S.Var

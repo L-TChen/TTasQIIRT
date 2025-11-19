@@ -14,6 +14,9 @@ TermM = record
   ; Sub  = Sub
   ; Tm   = Tm
   ; tyOf = tyOf
+  ; Sub-is-set = Sub-is-set
+  ; Ty-is-set = Ty-is-set
+  ; Tm-is-set = Tm-is-set
   }
 
 TermIsSC : IsSC TermM
@@ -57,12 +60,12 @@ TermPi .Pi.tyOfapp = λ _ → refl
 TermPi .Pi.abs     = abs
 TermPi .Pi.tyOfabs = refl
 TermPi .Pi.Π[] {_} {_} {A} σ B =
-  Π[] σ B ∙ cong (λ p → Π (A [ σ ]) (B [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] )) (UIP _ _)
+  Π[] σ B ∙ cong (λ p → Π (A [ σ ]) (B [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] )) (Ty-is-set _ _ _ _)
 TermPi .Pi.abs[] σ t =
-  abs[] σ t ∙ cong (λ τ → abs (t [ (σ ∘ π₁ idS) , π₂ idS ∶[ τ ] ])) (UIP _ _)
+  abs[] σ t ∙ cong (λ τ → abs (t [ (σ ∘ π₁ idS) , π₂ idS ∶[ τ ] ])) (Ty-is-set _ _ _ _)
 TermPi .Pi.Πβ = Πβ
 TermPi .Pi.Πη = Πη
-  
+
 {-# TERMINATING #-}
 TermBool : 𝓑 TermSC
 TermBool .𝓑.𝔹      = 𝔹
@@ -75,23 +78,23 @@ TermBool .𝓑.tt[]   = tt[]
 TermBool .𝓑.ff[]   = ff[]
 TermBool .𝓑.elim𝔹  = elim𝔹
 TermBool .𝓑.tyOfelim𝔹 P t pt u pu b pb = refl
-TermBool .𝓑.elim𝔹[] {σ = σ} P t pt u pu b pb pt₂ pu₂ pb₂ p = 
+TermBool .𝓑.elim𝔹[] {σ = σ} P t pt u pu b pb pt₂ pu₂ pb₂ p =
   --  (2025-08-30): I haven't investiaged why this case does not pass
   -- the termination checker.
-    elim𝔹[] P t pt u pu b pb pt₂' pu₂'
-    pb₂ (p ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , b [ σ ] ∶[ pb₂ ] ]) (UIP _ _))
-    ∙ λ i → elim𝔹 (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ UIP 𝔹[]₂ p₁ i ] ])
+    elim𝔹[] P t pt u pu b pb pt₂' pu₂' pb₂ p'
+    ∙ λ i → elim𝔹 (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ Ty-is-set _ _ 𝔹[]₂ p₁ i ] ])
       (t [ σ ]) (isOfHLevel→isOfHLevelDep 1
          {B = λ p → tyOf (t [ σ ]) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , tt ∶[ tyOftt ] ])}
-             (λ p → UIP)
-             pt₂' pt₂ (UIP 𝔹[]₂ p₁) i)
+             (λ p → Ty-is-set _ _)
+             pt₂' pt₂ (Ty-is-set _ _ 𝔹[]₂ p₁) i)
       (u [ σ ]) (isOfHLevel→isOfHLevelDep 1
         {B = λ p → tyOf (u [ σ ]) ≡ (P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , ff ∶[ tyOfff ] ])}
-      (λ p → UIP) pu₂' pu₂ (UIP 𝔹[]₂ p₁) i)
+      (λ p → Ty-is-set _ _) pu₂' pu₂ (Ty-is-set _ _ 𝔹[]₂ p₁) i)
       (b [ σ ]) pb₂
     where
-      pt₂' = pt₂ ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , tt ∶[ [idS]T ] ]) (UIP _ _)
-      pu₂' = pu₂ ∙ cong (λ p → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ p ] ] [ idS , ff ∶[ [idS]T ] ]) (UIP _ _)
+      pt₂' = pt₂ ∙ cong {B = λ v → Ty _} (λ z → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ z ] ] [ idS , tt ∶[ [idS]T ] ]) (Ty-is-set _ _ _ _)
+      pu₂' = pu₂ ∙ cong {B = λ v → Ty _} (λ z → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ z ] ] [ idS , ff ∶[ [idS]T ] ]) (Ty-is-set _ _ _ _)
+      p' =     p ∙ cong {B = λ v → Ty _} (λ z → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ z ] ] [ idS , b [ σ ] ∶[ pb₂ ] ]) (Ty-is-set _ _ _ _)
       p₁ =
         𝔹 [ π₁ idS ]
           ≡⟨ refl ⟩
@@ -101,8 +104,9 @@ TermBool .𝓑.elim𝔹[] {σ = σ} P t pt u pu b pb pt₂ pu₂ pb₂ p =
           ≡⟨ sym $ 𝔹[] (σ ∘ π₁ idS) ⟩
         𝔹 [ σ ∘ π₁ idS ]
           ∎
-             
-      p₂ = pt₂ ∙ (λ j → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ UIP p₁ 𝔹[]₂ j ] ] [ idS , tt ∶[ [idS]T ] ])
-  
+
+      p₂ = pt₂ ∙ (λ j → P [ (σ ∘ π₁ idS) , π₂ idS ∶[ Ty-is-set _ _ p₁ 𝔹[]₂ j ] ] [ idS , tt ∶[ [idS]T ] ])
+
+
 Term : SC+Pi+B _ _ _ _
 Term = record { 𝒞  = TermSC ; 𝒫i = TermPi ; ℬ  = TermBool}

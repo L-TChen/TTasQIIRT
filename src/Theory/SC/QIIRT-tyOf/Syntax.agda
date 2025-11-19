@@ -1,14 +1,15 @@
+{-# OPTIONS -WnoUnsupportedIndexedMatch #-}
 open import Prelude
   hiding (_,_)
 
 module Theory.SC.QIIRT-tyOf.Syntax where
-  
+
 module Foo where
   module _ where -- delimit the scope of forward declarations
     infixl 8  _[_] _[_]T _[_]t
     infixr 10 _∘_
     infixl 5 _,_∶[_]'
-    infixl 4  _,_ _,_∶[_] 
+    infixl 4  _,_ _,_∶[_]
 
     data Ctx : Set
     data Sub : (Γ Δ : Ctx) → Set
@@ -16,7 +17,7 @@ module Foo where
     data Tm  : (Γ : Ctx) → Set
     tyOf
       : ∀ {Γ} → Tm Γ → Ty Γ
-      
+
     module Var where
       variable
           Γ Δ Θ Ξ : Ctx
@@ -65,7 +66,7 @@ module Foo where
       : (σ : Sub Γ Δ) (A : Ty Δ)
       → Sub (Γ , A [ σ ]T) (Δ , A)
     σ ↑ A = σ ∘ π₁ idS , π₂ idS ∶[ tyOfπ₂idS ]
-    
+
     idS∘_
       : (σ : Sub Γ Δ)
       → idS ∘ σ ≡ σ
@@ -114,10 +115,10 @@ module Foo where
     -- the following are the actual constructors in Agda
     data Ctx where
       ∅'
-        : Ctx 
+        : Ctx
       _,'_
         : (Γ : Ctx) (A : Ty Γ) → Ctx
-      
+
     data Ty where
       _[_] : (A : Ty Δ) (σ : Sub Γ Δ)
         → Ty Γ
@@ -130,7 +131,7 @@ module Foo where
         : Ty Γ
       U[]'
         : U [ σ ]T ≡ U
---      Ty-is-set : isSet (Ty Γ)
+      Ty-is-set : isSet (Ty Γ)
 
     data Sub where
       ∅'
@@ -167,8 +168,8 @@ module Foo where
       ηπ'
         : (σ : Sub Γ (Δ , A))
         → σ ≡ (π₁ σ , π₂ σ ∶[ tyOfπ₂ σ ])
---      Sub-is-set
---        : isSet (Sub Γ Δ) -- Added for NbE
+      Sub-is-set
+        : isSet (Sub Γ Δ)
 
     data Tm where
       _[_] : (t : Tm Δ)(σ : Sub Γ Δ)
@@ -186,8 +187,8 @@ module Foo where
       [∘]t'
         : (t : Tm Θ) (σ : Sub Γ Δ) (τ : Sub Δ Θ)
         → t [ τ ]t [ σ ]t ≡ t [ τ ∘ σ ]t
---      Tm-is-set
---        : isSet (Tm Γ) -- Added for NbE
+      Tm-is-set
+        : isSet (Tm Γ)
 
     ∅       = ∅'
     _,_     = _,'_
@@ -219,7 +220,8 @@ module Foo where
     tyOf (βπ₂' σ t p q i)    = q i
     tyOf ([idS]t' t i)       = [idS]T {A = tyOf t} i
     tyOf ([∘]t' t σ τ i)     = [∘]T (tyOf t) σ τ i
---    tyOf (Tm-is-set t u p q i j) = Ty-is-set (tyOf t) (tyOf u) (cong tyOf p) (cong tyOf q) i j
+    tyOf (Tm-is-set t u p q i j) =
+      Ty-is-set (tyOf t) (tyOf u) (λ i → tyOf (p i)) (λ i → tyOf (q i)) i j
 
     -- equations derivable from the computational behaviour of `tyOf`
     tyOfπ₂ σ = refl
@@ -228,11 +230,11 @@ module Foo where
     tyOftt  = [idS]T
     tyOfff  = [idS]T
     tyOf𝕓   = refl
- 
+
   open Var
   wk : Sub (Γ , A) Γ
   wk = π₁ idS
-  
+
   ⟨,∘⟩
     : (σ : Sub Δ Θ) (t : Tm Δ) (τ : Sub Γ Δ) (p : tyOf t ≡ A [ σ ]T)
     → (σ , t ∶[ p ]) ∘ τ ≡ (σ ∘ τ , t [ τ ]t ∶[ cong _[ τ ] p ∙ [∘]T A τ σ ])
@@ -311,7 +313,7 @@ open Var
 π₂∘
   : (τ : Sub Δ (Θ , A))(σ : Sub Γ Δ)
   → π₂ (τ ∘ σ) ≡ (π₂ τ) [ σ ]
-π₂∘ {Θ = Θ} {A} τ σ = 
+π₂∘ {Θ = Θ} {A} τ σ =
   π₂ (τ ∘ σ)
     ≡⟨ cong π₂ (cong (_∘ σ) (ηπ τ)) ⟩
   π₂ ((π₁ τ , π₂ τ ∶[ refl ]) ∘ σ)
@@ -322,9 +324,9 @@ open Var
     ∎
 
 π₁idS
-  : (σ : Sub Γ (Δ , A)) 
+  : (σ : Sub Γ (Δ , A))
   → π₁ σ ≡ π₁ idS ∘ σ
-π₁idS σ = 
+π₁idS σ =
   π₁ σ
     ≡⟨ cong π₁ (sym (idS∘ σ)) ⟩
   π₁ (idS ∘ σ)
@@ -346,7 +348,7 @@ open Var
 wk∘
   : (σ : Sub Γ (Δ , A))
   → π₁ σ ≡ wk ∘ σ
-wk∘ σ = 
+wk∘ σ =
   π₁ σ
     ≡⟨ cong π₁ (sym (idS∘ σ)) ⟩
   π₁ (idS ∘ σ)
@@ -374,7 +376,6 @@ vs : Tm Γ → Tm (Γ , B)
 vs x = x [ wk ]
 -- vs (vs ... (vs vz) ...) = π₂ idS [ π₁ idS ]tm .... [ π₁ idS ]tm
 
-{-
 module CtxPath where
   Cover : Ctx → Ctx → Type
   reflCode : ∀ Γ → Cover Γ Γ
@@ -384,7 +385,7 @@ module CtxPath where
 
   decode : Cover Γ Δ → Γ ≡ Δ
   decodeRefl : decode (reflCode Γ) ≡ refl
-  
+
   Cover ∅ ∅             = Unit
   Cover ∅ (Δ , A)       = ⊥
   Cover (Γ , A) ∅       = ⊥
@@ -392,7 +393,7 @@ module CtxPath where
   -- transport (λ i → Ty (decode p i)) A ≡ B
 
   reflCode ∅       = ⋆
-  reflCode (Γ , A) = reflCode Γ Prelude., transport (sym λ j → PathP (λ i → Ty (decodeRefl {Γ} j i)) A A) refl
+  reflCode (Γ , A) = reflCode Γ Prelude., transport (λ j → PathP (λ i → Ty (decodeRefl {Γ} (~ j) i)) A A) refl
 
   encode {Γ} = J (λ Δ _ → Cover Γ Δ) (reflCode Γ)
 
@@ -402,7 +403,9 @@ module CtxPath where
   decode {Γ , A} {Δ , B} (p Prelude., q) = cong₂ _,_ (decode p) q
 
   decodeRefl {∅}     = refl
-  decodeRefl {Γ , A} = {!!} -- [TODO] 
+  decodeRefl {Γ , A} i j =
+    decodeRefl {Γ} i j ,
+    transport-filler (λ j → PathP (λ i → Ty (decodeRefl {Γ} (~ j) i)) A A) refl (~ i) j
 
   decodeEncode : (p : Γ ≡ Δ) → decode (encode p) ≡ p
   decodeEncode {Γ} = J (λ _ p → decode (encode p) ≡ p)
@@ -417,7 +420,8 @@ module CtxPath where
 
   Ctx-is-set : isSet Ctx
   Ctx-is-set Γ Δ = isPropRetract encode decode decodeEncode (isPropCover Γ Δ)
--}
+
+open CtxPath using (Ctx-is-set) public
 
 -- -- vz:= : (t : Tm Γ) → let (_ , (σ , A)) = tyOf t in Sub Γ (Γ , A [ σ ])
 -- -- vz:= {Γ} t = idS , t ∶[ {!!} ]

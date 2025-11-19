@@ -2,7 +2,9 @@ open import Prelude
 open import Theory.SC.QIIRT-tyOf.Model
 
 module Theory.SC.QIIRT-tyOf.Model.LocalNoQuotient
-  (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄)  where
+  (C : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄)
+  (Ctx-is-set : isSet (SC.Ctx C))
+  where
 
 open SC C
 open Var
@@ -23,14 +25,14 @@ open Ty³
 ty³ : (V : Ctx) → Ty V → Sub Γ V → Ty³ Γ
 ty³ V E σ = ⟨ E , σ ⟩!
 
--- Ty³-is-set : isSet (Ty³ Γ)
--- Ty³-is-set {Γ} A³ A'³ p q i j = record
---   { V = isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i
---   ; E = isSet→SquareP (λ j i → Tyᴬ-is-set {isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i})
---                        refl refl (cong E p) (cong E q) j i
---   ; ⌜_⌝ = isSet→SquareP (λ j i → Subᴬ-is-set {Γ} {isSet→SquareP (λ _ _ → Ctxᴬ-is-set) refl refl (cong V p) (cong V q) j i})
---                          refl refl (cong ⌜_⌝ p) (cong ⌜_⌝ q) j i
---   }
+Ty³-is-set : isSet (Ty³ Γ)
+Ty³-is-set {Γ} A³ A'³ p q i j = record
+  { V = isSet→SquareP (λ _ _ → Ctx-is-set) refl refl (cong V p) (cong V q) j i
+  ; E = isSet→SquareP (λ j i → Ty-is-set {isSet→SquareP (λ _ _ → Ctx-is-set) refl refl (cong V p) (cong V q) j i})
+                       refl refl (cong E p) (cong E q) j i
+  ; ⌜_⌝ = isSet→SquareP (λ j i → Sub-is-set {Γ} {isSet→SquareP (λ _ _ → Ctx-is-set) refl refl (cong V p) (cong V q) j i})
+                         refl refl (cong ⌜_⌝ p) (cong ⌜_⌝ q) j i
+  }
 
 Tm! : Ctx → Set _
 Tm! Γ = Σ[ T ∈ Ty³ Γ ] Σ[ t ∈ (Tm Γ) ] tyOf t ≡ [ T ]³
@@ -40,8 +42,7 @@ Tm!-≡ : {Γ : Ctx} → {u t : Tm! Γ}
 Tm!-≡ {Γ} {A , u , p} {B , t , q} r w i =
  r i ,
  w i ,
- isProp→PathP {B = λ j → tyOf (w j) ≡ [ r j ]³} (λ j → UIP) p q i
--- isProp→PathP {B = λ j → tyOf (w j) ≡ [ r j ]³} (λ j → Ty-is-set (tyOf (w j)) [ r j ]³) p q i
+ isProp→PathP {B = λ j → tyOf (w j) ≡ [ r j ]³} (λ j → Ty-is-set (tyOf (w j)) [ r j ]³) p q i
 
 tyOf! : Tm! Γ → Ty³ Γ
 tyOf! = fst
@@ -68,9 +69,9 @@ _,!_∶[_] {A = A} σ (B , t , q) p = σ , t ∶[ q ∙ cong [_]³ p ∙ sym ([�
 !C .Motive.Sub        = Sub
 !C .Motive.Tm         = Tm!
 !C .Motive.tyOf       = tyOf!
--- SC!ᵃ .Motive.Ty-is-set  = Ty³-is-set
--- SC!ᵃ .Motive.Sub-is-set = Sub-is-set
--- SC!ᵃ .Motive.Tm-is-set  = isSetΣ Ty³-is-set λ _ → isSetΣ Tm-is-set λ _ → isProp→isSet (Ty-is-set _ _)
+!C .Motive.Ty-is-set  = Ty³-is-set
+!C .Motive.Sub-is-set = Sub-is-set
+!C .Motive.Tm-is-set  = isSetΣ Ty³-is-set λ _ → isSetΣ Tm-is-set λ _ → isProp→isSet (Ty-is-set _ _)
 
 !SC : IsSC !C
 !SC .IsSC.∅ = ∅
@@ -105,5 +106,5 @@ _,!_∶[_] {A = A} σ (B , t , q) p = σ , t ∶[ q ∙ cong [_]³ p ∙ sym ([�
 !SC .IsSC.U = ⟨ U , ∅S ⟩!
 !SC .IsSC.U[] {σ = σ} = cong (ty³ ∅ U) (η∅ (∅S ∘ σ))
 
-_! : SC _ _ _ _
-_! = record { mot = !C ; isSC = !SC }
+_![_] : SC _ _ _ _
+_![_] = record { mot = !C ; isSC = !SC }

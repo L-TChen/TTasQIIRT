@@ -5,6 +5,10 @@ module Theory.SC+Pi+B.QIIRT-tyOf.Model.Set where
 open import Theory.SC.QIIRT-tyOf.Model
 open import Theory.SC+Pi+B.QIIRT-tyOf.Model
 
+-- TODO: Target hSet rather than relying on global UIP
+postulate
+  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
+
 mutual
   data UU : Set where
     bool : UU
@@ -25,9 +29,9 @@ stdMot = record
     ; Sub  = λ Γ Δ → Γ → Δ
     ; Tm   = λ Γ → Σ[ A ∈ (Γ → Set) ] ((γ : Γ) → A γ)
     ; tyOf = λ (A , t) γ → A γ
---    ; Tyᴬ-is-set = λ _ _ → UIP
---    ; Tmᴬ-is-set = λ {_} → isSetΣ (isSetΠ (λ γ → λ _ _ → UIP)) (λ A → isSetΠ (λ γ → λ _ _ → UIP))
---    ; Subᴬ-is-set = isSetΠ (λ γ → λ _ _ → UIP)
+    ; Ty-is-set = λ _ _ → UIP
+    ; Tm-is-set = λ {_} → isSetΣ (isSetΠ (λ γ → λ _ _ → UIP)) (λ A → isSetΠ (λ γ → λ _ _ → UIP))
+    ; Sub-is-set = isSetΠ (λ γ → λ _ _ → UIP)
     }
 
 open IsSC
@@ -76,9 +80,9 @@ open Pi
 
 opaque
   unfolding _∙_
-  
+
   stdModelPi : Pi stdModel
-  stdModelPi .Π A B      = λ γ → (x : A γ) → B (γ , x) 
+  stdModelPi .Π A B      = λ γ → (x : A γ) → B (γ , x)
   stdModelPi .app t B pt =
     B , λ (γ , a) → (transport (cong (λ A → A γ) pt) (t .snd γ)) a
   stdModelPi .tyOfapp    = λ _ → refl
@@ -89,7 +93,7 @@ opaque
     (a : A (σ γ)) → B (σ γ , transportRefl³ a (~ i))
   stdModelPi .abs[] {_} {_} {A} σ t i =
     (λ γ → (a : A (σ γ)) → t .fst (σ γ , transportRefl³ a (~ i))) ,
-    λ γ a → t . snd (σ γ , transportRefl³ a (~ i)) 
+    λ γ a → t . snd (σ γ , transportRefl³ a (~ i))
   stdModelPi .Πβ {Γ} {A} (B , t) pt i = B , λ γ → lem γ i
     where -- Yuck!
       lem : ((γ , a) : Σ Γ A) → transport (λ j → pt j γ) (λ b → t (γ , b)) a ≡ t (γ , a)

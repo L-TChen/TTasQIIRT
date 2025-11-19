@@ -10,9 +10,9 @@ record Motive {ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level} : Set (ℓ-suc (ℓ₁ ⊔ �
     Tm   : Ctx → Set ℓ₄
     tyOf : {Γ : Ctx} → Tm Γ → Ty Γ
 
---    Ty-is-set : {Γ : Ctx} → isSet (Ty Γ)
---    Sub-is-set : {Γ Δ : Ctx} → isSet (Sub Γ Δ)
---    Tm-is-set : {Γ : Ctx} → isSet (Tm Γ)
+    Ty-is-set : {Γ : Ctx} → isSet (Ty Γ)
+    Sub-is-set : {Γ Δ : Ctx} → isSet (Sub Γ Δ)
+    Tm-is-set : {Γ : Ctx} → isSet (Tm Γ)
 
   module Var where
     variable
@@ -113,10 +113,10 @@ module _ (mot : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}) where
 
     infixl 8  _[_]T _[_]t
     infixr 10 _∘_
-    infix  10 _,_∶[_] 
-    infixl 4  _,C_ 
+    infix  10 _,_∶[_]
+    infixl 4  _,C_
 
-    
+
     tyOfπ₂[]
       : (τ : Sub Δ (Θ ,C A))
       → (σ : Sub Γ Δ)
@@ -130,7 +130,7 @@ module _ (mot : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}) where
 --        ≡⟨ [∘]T A σ (π₁ τ) ⟩
 --      A [ π₁ τ ∘ σ ]T
 --        ∎
-        
+
 
 record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄))) where
   field
@@ -146,12 +146,12 @@ record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ�
     : (σ : Sub Γ Δ) (A : Ty Δ)
     → tyOf (π₂ {A = A [ σ ]T} idS) ≡ A [ σ ∘ π₁ idS ]T
   tyOfπ₂idS σ A = tyOfπ₂ idS ∙ [∘]T _ _ _
-  
+
   _↑_
     : (σ : Sub Γ Δ) (A : Ty Δ)
     → Sub (Γ ,C (A [ σ ]T)) (Δ ,C A)
   σ ↑ A = (σ ∘ π₁ idS) , π₂ idS ∶[ tyOfπ₂idS σ A ]
-  
+
   π₁∘
     : (τ : Sub Δ (Θ ,C A)) (σ : Sub Γ Δ)
     → π₁ (τ ∘ σ) ≡ π₁ τ ∘ σ
@@ -210,13 +210,12 @@ record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ�
     → σ ≡ σ' → t ≡ t'
     → (σ , t ∶[ p ]) ≡ (σ' , t' ∶[ p' ])
   cong,∶[] {A = A} p p' eqσ eqt =
-    cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ _ _ → UIP) p p' (cong tyOf eqt) (cong (A [_]T) eqσ))
---      cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Ty-is-set) p p' (cong tyOf eqt) (cong (A [_]T) eqσ))
+      cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Ty-is-set) p p' (cong tyOf eqt) (cong (A [_]T) eqσ))
 
   π₁idS
-    : (σ : Sub Γ (Δ ,C A)) 
+    : (σ : Sub Γ (Δ ,C A))
     → π₁ σ ≡ π₁ idS ∘ σ
-  π₁idS σ = 
+  π₁idS σ =
     π₁ σ
       ≡⟨ cong π₁ (sym (idS∘ σ)) ⟩
     π₁ (idS ∘ σ)
@@ -246,4 +245,4 @@ record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ�
     → PathP (λ i → tyOf ([∘]t u τ σ i) ≡ U)
             (tyOf[]≡U {σ = τ} (tyOf[]≡U {σ = σ} p))
             (tyOf[]≡U {σ = σ ∘ τ} p)
-  tyOftyOf[]≡U p = toPathP (UIP _ _)
+  tyOftyOf[]≡U p = toPathP (Ty-is-set _ _ _ _)

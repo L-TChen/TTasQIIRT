@@ -17,6 +17,14 @@ open import Theory.SC+Pi+B.QIIRT-tyOf.DisplayedModel Term
 open SC+Pi+B Term
 open Var
 
+-- TODO: Target hSet rather than relying on global UIP
+postulate
+  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
+
+UIP' : {A : Set ℓ} → isSet A
+UIP' x y = UIP
+
+
 Ctxᴳ : Ctx → Set₁
 Ctxᴳ Γ = Sub ∅ Γ → Set
 
@@ -24,12 +32,27 @@ Subᴳ : Ctxᴳ Γ → Ctxᴳ Δ → Sub Γ Δ → Set
 Subᴳ {Γ} {Δ} Γ∙ Δ∙ σ =
   (γ : Sub ∅ Γ) → Γ∙ γ → Δ∙ (σ ∘ γ)
 
+Subᴳ-is-set : (Γ∙ : Ctxᴳ Γ) → (Δ∙ : Ctxᴳ Δ) → (σ : Sub Γ Δ)
+             → isSet (Subᴳ Γ∙ Δ∙ σ)
+Subᴳ-is-set Γ∙ Δ∙ σ = isSetΠ2 (λ γ r → UIP')
+
+-- TODO: Target a universe of sets which is a set, instead of relying on global UIP
+
 Tyᴳ : Ctxᴳ Γ → Ty Γ → Set₁
 Tyᴳ {Γ} Γ∙ A = (γ : Sub ∅ Γ) (γ∙ : Γ∙ γ) (t : Tm ∅) → tyOf t ≡ A [ γ ]T → Set
 
+Tyᴳ-is-set : (Γ∙ : Ctxᴳ Γ) → (A : Ty Γ)
+           → isSet (Tyᴳ Γ∙ A)
+Tyᴳ-is-set Γ∙ t = isSetΠ3 (λ γ γ∙ t → isSetΠ λ e → UIP')
+
 Tmᴳ : Ctxᴳ Γ → Tm Γ → Set₁
-Tmᴳ {Γ} Γ∙ t = (γ : Sub ∅ Γ)(γ∙ : Γ∙ γ) → 
-  Σ[ A∙ ∈ Tyᴳ Γ∙ (tyOf t) ] A∙ γ γ∙ (t [ γ ]t) refl 
+Tmᴳ {Γ} Γ∙ t = (γ : Sub ∅ Γ)(γ∙ : Γ∙ γ) →
+  Σ[ A∙ ∈ Tyᴳ Γ∙ (tyOf t) ] A∙ γ γ∙ (t [ γ ]t) refl
+
+Tmᴳ-is-set : (Γ∙ : Ctxᴳ Γ) → (t : Tm Γ)
+           → isSet (Tmᴳ Γ∙ t)
+Tmᴳ-is-set Γ∙ t = isSetΠ2 (λ γ γ∙ → isSetΣ (Tyᴳ-is-set Γ∙ (tyOf t)) λ A∙ → UIP')
+
 
 tyOfᴳ : {Γᴳ : Ctxᴳ Γ} → Tmᴳ Γᴳ t → Tyᴳ Γᴳ (tyOf t)
 tyOfᴳ {Γ} {t} {Γᴳ} t∙ γ γ∙ t' p = t∙ γ γ∙ .fst γ γ∙ t' p
@@ -50,6 +73,9 @@ CanonMot∙ = record
     ; Sub∙  = Subᴳ
     ; Tm∙   = Tmᴳ
     ; tyOf∙ = tyOfᴳ
+    ; Sub∙-is-set = Subᴳ-is-set
+    ; Ty∙-is-set = Tyᴳ-is-set
+    ; Tm∙-is-set = Tmᴳ-is-set
     }
 
 CanonisSC : IsSC∙ TermSC CanonMot∙

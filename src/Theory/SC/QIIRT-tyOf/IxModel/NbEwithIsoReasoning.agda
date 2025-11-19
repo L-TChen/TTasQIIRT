@@ -19,8 +19,7 @@ cong,∶[]
   → σ ≡ σ' → t ≡ t'
   → (σ , t ∶[ p ]) ≡ (σ' , t' ∶[ p' ])
 cong,∶[] {A = A} p p' eqσ eqt =
-  cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → UIP') p p' (cong tyOf eqt) (cong (A [_]) eqσ))
---  cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Ty-is-set) p p' (cong tyOf eqt) (cong (A [_]) eqσ))
+  cong₃ _,_∶[_] eqσ eqt (isSet→SquareP (λ _ _ → Ty-is-set) p p' (cong tyOf eqt) (cong (A [_]) eqσ))
 
 -- Definition of neutral and normal forms
 data NfTy (Γ : Ctx) : Set where
@@ -63,6 +62,41 @@ data Var : (Γ : Ctx) → Set where
   here  : Var (Γ , A)
   there : Var Γ → Var (Γ , B)
 
+here≠there : {v : Var Γ} → here {A = A} ≡ there v → ⊥
+here≠there {Γ = Γ} {A = A} e = subst P e ⋆
+ where
+  P : Var (Γ , A) → Type
+  P here = Unit
+  P (there v) = ⊥
+
+there-injective : {v v' : Var Γ} → there {B = A} v ≡ there v' → v ≡ v'
+there-injective {Γ = Γ} {A = A} {v} {v'} e = encode _ _ e
+ where
+  Code : {Γ : Ctx} → Var Γ → Var Γ → Type
+  Code here here = Unit
+  Code here (there v) = ⊥
+  Code (there v) here = ⊥
+  Code (there v) (there v') = v ≡ v'
+
+  encode' : {Γ : Ctx} → (v : Var Γ) → Code v v
+  encode' here = ⋆
+  encode' (there v) = refl
+
+  encode : {Γ : Ctx} → (v v' : Var Γ) → v ≡ v' → Code v v'
+  encode v v' eq = subst (Code v) eq (encode' v)
+
+Var-is-Discrete : {Γ : Ctx} → Discrete (Var Γ)
+Var-is-Discrete here      here        = yes refl
+Var-is-Discrete here      (there v')  = no here≠there
+Var-is-Discrete (there v) here        = no (λ e → here≠there (sym e))
+Var-is-Discrete (there v) (there  v') =
+ decRec (λ v≡v' → yes (cong there v≡v'))
+        (λ v≠v' → no (λ tv≡tv' → v≠v' (there-injective tv≡tv')))
+        (Var-is-Discrete v v')
+
+Var-is-Set : (Γ : Ctx) → isSet (Var Γ)
+Var-is-Set Γ = Discrete→isSet Var-is-Discrete
+
 ⌜_⌝ⱽ : Var Γ → Tm Γ
 ⌜ here    ⌝ⱽ = π₂ idS
 ⌜ there x ⌝ⱽ = ⌜ x ⌝ⱽ [ π₁ idS ]
@@ -94,8 +128,28 @@ cong,∶[]ᴿ
   → ρ ≡ ρ' → x ≡ x'
   → (ρ , x ∶[ p ]) ≡ (ρ' , x' ∶[ p' ])
 cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i =
-  ρ≡ρ' i , x≡x' i ∶[ isSet→SquareP (λ _ _ → UIP') p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]) i ]
--- cong,∶[]ᴿ {A = A} {p = p} {p'} ρ≡ρ' x≡x' i = ρ≡ρ' i , x≡x' i ∶[ isSet→SquareP (λ _ _ → Ty-is-set) p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]) i ]
+  ρ≡ρ' i , x≡x' i ∶[ isSet→SquareP (λ _ _ → Ty-is-set) p p' (λ i → tyOf ⌜ x≡x' i ⌝ⱽ) (λ i → A [ ⌜ ρ≡ρ' i ⌝ᴿ ]) i ]
+
+Ren-is-set : {Γ Δ : Ctx} → isSet (Ren Γ Δ)
+Ren-is-set = Discrete→isSet Ren-is-Discrete
+ where
+  proj₁ : Ren Γ (Δ , A) → Ren Γ Δ
+  proj₁ (ρ , x ∶[ _ ]) = ρ
+
+  proj₂ : Ren Γ (Δ , A) → Var Γ
+  proj₂ (ρ , x ∶[ _ ]) = x
+
+  Ren-is-Discrete : {Γ Δ : Ctx} → Discrete (Ren Γ Δ)
+  Ren-is-Discrete ∅ ∅ = yes refl
+  Ren-is-Discrete (_,_∶[_] {A = A} ρ x e) (ρ' , x' ∶[ e' ]) =
+   decRec
+     (λ ρ≡ρ' → decRec
+                 (λ x≡x' → yes (cong,∶[]ᴿ ρ≡ρ' x≡x'))
+                 (λ x≠x' → no λ ρ,x≡ρ',x' → x≠x' (cong proj₂ ρ,x≡ρ',x'))
+                 (Var-is-Discrete x x'))
+     (λ ρ≠ρ' → no λ ρ,x≡ρ',x' → ρ≠ρ' (cong proj₁ ρ,x≡ρ',x'))
+     (Ren-is-Discrete ρ ρ')
+
 
 ⌜ ∅ ⌝ᴿ = ∅
 ⌜ ρ , x ∶[ p ] ⌝ᴿ = ⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]
@@ -132,7 +186,7 @@ wkᴿ A (_,_∶[_] {A = A'} ρ x p) = wkᴿ A ρ , there x ∶[ q ]
       ∙ (A' [ ⌜ ρ ⌝ᴿ ] [ π₁ idS ]
         ▸ᵀ≡⟨ ⟨ E (▸ᵀ A') ,⟩!₂≡ʸ refl ⟩ -- [Diff]: `[∘]T A' (π₁ idS) ⌜ ρ ⌝ᴿ` originally
         A' [ ⌜ ρ ⌝ᴿ ∘ π₁ idS ] ∎)
-      
+
       ∙ cong (A' [_]) (⌜wkᴿ⌝ A ρ)
 ⌜wkᴿ⌝ A ∅ = ∅ ∘ π₁ idS ▸ˢ≡ʸ⟨ refl ⟩ ∅ ∎ -- [Diff]: `η∅ _` originally
 ⌜wkᴿ⌝ A (_,_∶[_] {A = A'} ρ x p) =
@@ -219,7 +273,7 @@ _⊙idR : (ρ : Ren Γ Δ) → ρ ⊙ idR ≡ ρ
 
 -- Evaluate substitutions and terms to renamings and variables
 Subᴰ-is-set : (σ : Sub Γ Δ) → isSet (Σ[ ρ ∈ Ren Γ Δ ] σ ≡ ⌜ ρ ⌝ᴿ)
-Subᴰ-is-set _ _ _ q q' = UIP q q'
+Subᴰ-is-set σ = isSetΣ Ren-is-set (λ ρ → isProp→isSet (Sub-is-set _ _))
 
 evalSub : (σ : Sub Γ Δ) → Σ[ ρ ∈ Ren Γ Δ ] σ ≡ ⌜ ρ ⌝ᴿ
 evalTm : (t : Tm Γ) → Σ[ x ∈ Var Γ ] t ≡ ⌜ x ⌝ⱽ
@@ -246,7 +300,7 @@ evalSub (βπ₁ {A = A} σ t p i) =
      x , eqx = evalTm t
  in ρ ,
     isProp→PathP {B = λ j → βπ₁ σ t p j ≡ ⌜ ρ ⌝ᴿ}
-     (λ j → UIP {x = βπ₁ σ t p j} {⌜ ρ ⌝ᴿ})
+     (λ j → Sub-is-set _ _)
      (cong π₁ (cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (λ z → A [ z ]) eqρ) eqρ eqx ∙ refl)
       ∙ βπ₁ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (cong tyOf (sym eqx) ∙ p ∙ cong (λ z → A [ z ]) eqρ))
      eqρ
@@ -255,7 +309,7 @@ evalSub ((idS∘ σ) i) =
  let ρ , eqρ = evalSub σ
  in idR⊙ ρ i ,
     isProp→PathP {B = λ j → (idS∘ σ) j ≡ ⌜ idR⊙ ρ j ⌝ᴿ}
-     (λ j → UIP {x = (idS∘ σ) j} {⌜ idR⊙ ρ j ⌝ᴿ})
+     (λ j → Sub-is-set _ _)
      (cong₂ _∘_ ⌜idR⌝ eqρ ∙ ⌜⊙⌝ idR ρ)
      eqρ
      i
@@ -263,7 +317,7 @@ evalSub ((σ ∘idS) i) =
  let ρ , eqρ = evalSub σ
  in (ρ ⊙idR) i ,
     isProp→PathP {B = λ j → (σ ∘idS) j ≡ ⌜ (ρ ⊙idR) j ⌝ᴿ}
-     (λ j → UIP {x = (σ ∘idS) j} {⌜ (ρ ⊙idR) j ⌝ᴿ})
+     (λ j → Sub-is-set _ _)
      (cong₂ _∘_ eqρ ⌜idR⌝ ∙ ⌜⊙⌝ ρ idR)
      eqρ
      i
@@ -273,7 +327,7 @@ evalSub (assocS σ₁ σ₂ σ₃ i) =
       ρ₃ , eqρ₃ = evalSub σ₃
   in ⊙-assoc ρ₁ ρ₂ ρ₃ i ,
      isProp→PathP {B = λ j → assocS σ₁ σ₂ σ₃ j ≡ ⌜ ⊙-assoc ρ₁ ρ₂ ρ₃ j ⌝ᴿ}
-      (λ j → UIP {x = assocS σ₁ σ₂ σ₃ j} {⌜ ⊙-assoc ρ₁ ρ₂ ρ₃ j ⌝ᴿ})
+      (λ j → Sub-is-set _ _)
       (cong₂ _∘_ (cong₂ _∘_ eqρ₃ eqρ₂ ∙ ⌜⊙⌝ ρ₃ ρ₂) eqρ₁ ∙ ⌜⊙⌝ (ρ₃ ⊙ ρ₂) ρ₁)
       (cong₂ _∘_ eqρ₃ (cong₂ _∘_ eqρ₂ eqρ₁ ∙ ⌜⊙⌝ ρ₂ ρ₁) ∙ ⌜⊙⌝ ρ₃ (ρ₂ ⊙ ρ₁))
       i
@@ -285,7 +339,7 @@ evalSub (,∘ {A = A} σ t τ p q i) =
       p''' = (λ i₁ → tyOf (((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x) (~ i₁))) ∙ q ∙ (λ i₁ → A [ (cong₂ _∘_ eqρ eqρ' ∙ ⌜⊙⌝ ρ ρ') i₁ ])
    in cong,∶[]ᴿ {ρ = ρ ⊙ ρ'} {x = lookupVar ρ' x} {p = p''} {p'''} refl refl i ,
       isProp→PathP {B = λ j → ,∘ σ t τ p q j ≡ ⌜ cong,∶[]ᴿ {p = p''} {p'''} refl refl j ⌝ᴿ}
-       (λ j → UIP {x = ,∘ σ t τ p q j} {⌜ cong,∶[]ᴿ {p = p''} {p'''} (λ _ → ρ ⊙ ρ') (λ _ → lookupVar ρ' x) j ⌝ᴿ})
+       (λ j → Sub-is-set _ _)
        ((λ j → (cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ) eqρ eqx) j ∘ eqρ' j) ∙ ⌜⊙⌝ (ρ , x ∶[ cong tyOf (sym eqx) ∙ p ∙ (cong (A [_]) eqρ) ]) ρ')
        (cong,∶[] q ((λ i₁ → tyOf (((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x) (~ i₁))) ∙ q ∙ (λ i₁ → A [ (cong₂ _∘_ eqρ eqρ' ∙ ⌜⊙⌝ ρ ρ') i₁ ])) (cong₂ _∘_ eqρ eqρ' ∙ ⌜⊙⌝ ρ ρ') ((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x))
        i
@@ -293,7 +347,7 @@ evalSub (η∅ σ i) =
   let ρ , eqρ = evalSub σ
   in η∅ᴿ ρ i ,
      isProp→PathP {B = λ j → η∅ σ j ≡ ⌜ η∅ᴿ ρ j ⌝ᴿ}
-      (λ j → UIP {x = η∅ σ j} {⌜ η∅ᴿ ρ j ⌝ᴿ})
+      (λ j → Sub-is-set _ _)
       eqρ
       (λ _ → ∅)
       i
@@ -302,12 +356,12 @@ evalSub {Γ = Γ} (ηπ {Δ = Δ} {A = A} σ i) =
       (ρ' , x' , p' , eqρ') = η,ᴿ ρ
   in (eqρ' ∙ cong,∶[]ᴿ {p' = (λ i₁ → tyOf ((cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (~ i₁))) ∙ tyOfπ₂ σ ∙ (λ i₁ → A [ (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) i₁ ])} refl refl) i ,
      isProp→PathP {B = λ j →  ηπ σ j ≡ ⌜ (eqρ' ∙ cong,∶[]ᴿ {p' = (λ i₁ → tyOf ((cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (~ i₁))) ∙ tyOfπ₂ σ ∙ (λ i₁ → A [ (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) i₁ ])} refl refl) j ⌝ᴿ}
-      (λ j → UIP {x = ηπ σ j} {⌜ (eqρ' ∙ cong,∶[]ᴿ {p' = (λ i₁ → tyOf ((cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (~ i₁))) ∙ tyOfπ₂ σ ∙ (λ i₁ → A [ (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) i₁ ])} refl refl) j ⌝ᴿ})
+      (λ j → Sub-is-set _ _)
       eqρ
       (cong,∶[] (tyOfπ₂ σ) ((λ i₁ → tyOf ((cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (~ i₁))) ∙ tyOfπ₂ σ ∙ (λ i₁ → A [ (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) i₁ ])) (cong π₁ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ βπ₁ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _) (cong π₂ (eqρ ∙ cong ⌜_⌝ᴿ eqρ') ∙ ⟨βπ₂⟩ ⌜ ρ' ⌝ᴿ ⌜ x' ⌝ⱽ _))
       i
--- evalSub (Sub-is-set σ σ' p q i j) =
---   isSet→SquareP (λ i j → Subᴰ-is-set (Sub-is-set σ σ' p q j i)) refl refl (λ j → evalSub (p j)) (λ j → evalSub (q j)) j i
+evalSub (Sub-is-set σ σ' p q i j) =
+  isSet→SquareP (λ i j → Subᴰ-is-set (Sub-is-set σ σ' p q j i)) refl refl (λ j → evalSub (p j)) (λ j → evalSub (q j)) j i
 
 evalTm (t [ σ ]) =
  let ρ , eqρ = evalSub σ
@@ -322,7 +376,7 @@ evalTm (βπ₂ {A = A} σ t p q i) =
       x , eqx = evalTm t
   in x ,
   isProp→PathP {B = λ j → βπ₂ σ t p q j ≡ ⌜ x ⌝ⱽ}
-    (λ j → UIP {x = βπ₂ σ t p q j} {⌜ x ⌝ⱽ})
+    (λ j → Tm-is-set _ _)
     (cong π₂ (cong,∶[] p (cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ) eqρ eqx ∙ cong ⌜_⌝ᴿ refl) ∙ ⟨βπ₂⟩ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (cong tyOf (sym eqx) ∙ p ∙ cong (A [_]) eqρ))
      eqx
      i
@@ -330,7 +384,7 @@ evalTm ([idS]t t i) =
   let x , eqx = evalTm t
   in lookupVar-idR x (~ i) ,
   isProp→PathP {B = λ j → [idS]t t j ≡ ⌜ lookupVar-idR x (~ j) ⌝ⱽ}
-    (λ j → UIP {x = [idS]t t j} {⌜ lookupVar-idR x (~ j) ⌝ⱽ})
+    (λ j → Tm-is-set _ _)
      eqx
     ((λ i → eqx i [ ⌜idR⌝ i ]) ∙ ⌜lookupVar⌝ idR x)
      i
@@ -340,11 +394,17 @@ evalTm ([∘]t t σ τ i) =
       ρ' , eqρ' = evalSub τ
   in lookupVar⊙ ρ' ρ x i ,
      isProp→PathP {B = λ j → [∘]t t σ τ j ≡ ⌜ lookupVar⊙ ρ' ρ x j ⌝ⱽ}
-      (λ j → UIP {x = [∘]t t σ τ j} {⌜ lookupVar⊙ ρ' ρ x j ⌝ⱽ})
+      (λ j → Tm-is-set _ _)
       ((λ i → ((λ i → eqx i [ eqρ' i ]) ∙ ⌜lookupVar⌝ ρ' x) i [ eqρ i ]) ∙ ⌜lookupVar⌝ ρ (lookupVar ρ' x))
       ((λ i → eqx i [ (cong₂ _∘_ eqρ' eqρ ∙ ⌜⊙⌝ ρ' ρ) i ]) ∙ ⌜lookupVar⌝ (ρ' ⊙ ρ) x)
       i
--- evalTm (Tm-is-set t u p q i j) = {!!}
+evalTm {Γ} (Tm-is-set t u p q i j) =
+  isSet→SquareP {A = λ i j → Σ[ x ∈ Var Γ ] (Tm-is-set {Γ} t u p q i j) ≡ ⌜ x ⌝ⱽ}
+                (λ i j → isSetΣ (Var-is-Set Γ) λ x → isProp→isSet (Tm-is-set _ _))
+                (λ j → evalTm (p j))
+                (λ j → evalTm (q j))
+                (λ j → evalTm t)
+                (λ j → evalTm u) i j
 
 -- Reify variables and renamings to neutral forms and normal forms
 ⇓ⱽ : (`σ : NeSub Γ Δ) → Var Δ → NeTm Γ

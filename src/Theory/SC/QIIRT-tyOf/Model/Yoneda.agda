@@ -19,19 +19,19 @@ record Subʸ (Γ Δ : Ctx) : Set (ℓ-max ℓ₁ ℓ₃) where
   Subʸ-τidS∘ γ = natʸ γ idS ∙ cong y (idS∘ γ)
 open Subʸ
 
---  Subʸ-is-set : ∀{Γ Δ} → isSet (Subʸ Γ Δ)
---  Subʸ-is-set {Γ} {Δ} (σ , pσ) (σ' , pσ') p q i j = record
---    { y = λ γᴹ → isSet→SquareP (λ _ _ → Subᴬ-is-set) refl refl (λ k → y (p k) γᴹ) (λ k → y (q k) γᴹ) j i
---    ; natʸ = λ {Ξ} {Θ} τ δ k →
---      isGroupoid→CubeP (λ _ _ _ → Sub Ξ Δ)
---        (λ j i → isSet→SquareP (λ _ _ _ _ → UIP) refl refl (λ k → y (p k) δ) (λ k → y (q k) δ) j i ∘ τ)
---        (λ j i → isSet→SquareP (λ _ _ _ _ → UIP) refl refl (λ k → y (p k) (δ ∘ τ)) (λ k → y (q k) (δ ∘ τ)) j i)
---        (λ k _ → pσ τ δ k)
---        (λ k _ → pσ' τ δ k)
---        (λ k j → natʸ (p j) τ δ k)
---        (λ k j → natʸ (q j) τ δ k)
---        (isSet→isGroupoid UIP') k j i
---    }
+Subʸ-is-set : ∀{Γ Δ} → isSet (Subʸ Γ Δ)
+Subʸ-is-set {Γ} {Δ} (σ , pσ) (σ' , pσ') p q i j = record
+  { y = λ γᴹ → isSet→SquareP (λ _ _ → Sub-is-set) refl refl (λ k → y (p k) γᴹ) (λ k → y (q k) γᴹ) j i
+  ; natʸ = λ {Ξ} {Θ} τ δ k →
+     isGroupoid→CubeP (λ _ _ _ → Sub Ξ Δ)
+      (λ j i → isSet→SquareP (λ i j → Sub-is-set) refl refl (λ k → y (p k) δ) (λ k → y (q k) δ) j i ∘ τ)
+      (λ j i → isSet→SquareP (λ i j → Sub-is-set) refl refl (λ k → y (p k) (δ ∘ τ)) (λ k → y (q k) (δ ∘ τ)) j i)
+      (λ k _ → pσ τ δ k)
+      (λ k _ → pσ' τ δ k)
+      (λ k j → natʸ (p j) τ δ k)
+      (λ k j → natʸ (q j) τ δ k)
+      (isSet→isGroupoid Sub-is-set) k j i
+  }
 
 _≡ʸ_ : Subʸ Γ Δ → Subʸ Γ Δ → Set (ℓ-max ℓ₁ ℓ₃)
 _≡ʸ_ {Γ} {Δ} (σ , _) (σ' , _) = _≡_ {A = {Θ : Ctx} → Sub Θ Γ → Sub Θ Δ} σ σ'
@@ -41,7 +41,7 @@ _≡ʸ_ {Γ} {Δ} (σ , _) (σ' , _) = _≡_ {A = {Θ : Ctx} → Sub Θ Γ → S
 ≡ʸ→≡  {σʸ = σʸ} {σ'ʸ} eqʸ i = record
   { y = eqʸ i
   ; natʸ = λ τ δ j →
-      isSet→SquareP (λ _ _ → UIP')
+      isSet→SquareP (λ i j → Sub-is-set)
         (λ i → eqʸ i δ ∘ τ)
         (λ i → eqʸ i (δ ∘ τ))
         (natʸ σʸ τ δ)
@@ -67,14 +67,14 @@ _∘ʸ_ : ∀{Γ Δ Θ} → Subʸ Δ Θ → Subʸ Γ Δ → Subʸ Γ Θ
 _,ʸ_∶[_]
   : (σʸ : Subʸ Γ Δ) (t : Tm Γ) → tyOf t ≡ A [ σʸ .y idS ]T
   → Subʸ Γ (Δ ,C A)
-_,ʸ_∶[_] {Γ} {Δ} {A} (σ , pσ) t p = 
+_,ʸ_∶[_] {Γ} {Δ} {A} (σ , pσ) t p =
   (λ γ → σ γ , t [ γ ]t ∶[ tyOf[] ∙ (λ i → p i [ γ ]T) ∙ [∘]T A γ (σ idS) ∙ (λ i → A [ (pσ γ idS ∙ cong σ (idS∘ γ)) i ]T)  ])
   , λ τ δ →
-    let q = tyOf[] ∙ cong _[ τ ]T (tyOf[] ∙ (λ i → p i [ δ ]T) ∙ [∘]T A δ (σ idS) ∙ cong (A [_]T) (Subʸ-τidS∘ (σ , pσ) δ)) ∙ [∘]T A τ (σ δ) in 
+    let q = tyOf[] ∙ cong _[ τ ]T (tyOf[] ∙ (λ i → p i [ δ ]T) ∙ [∘]T A δ (σ idS) ∙ cong (A [_]T) (Subʸ-τidS∘ (σ , pσ) δ)) ∙ [∘]T A τ (σ δ) in
   ,∘ (σ δ) (t [ δ ]t) τ
     (tyOf[] ∙ (λ i → p i [ δ ]T) ∙ [∘]T A δ (σ idS) ∙ cong (A [_]T) (Subʸ-τidS∘ (σ , pσ) δ)) q
     ∙ cong,∶[] q (tyOf[] ∙ cong _[ δ ∘ τ ]T p ∙ [∘]T A (δ ∘ τ) (σ idS) ∙ cong (A [_]T) (pσ (δ ∘ τ) idS ∙ cong σ (idS∘ _)))
-        (pσ τ δ) ([∘]t t τ δ) 
+        (pσ τ δ) ([∘]t t τ δ)
 
 よM : Motive
 よM = record
@@ -83,10 +83,10 @@ _,ʸ_∶[_] {Γ} {Δ} {A} (σ , pσ) t p =
   ; Sub  = Subʸ
   ; Tm   = Tm
   ; tyOf = tyOf
---    ; Tyᴬ-is-set  = Tyᴬ-is-set
---    ; Motive.Subᴬ-is-set = Subʸ-is-set
---    ; Motive.Tmᴬ-is-set  = Tmᴬ-is-set
-    }
+  ; Ty-is-set  = Ty-is-set
+  ; Sub-is-set = Subʸ-is-set
+  ; Tm-is-set  = Tm-is-set
+  }
 
 よIsSC : IsSC よM
 よIsSC .IsSC.∅    = ∅
@@ -100,7 +100,7 @@ _,ʸ_∶[_] {Γ} {Δ} {A} (σ , pσ) t p =
 よIsSC .IsSC._∘_      = _∘ʸ_
 よIsSC .IsSC.π₁ (σ , pσ) = (λ γ → π₁ (σ γ)) ,
   λ τ δ → sym (π₁∘ (σ δ) τ) ∙ cong π₁ (pσ _ _)
-よIsSC .IsSC.π₂ (σ , pσ) = π₂ (σ idS)   
+よIsSC .IsSC.π₂ (σ , pσ) = π₂ (σ idS)
 よIsSC .IsSC.tyOfπ₂ (σ , pσ) = tyOfπ₂ (σ idS)
 よIsSC .IsSC.idS∘_ (σ , pσ) = ≡ʸ→≡ refl
 よIsSC .IsSC._∘idS (σ , pσ) = ≡ʸ→≡ refl

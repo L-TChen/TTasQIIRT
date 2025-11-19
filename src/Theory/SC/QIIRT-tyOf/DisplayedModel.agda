@@ -30,6 +30,17 @@ record Motive∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' �
       : {Γ∙ : Ctx∙ Γ} → Tm∙ Γ∙ t
       → Ty∙ Γ∙ (tyOf t)
 
+    Ty∙-is-set
+      : (Γ∙ : Ctx∙ Γ)(A : Ty Γ)
+      → isSet (Ty∙ Γ∙ A)
+    Sub∙-is-set
+      : (Γ∙ : Ctx∙ Γ) (Δ∙ : Ctx∙ Δ) → (σ : Sub Γ Δ)
+      → isSet (Sub∙ Γ∙ Δ∙ σ)
+    Tm∙-is-set
+      : (Γ∙ : Ctx∙ Γ)(t : Tm Γ)
+      → isSet (Tm∙ Γ∙ t)
+
+
 --   -- SC∙ is defined separately from Motive in order to declare
 --   -- generalizable variables.
 
@@ -183,15 +194,15 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
   open IsSC∙ isSC∙ public
 
   -- adapted from 1Lab
-  infixr 30 _∙Ty[]_ ∙Ty[-]-syntax ∙Sub[-]-syntax _∙Sub[]_ _∙Tm[]_ ∙Tm[-]-syntax 
-  infixr 2 ≡Ty[]⟨⟩-syntax ≡Ty[-]⟨⟩-syntax ≡Sub[]⟨⟩-syntax ≡Sub[-]⟨⟩-syntax ≡Tm[]⟨⟩-syntax ≡Tm[-]⟨⟩-syntax 
+  infixr 30 _∙Ty[]_ ∙Ty[-]-syntax ∙Sub[-]-syntax _∙Sub[]_ _∙Tm[]_ ∙Tm[-]-syntax
+  infixr 2 ≡Ty[]⟨⟩-syntax ≡Ty[-]⟨⟩-syntax ≡Sub[]⟨⟩-syntax ≡Sub[-]⟨⟩-syntax ≡Tm[]⟨⟩-syntax ≡Tm[-]⟨⟩-syntax
   infix 1 beginTy_ beginTy[_]_ beginSub_ beginSub[_]_ beginTm_ beginTm[_]_
 
   open Var
 
   _∙Ty[]_
-    : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} 
-    → {A∙ : Ty∙ Γ∙ A} {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
+    : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ}
+    → {A∙ : Ty∙ Γ∙ A} {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C}
     → {p : A ≡ B} → A∙ ≡Ty[ p ] B∙
     → {q : B ≡ C} → B∙ ≡Ty[ q ] C∙
     → A∙ ≡Ty[ p ∙ q ] C∙
@@ -200,25 +211,25 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
 
   ∙Ty[-]-syntax
     : {A B C : Ty Γ} (p : A ≡ B) {q : B ≡ C} {Γ∙ : Ctx∙ Γ}
-    → {A∙ : Ty∙ Γ∙ A} {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
+    → {A∙ : Ty∙ Γ∙ A} {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C}
     → A∙ ≡Ty[ p ] B∙ → B∙ ≡Ty[ q ] C∙
     → A∙ ≡Ty[ p ∙ q ] C∙
   ∙Ty[-]-syntax _ p∙ q∙ = p∙ ∙Ty[] q∙
 
-  syntax ∙Ty[-]-syntax p p∙ q∙ = p∙ ∙Ty[ p ] q∙ 
+  syntax ∙Ty[-]-syntax p p∙ q∙ = p∙ ∙Ty[ p ] q∙
 
   ≡Ty[]⟨⟩-syntax
     : {A B C : Ty Γ} {p : A ≡ B} {q : B ≡ C} {Γ∙ : Ctx∙ Γ}
     → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C}
     → B∙ ≡Ty[ q ] C∙ → A∙ ≡Ty[ p ] B∙
     → A∙ ≡Ty[ p ∙ q ] C∙
-  ≡Ty[]⟨⟩-syntax A∙ q∙ p∙ = p∙ ∙Ty[] q∙ 
+  ≡Ty[]⟨⟩-syntax A∙ q∙ p∙ = p∙ ∙Ty[] q∙
 
   syntax ≡Ty[]⟨⟩-syntax A∙ q∙ p∙ = A∙ ≡Ty[]⟨ p∙ ⟩ q∙
 
-  ≡Ty[-]⟨⟩-syntax 
+  ≡Ty[-]⟨⟩-syntax
     : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} (p : A ≡ B) {q : B ≡ C}
-    → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
+    → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C}
     → B∙ ≡Ty[ q ] C∙ → A∙ ≡Ty[ p ] B∙
     → A∙ ≡Ty[ p ∙ q ] C∙
   ≡Ty[-]⟨⟩-syntax A∙ p q∙ p∙ = p∙ ∙Ty[] q∙
@@ -229,15 +240,15 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
     : {p q : A ≡ B}
     → A∙ ≡Ty[ p ] B∙
     → A∙ ≡Ty[ q ] B∙
-  beginTy_ {A∙} {B∙} {p} {q} p∙ =
-    subst (λ r → A∙ ≡Ty[ r ] B∙) (UIP _ _) p∙ 
+  beginTy_ {A = A} {B = B} {A∙} {B∙} {p} {q} p∙ =
+    subst (λ r → A∙ ≡Ty[ r ] B∙) (S.Ty-is-set A B p q) p∙
 
   beginTy[_]_
     : ({p} q : A ≡ B)
     → A∙ ≡Ty[ p ] B∙
     → A∙ ≡Ty[ q ] B∙
-  beginTy[_]_ {A∙} {B∙} {p} q p∙ =
-    subst (λ r → A∙ ≡Ty[ r ] B∙) (UIP _ _) p∙ 
+  beginTy[_]_ {A = A} {B = B} {A∙} {B∙} {p} q p∙ =
+    subst (λ r → A∙ ≡Ty[ r ] B∙) (S.Ty-is-set A B p q) p∙
 
   _∙Sub[]_
     : {p : σ ≡ τ} → σ∙ ≡Sub[ p ] τ∙
@@ -250,38 +261,38 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
     : {p q : σ ≡ τ}
     → σ∙ ≡Sub[ p ] τ∙
     → σ∙ ≡Sub[ q ] τ∙
-  beginSub_ {σ∙} {τ∙} {p} {q} p∙ =
-    subst (λ r → σ∙ ≡Sub[ r ] τ∙) (UIP p q) p∙ 
+  beginSub_ {σ = σ} {τ = τ} {σ∙} {τ∙} {p} {q} p∙ =
+    subst (λ r → σ∙ ≡Sub[ r ] τ∙) (S.Sub-is-set σ τ p q) p∙
 
   beginSub[_]_
     : ({p} q : σ ≡ τ)
     → σ∙ ≡Sub[ p ] τ∙
     → σ∙ ≡Sub[ q ] τ∙
-  beginSub[_]_ {σ∙} {τ∙} {p} q p∙ =
-    subst (λ r → σ∙ ≡Sub[ r ] τ∙) (UIP p q) p∙ 
+  beginSub[_]_ {σ = σ} {τ = τ} {σ∙} {τ∙} {p} q p∙ =
+    subst (λ r → σ∙ ≡Sub[ r ] τ∙) (S.Sub-is-set σ τ p q) p∙
 
   ∙Sub[-]-syntax
     : (p : σ ≡ τ) {q : τ ≡ γ}
-    → {σ∙ : Sub∙ Γ∙ Δ∙ σ} {τ∙ : Sub∙ Γ∙ Δ∙ τ} {γ∙ : Sub∙ Γ∙ Δ∙ γ} 
+    → {σ∙ : Sub∙ Γ∙ Δ∙ σ} {τ∙ : Sub∙ Γ∙ Δ∙ τ} {γ∙ : Sub∙ Γ∙ Δ∙ γ}
     → σ∙ ≡Sub[ p ] τ∙ → τ∙ ≡Sub[ q ] γ∙
     → σ∙ ≡Sub[ p ∙ q ] γ∙
   ∙Sub[-]-syntax _ p∙ q∙ = p∙ ∙Sub[] q∙
 
-  syntax ∙Sub[-]-syntax p p∙ q∙ = p∙ ∙Sub[ p ] q∙ 
+  syntax ∙Sub[-]-syntax p p∙ q∙ = p∙ ∙Sub[ p ] q∙
 
   ≡Sub[]⟨⟩-syntax
     : {p : σ ≡ τ} {q : τ ≡ γ}
-    → (σ∙ : Sub∙ Γ∙ Δ∙ σ) {τ∙ : Sub∙ Γ∙ Δ∙ τ} {γ∙ : Sub∙ Γ∙ Δ∙ γ} 
+    → (σ∙ : Sub∙ Γ∙ Δ∙ σ) {τ∙ : Sub∙ Γ∙ Δ∙ τ} {γ∙ : Sub∙ Γ∙ Δ∙ γ}
     → τ∙ ≡Sub[ q ] γ∙
     → σ∙ ≡Sub[ p ] τ∙
     → σ∙ ≡Sub[ p ∙ q ] γ∙
-  ≡Sub[]⟨⟩-syntax σ∙ q∙ p∙ = p∙ ∙Sub[] q∙ 
+  ≡Sub[]⟨⟩-syntax σ∙ q∙ p∙ = p∙ ∙Sub[] q∙
 
   syntax ≡Sub[]⟨⟩-syntax A∙ q∙ p∙ = A∙ ≡Sub[]⟨ p∙ ⟩ q∙
 
-  ≡Sub[-]⟨⟩-syntax 
+  ≡Sub[-]⟨⟩-syntax
     : {σ τ γ : Sub Γ Δ} {Γ∙ : Ctx∙ Γ} (p : σ ≡ τ) {q : τ ≡ γ}
-    → (σ∙ : Sub∙ Γ∙ Δ∙ σ) {τ∙ : Sub∙ Γ∙ Δ∙ τ} {γ∙ : Sub∙ Γ∙ Δ∙ γ} 
+    → (σ∙ : Sub∙ Γ∙ Δ∙ σ) {τ∙ : Sub∙ Γ∙ Δ∙ τ} {γ∙ : Sub∙ Γ∙ Δ∙ γ}
     → τ∙ ≡Sub[ q ] γ∙
     → σ∙ ≡Sub[ p ] τ∙
     → σ∙ ≡Sub[ p ∙ q ] γ∙
@@ -290,8 +301,8 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
   syntax ≡Sub[-]⟨⟩-syntax p σ∙ q∙ p∙ = σ∙ ≡Sub[ p ]⟨ p∙ ⟩ q∙
 
   _∙Tm[]_
-    : {t u v : Tm Γ} {Γ∙ : Ctx∙ Γ} 
-    → {t∙ : Tm∙ Γ∙ t} {u∙ : Tm∙ Γ∙ u} {v∙ : Tm∙ Γ∙ v} 
+    : {t u v : Tm Γ} {Γ∙ : Ctx∙ Γ}
+    → {t∙ : Tm∙ Γ∙ t} {u∙ : Tm∙ Γ∙ u} {v∙ : Tm∙ Γ∙ v}
     → {p : t ≡ u} → t∙ ≡Tm[ p ] u∙
     → {q : u ≡ v} → u∙ ≡Tm[ q ] v∙
     → t∙ ≡Tm[ p ∙ q ] v∙
@@ -300,25 +311,25 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
 
   ∙Tm[-]-syntax
     : {t u v : Tm Γ} (p : t ≡ u) {q : u ≡ v} {Γ∙ : Ctx∙ Γ}
-    → {t∙ : Tm∙ Γ∙ t} {u∙ : Tm∙ Γ∙ u} {v∙ : Tm∙ Γ∙ v} 
+    → {t∙ : Tm∙ Γ∙ t} {u∙ : Tm∙ Γ∙ u} {v∙ : Tm∙ Γ∙ v}
     → t∙ ≡Tm[ p ] u∙ → u∙ ≡Tm[ q ] v∙
     → t∙ ≡Tm[ p ∙ q ] v∙
   ∙Tm[-]-syntax _ p∙ q∙ = p∙ ∙Tm[] q∙
 
-  syntax ∙Tm[-]-syntax p p∙ q∙ = p∙ ∙Tm[ p ] q∙ 
+  syntax ∙Tm[-]-syntax p p∙ q∙ = p∙ ∙Tm[ p ] q∙
 
   ≡Tm[]⟨⟩-syntax
     : {t u v : Tm Γ} {p : t ≡ u} {q : u ≡ v} {Γ∙ : Ctx∙ Γ}
-    → (t∙ : Tm∙ Γ∙ t) {u∙ : Tm∙ Γ∙ u} {v∙ : Tm∙ Γ∙ v} 
+    → (t∙ : Tm∙ Γ∙ t) {u∙ : Tm∙ Γ∙ u} {v∙ : Tm∙ Γ∙ v}
     → u∙ ≡Tm[ q ] v∙ → t∙ ≡Tm[ p ] u∙
     → t∙ ≡Tm[ p ∙ q ] v∙
-  ≡Tm[]⟨⟩-syntax t∙ q∙ p∙ = p∙ ∙Tm[] q∙ 
+  ≡Tm[]⟨⟩-syntax t∙ q∙ p∙ = p∙ ∙Tm[] q∙
 
   syntax ≡Tm[]⟨⟩-syntax A∙ q∙ p∙ = A∙ ≡Tm[]⟨ p∙ ⟩ q∙
 
-  ≡Tm[-]⟨⟩-syntax 
+  ≡Tm[-]⟨⟩-syntax
     : {t u v : Tm Γ} (p : t ≡ u) {q : u ≡ v} {Γ∙ : Ctx∙ Γ}
-    → (t∙ : Tm∙ Γ∙ t) {u∙ : Tm∙ Γ∙ u} {v∙ : Tm∙ Γ∙ v} 
+    → (t∙ : Tm∙ Γ∙ t) {u∙ : Tm∙ Γ∙ u} {v∙ : Tm∙ Γ∙ v}
     → u∙ ≡Tm[ q ] v∙ → t∙ ≡Tm[ p ] u∙
     → t∙ ≡Tm[ p ∙ q ] v∙
   ≡Tm[-]⟨⟩-syntax A∙ p q∙ p∙ = p∙ ∙Tm[] q∙
@@ -329,15 +340,15 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
     : {p q : t ≡ u}
     → t∙ ≡Tm[ p ] u∙
     → t∙ ≡Tm[ q ] u∙
-  beginTm_ {t∙} {u∙} {p} {q} p∙ =
-    subst (t∙ ≡Tm[_] u∙) (UIP _ _) p∙ 
+  beginTm_ {t = t} {u = u} {t∙} {u∙} {p} {q} p∙ =
+    subst (t∙ ≡Tm[_] u∙) (S.Tm-is-set t u p q) p∙
 
   beginTm[_]_
     : ({p} q : t ≡ u)
     → t∙ ≡Tm[ p ] u∙
     → t∙ ≡Tm[ q ] u∙
-  beginTm[_]_ {t∙} {u∙} {p} q p∙ =
-    subst (λ r → t∙ ≡Tm[ r ] u∙) (UIP _ _) p∙ 
+  beginTm[_]_ {t = t} {u = u} {t∙} {u∙} {p} q p∙ =
+    subst (λ r → t∙ ≡Tm[ r ] u∙) (S.Tm-is-set t u p q) p∙
 
   tyOfπ₂idS∙
     : (σ∙ : Sub∙ Γ∙ Δ∙ σ) (A∙ : Ty∙ Δ∙ A)
@@ -369,9 +380,9 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
 --    tyOf[] ∙ cong (λ A → A [ σ ]T) p ∙ U[]
 
 -- {-
---   ≡Ty[-]⟨⟩-syntax 
+--   ≡Ty[-]⟨⟩-syntax
 --     : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} (p : A ≡ B) {q : B ≡ C}
---     → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C} 
+--     → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C}
 --     → B∙ ≡Ty[ q ] C∙ → A∙ ≡Ty[ p ] B∙
 --     → A∙ ≡Ty[ p ∙ q ] C∙
 --   ≡Ty[-]⟨⟩-syntax A∙ p q∙ p∙ = p∙ ∙Ty[] q∙

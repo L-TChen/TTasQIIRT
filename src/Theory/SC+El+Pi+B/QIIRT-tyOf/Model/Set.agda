@@ -10,16 +10,20 @@ open import Theory.SC+El+Pi+B.QIIRT-tyOf.Model
 open import Theory.SC+Pi+B.QIIRT-tyOf.Model.Set
 open Var
 
+-- TODO: change to hSets instead of global UIP
+postulate
+  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
+
 opaque
   unfolding _∙_
   unfolding stdModel𝓑
   unfolding stdModelPi
   unfolding Univ.El[]₂
-  
+
   stdModelUniv : Univ stdModel
   stdModelUniv .Univ.El {Γ} (A , u) pu γ = T (subst (λ A → A γ) pu (u γ))
   stdModelUniv .Univ.El[] {Γ} {Δ} σ (A , a) pa i = λ γ →
-    T (transport (λ i → pa i (σ γ)) (transportRefl³ (a (σ γ)) (~ i))) 
+    T (transport (λ i → pa i (σ γ)) (transportRefl³ (a (σ γ)) (~ i)))
 
   stdModelUnivPi : UnivPi stdModel stdModelUniv stdModelPi
 -- --  stdModelUnivPi .UnivPi.El[]₂ {Γ} {Δ} {σ = σ} (A , u) pu pu' = funExt λ (γ , t) →

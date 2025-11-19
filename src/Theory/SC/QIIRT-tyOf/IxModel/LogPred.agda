@@ -51,7 +51,7 @@ open Subᴾ
        → subᴾ σᴾ ≡ subᴾ τᴾ → PathP (λ i → Subᴾ Γᴾ Δᴾ (σ i)) σᴾ τᴾ
 ≡-Subᴾ σᴾ τᴾ eq i .subᴾ = eq i
 ≡-Subᴾ {Γᴾ = Γᴾ} {Δᴾ} {σ} σᴾ τᴾ eq i .wkᴾnat =
- isProp→PathP {B = λ i → (wkᴾ Δᴾ) ∘ eq i ≡ σ i ∘ wkᴾ Γᴾ} (λ i → UIP) (σᴾ .wkᴾnat) (τᴾ .wkᴾnat) i
+ isProp→PathP {B = λ i → (wkᴾ Δᴾ) ∘ eq i ≡ σ i ∘ wkᴾ Γᴾ} (λ i → Sub-is-set _ _) (σᴾ .wkᴾnat) (τᴾ .wkᴾnat) i
 
 Tmᴾ : (Γᴾ : Ctxᴾ Γ) → (t : Tm Γ) → Set
 Tmᴾ Γᴾ t = Σ[ Aᴾ ∈ Tyᴾ Γᴾ (tyOf t) ] Σ[ t' ∈ Tm (ctxᴾ Γᴾ) ]
@@ -70,7 +70,21 @@ LogPredᵃ = record
   ; Sub∙  = Subᴾ
   ; Tm∙   = Tmᴾ
   ; tyOf∙ = λ {Γ} {t} → tyOfᴾ {Γ} {t}
+  ; Ty∙-is-set = Tyᴾ-is-set
+  ; Tm∙-is-set = λ Γ∙ t → isSetΣ (Tyᴾ-is-set Γ∙ (tyOf t)) λ t∙ → isSetΣ Tm-is-set λ t' → isProp→isSet (Ty-is-set _ _)
+  ; Sub∙-is-set = λ Γ∙ Δ∙ σ → isSetRetract f g (λ x → refl) (isSetΣ Sub-is-set λ τ → isProp→isSet (Sub-is-set _ _))
   }
+ where
+  Tyᴾ-is-set : (Γ∙ : Ctxᴾ Γ) → (A : Ty Γ) → isSet (Tyᴾ Γ∙ A)
+  Tyᴾ-is-set = λ Γ∙ A → isSetΣ Ctx-is-set λ Δ → isSet× (isProp→isSet (Ctx-is-set _ _)) Ty-is-set
+
+  f : {Γᴾ : Ctxᴾ Γ}{Δᴾ : Ctxᴾ Δ}{σ : Sub Γ Δ}
+    → Subᴾ Γᴾ Δᴾ σ → Σ[ δ ∈ (Sub (ctxᴾ Γᴾ) (ctxᴾ Δᴾ)) ] wkᴾ Δᴾ ∘ δ ≡ σ ∘ wkᴾ Γᴾ
+  f σᴾ = subᴾ σᴾ , wkᴾnat σᴾ
+
+  g : {Γᴾ : Ctxᴾ Γ}{Δᴾ : Ctxᴾ Δ}{σ : Sub Γ Δ}
+    → Σ[ δ ∈ (Sub (ctxᴾ Γᴾ) (ctxᴾ Δᴾ)) ] wkᴾ Δᴾ ∘ δ ≡ σ ∘ wkᴾ Γᴾ → Subᴾ Γᴾ Δᴾ σ
+  g (δ , p) = record { subᴾ = δ ; wkᴾnat = p }
 
 open IsSC∙
 -- open Motive∙ LogPredᵃ
