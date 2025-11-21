@@ -7,6 +7,9 @@ open import Cubical.Data.Sum
 -- open import Theory.SC+Pi+B.QIIRT-tyOf.Syntax
 -- open Var
 
+open import Cubical.Foundations.HLevels
+open import Cubical.Foundations.Structure
+
 open import Theory.SC+Pi+B.QIIRT-tyOf.Model
 open import Theory.SC+Pi+B.QIIRT-tyOf.Model.Term
 open import Theory.SC.QIIRT-tyOf.DisplayedModel
@@ -17,54 +20,59 @@ open import Theory.SC+Pi+B.QIIRT-tyOf.DisplayedModel Term
 open SC+Pi+B Term
 open Var
 
--- TODO: Target hSet rather than relying on global UIP
-postulate
-  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
-
-UIP' : {A : Set ℓ} → isSet A
-UIP' x y = UIP
-
-
 Ctxᴳ : Ctx → Set₁
-Ctxᴳ Γ = Sub ∅ Γ → Set
+Ctxᴳ Γ = Sub ∅ Γ → hSet ℓ-zero
 
 Subᴳ : Ctxᴳ Γ → Ctxᴳ Δ → Sub Γ Δ → Set
 Subᴳ {Γ} {Δ} Γ∙ Δ∙ σ =
-  (γ : Sub ∅ Γ) → Γ∙ γ → Δ∙ (σ ∘ γ)
+  (γ : Sub ∅ Γ) → ⟨ Γ∙ γ ⟩ → ⟨ Δ∙ (σ ∘ γ) ⟩
 
 Subᴳ-is-set : (Γ∙ : Ctxᴳ Γ) → (Δ∙ : Ctxᴳ Δ) → (σ : Sub Γ Δ)
              → isSet (Subᴳ Γ∙ Δ∙ σ)
-Subᴳ-is-set Γ∙ Δ∙ σ = isSetΠ2 (λ γ r → UIP')
+Subᴳ-is-set Γ∙ Δ∙ σ = isSetΠ2 (λ γ r → str (Δ∙ (σ ∘ γ)))
 
--- TODO: Target a universe of sets which is a set, instead of relying on global UIP
+
+-- We interpret types as proof-irrelevant predicates because our
+-- syntax is set-truncated, which means that we have more work to do
+-- below.
 
 Tyᴳ : Ctxᴳ Γ → Ty Γ → Set₁
-Tyᴳ {Γ} Γ∙ A = (γ : Sub ∅ Γ) (γ∙ : Γ∙ γ) (t : Tm ∅) → tyOf t ≡ A [ γ ]T → Set
+Tyᴳ {Γ} Γ∙ A = (γ : Sub ∅ Γ) (γ∙ : ⟨ Γ∙ γ ⟩) (t : Tm ∅) → tyOf t ≡ A [ γ ]T → hProp ℓ-zero
 
 Tyᴳ-is-set : (Γ∙ : Ctxᴳ Γ) → (A : Ty Γ)
            → isSet (Tyᴳ Γ∙ A)
-Tyᴳ-is-set Γ∙ t = isSetΠ3 (λ γ γ∙ t → isSetΠ λ e → UIP')
+Tyᴳ-is-set Γ∙ t = isSetΠ3 (λ γ γ∙ t → isSetΠ λ e → isSetHProp)
 
 Tmᴳ : Ctxᴳ Γ → Tm Γ → Set₁
-Tmᴳ {Γ} Γ∙ t = (γ : Sub ∅ Γ)(γ∙ : Γ∙ γ) →
-  Σ[ A∙ ∈ Tyᴳ Γ∙ (tyOf t) ] A∙ γ γ∙ (t [ γ ]t) refl
+Tmᴳ {Γ} Γ∙ t = (γ : Sub ∅ Γ)(γ∙ : ⟨ Γ∙ γ ⟩) →
+  Σ[ A∙ ∈ Tyᴳ Γ∙ (tyOf t) ] ⟨ A∙ γ γ∙ (t [ γ ]t) refl ⟩
 
 Tmᴳ-is-set : (Γ∙ : Ctxᴳ Γ) → (t : Tm Γ)
            → isSet (Tmᴳ Γ∙ t)
-Tmᴳ-is-set Γ∙ t = isSetΠ2 (λ γ γ∙ → isSetΣ (Tyᴳ-is-set Γ∙ (tyOf t)) λ A∙ → UIP')
+Tmᴳ-is-set Γ∙ t = isSetΠ2 (λ γ γ∙ → isSetΣ (Tyᴳ-is-set Γ∙ (tyOf t)) λ A∙ → isProp→isSet (str (A∙ γ γ∙ (t [ γ ]t) refl)))
 
 
 tyOfᴳ : {Γᴳ : Ctxᴳ Γ} → Tmᴳ Γᴳ t → Tyᴳ Γᴳ (tyOf t)
 tyOfᴳ {Γ} {t} {Γᴳ} t∙ γ γ∙ t' p = t∙ γ γ∙ .fst γ γ∙ t' p
 
+tt-not-ff : tt {∅} ≡ ff → ⊥
+tt-not-ff x = {!!}
+
+
 𝔹ᴳ : {Γᴳ : Ctxᴳ Γ} → Tyᴳ Γᴳ 𝔹
-𝔹ᴳ γ γᴳ t _ = (t ≡ tt) ⊎ (t ≡ ff)
+𝔹ᴳ γ γᴳ t _ = (t ≡ tt) ⊎ (t ≡ ff) , lem t
+ where
+  lem : (t : Tm ∅) → isProp ((t ≡ tt) ⊎ (t ≡ ff))
+  lem t (inl p) (inl q) = cong inl (Tm-is-set t tt p q)
+  lem t (inl p) (inr q') = rec-⊥ (tt-not-ff (sym p ∙ q'))
+  lem t (inr p') (inl q) = rec-⊥ (tt-not-ff (sym q ∙ p'))
+  lem t (inr p') (inr q') = cong inr (Tm-is-set t ff p' q')
 
 tt∙ : {Γᴳ : Ctxᴳ Γ} → Tmᴳ Γᴳ tt
-tt∙ γ γ∙ = 𝔹ᴳ , inl (tt[] γ)
+tt∙ {Γᴳ = Γᴳ} γ γ∙ = 𝔹ᴳ {Γᴳ = Γᴳ} , inl (tt[] γ)
 
 ff∙ : {Γᴳ : Ctxᴳ Γ} → Tmᴳ Γᴳ ff
-ff∙ γ γ∙ = 𝔹ᴳ , inr (ff[] γ)
+ff∙ {Γᴳ = Γᴳ} γ γ∙ = 𝔹ᴳ {Γᴳ = Γᴳ} , inr (ff[] γ)
 
 CanonMot∙ : Motive∙ TermSC _ _ _ _
 CanonMot∙ = record
@@ -72,7 +80,7 @@ CanonMot∙ = record
     ; Ty∙   = Tyᴳ
     ; Sub∙  = Subᴳ
     ; Tm∙   = Tmᴳ
-    ; tyOf∙ = tyOfᴳ
+    ; tyOf∙ = λ {Γ} {t} {Γᴳ} → tyOfᴳ {Γᴳ = Γᴳ}
     ; Sub∙-is-set = Subᴳ-is-set
     ; Ty∙-is-set = Tyᴳ-is-set
     ; Tm∙-is-set = Tmᴳ-is-set
@@ -80,56 +88,52 @@ CanonMot∙ = record
 
 CanonisSC : IsSC∙ TermSC CanonMot∙
 CanonisSC = record
-  { ∅∙     = λ _ → Unit
-  ; _,∙_   = λ Γ∙ A∙ γa →
-      Σ[ γ∙ ∈ Γ∙ (π₁ {A = _} idS ∘ γa) ] A∙ (π₁ idS ∘ γa) γ∙ (π₂ idS [ γa ]t) ([∘]T _ _ _)
+  { ∅∙ = λ _ → Unit , isSetUnit
+  ; _,∙_ = λ Γ∙ A γa → (Σ[ γ∙ ∈  ⟨ Γ∙ (π₁ γa) ⟩ ] ⟨ A (π₁ γa) γ∙ (π₂ γa) refl ⟩) , isSetΣ (str (Γ∙ (π₁ γa))) λ γ∙ → isProp→isSet (str (A (π₁ γa) γ∙ (π₂ γa) refl))
+  ; _[_]T∙ = λ {σ = σ} A∙ σ∙ γ γ∙ t t' → A∙ (σ ∘ γ) (σ∙ γ γ∙) t (t' ∙ [∘]T _ γ σ )
+  ; _[_]t∙ = λ {t = t} {σ = σ} t∙ σ∙ γ γ∙ → (λ γ' γ∙' t' t'e → fst (t∙ (σ ∘ γ) (σ∙ γ γ∙)) (σ ∘ γ') (σ∙ γ' γ∙') t' {!t'e!}) , {!!}
+  -- {!!} , {!!}
+  ; tyOf[]∙ = {!!}
+  ; ∅S∙ = λ σ γ∙ → ⋆
+  ; _,_∶[_,_]∙ = {!!}
+  ; idS∙ = {!!}
+  ; _∘∙_ = {!!}
+  ; π₁∙ = {!!}
+  ; π₂∙ = {!!}
+  ; tyOfπ₂∙ = {!!}
+  ; idS∘∙_ = {!!}
+  ; _∘idS∙ = {!!}
+  ; assocS∙ = {!!}
+  ; ,∘∙ = {!!}
+  ; ηπ∙ = {!!}
+  ; η∅∙ = {!!}
+  ; βπ₁∙ = {!!}
+  ; βπ₂∙ = {!!}
+  ; [idS]T∙ = {!!}
+  ; [∘]T∙ = {!!}
+  ; [idS]t∙ = {!!}
+  ; [∘]t∙ = {!!}
+  ; U∙ = {!!}
+  ; U[]∙ = {!!}
+  }
+
+{-
+{-
+
+CanonisSC : IsSC∙ TermSC CanonMot∙
+CanonisSC = record
   ; _∘∙_   = λ {Δ} {Δ∙} {Θ} {Θ∙} {τ} {Γ} {Γ∙} {σ} σ∙ τ∙ γ γ∙ →
       subst Θ∙ (sym $ assocS _ _ _) (σ∙ (σ ∘ γ) (τ∙ γ γ∙))
   ; idS∙   = λ {Γ∙ = Γ∙} σ σ∙ → subst Γ∙ (sym $ idS∘ σ) σ∙
   ; _∘idS∙ = λ σ∙ → {!!}
   ; idS∘∙_ = λ σ∙ → {!!}
   }
--- --   ; _[_]T∙ = {!!}
--- --   ; _[_]t∙ = {!!}
--- --   ; tyOf[]∙ = {!!}
--- --   ; ∅S∙ = {!!}
--- --   ; _,_∶[_,_]∙ = {!!}
--- --   ; idS∙ = {!!}
--- --   ; _∘∙_ = {!!}
--- --   ; π₁∙ = {!!}
--- --   ; π₂∙ = {!!}
--- --   ; tyOfπ₂∙ = {!!}
--- --   ; idS∘∙_ = {!!}
--- --   ; _∘idS∙ = {!!}
--- --   ; assocS∙ = {!!}
--- --   ; ,∘∙ = {!!}
--- --   ; ηπ∙ = {!!}
--- --   ; η∅∙ = {!!}
--- --   ; βπ₁∙ = {!!}
--- --   ; βπ₂∙ = {!!}
--- --   ; [idS]T∙ = {!!}
--- --   ; [∘]T∙ = {!!}
--- --   ; [idS]t∙ = {!!}
--- --   ; [∘]t∙ = {!!}
--- --   ; U∙ = {!!}
--- --   ; U[]∙ = {!!}
--- --   }
 
--- -- -- ∅ᴳ : Ctxᴳ ∅
--- -- -- ∅ᴳ _ = Unit
-
--- -- -- _,ᴳ_ : (Γᴳ : Ctxᴳ Γ) → Tyᴳ Γᴳ A → Ctxᴳ (Γ , A)
--- -- -- Γᴳ ,ᴳ Aᴳ = λ γ → Σ[ γᴳ ∈ Γᴳ (π₁ γ) ] Aᴳ (π₁ γ) γᴳ (π₂ γ)
-
--- -- -- _[_]Tᴳ
--- -- --   : {Γᴳ : Ctxᴳ Γ}{Δᴳ : Ctxᴳ Δ}
--- -- --   → Tyᴳ Δᴳ A → Subᴳ Γᴳ Δᴳ σ → Tyᴳ Γᴳ (A [ σ ])
--- -- -- _[_]Tᴳ {σ = σ} Aᴳ σᴳ = λ γ γᴳ → Aᴳ (σ ∘ γ) (σᴳ γ γᴳ)
 
 -- -- -- _[_]tᴳ
 -- -- --   : {Γᴳ : Ctxᴳ Γ}{Δᴳ : Ctxᴳ Δ}
 -- -- --   → Tmᴳ Δᴳ t → Subᴳ Γᴳ Δᴳ σ → Tmᴳ Γᴳ (t [ σ ])
--- -- -- _[_]tᴳ {t = t} {σ} tᴳ σᴳ = λ γ γᴳ
+-- -- -- _[_]tᴳ {t = t} {σ} tᴳ σᴳ = λ γ ᴳγ
 -- -- --   → tyOf t [ σ ] , _[_]Tᴳ {A = tyOf t} (tyOfᴳ tᴳ) σᴳ , refl ,
 -- -- --     let (A , Aᴳ , p , aᴳ) = tᴳ (σ ∘ γ) (σᴳ γ γᴳ)
 -- -- --     in sym ([∘]t _ _ _) , transport (λ i → Aᴳ (σ ∘ γ) (σᴳ γ γᴳ) ([∘]t t γ σ (~ i))) aᴳ
@@ -206,3 +210,5 @@ CanonisSC = record
 -- -- --   → Tmᴳ Γᴳ (abs t)
 -- -- -- absᴳ {A = A} {t = t} {Aᴳ = Aᴳ} tᴳ γ γᴳ = Π A (tyOf t) , Πᴳ {A = A} {B = tyOf t} Aᴳ (tyOfᴳ tᴳ) , (λ _ → Π A (tyOf t)) ,
 -- -- --   Π[] {A = A} {B = tyOf t} {σ = γ} , λ a q aᴳ → {!   !}
+-}
+-}

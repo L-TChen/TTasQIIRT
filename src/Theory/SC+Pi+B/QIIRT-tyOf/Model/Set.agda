@@ -1,11 +1,12 @@
-open import Prelude
-
 module Theory.SC+Pi+B.QIIRT-tyOf.Model.Set where
+
+open import Prelude
 
 open import Theory.SC.QIIRT-tyOf.Model
 open import Theory.SC+Pi+B.QIIRT-tyOf.Model
 
--- TODO: Target hSet rather than relying on global UIP
+-- In this module, we assume UIP in order for Ty Γ and Tm Γ to form
+-- sets.
 postulate
   UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
 
