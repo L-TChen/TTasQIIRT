@@ -905,7 +905,7 @@ tyOfπ₂ = refl
 This translation is valid as long as the computational behaviour of the interleaved function clauses is not needed up to judgemental equality.
 
 \paragraph{Mutually-defined functions}
-\LT[noinline]{Agda issue?}
+\LT[noinline]{(Low) Create an Agda issue?}
 Since the constructors of QII(R)Ts can be mutually interleaved, their recursion and elimination principles also need to be given in the same vein.
 However, \Agda does not allow us to interleave clauses of different functions directly.
 One workaround is to use forward declarations as a lifting of the entire clause and then perform the necessary coercions along the corresponding equality proofs by hand.
