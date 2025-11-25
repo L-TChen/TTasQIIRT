@@ -152,7 +152,7 @@
   \institution{University of Amsterdam}
   \city{Amsterdam}
   \country{Netherlands}}
-\authornote{The work is mainly carried out during the employment at Academia Sinica.}
+\authornote{The work is mainly carried out during the employment at Academia Sinica. \LT{If ILLC cannot fund Tsai, then we should drop that affiliation and this footnote.}}
 
 %%
 %% By default, the full list of authors will be used in the page
@@ -202,7 +202,7 @@ The effort required is about the same whether or not the notion of natural model
 \LT[inline]{Clearly articulate what has been formalised and what has not, when appropriate? Ideally finish formalisation, otherwise scale back and discuss what has been done. (R1, R3)}
 \LT[inline]{TERMINATION checker? (R1, R3)}
 \LT[inline]{Work further on the idea of strictification? (R2)}
-\LT[inline]{Alternative formulation? E.g., \url{https://web.archive.org/web/20241004151846/https://lists.chalmers.se/pipermail/agda/2019/011176.html} (R2)}
+%\LT[inline]{Alternative formulation? E.g., \url{https://web.archive.org/web/20241004151846/https://lists.chalmers.se/pipermail/agda/2019/011176.html} (R2)}
 
 % FNF (Fri 5 Sep)
 
@@ -322,7 +322,7 @@ Similarly, we are ignoring universe levels, but they are all present in the form
 
 \section{Type theory as quotient inductive types} \label{sec:tt}
 
-\FNF{Discuss ``another approach is staying completely indexed and always using PathP instead of transports'' here, or in Discussion (R2)}
+%\FNF{Discuss ``another approach is staying completely indexed and always using PathP instead of transports'' here, or in Discussion (R2)}
 
 In this section, we will explain why Altenkirch and Kaposi's representation~\cite{Altenkirch2016a} is hard to use in practice and rejected by \CA arising from transports in its definition.
 Then, we show how their representation can be transformed to a representation based on Awodey's natural models.
@@ -964,8 +964,7 @@ Term = record
 \end{code}
 
 Other type formers are given similarly.
-Constructing the term model also justifies the claim that indeed the syntax makes up the initial model.
-\LT{the recursion and elimination principles justify that the term model is the initial model.}
+The recursion and elimination principles justify that the term model is indeed the initial model.
 
 \subsection{Standard model} \label{sec:standard-model}
 
@@ -1120,21 +1119,24 @@ From one point of view, our work addresses the following question: is there any 
 Based on our experimental formalisation in \CA, our answer is regrettably: not yet.
 
 \paragraph{Comparison with QIIT approaches}
-Previous formalisations~\cite{Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} of type theory using QIITs have resorted to using postulated constructors and custom rewrite rules to manually define QIITs and their eliminators.
+Previous formalisations~\cite{Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} based on the CwF semantics of type theory using QIITs have resorted to using postulated constructors and custom rewrite rules to manually define QIITs and their eliminators.
 However, this comes at a cost: the proof assistant no longer performs strict positivity, coverage, or termination checks for functions defined from quotient inductive types, nor does it supports dependent pattern matching, program extraction, and interactive theorem proving.
-The loss of coverage check for inductive types is mitigated by using hand-crafted eliminators (see \Cref{sec:tt:elim}), since the coverage check is also performed for record types.
+The loss of coverage check for inductive types is mitigated by using hand-crafted eliminators (see \Cref{sec:tt:elim}), since the coverage check is also in effect for record types.
 
-Our approach leads to fewer transports appearing in the syntax of terms.
+The Ehrhard's style of presentation~\cite{Coquand2020,Ehrhard1988}, whereas the set of terms remains indexed by types but without any transport in the middle of terms for specifying equations, can be stated by using dependent paths and has been adopted by a recent formalisation~\cite{Altenkirch2026} in \CA.
+
+Our approach leads to no transports appearing in its own syntax and also avoids the use of dependent paths at all.
 However, the same transports (and the same equations for them) seem to have a tendency to come back in concrete model constructions, as explained in \cref{sec:meta}.
-However, the lack of transports is an advantage for avoiding strict positivity issues in the current implementation of \CA.
-It is also worth remarking that by using native features such as higher inductive types, rather than postulates in ordinary \Agda, we do get computational interpretations.
+
+We remark that the lack of transports is an advantage for avoiding strict positivity issues in the current implementation of \CA.
+By using native features such as higher inductive types, rather than postulates in ordinary \Agda, we do get computational interpretations.
 For example, our implementation of normalization by evaluation in \cref{sec:nbe} can actually normalise terms and could be potentially extracted as Haskell programs with the cubical information explicitly erased using \Agda's \verb|--erased-cubical| feature.
 
+\paragraph{Strictification}
 Kaposi and Pujet~\cite{Kaposi2025} have shown how strictification techniques can simplify proofs, but this is an orthogonal issue.
-\LT{Clarify why this is an orthogonal issue?}
-In \cref{sec:strictify}, we have sketched how also our notion of models can be strictified using a similar idea.
-However, even though strictification turns most of the equality constructors about substitution to strict equalities, this does not help with transports appearing in the QIIT definition of terms and the resulting strict positivity issues, as strictification can only be applied \emph{after} the inductive types are defined.
-Moreover, strictification only address substitution rules and does not help with other issues such as equations over equations over equations for the universe of types.
+Even though strictification turns most of the equality constructors about substitution to strict equalities, this does not help with transports appearing in the QIIT definition of terms and the resulting strict positivity issues, as strictification can only be applied \emph{after} the inductive types are defined.
+In \cref{sec:strictify}, we have sketched how also our notion of models can be strictified using a simpler idea.
+However, a proper strictification may require a different metatheory than `just' the support of QII(R)Ts (see below).
 
 % Untyped version might still be easiest to work with, with current proof assistant technology
 
@@ -1160,7 +1162,7 @@ Another challenge concerns interleaved mutual definitions.
 Since constructors of QIITs may be mutually interleaved, the elaboration from dependent pattern matching to eliminators need to take this into account.
 Our workaround, using forward declarations to lift function clauses to fix the dependency, sacrifices their computational behaviour.
 Furthermore, our definitions appear to reach the limits of the termination checker: even seemingly harmless functions when defining the recursion principle fail to pass termination checking.
-\LT{Clarify this in \Cref{sec:tt:elim}}
+\LT{Clarify the termination issue in \Cref{sec:tt:elim}}
 
 % \paragraph{The need for strict propositions}
 \paragraph{Strict propositions, and observational type theory}
@@ -1168,14 +1170,15 @@ The recent work on strictified syntax~\cite{Kaposi2025} addresses transport hell
 While \Agda does support strict propositions~\cite{Gilbert2019}, this feature was not designed to work with \CA~\cite{Agda-issue2022}.
 %
 %\paragraph{The implementation of OTT or XTT}
-To formalise the metatheory of type theory using QIITs, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory provided by \CA.
+To formalise the metatheory of type theory using QIITs with as few transports as possible, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory offered by \CA.
+In particular, regularity and definitional UIP, supported by OTT (see \cite{Altenkirch2019,Pujet2024} for the discussion on regularity) and by its cubical variant XTT~\cite{Sterling2022}, would immediately simplify our standard model~(\Cref{sec:standard-model}) and make the Yoneda embedding and the local universe construction usable as strictification techniques.
 
 The use of QIITs in OTT~\cite{Kaposi2025} in \Agda requires the user themselves to implement the coercion rules for inductive types~\cite{Pujet2024} as well as their elimination principles.
 Quotient inductive types are not supported in the implementation of OTT in Rocq~\cite{Pujet2024a} and its theory is still being developed~\cite{Felicissimo2025a}.
 
-Using XTT, a cubical variant of OTT~\cite{Sterling2022}, is another possibility.
-In particular, regularity and definitional UIP, supported by XTT, would immediately simplify our standard model~(\Cref{sec:standard-model}) and make the Yoneda embedding and the local universe construction usable as strictification techniques.
+A new option \verb"--cubical=no-glue" in the forthcoming \Agda 2.9.0~\cite{Agda-issue2025} disallows the |Glue| type in the cubical mode and in principle forms a cubical type theory compatible with the uniqueness of identity proofs.
 Since \CA already supports HIITs (though with caveats noted earlier), implementing XTT with QIITs as a variant of \CA may be within reach~\cite{Agda-issue2019}.
+
 
 \paragraph{The Ford transformation and definitional UIP}
 The Ford transformation is known to work well with definitional UIP~\cite{Altenkirch2006}.
@@ -1192,12 +1195,10 @@ Without further advances in the technology of proof assistants, formalising type
 We hope that the lessons learned here can help the design of future proof assistants, so that one day we may implement a proof assistant within a proof assistant without (too much) sweat and tears.
 
 \begin{acks}
-  \begin{itemize}
-    \item anonymous reviewers' feedback;
-    \item inspired by Amélia Liao's work on 1Lab for the syntax of equational reasoning for displayed categories;
-    \item Shu-Hung You for his comments on the early draft;
-    \item National Science and Technology Council of Taiwan under grant NSTC 114-2222-E-001-001-MY3.
-  \end{itemize}
+  We appreciate the constructive comments from the anonymous reviewers, in particular the pointers to alternative ways to formalising type theory that we overlooked initially.
+  Our syntax for displayed equations in \cref{sec:tt:elim} is inspired by the syntax of equational reasoning for displayed categories on 1Lab~\cite{Amlia2025}.\LT[noinline]{date?}
+  We are also grateful to Shu-Hung You for his comments on the early draft.
+  The work is supported by the National Science and Technology Council of Taiwan under grant NSTC 114-2222-E-001-001-MY3.
 \end{acks}
 
 \IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
