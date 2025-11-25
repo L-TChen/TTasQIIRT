@@ -1196,7 +1196,7 @@ We hope that the lessons learned here can help the design of future proof assist
 
 \begin{acks}
   We appreciate the constructive comments from the anonymous reviewers, in particular the pointers to alternative ways to formalising type theory that we overlooked initially.
-  Our syntax for displayed equations in \cref{sec:tt:elim} is inspired by the syntax of equational reasoning for displayed categories on 1Lab~\cite{Amlia2025}.\LT[noinline]{date?}
+  Our syntax for displayed equations in \cref{sec:tt:elim} is inspired by the syntax of equational reasoning for displayed categories on 1Lab~\cite{Amlia2025}.
   We are also grateful to Shu-Hung You for his comments on the early draft.
   The work is supported by the National Science and Technology Council of Taiwan under grant NSTC 114-2222-E-001-001-MY3.
 \end{acks}
