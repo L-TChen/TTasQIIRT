@@ -122,10 +122,7 @@ tyOfⱽ-sound
   : (x : Var Γ')
   → tyOf ⌜ x ⌝ⱽ ≡ let (_ , σ , Aₛ) = tyOfⱽ x in Aₛ [ σ ]T
 tyOfⱽ-sound here      = refl
-tyOfⱽ-sound (there x) =
-  let (Γ , σ , Aₛ) = tyOfⱽ x
-  in (λ i → tyOfⱽ-sound x i [ π₁ idS ]T)
-     ∙ cong (ty³ _ (E Aₛ)) (≡ʸ→≡ refl)
+tyOfⱽ-sound (there x) = cong _[ π₁ idS ]T (tyOfⱽ-sound x)
 
 data Ren : Ctx' → Ctx' → Set
 ⌜_⌝ᴿ : Ren Γ' Δ' → Sub [ Γ' ]ᶜ [ Δ' ]ᶜ
@@ -192,15 +189,17 @@ wkᴿ
 ⌜wkᴿ⌝
   : (A : Ty [ Γ' ]ᶜ)(ρ : Ren Γ' Δ')
   → ⌜ ρ ⌝ᴿ ∘ π₁ idS ≡ ⌜ wkᴿ A ρ ⌝ᴿ
+
 wkᴿ A ∅R = ∅R
 wkᴿ A (_,R_∶[_] {A = A'} ρ x p) =
-  wkᴿ A ρ  ,R there x ∶[
-    cong _[ π₁ idS ]T p ∙ cong (ty³ _ (E (A' [ ⌜ ρ ⌝ᴿ ]T))) (≡ʸ→≡ refl) ∙ cong (A' [_]T) (⌜wkᴿ⌝ A ρ)
-  ]
-⌜wkᴿ⌝ A ∅R = ≡ʸ→≡ refl
+  wkᴿ A ρ  ,R there x ∶[ cong _[ π₁ idS ]T p ∙ cong (A' [_]T) (⌜wkᴿ⌝ A ρ) ]
+
+⌜wkᴿ⌝ A ∅R = refl
 ⌜wkᴿ⌝ A (_,R_∶[_] {A = A'} ρ x p) =
-  let q = (λ i → p i [ π₁ idS ]T) ∙ (λ i → ⟨ E A' , ≡ʸ→≡ {σʸ = ⌜ A' [ ⌜ ρ ⌝ᴿ ]T ⌝ ∘ π₁ idS} {⌜ A' ⌝ ∘ (⌜ ρ ⌝ᴿ ∘ π₁ {A = A} idS)} refl i ⟩!)
-      q' = (λ i → p i [ π₁ {A = A} idS ]T) ∙ [∘]T A' (π₁ {A = A} idS) ⌜ ρ ⌝ᴿ ∙ cong (A' [_]T) (⌜wkᴿ⌝ A ρ) in
+ let q : tyOf (⌜ x ⌝ⱽ [ π₁ idS ]t) ≡ A' [ ⌜ ρ ⌝ᴿ ∘ π₁ idS ]T
+     q = cong _[ π₁ idS ]T p
+     q' = cong _[ π₁ idS ]T p ∙ cong (A' [_]T) (⌜wkᴿ⌝ A ρ)
+ in
   ⌜ ρ ,R x ∶[ p ] ⌝ᴿ ∘ π₁ idS
     ≡⟨  ,∘ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ (π₁ idS) p q ⟩
   (⌜ ρ ⌝ᴿ ∘ π₁ idS) , (⌜ x ⌝ⱽ [ π₁ idS ]t) ∶[ q ]
@@ -212,7 +211,7 @@ idR : Ren Γ' Γ'
 ⌜idR⌝
   : idS {[ Γ' ]ᶜ} ≡ ⌜ idR {Γ'} ⌝ᴿ
 idR {∅'}      = ∅R
-idR {Γ' ,' A} = wkᴿ A idR ,R here ∶[ cong (A [_]T) (≡ʸ→≡ refl ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) ]
+idR {Γ' ,' A} = wkᴿ A idR ,R here ∶[ cong (A [_]T) (cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR) ]
 ⌜idR⌝ {∅'}      = η∅ _
 ⌜idR⌝ {Γ' ,' A} =
   idS
@@ -225,10 +224,10 @@ idR {Γ' ,' A} = wkᴿ A idR ,R here ∶[ cong (A [_]T) (≡ʸ→≡ refl ∙ co
     ∎
   where
     p : π₁ idS ≡ ⌜ wkᴿ A idR ⌝ᴿ
-    p = ≡ʸ→≡ refl ∙ cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR
+    p = cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR
     pf : tyOf (π₂ idS) ≡ (A [ ⌜_⌝ᴿ (wkᴿ A idR) ]T)
     pf = cong (A [_]T)
-      (≡ʸ→≡ refl ∙ (cong (_∘ π₁ idS) ⌜idR⌝) ∙ (⌜wkᴿ⌝ A idR))
+      (cong (_∘ π₁ idS) ⌜idR⌝ ∙ ⌜wkᴿ⌝ A idR)
 
 lookupVar-wkᴿ
   : {A : Ty [ Γ' ]ᶜ}(ρ : Ren Γ' Δ')(x : Var Δ')
@@ -258,7 +257,7 @@ _⊙_
       ∙ (λ i → p i [ ⌜ ρ' ⌝ᴿ ]T)
       ∙ (λ i → ⟨ E A , ≡ʸ→≡ {σʸ = ⌜ A [ ⌜ ρ ⌝ᴿ ]T ⌝ ∘ ⌜ ρ' ⌝ᴿ} {⌜ A ⌝ ∘ (⌜ ρ ⌝ᴿ ∘ ⌜ ρ' ⌝ᴿ)} refl i ⟩!)
       ∙ cong (A [_]T) (⌜⊙⌝ ρ ρ')
-⌜⊙⌝ ∅R ρ'                       = ≡ʸ→≡ refl
+⌜⊙⌝ ∅R ρ'                       = refl
 ⌜⊙⌝ (_,R_∶[_] {A = A} ρ x p) ρ' =
   (⌜ ρ ⌝ᴿ , ⌜ x ⌝ⱽ ∶[ p ]) ∘ ⌜ ρ' ⌝ᴿ
     ≡⟨ ,∘ ⌜ ρ ⌝ᴿ ⌜ x ⌝ⱽ ⌜ ρ' ⌝ᴿ p q ⟩
@@ -269,7 +268,6 @@ _⊙_
   where
     q : tyOf (⌜ x ⌝ⱽ [ ⌜ ρ' ⌝ᴿ ]t) ≡ A [ ⌜ ρ ⌝ᴿ ∘ ⌜ ρ' ⌝ᴿ ]T
     q = cong (_[ ⌜ ρ' ⌝ᴿ ]T) p
-      ∙ λ i → ⟨ E A , ≡ʸ→≡ {σʸ = ⌜ A [ ⌜ ρ ⌝ᴿ ]T ⌝ ∘ ⌜ ρ' ⌝ᴿ} {⌜ A ⌝ ∘ (⌜ ρ ⌝ᴿ ∘ ⌜ ρ' ⌝ᴿ)} refl i ⟩!
 
 lookupVar⊙
   : (ρ : Ren Δ' Θ')(ρ' : Ren Γ' Δ')(x : Var Θ')
