@@ -18,7 +18,6 @@ open import Cubical.Data.Nat.Base       public
   using (ℕ; zero; suc; _+_)
 open import Cubical.Data.Bool.Base      public
   using (Bool; true; false)
---  renaming (elim to elim-Bool)
 open import Cubical.Relation.Nullary.Base using (Discrete; Dec; yes; no; decRec) public
 open import Cubical.Relation.Nullary.Properties using (Discrete→isSet) public
 

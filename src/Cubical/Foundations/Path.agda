@@ -6,7 +6,7 @@ open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Equiv
 open import Cubical.Foundations.Isomorphism
 open import Cubical.Foundations.Transport
-open import Cubical.Foundations.Univalence
+-- open import Cubical.Foundations.Univalence
 
 open import Cubical.Reflection.StrictEquiv
 
@@ -191,11 +191,11 @@ module _ {a₀₀ a₁₁ : A} {a₋ : a₀₀ ≡ a₁₁}
     fillerFrom p k i j = hcomp-equivFiller (slideSquareFaces i j) (inS (p i j)) (~ k)
 
 -- The type of fillers of a square is equivalent to the double composition identites
-Square≃doubleComp : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
-                    (a₀₋ : a₀₀ ≡ a₀₁) (a₁₋ : a₁₀ ≡ a₁₁)
-                    (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
-                    → Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ (a₋₀ ⁻¹ ∙∙ a₀₋ ∙∙ a₋₁ ≡ a₁₋)
-Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = pathToEquiv (PathP≡doubleCompPathˡ a₋₀ a₀₋ a₁₋ a₋₁)
+-- Square≃doubleComp : {a₀₀ a₀₁ a₁₀ a₁₁ : A}
+--                     (a₀₋ : a₀₀ ≡ a₀₁) (a₁₋ : a₁₀ ≡ a₁₁)
+--                     (a₋₀ : a₀₀ ≡ a₁₀) (a₋₁ : a₀₁ ≡ a₁₁)
+--                     → Square a₀₋ a₁₋ a₋₀ a₋₁ ≃ (a₋₀ ⁻¹ ∙∙ a₀₋ ∙∙ a₋₁ ≡ a₁₋)
+-- Square≃doubleComp a₀₋ a₁₋ a₋₀ a₋₁ = pathToEquiv (PathP≡doubleCompPathˡ a₋₀ a₀₋ a₁₋ a₋₁)
 
 -- Flipping a square in Ω²A is the same as inverting it
 sym≡flipSquare : {x : A} (P : Square (refl {x = x}) refl refl refl)

@@ -7,7 +7,7 @@ open import Cubical.Foundations.Structure
 open import Cubical.Foundations.Structure using (typ) public
 open import Cubical.Foundations.GroupoidLaws
 open import Cubical.Foundations.Isomorphism
-open import Cubical.Foundations.Univalence
+-- open import Cubical.Foundations.Univalence
 open import Cubical.Foundations.Function
 
 private

@@ -41,7 +41,11 @@ Tyᴳ {Γ} Γ∙ A = (γ : Sub ∅ Γ) (γ∙ : ⟨ Γ∙ γ ⟩) (t : Tm ∅) �
 
 Tyᴳ-is-set : (Γ∙ : Ctxᴳ Γ) → (A : Ty Γ)
            → isSet (Tyᴳ Γ∙ A)
-Tyᴳ-is-set Γ∙ t = ? -- isSetΠ3 (λ γ γ∙ t → isSetΠ λ e → isSetHProp)
+Tyᴳ-is-set Γ∙ t = {!!}
+-- this would hold in XTT since UIP holds globally;
+-- this of course also hold with univalence,
+--   `isSetΠ3 (λ γ γ∙ t → isSetΠ λ e → isSetHProp)`
+-- so either way we can prove this statement.
 
 Tmᴳ : Ctxᴳ Γ → Tm Γ → Set₁
 Tmᴳ {Γ} Γ∙ t = (γ : Sub ∅ Γ)(γ∙ : ⟨ Γ∙ γ ⟩) →

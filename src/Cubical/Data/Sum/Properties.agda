@@ -10,6 +10,7 @@ open import Cubical.Functions.Embedding
 
 open import Cubical.Data.Sum.Base as ⊎
 open import Cubical.Data.Empty as ⊥
+open import Cubical.Data.Unit
 open import Cubical.Data.Nat
 open import Cubical.Data.Sigma
 
