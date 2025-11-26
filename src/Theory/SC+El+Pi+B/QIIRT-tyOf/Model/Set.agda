@@ -12,7 +12,7 @@ open Var
 
 -- TODO: change to hSets instead of global UIP
 postulate
-  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
+--  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
 
 opaque
   unfolding _∙_
