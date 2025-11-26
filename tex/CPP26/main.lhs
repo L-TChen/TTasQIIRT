@@ -148,11 +148,10 @@
   \institution{Academia Sinica}
   \city{Taipei}
   \country{Taiwan}}
-\affiliation{%
-  \institution{University of Amsterdam}
-  \city{Amsterdam}
-  \country{Netherlands}}
-\authornote{The work is mainly carried out during the employment at Academia Sinica. \LT{If ILLC cannot fund Tsai, then we should drop that affiliation and this footnote.}}
+%\affiliation{%
+%  \institution{University of Amsterdam}
+%  \city{Amsterdam}
+%  \country{Netherlands}}
 
 %%
 %% By default, the full list of authors will be used in the page
@@ -201,7 +200,7 @@ The effort required is about the same whether or not the notion of natural model
 
 \LT[inline]{Clearly articulate what has been formalised and what has not, when appropriate? Ideally finish formalisation, otherwise scale back and discuss what has been done. (R1, R3)}
 \LT[inline]{TERMINATION checker? (R1, R3)}
-\LT[inline]{Work further on the idea of strictification? (R2)}
+\FNF[inline]{Work further on the idea of strictification? (R2)}
 %\LT[inline]{Alternative formulation? E.g., \url{https://web.archive.org/web/20241004151846/https://lists.chalmers.se/pipermail/agda/2019/011176.html} (R2)}
 
 % FNF (Fri 5 Sep)
