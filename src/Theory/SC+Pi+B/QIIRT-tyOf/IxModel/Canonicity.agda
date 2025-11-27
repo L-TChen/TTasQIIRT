@@ -2,13 +2,8 @@ open import Prelude
 
 module Theory.SC+Pi+B.QIIRT-tyOf.IxModel.Canonicity where
 
-open import Cubical.Data.Sum
-
 -- open import Theory.SC+Pi+B.QIIRT-tyOf.Syntax
 -- open Var
-
-open import Cubical.Foundations.HLevels
-open import Cubical.Foundations.Structure
 
 open import Theory.SC+Pi+B.QIIRT-tyOf.Model
 open import Theory.SC+Pi+B.QIIRT-tyOf.Model.Term
