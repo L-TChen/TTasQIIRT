@@ -8,17 +8,21 @@ open import Cubical.Foundations.Prelude public
 open import Cubical.Foundations.HLevels public
 open import Cubical.Foundations.Path    public
 open import Cubical.Foundations.Isomorphism public
+open import Cubical.Foundations.Structure public
+
 open import Cubical.Data.Sigma          public
   hiding (Sub)
 open import Cubical.Data.Empty          public
   renaming (elim to elim-⊥; rec to rec-⊥)
 open import Cubical.Data.Unit           public
   renaming (tt to ⋆)
-open import Cubical.Data.Nat            public
+open import Cubical.Data.Nat.Base       public
   using (ℕ; zero; suc; _+_)
-open import Cubical.Data.Bool           public
+open import Cubical.Data.Nat.Properties public
+  using (isSetℕ; +-assoc; +-zero)
+open import Cubical.Data.Bool.Base      public
   using (Bool; true; false)
-  renaming (elim to elim-Bool)
+open import Cubical.Data.Sum.Base       public
 open import Cubical.Relation.Nullary.Base using (Discrete; Dec; yes; no; decRec) public
 open import Cubical.Relation.Nullary.Properties using (Discrete→isSet) public
 

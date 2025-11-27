@@ -55,7 +55,7 @@ open Var
     p = ◂ᵀ (▸ᵀ (A [ σ ]))
         ≡[ i ]⟨ E (▸ᵀ A) [ y ⌜ ▸ᵀ A ⌝ ((idS∘ y (▸ˢ σ) idS) (~ i)) ] ⟩
       E (▸ᵀ A) [ y ⌜ ▸ᵀ A ⌝ (idS ∘ y (▸ˢ σ) idS) ]
-        ≡[ i ]⟨ E (▸ᵀ A) [ natʸ ⌜ ▸ᵀ A ⌝ (y (▸ˢ σ) idS) idS (~ i) ] ⟩
+        ≡[ i ]⟨ E (▸ᵀ A) [ natʸ ⌜ ▸ᵀ A ⌝ (y (▸ˢ σ) idS) idS refl (~ i) ] ⟩
       E (▸ᵀ A) [ y ⌜ ▸ᵀ A ⌝ idS ∘ y (▸ˢ σ) idS ]
         ≡⟨ sym ([∘]T _ _ _) ⟩
       E (▸ᵀ A) [ y ⌜ ▸ᵀ A ⌝ idS ] [ y (▸ˢ σ) idS ]
@@ -145,7 +145,9 @@ open Var
     q = refl
       ∙ (λ i → p' i [ idS ])
       ∙ [∘]T [ ▸ᵀ A ]³ idS (y (▸ˢ σ) idS)
-      ∙ λ i → [ ▸ᵀ A ]³ [ (natʸ (▸ˢ σ) idS idS ∙ cong (y (▸ˢ σ)) (idS∘ idS)) i ]
+      ∙ λ i → [ ▸ᵀ A ]³ [ {!!} ]
+      -- (natʸ (▸ˢ σ) idS idS ∙ cong (y (▸ˢ σ)) (idS∘ idS)) i ]
+
 ◂▸ˢ {Γ} idS i = idS {◂▸ᶜ Γ i}
 ◂▸ˢ (σ ∘ τ) = sym (Subʸ-τidS∘ (▸ˢ σ) (y (▸ˢ τ) idS)) ◁ λ i → ◂▸ˢ σ i ∘ ◂▸ˢ τ i
 ◂▸ˢ (π₁ {A = A} σ) i = π₁ {A = ◂▸ᵀ A i} (◂▸ˢ σ i)

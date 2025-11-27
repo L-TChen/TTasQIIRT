@@ -259,6 +259,7 @@ example
   → [ x ] ⧺ xs ⧺ ([] ⧺ ys ⧺ zs) ≡ [ x ] ⧺ (xs ⧺ ys) ⧺ [] ⧺ zs
 example xs ys zs = ◁≡→≡ refl
 
+{-
 lem
   : (P : JList → Set) (PisSet : ∀ x → isSet (P x))
   → IsDepModel DListMod (λ xs → P (▷ xs)) (PisSet ∘ ▷_)
@@ -273,6 +274,7 @@ lem P PisSet M = let open IsDepModel M in record
   ; ⋆-idʳ = {!!}
   ; ⋆-idˡ = {!!}
   }
+-}
 
 open import Cubical.Data.Nat
   hiding (elim)

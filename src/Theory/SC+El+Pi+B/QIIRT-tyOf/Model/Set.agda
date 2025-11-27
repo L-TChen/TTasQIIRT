@@ -11,8 +11,8 @@ open import Theory.SC+Pi+B.QIIRT-tyOf.Model.Set
 open Var
 
 -- TODO: change to hSets instead of global UIP
-postulate
-  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
+-- postulate
+--  UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
 
 opaque
   unfolding _∙_

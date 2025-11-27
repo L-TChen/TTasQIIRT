@@ -3,8 +3,7 @@ name: TTasQIIRT
 include: 
   .
 
-depend: 
-  cubical
+depend:
 
 flags:
-  --auto-inline --cubical --exact-split --guardedness
+  --auto-inline --cubical=no-glue --exact-split --guardedness -WnoUnsupportedIndexedMatch 
