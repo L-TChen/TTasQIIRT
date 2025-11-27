@@ -1167,7 +1167,7 @@ While \Agda does support strict propositions~\cite{Gilbert2019}, this feature wa
 %
 %\paragraph{The implementation of OTT or XTT}
 To formalise the metatheory of type theory using QIITs with as few transports as possible, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory offered by \CA.
-In particular, regularity and definitional UIP, supported by OTT (see \cite{Altenkirch2019,Pujet2024} for the discussion on regularity) and by its cubical variant XTT~\cite{Sterling2022}, would immediately simplify our standard model~(\Cref{sec:standard-model}) and make the Yoneda embedding and the local universe construction usable as strictification techniques.
+In particular, regularity and definitional UIP, supported by OTT (see \cite{Altenkirch2019,Pujet2024} for the discussion on regularity) and by its cubical variant XTT~\cite{Sterling2022}, would immediately simplify our standard model~(\Cref{sec:standard-model}) and make the strictification developed by Kaposi and Pujet available to use.
 
 The use of QIITs in OTT~\cite{Kaposi2025} in \Agda requires the user themselves to implement the coercion rules for inductive types~\cite{Pujet2024} as well as their elimination principles.
 Quotient inductive types are not supported in the implementation of OTT in Rocq~\cite{Pujet2024a} and its theory is still being developed~\cite{Felicissimo2025a}.
@@ -1191,7 +1191,7 @@ We hope that the lessons learned here can help the design of future proof assist
 
 \begin{acks}
   We appreciate the comments from the anonymous reviewers, in particular the pointers to alternative ways to formalising type theory that we overlooked initially.
-  Our syntax for displayed equations in \cref{sec:tt:elim} is inspired by the syntax of equational reasoning for displayed categories on 1Lab~\cite{Amlia2025}.
+  Our syntax for displayed equations in \cref{sec:tt:elim} is inspired by the syntax of equational reasoning for displayed categories on 1Lab.~\footnote{\url{https://1lab.dev/Cat.Displayed.Base.html}}
   We are also grateful to Shu-Hung You for his comments on the early draft.
   The work is supported by the National Science and Technology Council of Taiwan under grant NSTC 114-2222-E-001-001-MY3.
 \end{acks}
