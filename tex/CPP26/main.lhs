@@ -269,29 +269,26 @@ We discuss proof assistant features and their helpfulness further towards the en
 \paragraph{Contributions} We make the following contributions:
 \begin{itemize}
 \item We present an intrinsically well typed representation of the syntax of type theory, inspired by Awodey's natural models (\cref{sec:tt}).
-\item We derive elimination and recursion principles for the syntax (\cref{sec:tt:elim}), and show how it can be used to construct the standard model and the term model (\cref{sec:standard-model}).
+\item We derive elimination and recursion principles for the syntax (\cref{sec:tt:elim}), and show how the standard model and the term model are constructed (\cref{sec:standard-model}).
 \item We discuss strictification constructions on models, and show that they also apply to our notion of natural models (\cref{sec:strictify}).
 \item We develop normalisation by evaluation for substitution calculus~(\cref{sec:nbe}) as a proof of concept: our development is carried out in \CA, which has a computational implementation of QIITs and principles such as function extensionality, so the resulting normaliser computes, and can potentially be extracted as a verified program.
-\item We discuss pros and cons of our approach compared to other approaches, and which proof assistant features would be helpful to make future formalisations easier (\cref{sec:discussion}).
+\item We discuss pros and cons of our approach compared to other approaches, and which features of a proof assistant and its metatheory would make future formalisation more feasible (\cref{sec:discussion}).
 \end{itemize}
 
 %\LT{the idea of using natural model appears at least in 2024 \cite{Bense2024}, and it is a natural idea to formalise type theory in this way.}
 \section{Setting and metatheory}
 % FNF (Sun 7 Sep)
 
-Our formalisation is carried out in \CA with a global assumption of uniqueness of identity proofs (UIP).
-\LT{Should we discharge this assumption in our formalisation, eg set-truncate where needed instead? (R1, R2)}
+%\LT{Should we discharge this assumption in our formalisation, eg set-truncate where needed instead? (R1, R2)}
+Our formalisation is carried out in \CA without the use of the |Glue| type and, in particular, the univalence principle, by turning on the option \verb"--cubical=no-glue" available in the forthcoming \Agda 2.9.0.
 %
-We believe it should be possible to discharge this assumption in favour of explicitly set-truncating the types we define.
+We explicitly set-truncate the types we define.
+Therefore, the term \emph{set} is used interchangeably with type.
 %
-Of course, this assumption is inconsistent, since univalence is provable in \CA.
+For the sake of simplicity we occasionally postulate uniqueness of identity proofs (UIP) locally, which is of course inconsistent with univalence but in principle compatible with cubical type theory. 
 %
-However, we make sure to not make any use of univalence in our development (more generally, we do not make use of the |Glue| type, which is used to prove univalence), and we are confident that this metatheory and our formalisation are actually consistent.
+We believe that the cubical type theory XTT~\cite{Sterling2022}, which enjoys definitional UIP without univalence, justifies this local assumption.
 %
-The cubical type theory XTT~\cite{Sterling2022}, which enjoys definitional UIP without univalence, justifies our assumption.
-We note that a variant of \CA which is consistent with UIP has also been requested by other users~\cite{Agda-issue2019}.
-By this assumption, the term \emph{set} is used interchangeably with type, since sets are exactly types satisfying UIP in homotopy type theory~\cite{UFP2013}.
-
 
 \CA implements cubical type theory, and one of the important concepts therein is the interval type |I| with two distinguished endpoints |i0| and |i1|.
 %
@@ -406,7 +403,7 @@ Similar to the Ford transformation, this problem can be overcome by asking for a
 ,∘ : ... (HL((qt : B [ τ ]T ≡ A [ σ ∘ τ ]T)))
    → (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ (HL(qt)) ]
 \end{code}
-As we assume UIP, the additional argument is essentially unique, so this updated constructor does not require any information but only defers the proof obligation.
+As |Sub| is a set, the additional argument is essentially unique, so this updated constructor does not require any information but only defers the proof obligation.
 %This redundant argument can be removed later when defining its eliminator (\Cref{sec:tt:elim}).
 
 Once the Ford transformation has been applied, the index |B| in |Tm Γ B| no longer plays the role of enforcing constraints.
@@ -517,7 +514,7 @@ data _ where
   tyOfπ₂idS : tyOf (π₂ {A = A [ σ ]T} idS)
     ≡ A [ σ ∘ π₁ idS ]T
 \end{code}
-which can be identified with the proof derivable from |[∘]T| using UIP afterwards.
+which can be identified with the proof derivable from |[∘]T| using the fact that |Ty| is a set afterwards.
 The required equality proof |p| above is then given by this constructor.
 
 Other constructors are introduced following the `Ford transformation', with differences compared to the usual QIIT presentation highlighted:
@@ -672,7 +669,7 @@ data _ where
 tyOf (π[] _ _ _ _ _ _ i) = U[] i
 \end{code}
 
-In the end, we emphasise that the introduction of superfluous equality proofs and constructors only makes sense under the assumption of UIP.
+In the end, we emphasise that the introduction of superfluous equality proofs and constructors only makes sense because of set-truncation.
 These additional arguments are essentially unique and thus do not add any new laws to type theory, but merely serve as devices to meet the syntactic restriction of strict positivity in the current implementation of \CA.
 
 \subsection{Recursion and elimination principles} \label{sec:tt:elim}
@@ -752,7 +749,7 @@ recTyOf {B = B} (S.π₂ {A = A} σ) p =
   recTy (S.tyOf (S.π₂ σ))       ≡⟨ cong recTy p ⟩
   recTy B                       ∎
 \end{code}
-The coherence conditions for |recTyOf| over equality constructors are trivial because of UIP.
+The coherence conditions for |recTyOf| over equality constructors are trivial because of set-truncation.
 
 For the elimination principle, we consider the notion of displayed algebras over an |SC|-algebra |M|, as a record type |SC∙| parametric in |M|, and later instantiate |M| to the term algebra, i.e.\ the syntax.
 Carriers of a displayed algebra as well as the semantics of |tyOf| are given below.
@@ -812,12 +809,12 @@ _∙P_ :  {x' : B x}{y' : B y}{z' : B z}
   → PathP (λ i → B (p i)) x' y' → PathP (λ i → B (q i)) y' z'
   → PathP (λ i → B ((HL((p ∙ q)))i)) x' z'
 \end{code}
-We also use UIP to identify the highlighted |p ∙ q| with the desired underlying equation in special-purpose equational reasoning combinators such as the following:
+We also use set-truncation to identify the highlighted |p ∙ q| with the desired underlying equation in special-purpose equational reasoning combinators such as the following:
 \begin{code}
   beginSub[_]_
     : ({p} q : σ ≡ τ) → σ∙ ≡Sub[ p ] τ∙ → σ∙ ≡Sub[ q ] τ∙
   beginSub[_]_ {σ∙} {τ∙} {p} q p∙ =
-    subst (λ r → σ∙ ≡Sub[ r ] τ∙) (UIP p q) p∙
+    subst (λ r → σ∙ ≡Sub[ r ] τ∙) (Sub-is-set p q) p∙
 \end{code}
 
 For example, the coherence proof for |ηπ| is given by
@@ -827,7 +824,7 @@ beginSub[ ηπ ]
     ≡Sub[ ηπ ]⟨ ηπ∙ (elimSub σ) ⟩
   π₁∙ (elimSub σ) ,
   π₂∙ (elimSub σ) ∶[ refl , tyOfπ₂∙ (elimSub σ) ]t∙
-    ≡Sub[ refl ]⟨ cong (λ z → ... , ... ∶[ refl , z ]t∙) (UIP _ _) ⟩
+    ≡Sub[ refl ]⟨ cong (λ z → ... , ... ∶[ refl , z ]t∙) (Ty∙-is-set  _ _) ⟩
   π₁∙ (elimSub σ) ,
   elimTm (π₂ σ) ∶[ refl , elimTyOf (π₂ σ) refl ]t∙
     ∎
@@ -904,7 +901,7 @@ tyOfπ₂ = refl
 This translation is valid as long as the computational behaviour of the interleaved function clauses is not needed up to judgemental equality.
 
 \paragraph{Mutually-defined functions}
-\LT[noinline]{(Low) Create an Agda issue?}
+%\LT[noinline]{(Low) Create an Agda issue?}
 Since the constructors of QII(R)Ts can be mutually interleaved, their recursion and elimination principles also need to be given in the same vein.
 However, \Agda does not allow us to interleave clauses of different functions directly.
 One workaround is to use forward declarations as a lifting of the entire clause and then perform the necessary coercions along the corresponding equality proofs by hand.
@@ -1071,7 +1068,7 @@ record Subʸ (Γ Δ : Ctx) : Set where
     y    : ∀{Θ} → Sub Θ Γ → Sub Θ Δ
     nat  : (τ : Sub Ξ Θ) (δ : Sub Θ Γ) → y δ ∘ τ ≡ y (δ ∘ τ)
 \end{code}
-By UIP, any two morphisms |σ| and |σ'| in the presheaf category are equal whenever their functionals agree:
+By set-truncation, any two morphisms |σ| and |σ'| in the presheaf category are equal whenever their functionals agree:
 \begin{code}
 ≡ʸ→≡ : {σ σ' : Subʸ Γ Δ} → σ ≡ʸ σ' → σ ≡ σ'
 \end{code}
@@ -1104,14 +1101,14 @@ If |M| is strictified by the Yoneda embedding, then the laws for identity substi
 Hence, combining both techniques, we can construct models where both the category laws and substitution laws are strict after applying |≡ʸ→≡|.
 
 Nevertheless, strictification does \emph{not} resolve our difficulties with the logical predicate interpretation.
-In particular, the lack of strict propositions (or just definitional UIP) in \CA prevents |σ ≡ʸ σ'| from being strictly equal, since the paths between their properties must still be identified manually using UIP.
+In particular, the lack of strict propositions (or just definitional UIP) in \CA prevents |σ ≡ʸ σ'| from being strictly equal, since the paths between their properties must still be identified manually using set-truncation.
 Although \Agda provides a form of strict propositions |Prop|, it is not designed to work with \CA and interacts poorly with cubical primitives for now~\cite{Agda-issue2022}.
-As a consequence, coercions along equations identified by UIP remain unavoidable.
+As a consequence, coercions along equations identified by set-truncation remain unavoidable.
 
 \section{Discussion and conclusion}
 \label{sec:discussion}
 
-\FNF{Also discuss alternative choices such as basing the formalisation on (split) comprehension categories, see Brunerie and de Boer (R2)}
+\FNF{Also discuss alternative choices such as basing the formalisation on (split) comprehension categories, see Brunerie and de Boer~\cite{Boer2020} (R2)}
 
 It is well known that type theory in type theory is possible in theory, but in practice its formalisation often requires giving up some of the support and safety checks provided by proof assistants.
 From one point of view, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?
@@ -1175,9 +1172,8 @@ In particular, regularity and definitional UIP, supported by OTT (see \cite{Alte
 The use of QIITs in OTT~\cite{Kaposi2025} in \Agda requires the user themselves to implement the coercion rules for inductive types~\cite{Pujet2024} as well as their elimination principles.
 Quotient inductive types are not supported in the implementation of OTT in Rocq~\cite{Pujet2024a} and its theory is still being developed~\cite{Felicissimo2025a}.
 
-A new option \verb"--cubical=no-glue" in the forthcoming \Agda 2.9.0~\cite{Agda-issue2025} disallows the |Glue| type in the cubical mode and in principle forms a cubical type theory compatible with the uniqueness of identity proofs.
-Since \CA already supports HIITs (though with caveats noted earlier), implementing XTT with QIITs as a variant of \CA may be within reach~\cite{Agda-issue2019}.
-
+The option \verb"--cubical=no-glue" in the forthcoming \Agda 2.9.0~\cite{Agda-issue2025} disables the |Glue| type in cubical mode and, in principle, yields a cubical type theory compatible with UIP~\cite{Agda-issue2019}.
+Since Cubical Agda already provides support for HIITs (with the earlier caveats), realising a type theory with QIITs, strict propositions, and computational UIP, as a variant of Cubical Agda may now be within reach~\cite{Tan2025}.
 
 \paragraph{The Ford transformation and definitional UIP}
 The Ford transformation is known to work well with definitional UIP~\cite{Altenkirch2006}.
@@ -1194,7 +1190,7 @@ Without further advances in the technology of proof assistants, formalising type
 We hope that the lessons learned here can help the design of future proof assistants, so that one day we may implement a proof assistant within a proof assistant without (too much) sweat and tears.
 
 \begin{acks}
-  We appreciate the constructive comments from the anonymous reviewers, in particular the pointers to alternative ways to formalising type theory that we overlooked initially.
+  We appreciate the comments from the anonymous reviewers, in particular the pointers to alternative ways to formalising type theory that we overlooked initially.
   Our syntax for displayed equations in \cref{sec:tt:elim} is inspired by the syntax of equational reasoning for displayed categories on 1Lab~\cite{Amlia2025}.
   We are also grateful to Shu-Hung You for his comments on the early draft.
   The work is supported by the National Science and Technology Council of Taiwan under grant NSTC 114-2222-E-001-001-MY3.
