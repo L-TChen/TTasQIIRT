@@ -218,7 +218,7 @@ In dependent type theory, types can depend on terms, which means that all of con
 This is one reason why formalising type theory in type theory is hard.
 %
 
-Early approaches to formalising type theory, e.g.\ McKinna and Pollack~\cite{McKinna1999}, dealt with untyped terms that were later refined by a typing relation or setoid equality, and thus had to prove a lot of congruence lemmas by hand~\cite{Danielsson2006,Chapman2009}.
+Early approaches to formalising type theory, e.g.\ McKinna and Pollack~\cite{McKinna1999}, dealt with untyped terms that were later refined by a typing relation, setoid equality, or quotients, and thus had to prove a lot of congruence lemmas by hand~\cite{Danielsson2006,Chapman2009,Brunerie2019,Boer2020}.
 %
 A breakthrough was achieved by Altenkirch and Kaposi~\cite{Altenkirch2016a}, who showed that quotient inductive-inductive types (QIITs)~\cite{Altenkirch2018} can be employed to significantly simplify the internal representation of well typed terms (or, more precisely, derivations), since equality constructors can be used to represent equations such as $\beta$- and $\eta$-equality.
 %
@@ -1108,14 +1108,14 @@ As a consequence, coercions along equations identified by set-truncation remain 
 \section{Discussion and conclusion}
 \label{sec:discussion}
 
-\FNF{Also discuss alternative choices such as basing the formalisation on (split) comprehension categories, see Brunerie and de Boer~\cite{Boer2020} (R2)}
+%\FNF{Also discuss alternative choices such as basing the formalisation on (split) comprehension categories, see Brunerie and de Boer~\cite{Boer2020,Brunerie2019} (R2)}
 
 It is well known that type theory in type theory is possible in theory, but in practice its formalisation often requires giving up some of the support and safety checks provided by proof assistants.
 From one point of view, our work addresses the following question: is there any existing type-theoretic proof assistant that can formalise the intrinsic representation of type theory using QIITs reliably, without compromise?
 Based on our experimental formalisation in \CA, our answer is regrettably: not yet.
 
-\paragraph{Comparison with QIIT approaches}
-Previous formalisations~\cite{Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} based on the CwF semantics of type theory using QIITs have resorted to using postulated constructors and custom rewrite rules to manually define QIITs and their eliminators.
+\paragraph{Comparison with intrinsic approaches}
+Previous intrinsic formalisations~\cite{Kaposi2019,Kaposi2017,Altenkirch2016a,Altenkirch2017} based on the CwF semantics of type theory have resorted to using postulated constructors and custom rewrite rules to manually define QIITs and their eliminators.
 However, this comes at a cost: the proof assistant no longer performs strict positivity, coverage, or termination checks for functions defined from quotient inductive types, nor does it supports dependent pattern matching, program extraction, and interactive theorem proving.
 The loss of coverage check for inductive types is mitigated by using hand-crafted eliminators (see \Cref{sec:tt:elim}), since the coverage check is also in effect for record types.
 
@@ -1127,6 +1127,8 @@ However, the same transports (and the same equations for them) seem to have a te
 We remark that the lack of transports is an advantage for avoiding strict positivity issues in the current implementation of \CA.
 By using native features such as higher inductive types, rather than postulates in ordinary \Agda, we do get computational interpretations.
 For example, our implementation of normalization by evaluation in \cref{sec:nbe} can actually normalise terms and could be potentially extracted as Haskell programs with the cubical information explicitly erased using \Agda's \verb|--erased-cubical| feature.
+
+It is not yet clear if other initial models of type theory, such as (split) comprehension categories~\cite{Jacobs1993} and contextual categories~\cite{Cartmell1986}, can be defined as QIITs or QIIRTs.
 
 \paragraph{Strictification}
 Kaposi and Pujet~\cite{Kaposi2025} have shown how strictification techniques can simplify proofs, but this is an orthogonal issue.
@@ -1173,7 +1175,7 @@ The use of QIITs in OTT~\cite{Kaposi2025} in \Agda requires the user themselves 
 Quotient inductive types are not supported in the implementation of OTT in Rocq~\cite{Pujet2024a} and its theory is still being developed~\cite{Felicissimo2025a}.
 
 The option \verb"--cubical=no-glue" in the forthcoming \Agda 2.9.0~\cite{Agda-issue2025} disables the |Glue| type in cubical mode and, in principle, yields a cubical type theory compatible with UIP~\cite{Agda-issue2019}.
-Since Cubical Agda already provides support for HIITs (with the earlier caveats), realising a type theory with QIITs, strict propositions, and computational UIP, as a variant of Cubical Agda may now be within reach~\cite{Tan2025}.
+Since Cubical Agda already provides support for HIITs (with the earlier caveats), realising a type theory with QIITs, strict propositions, and computational UIP, as a variant of Cubical Agda may now be within reach~\cite{Tan2025,Tan2025a}.
 
 \paragraph{The Ford transformation and definitional UIP}
 The Ford transformation is known to work well with definitional UIP~\cite{Altenkirch2006}.
@@ -1191,7 +1193,7 @@ We hope that the lessons learned here can help the design of future proof assist
 
 \begin{acks}
   We appreciate the comments from the anonymous reviewers, in particular the pointers to alternative ways to formalising type theory that we overlooked initially.
-  Our syntax for displayed equations in \cref{sec:tt:elim} is inspired by the syntax of equational reasoning for displayed categories on 1Lab.~\footnote{\url{https://1lab.dev/Cat.Displayed.Base.html}}
+  Our syntax for displayed equations in \cref{sec:tt:elim} is inspired by the syntax of equational reasoning for displayed categories on 1Lab.\footnote{\url{https://1lab.dev/Cat.Displayed.Base.html}}
   We are also grateful to Shu-Hung You for his comments on the early draft.
   The work is supported by the National Science and Technology Council of Taiwan under grant NSTC 114-2222-E-001-001-MY3.
 \end{acks}
