@@ -36,6 +36,19 @@ recTyOf[]t
   → PathP (λ i → tyOf (recTm[]t σ t i) ≡ recTy S.U)
     (recTyOf (t S.[ σ ]) p)
     (tyOf[] ∙ cong _[ recSub σ ]T (recTyOf t refl) ∙ subst (λ A → A ≡ recTy S.U) (recTy[]T σ (S.tyOf t)) (cong recTy p))
+recSubidS≡idS
+  : recSub {Γ} S.idS ≡ idS
+recSubπ₁≡π₁
+  : recSub (S.π₁ σ) ≡ π₁ (recSub σ)
+recTyElπ : (a : S.Tm Γ)(pa : S.tyOf a ≡ S.U)(b : S.Tm (Γ S., S.El a pa)) (pb : S.tyOf b ≡ S.U)
+         → recTy (S.El (S.π a pa b pb) (S.tyOfπ a pa b pb)) ≡ recTy (S.Π (S.El a pa) (S.El b pb))
+
+
+recTmπ[]
+  : (a : S.Tm Γ)(pa : S.tyOf a ≡ S.U)(b : S.Tm (Γ S., S.El a pa)) (pb : S.tyOf b ≡ S.U)
+  → (pa' : S.tyOf (a S.[ σ ]) ≡ S.U)
+  → (pb' : S.tyOf (b S.[ σ S.↑El ]) ≡ S.U)
+  → recTm ((S.π a pa b pb) S.[ σ ]) ≡ recTm (S.π (a S.[ σ ]) pa' (b S.[ σ S.↑El ]) pb')
 
 recTy (A S.[ σ ]) = recTy A [ recSub σ ]T
 recTy S.U         = U
@@ -49,7 +62,7 @@ recTy (S.El[] τ u p q i)  =
   (El (recTm u) (recTyOf u p) [ recSub τ ]T
     ≡⟨ El[] (recSub τ) (recTm u) (recTyOf u p) ⟩
   El (recTm u [ recSub τ ]t) (tyOf[]≡U (recTyOf u p))
-    ≡⟨ cong (El (recTm u [ recSub τ ]t)) (Ty-is-set _ _ _ _) ⟩
+    ≡⟨ El-≡ _ _ _ _ refl ⟩
   El (recTm u [ recSub τ ]t)
     (tyOf[] ∙ (λ j → recTyOf u (λ _ → S.tyOf u) j [ recSub τ ]T) ∙ (λ j → recTy (q j)))
     ∎) i
@@ -58,17 +71,18 @@ recTy (S.El[]₂ {Δ} {Γ} {σ} u pu pu' i) = (
     ≡⟨⟩
   El (recTm (u S.[ σ ])) (recTyOf (u S.[ σ ]) pu') [ recSub (S.π₁ {A = S.El (u S.[ σ ]) pu'} S.idS) ]T
 
-    ≡⟨ {!!} ⟩
+    ≡⟨ El[] (recSub (S.π₁ S.idS)) (recTm (u S.[ σ ])) (recTyOf (u S.[ σ ]) pu') ⟩
 
-  tyOf (π₂ idS)
+  El (recTm (u S.[ σ ]) [ recSub (S.π₁ S.idS) ]t) (tyOf[]≡U (recTyOf (u S.[ σ ]) pu'))
 
-    ≡⟨ {!El[]₂ {σ = recSub σ} (recTm u) (recTyOf u pu) !} ⟩
-    -- Even this cannot be accepted, as their implicit arguments are different.
-    --
-    -- Goal: tyOf (π₂ idS) ≡
-    --   (El (recTm u) (recTyOf u pu) [ recSub σ ∘ π₁ idS ]T)
-    -- Have: tyOf (π₂ idS) ≡
-    --   (El (recTm u) (recTyOf u pu) [ recSub σ ∘ π₁ idS ]T)
+    ≡⟨ El-≡ _ _ _ _ (cong (recTm (u S.[ σ ]) [_]t) (recSubπ₁≡π₁ {σ = S.idS} ∙
+                     cong π₁ recSubidS≡idS) ∙
+                     cong _[ π₁ {A = recTy (S.El (u S.[ σ ]) pu')} idS ]t (recTm[]t σ u) ∙
+                     [∘]t (recTm u) (π₁ idS) (recSub σ)) ⟩
+
+  El (recTm u [ recSub σ ∘ π₁ idS ]t) (tyOf[]≡U (recTyOf u pu))
+
+    ≡⟨ sym (El[] (recSub σ ∘ π₁ idS) (recTm u) (recTyOf u pu)) ⟩
 
   El (recTm u) (recTyOf u pu) [ recSub σ ∘ π₁ idS ]T
     ∎) i
@@ -80,24 +94,9 @@ recTy (S.𝔹[] σ i) = 𝔹[] (recSub σ) i
 recTy (S.𝔹[]₂ {τ = τ} i) = (𝔹[] (π₁ idS) ∙ sym (𝔹[] (recSub τ))) i
 recTy (S.El𝕓 Γ i) = (cong (El 𝕓) (Ty-is-set _ _ (tyOf𝕓 ∙ refl) _) ∙ El𝕓 _) i
 recTy (S.tyOfπ a pa b pb i) = U
-recTy (S.Elπ a pa b pb i) = (
-  El (recTm (S.π a pa b pb))
-    (recTyOf (S.π a pa b pb) (S.tyOfπ a pa b pb))
-    ≡⟨ {! (λ i → El {!π (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb)!} (Ty-is-set _ _ {!!} {!!} i)) !} ⟩
-
-  El (π (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb))
-    (tyOfπ (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb))
-
-    ≡⟨ Elπ (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb) ⟩
-
-  Π (recTy (S.El a pa)) (recTy (S.El b pb))
-    ∎
-  ) i
+recTy (S.Elπ a pa b pb i) = recTyElπ a pa b pb i
 recTy (S.Ty-is-set A B p q i j) =
   isSet→SquareP (λ _ _ → Ty-is-set) (λ i → recTy (p i)) (λ i → recTy (q i)) refl refl i j
-
-recSubidS≡idS
-  : recSub {Γ} S.idS ≡ idS
 
 recSub,≡,Sub
   : (σ : S.Sub Γ Δ) (t : S.Tm Γ) (p : S.tyOf t ≡ A S.[ σ ]) (q : tyOf (recTm t) ≡ recTy A [ recSub σ ]T)
@@ -251,22 +250,9 @@ recTm S.𝕓             = 𝕓
 recTm (S.π t pt u pu) =
   π (recTm t) (recTyOf t pt) (recTm u) (recTyOf u pu)
 recTm (S.𝕓[] σ i) = 𝕓[] (recSub σ) i
-recTm (S.π[] {σ = σ} t pt u pu pt' pu' i) = {! (
--- This requires `El₂` to be done first
-  π (recTm t) (recTyOf t pt) (recTm u) (recTyOf u pu) [ recSub σ ]t
-    ≡⟨ π[] (recTm t) (recTyOf t pt) (recTm u) (recTyOf u pu) (recTyOf (t S.[ σ ]) pt')
-      {!tyOf (recTm u [ recSub σ ↑El ]t) !}
- (cong tyOf (cong (recTm u [_]t) {!cong (λ p → (recSub σ ∘ π₁ idS) , π₂ idS ∶[ p ]) (Ty-is-set _ _ _ _)!}) ∙ {!!})
-      ⟩
-  π (recTm t [ recSub σ ]t) (recTyOf (t S.[ σ ]) pt') (recTm u [ recSub σ ↑El ]t)
-    {!!}
-    ≡⟨ {!!} ⟩
-  π (recTm t [ recSub σ ]t) (recTyOf (t S.[ σ ]) pt') (recTm u [ recSub (σ S.↑El) ]t)
-    (recTyOf (u S.[ σ S.↑El ]) pu')
-    ∎) !} i
+recTm (S.π[] {σ = σ} t pt u pu pt' pu' i) = recTmπ[] t pt u pu pt' pu' i
 recTm (S.Tm-is-set t u p q i j) =
   Tm-is-set (recTm t) (recTm u) (cong recTm p) (cong recTm q) i j
-
 
 recSub S.∅              = ∅S
 recSub (σ S., t ∶[ p ]) = recSub σ , recTm t ∶[ recTyOf t p ]
@@ -363,6 +349,57 @@ recTm[]t σ t = refl
 recTyOf[]t σ t p = Ty-is-set _ _ _ _
 
 recSubidS≡idS = refl
+
+recSubπ₁≡π₁ = refl
+
+recTyElπ a pa b pb =
+  El (recTm (S.π a pa b pb))
+     (recTyOf (S.π a pa b pb) (S.tyOfπ a pa b pb))
+    ≡⟨ El-≡ _ _ _ _ refl  ⟩
+
+  El (π (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb))
+    (tyOfπ (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb))
+
+    ≡⟨ Elπ (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb) ⟩
+
+  Π (recTy (S.El a pa)) (recTy (S.El b pb))
+    ∎
+
+{-
+recSub↑El : (σ : S.Sub Γ Δ){u : S.Tm Δ}{pu : S.tyOf u ≡ S.U}{pu' : S.tyOf (u S.[ σ ]) ≡ S.U}
+          → (q : (tyOf[]≡U (recTyOf u pu)) ≡ (recTyOf {A = S.U} (u S.[ σ ]) pu'))
+          → PathP (λ i → Sub (recCtx Γ ,C El (recTm u [ recSub σ ]t) (q i)) (recCtx Δ ,C El (recTm u) (recTyOf u pu))) (recSub σ ↑El) (recSub (σ S.↑El))
+recSub↑El σ {u} {pu} {pu'} q = λ i → (recSub σ ∘ π₁ idS) , π₂ idS ∶[ {!Ty-is-set _ _ (El[]₂ (recTm u) (λ i₁ → recTyOf u pu i₁)) ? i!} ]
+
+
+-- Sub (recCtx Γ ,C El (recTm _u_3219 [ recSub σ ]t) (tyOf[] ∙ (λ i → recTyOf _u_3219 (λ _ → S.tyOf _u_3219) i [ recSub σ ]T) ∙ (λ i → recTy (_pu'_3221 i))))
+--     (recCtx Δ ,C El (recTm _u_3219) (recTyOf _u_3219 _pu_3220))
+
+-- Sub (recCtx Γ ,C El (u [ recSub σ ]t) (tyOf[]≡U pu))
+--    (recCtx Δ ,C El u pu)
+-}
+
+
+recTmπ[] {σ = σ} a pa b pb pa' pb' =
+  π (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb) [ recSub σ ]t
+    ≡⟨ π[] { σ = recSub σ} (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb) ⟩
+  π (recTm a [ recSub σ ]t) (tyOf[]≡U (recTyOf a pa))
+    (recTm b [ recSub σ ↑El ]t) (tyOf[]≡U (recTyOf b pb))
+    ≡⟨ (λ i → π (recTm a [ recSub σ ]t)
+                (Ty-is-set _ _ (tyOf[]≡U (recTyOf a pa)) (tyOf[] ∙ (λ i₁ → recTyOf a (λ _ → S.tyOf a) i₁ [ recSub σ ]T) ∙ (λ i₁ → recTy (pa' i₁))) i)
+                (recTm b [ (recSub σ ∘ π₁ idS) , π₂ idS ∶[ {!Ty-is-set _ _ (El[]₂ (recTm a) (recTyOf a pa)) _ i!} ] ]t)
+                {!!}) ⟩
+{-
+    ≡⟨ π-≡ refl (λ i → (recTm b [ recSub↑El σ (isProp→PathP (λ i₁ → Ty-is-set (tyOf (recTm a [ recSub σ ]t)) U)
+        (tyOf[]≡U (recTyOf a pa))
+        (tyOf[] ∙
+         (λ i₁ → recTyOf a (λ _ → S.tyOf a) i₁ [ recSub σ ]T) ∙
+         (λ i₁ → recTy (pa' i₁)))
+        ) i ]t)) ⟩
+-}
+  π (recTm a [ recSub σ ]t) (recTyOf (a S.[ σ ]) pa')
+    (recTm b [ recSub (σ S.↑El) ]t) (recTyOf (b S.[ σ S.↑El ]) pb')
+    ∎
 
 recSubidS,t≡idS,Subt t p q =
   cong (idS , recTm t ∶[_]) (Ty-is-set _ _ _ _)

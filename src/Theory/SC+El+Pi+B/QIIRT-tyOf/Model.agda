@@ -26,6 +26,13 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         ≡ El u pu [ σ ∘ π₁ idS ]T
       El[]₂ {σ = σ} u pu = tyOfπ₂ idS ∙ (El[] (π₁ idS) (u [ σ ]t) (tyOf[]≡U pu) ∙ cong₂ El ([∘]t u (π₁ idS) σ) (tyOftyOf[]≡U pu)) ∙ sym (El[] (σ ∘ π₁ idS) u pu)
 
+      El-≡ : (u u' : Tm Γ) (p : tyOf u ≡ U)(p' : tyOf u' ≡ U)
+           → u ≡ u' → El u p ≡ El u' p'
+      El-≡ u u' p p' eq i =
+        El (eq i) (isProp→PathP {B = λ i → tyOf (eq i) ≡ U}
+                                (λ i → Ty-is-set _ _)
+                                p p' i)
+
   record Univ𝓑 (𝒰 : Univ) (ℬ : 𝓑 𝒞) : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     open Univ 𝒰
     open 𝓑 ℬ
@@ -41,7 +48,7 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       El𝕓
         : (Γ : Ctx)
         → El {Γ} 𝕓 tyOf𝕓 ≡ 𝔹
-  
+
   record UnivPi (𝒰 : Univ) (𝒫i : Pi 𝒞) : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     open Univ 𝒰
     open Pi   𝒫i
@@ -77,6 +84,26 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → (b : Tm (Γ ,C El a pa)) (pb : tyOf b ≡ U)
         → El (π a pa b pb) (tyOfπ a pa b pb) ≡ Π (El a pa) (El b pb)
 
+    π-≡
+        : {a a' : Tm Γ} {pa : tyOf a ≡ U}{pa' : tyOf a' ≡ U}
+        → {b : Tm (Γ ,C El a pa)}{b' : Tm (Γ ,C El a' pa')}{pb : tyOf b ≡ U}{pb' : tyOf b' ≡ U}
+        → (q : a ≡ a')
+        → PathP (λ i → Tm (Γ ,C El (q i) (isProp→PathP {B = λ i → tyOf (q i) ≡ U} (λ i → Ty-is-set _ _) pa pa' i))) b b'
+        → π a pa b pb ≡ π a' pa' b' pb'
+    π-≡ {pa = pa} {pa'} {pb = pb} {pb'} q q' i =
+     π (q i) (isProp→PathP {B = λ i → tyOf (q i) ≡ U} (λ i → Ty-is-set _ _) pa pa' i)
+       (q' i) (isProp→PathP {B = λ i → tyOf (q' i) ≡ U} (λ i → Ty-is-set _ _) pb pb' i)
+
+    π-≡'
+        : {a : Tm Γ} {pa : tyOf a ≡ U}
+        → {b : Tm (Γ ,C El a pa)}{b' : Tm (Γ ,C El a pa)}{pb : tyOf b ≡ U}{pb' : tyOf b' ≡ U}
+        → b ≡ b'
+        → π a pa b pb ≡ π a pa b' pb'
+    π-≡' {a = a} {pa = pa} {pa'} {pb = pb} {pb'} q' i =
+     π a pa (q' i) (isProp→PathP {B = λ i → tyOf (q' i) ≡ U} (λ i → Ty-is-set _ _) pb pb' i)
+
+
+
 record SC+El+Pi+B (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level)
   : Set ((ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄))) where
 
@@ -92,7 +119,7 @@ record SC+El+Pi+B (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level)
   open Univ 𝒰  public
   open Pi 𝒫i   public
   open 𝓑 ℬ  public
-  open UnivPi   𝒰𝒫i public 
+  open UnivPi   𝒰𝒫i public
   open Univ𝓑 𝒰ℬ  public
 
   open Var
