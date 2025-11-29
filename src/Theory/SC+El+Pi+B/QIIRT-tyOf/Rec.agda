@@ -380,26 +380,6 @@ recSub↑El σ {u} {pu} {pu'} q = λ i → (recSub σ ∘ π₁ idS) , π₂ idS
 -}
 
 
-recTmπ[] {σ = σ} a pa b pb pa' pb' =
-  π (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb) [ recSub σ ]t
-    ≡⟨ π[] { σ = recSub σ} (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb) ⟩
-  π (recTm a [ recSub σ ]t) (tyOf[]≡U (recTyOf a pa))
-    (recTm b [ recSub σ ↑El ]t) (tyOf[]≡U (recTyOf b pb))
-    ≡⟨ (λ i → π (recTm a [ recSub σ ]t)
-                (Ty-is-set _ _ (tyOf[]≡U (recTyOf a pa)) (tyOf[] ∙ (λ i₁ → recTyOf a (λ _ → S.tyOf a) i₁ [ recSub σ ]T) ∙ (λ i₁ → recTy (pa' i₁))) i)
-                (recTm b [ (recSub σ ∘ π₁ idS) , π₂ idS ∶[ {!Ty-is-set _ _ (El[]₂ (recTm a) (recTyOf a pa)) _ i!} ] ]t)
-                {!!}) ⟩
-{-
-    ≡⟨ π-≡ refl (λ i → (recTm b [ recSub↑El σ (isProp→PathP (λ i₁ → Ty-is-set (tyOf (recTm a [ recSub σ ]t)) U)
-        (tyOf[]≡U (recTyOf a pa))
-        (tyOf[] ∙
-         (λ i₁ → recTyOf a (λ _ → S.tyOf a) i₁ [ recSub σ ]T) ∙
-         (λ i₁ → recTy (pa' i₁)))
-        ) i ]t)) ⟩
--}
-  π (recTm a [ recSub σ ]t) (recTyOf (a S.[ σ ]) pa')
-    (recTm b [ recSub (σ S.↑El) ]t) (recTyOf (b S.[ σ S.↑El ]) pb')
-    ∎
 
 recSubidS,t≡idS,Subt t p q =
   cong (idS , recTm t ∶[_]) (Ty-is-set _ _ _ _)
@@ -435,4 +415,31 @@ recTyP[↑𝔹]tt≡ {σ = σ} P q =
   (recTy P [ recSub σ ↑𝔹 ]T) [ idS , tt ∶[ q ] ]T
     ≡⟨ (λ i → (recTy P [ recSub σ ↑𝔹 ]T) [ idS , tt ∶[ Ty-is-set _ _ q tyOftt i ] ]T) ⟩
   (recTy P [ recSub σ ↑𝔹 ]T) [ idS , tt ∶[ tyOftt ] ]T
+    ∎
+
+
+recSubσ↑El : (a : S.Tm Γ)(pa : S.tyOf a ≡ S.U)(pa' : S.tyOf a S.[ σ ] ≡ S.U)
+    → PathP (λ i → Sub (recCtx Δ ,C El (recTm a [ recSub σ ]t) (Ty-is-set _ _ (tyOf[]≡U (recTyOf a pa))
+                                                                              (tyOf[] ∙ (λ i → recTyOf a refl i [ recSub σ ]T) ∙ cong recTy pa') i))
+                       (recCtx Γ ,C El (recTm a) (recTyOf a pa)))
+            (recSub σ ↑El)
+            (recSub (σ S.↑El))
+recSubσ↑El {Γ = Γ} {Δ = Δ} {σ = σ} a pa pa' j =
+ (recSub σ ∘ π₁ idS) , π₂ idS ∶[ path j ]
+ where
+  path = isProp→PathP {B = λ k → tyOf (π₂ {A = El (recTm a [ recSub σ ]t) (Ty-is-set _ _ (tyOf[]≡U (recTyOf a pa))
+                                                                                         (tyOf[] ∙ (λ i → recTyOf a refl i [ recSub σ ]T) ∙ cong recTy pa') k)} idS)
+                                  ≡ El (recTm a) (recTyOf a pa) [ recSub σ ∘ π₁ idS ]T}
+                      (λ k → Ty-is-set _ _)
+                      (El[]₂ (recTm a) (recTyOf a pa))
+                      (tyOfπ₂ idS ∙ (El (recTm a [ recSub σ ]t) (tyOf[] ∙ (λ i₂ → recTyOf a refl i₂ [ recSub σ ]T) ∙ cong recTy pa') [ π₁ idS ]T ≡⟨⟩ step-≡ (El (recTm a [ recSub σ ]t) (tyOf[] ∙ (λ i₂ → recTyOf a refl i₂ [ recSub σ ]T) ∙ cong recTy pa') [ π₁ idS ]T) (step-≡ (El (recTm a [ recSub σ ]t [ π₁ idS ]t) (tyOf[]≡U (tyOf[] ∙ (λ i₂ → recTyOf a refl i₂ [ recSub σ ]T) ∙ cong recTy pa'))) (step-≡ (El (recTm a [ recSub σ ∘ π₁ idS ]t) (tyOf[]≡U (recTyOf a pa))) (λ _ → El (recTm a) (recTyOf a pa) [ recSub σ ∘ π₁ idS ]T) (λ i₂ → El[] (recSub σ ∘ π₁ idS) (recTm a) (recTyOf a pa) (~ i₂))) (El-≡ (recTm a [ recSub σ ]t [ π₁ idS ]t) (recTm a [ recSub σ ∘ π₁ idS ]t) (tyOf[]≡U (tyOf[] ∙ (λ i₂ → recTyOf a refl i₂ [ recSub σ ]T) ∙ (cong recTy pa'))) (tyOf[]≡U (recTyOf a pa)) (((λ i₂ → recTm a [ recSub σ ]t [ (recSubπ₁≡π₁ {σ = S.idS {Δ S.Foo., S.El (a S.[ σ ]) pa'}} ∙ cong π₁ recSubidS≡idS) i₂ ]t)) ∙ ((λ i₂ → recTm[]t σ a i₂ [ π₁ idS ]t)) ∙ [∘]t (recTm a) (π₁ idS) (recSub σ)))) (El[] (π₁ idS) (recTm a [ recSub σ ]t) (tyOf[] ∙ (λ i₂ → recTyOf a refl i₂ [ recSub σ ]T) ∙ (cong recTy pa')))))
+
+recTmπ[] {σ = σ} a pa b pb pa' pb' =
+  π (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb) [ recSub σ ]t
+    ≡⟨ π[] { σ = recSub σ} (recTm a) (recTyOf a pa) (recTm b) (recTyOf b pb) ⟩
+  π (recTm a [ recSub σ ]t) (tyOf[]≡U (recTyOf a pa))
+    (recTm b [ recSub σ ↑El ]t) (tyOf[]≡U (recTyOf b pb))
+    ≡⟨ π-≡' (Ty-is-set _ _ _ _) (λ j → recTm b [ recSubσ↑El a pa pa' j ]t) ⟩
+  π (recTm a [ recSub σ ]t) (recTyOf (a S.[ σ ]) pa')
+    (recTm b [ recSub (σ S.↑El) ]t) (recTyOf (b S.[ σ S.↑El ]) pb')
     ∎

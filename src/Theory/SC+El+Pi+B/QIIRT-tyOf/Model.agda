@@ -95,12 +95,12 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
        (q' i) (isProp→PathP {B = λ i → tyOf (q' i) ≡ U} (λ i → Ty-is-set _ _) pb pb' i)
 
     π-≡'
-        : {a : Tm Γ} {pa : tyOf a ≡ U}
-        → {b : Tm (Γ ,C El a pa)}{b' : Tm (Γ ,C El a pa)}{pb : tyOf b ≡ U}{pb' : tyOf b' ≡ U}
-        → b ≡ b'
-        → π a pa b pb ≡ π a pa b' pb'
-    π-≡' {a = a} {pa = pa} {pa'} {pb = pb} {pb'} q' i =
-     π a pa (q' i) (isProp→PathP {B = λ i → tyOf (q' i) ≡ U} (λ i → Ty-is-set _ _) pb pb' i)
+        : {a : Tm Γ} {pa : tyOf a ≡ U}{pa' : tyOf a ≡ U}
+        → {b : Tm (Γ ,C El a pa)}{b' : Tm (Γ ,C El a pa')}{pb : tyOf b ≡ U}{pb' : tyOf b' ≡ U}
+        → (q : pa ≡ pa')
+        → PathP (λ i → Tm (Γ ,C El a (q i))) b b'
+        → π a pa b pb ≡ π a pa' b' pb'
+    π-≡' {a = a} {pa = pa} {pa'} {pb = pb} {pb'} q q' i = π a (q i) (q' i) ((isProp→PathP {B = λ i → tyOf (q' i) ≡ U} (λ i → Ty-is-set _ _) pb pb' i))
 
 
 
