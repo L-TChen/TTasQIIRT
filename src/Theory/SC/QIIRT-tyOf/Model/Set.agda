@@ -138,6 +138,7 @@ module _ (UU : Set) where
   stdModelSC .[∘]t    _ _ _ = refl
   stdModelSC .U       _     = UU
   stdModelSC .U[]           = refl
+  stdModelSC .tyOf[]≡U {σ = σ} p i γ = p i (σ γ)
 
   stdModel : SC _ _ _ _
   stdModel = record

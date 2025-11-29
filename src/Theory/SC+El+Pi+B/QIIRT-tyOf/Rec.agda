@@ -424,8 +424,7 @@ recSubσ↑El : (a : S.Tm Γ)(pa : S.tyOf a ≡ S.U)(pa' : S.tyOf a S.[ σ ] ≡
                        (recCtx Γ ,C El (recTm a) (recTyOf a pa)))
             (recSub σ ↑El)
             (recSub (σ S.↑El))
-recSubσ↑El {Γ = Γ} {Δ = Δ} {σ = σ} a pa pa' j =
- (recSub σ ∘ π₁ idS) , π₂ idS ∶[ path j ]
+recSubσ↑El {Γ = Γ} {Δ = Δ} {σ = σ} a pa pa' = ↑El-≡ {σ = recSub σ} {recTm a} {recTyOf a pa} ◁ λ j → (recSub σ ∘ π₁ idS) , π₂ idS ∶[ path j ]
  where
   path = isProp→PathP {B = λ k → tyOf (π₂ {A = El (recTm a [ recSub σ ]t) (Ty-is-set _ _ (tyOf[]≡U (recTyOf a pa))
                                                                                          (tyOf[] ∙ (λ i → recTyOf a refl i [ recSub σ ]T) ∙ cong recTy pa') k)} idS)

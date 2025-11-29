@@ -46,6 +46,8 @@ TermIsSC = record
   ; [∘]t    = [∘]t
   ; U       = U
   ; U[]     = U[]
+  ; tyOf[]≡U = λ {σ = σ} p
+    → cong (λ A → A [ σ ]) p ∙ U[]
   }
 
 Term : SC _ _ _ _

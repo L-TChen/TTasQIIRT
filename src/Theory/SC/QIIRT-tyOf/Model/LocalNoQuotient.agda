@@ -105,6 +105,7 @@ _,!_∶[_] {A = A} σ (B , t , q) p = σ , t ∶[ q ∙ cong [_]³ p ∙ sym ([�
   Tm!-≡ (!SC .IsSC.[∘]T B σ τ) ([∘]t t σ τ)
 !SC .IsSC.U = ⟨ U , ∅S ⟩!
 !SC .IsSC.U[] {σ = σ} = cong (ty³ ∅ U) (η∅ (∅S ∘ σ))
+!SC .IsSC.tyOf[]≡U {u = A , t} {σ = σ} p = cong (λ A → A [ σ ]T!) p ∙ cong (ty³ ∅ U) (η∅ (∅S ∘ σ))
 
 _![_] : SC _ _ _ _
 _![_] = record { mot = !C ; isSC = !SC }

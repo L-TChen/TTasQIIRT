@@ -18,14 +18,22 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
       El[]
         : (τ : Sub Γ Δ) (u : Tm Δ) (p : tyOf u ≡ U)
         → (El u p) [ τ ]T ≡ El (u [ τ ]t) (tyOf[]≡U p)
+    field
+      _↑El
+        : (σ : Sub Γ Δ) {u : Tm Δ} {pu : tyOf u ≡ U}
+        → Sub (Γ ,C El (u [ σ ]t) (tyOf[]≡U pu)) (Δ ,C El u pu)
 
-    opaque
       El[]₂
         : (u : Tm Δ) (pu : tyOf u ≡ U)
         → tyOf (π₂ {Γ ,C El (u [ σ ]t) (tyOf[]≡U pu)} idS)
         ≡ El u pu [ σ ∘ π₁ idS ]T
-      El[]₂ {σ = σ} u pu = tyOfπ₂ idS ∙ (El[] (π₁ idS) (u [ σ ]t) (tyOf[]≡U pu) ∙ cong₂ El ([∘]t u (π₁ idS) σ) (tyOftyOf[]≡U pu)) ∙ sym (El[] (σ ∘ π₁ idS) u pu)
+   -- Standard interpretation:
+   -- El[]₂ {σ = σ} u pu = tyOfπ₂ idS ∙ (El[] (π₁ idS) (u [ σ ]t) (tyOf[]≡U pu) ∙ cong₂ El ([∘]t u (π₁ idS) σ) (tyOftyOf[]≡U pu)) ∙ sym (El[] (σ ∘ π₁ idS) u pu)
 
+    field
+      ↑El-≡ : (σ ↑El) {u} {pu} ≡ (σ ∘ π₁ idS) , π₂ idS ∶[ El[]₂ u pu ]
+
+    opaque
       El-≡ : (u u' : Tm Γ) (p : tyOf u ≡ U)(p' : tyOf u' ≡ U)
            → u ≡ u' → El u p ≡ El u' p'
       El-≡ u u' p p' eq i =
@@ -60,11 +68,6 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → tyOf (π₂ {Γ ,C El (u [ σ ]t) pu'} idS)
         ≡ El u pu [ σ ∘ π₁ idS ]T
 -}
-
-    _↑El
-      : (σ : Sub Γ Δ) {u : Tm Δ} {pu : tyOf u ≡ U}
-      → Sub (Γ ,C El (u [ σ ]t) (tyOf[]≡U pu)) (Δ ,C El u pu)
-    (σ ↑El) {u} {pu} = (σ ∘ π₁ idS) , π₂ idS ∶[ El[]₂ u pu ]
 
     field
       π

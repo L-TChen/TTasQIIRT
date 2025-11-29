@@ -118,6 +118,7 @@ _,ʸ_∶[_] {Γ} {Δ} {A} (σ , pσ) t p =   (λ γ → σ γ , t [ γ ]t ∶[ t
 よIsSC .IsSC.[∘]t   t (σ , _) τʸ@(τ , pτ) = [∘]t t (σ idS) (τ idS) ∙ cong (t [_]t) (Subʸ-τidS∘ τʸ (σ idS))
 よIsSC .IsSC.U   = U
 よIsSC .IsSC.U[] = U[]
+よIsSC .IsSC.tyOf[]≡U = tyOf[]≡U
 
 よ : SC _ _ _ _
 よ = record { mot = よM ; isSC = よIsSC }

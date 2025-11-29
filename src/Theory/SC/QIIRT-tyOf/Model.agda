@@ -111,6 +111,12 @@ module _ (mot : Motive {ℓ₁} {ℓ₂} {ℓ₃} {ℓ₄}) where
       U[]
         : U [ σ ]T ≡ U
 
+    field
+      tyOf[]≡U : (p : tyOf u ≡ U) → tyOf (u [ σ ]t) ≡ U
+    -- Standard interpretation:
+    --  tyOf[]≡U {σ = σ} p = tyOf[] ∙ cong (λ A → A [ σ ]T) p ∙ U[]
+
+
     infixl 8  _[_]T _[_]t
     infixr 10 _∘_
     infix  10 _,_∶[_]
@@ -234,11 +240,6 @@ record SC (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set ((ℓ-suc (ℓ₁ ⊔ ℓ�
     π₂ idS [ σ ]t
       ∎
 
-  tyOf[]≡U
-    : (p : tyOf u ≡ U)
-    → tyOf (u [ σ ]t) ≡ U
-  tyOf[]≡U {σ = σ} p =
-    tyOf[] ∙ cong (λ A → A [ σ ]T) p ∙ U[]
 
   tyOftyOf[]≡U
     : (p : tyOf u ≡ U)

@@ -19,6 +19,17 @@ mutual
   T bool = Bool
   T (pi a b) = (x : T a) → T (b x)
 
+pi-≡ : {a a' : UU}{b : T a → UU}{b' : T a' → UU}
+     → (p : a ≡ a') → PathP (λ i → T (p i) → UU) b b'
+     → pi a b ≡ pi a' b'
+pi-≡ p q i = pi (p i) (q i)
+
+pi-≡' : {a : UU}{b : T a → UU}{b' : T a → UU}
+      → b ≡ b'
+      → pi a b ≡ pi a b'
+pi-≡' {a = a} q i = pi a (q i)
+
+
 Bool-elim : (P : Bool → Set) → P true → P false → (b : Bool) → P b
 Bool-elim P t f true = t
 Bool-elim P t f false = f
@@ -69,6 +80,7 @@ stdModelSC .[idS]t  _     = refl
 stdModelSC .[∘]t    _ _ _ = refl
 stdModelSC .U       _     = UU
 stdModelSC .U[]           = refl
+stdModelSC .tyOf[]≡U {σ = σ} p i γ = p i (σ γ)
 
 stdModel : SC _ _ _ _
 stdModel = record
