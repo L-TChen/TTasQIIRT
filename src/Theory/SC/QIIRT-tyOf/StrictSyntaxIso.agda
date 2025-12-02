@@ -145,8 +145,7 @@ open Var
     q = refl
       ∙ (λ i → p' i [ idS ])
       ∙ [∘]T [ ▸ᵀ A ]³ idS (y (▸ˢ σ) idS)
-      ∙ λ i → [ ▸ᵀ A ]³ [ {!!} ]
-      -- (natʸ (▸ˢ σ) idS idS ∙ cong (y (▸ˢ σ)) (idS∘ idS)) i ]
+      ∙ (λ i → E (▸ᵀ A) [ y ⌜ (▸ᵀ A) ⌝ idS ] [ Subʸ-τidS∘ (▸ˢ σ) idS i ])
 
 ◂▸ˢ {Γ} idS i = idS {◂▸ᶜ Γ i}
 ◂▸ˢ (σ ∘ τ) = sym (Subʸ-τidS∘ (▸ˢ σ) (y (▸ˢ τ) idS)) ◁ λ i → ◂▸ˢ σ i ∘ ◂▸ˢ τ i
