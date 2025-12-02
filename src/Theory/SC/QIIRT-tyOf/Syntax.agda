@@ -227,8 +227,8 @@ module Foo where
     tyOfπ₂ σ = refl
     tyOfπ₂idS {A = A} {σ = σ} = [∘]T A (π₁ idS) σ
     tyOfabs = refl
-    tyOftt  = [idS]T
-    tyOfff  = [idS]T
+--    tyOftt  = [idS]T
+--    tyOfff  = [idS]T
     tyOf𝕓   = refl
 
   open Var

@@ -506,16 +506,9 @@ _↑_ {Γ} σ A =  σ ∘ π₁ {Γ , A [ σ ]T} idS,
                π₂ (idS {Γ , A [ σ ]T}) ∶[ p ]
 \end{code}
 where |p : tyOf (π₂ idS) ≡ A [ σ ∘ π₁ idS ]T|.
-We may be tempted to use |[∘]T| to define |p|, as |tyOf (π₂ (idS {Γ , A [ σ ]T}))| is equal to |A [ σ ]T [ π₁ idS ]T| by definition.
-Yet, again, we must refrain ourself from doing so during the definition of the inductive types, as \CA would see this as a strict positivity problem. Instead we introduce a \emph{superfluous} equality constructor
-\LT{Make our formalisation consistent with the presentation?}
-\begin{code}
-data _ where
-  tyOfπ₂idS : tyOf (π₂ {A = A [ σ ]T} idS)
-    ≡ A [ σ ∘ π₁ idS ]T
-\end{code}
-which can be identified with the proof derivable from |[∘]T| using the fact that |Ty| is a set afterwards.
-The required equality proof |p| above is then given by this constructor.
+We can use |[∘]T| to define |p|, as |tyOf (π₂ (idS {Γ , A [ σ ]T}))| is equal to |A [ σ ]T [ π₁ idS ]T| by definition.\footnote{%
+Yet, as interleaving function clauses with inductive types is also not supported, the strict equality |tyOf (π₂ σ) = A [ π₁ σ ]T| is not available at this point for |p|.
+We use forward declarations to introduce the required equalities |tyOf (π₂ σ) ≡ A [ π₁ σ ]T| and |tyOf (π₂ idS) ≡ A [ σ ∘ π₁ idS ]T| to be defined later as |refl| and |[∘]T|, see \Cref{sec:tt:mutual} for further details.}
 
 Other constructors are introduced following the `Ford transformation', with differences compared to the usual QIIT presentation highlighted:
 \begin{code}
@@ -580,7 +573,8 @@ tyOf (elim𝔹 P u t pu pt b pb) = P [ idS , b ∶[ pb ] ]T
 \end{code}
 The only thing missing from the above definition is the substitution rule for |elim𝔹|:
 applying the substitution |σ| to `|elim𝔹 P t pt u pu b pb|' is equal to applying a lifted substitution  |σ ↑ 𝔹| to |P| and |σ| to |t|, |u|, and |b|.
-However, |P [ σ ↑ 𝔹 ]T| gives us a type in the context |Δ , 𝔹 [ σ ]T| instead of |Δ , 𝔹|, so we provide a lifting with a type |Sub Γ Δ → Sub (Γ , 𝔹) (Δ , 𝔹)| and also a superfluous equality constructor |𝔹[]₂| to satisfy its proof obligation (highlighted):
+However, |P [ σ ↑ 𝔹 ]T| gives us a type in the context |Δ , 𝔹 [ σ ]T| instead of |Δ , 𝔹|, so we provide a lifting with a type |Sub Γ Δ → Sub (Γ , 𝔹) (Δ , 𝔹)| with a proof that |tyOf (π₂ {Γ , 𝔹} idS) ≡ 𝔹 [ τ ]T|.
+The proof, however, requires the transitivity of equalities, and \CA would see this as a strict positivity problem. Instead we introduce a \emph{superfluous} equality constructor |𝔹[]₂| to satisfy its proof obligation (highlighted):
 \begin{code}
 data _ where
   𝔹[]₂   : tyOf (π₂ {Γ , 𝔹} idS) ≡ 𝔹 [ τ ]T

@@ -235,6 +235,7 @@ module Foo where
       Π[]'
         : (σ : Sub Γ Δ) (B : Ty (Δ , A))
         → (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
+
       𝔹'
         : Ty Γ
       𝔹[]'
@@ -370,6 +371,7 @@ module Foo where
     tyOftt  = [idS]T
     tyOfff  = [idS]T
     tyOf𝕓   = refl
+    -- 𝔹[]₂    = 𝔹[] (π₁ idS) ∙ sym (𝔹[] _) -- violates strict positivity
 
   open Var
   wk : Sub (Γ , A) Γ
