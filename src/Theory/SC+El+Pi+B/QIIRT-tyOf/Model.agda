@@ -52,7 +52,7 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : (σ : Sub Γ Δ)
         → 𝕓 [ σ ]t ≡ 𝕓
       tyOf𝕓
-        : tyOf {Γ} 𝕓 ≡ U  -- tyOf {Γ} 𝕓 ≡ U
+        : tyOf {Γ} 𝕓 ≡ U
       El𝕓
         : (Γ : Ctx)
         → El {Γ} 𝕓 tyOf𝕓 ≡ 𝔹
@@ -60,14 +60,6 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
   record UnivPi (𝒰 : Univ) (𝒫i : Pi 𝒞) : Set (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄) where
     open Univ 𝒰
     open Pi   𝒫i
-
-{-
-    field
-      El[]₂
-        : (u : Tm Δ) (pu : tyOf u ≡ U)(pu' : tyOf (u [ σ ]t) ≡ U)
-        → tyOf (π₂ {Γ ,C El (u [ σ ]t) pu'} idS)
-        ≡ El u pu [ σ ∘ π₁ idS ]T
--}
 
     field
       π
@@ -104,8 +96,6 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → PathP (λ i → Tm (Γ ,C El a (q i))) b b'
         → π a pa b pb ≡ π a pa' b' pb'
     π-≡' {a = a} {pa = pa} {pa'} {pb = pb} {pb'} q q' i = π a (q i) (q' i) ((isProp→PathP {B = λ i → tyOf (q' i) ≡ U} (λ i → Ty-is-set _ _) pb pb' i))
-
-
 
 record SC+El+Pi+B (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level)
   : Set ((ℓ-suc (ℓ₁ ⊔ ℓ₂ ⊔ ℓ₃ ⊔ ℓ₄))) where

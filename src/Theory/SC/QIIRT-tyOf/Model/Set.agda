@@ -2,7 +2,7 @@ open import Prelude
 
 module Theory.SC.QIIRT-tyOf.Model.Set where
 
--- TODO: change to hSets instead of global UIP
+-- In this module, we assume UIP in order for Set to form a Set
 postulate
   UIP : {A : Set ℓ} → {x y : A} → isProp (x ≡ y)
 
@@ -46,10 +46,7 @@ module _ (UU : Set) where
   ⟦ (idS∘ σ) i     ⟧S γ = ⟦ σ ⟧S γ
   ⟦ (σ ∘idS) i     ⟧S γ = ⟦ σ ⟧S γ
   ⟦ assocS σ τ δ i ⟧S γ = ⟦ δ ⟧S (⟦ τ ⟧S (⟦ σ ⟧S γ))
-  ⟦ ,∘ σ t τ p q i ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ) , transport (λ j → foo i j) (⟦ t ⟧t (⟦ τ ⟧S γ))
-    where
-      foo : (λ i → ⟦ p i ⟧T (⟦ τ ⟧S γ)) ≡ (λ i → ⟦ q i ⟧T γ)
-      foo = UIP _ _
+  ⟦ ,∘ σ t τ p q i ⟧S γ = ⟦ σ ⟧S (⟦ τ ⟧S γ) , transport (UIP (λ i → ⟦ p i ⟧T (⟦ τ ⟧S γ)) (λ i → ⟦ q i ⟧T γ) i) (⟦ t ⟧t (⟦ τ ⟧S γ))
   ⟦ η∅ σ i         ⟧S γ = ⋆
   ⟦ ηπ σ i         ⟧S γ = ⟦ σ ⟧S γ .fst , transportRefl (⟦ σ ⟧S γ .snd) (~ i)
   ⟦ Sub-is-set σ τ p q i j ⟧S γ =
@@ -57,15 +54,14 @@ module _ (UU : Set) where
 
   ⟦ t [ σ ] ⟧t γ = ⟦ t ⟧t (⟦ σ ⟧S γ)
   ⟦ π₂ σ    ⟧t γ = ⟦ σ ⟧S γ .snd
-  ⟦ βπ₂ {A = A} σ t p q i ⟧t γ = goal i
+  ⟦ βπ₂ {A = A} σ t p q i ⟧t γ = [3] i
     where
-      goal : PathP (λ i → ⟦ q i ⟧T γ) (transport (λ i₁ → ⟦ p i₁ ⟧T γ) (⟦ t ⟧t γ)) (⟦ t ⟧t γ)
-      goal = toPathP goal'
-        where
-          baz : transport (λ j → ⟦ q j ⟧T γ) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ)) ≡ transport (λ j → ⟦ p (~ j) ⟧T γ) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ))
-          baz j = transport (UIP (λ j → ⟦ q j ⟧T γ) (λ j → ⟦ p (~ j) ⟧T γ) j) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ))
-          goal' : transport (λ i → ⟦ q i ⟧T γ) (transport (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ)) ≡ ⟦ t ⟧t γ
-          goal' = baz ∙ fromPathP (λ i → transport-filler (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ) (~ i))
+      [1] : transport (λ j → ⟦ q j ⟧T γ) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ)) ≡ transport (λ j → ⟦ p (~ j) ⟧T γ) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ))
+      [1] j = transport (UIP (λ j → ⟦ q j ⟧T γ) (λ j → ⟦ p (~ j) ⟧T γ) j) (transport (λ j → ⟦ p j ⟧T γ) (⟦ t ⟧t γ))
+      [2] : transport (λ i → ⟦ q i ⟧T γ) (transport (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ)) ≡ ⟦ t ⟧t γ
+      [2] = [1] ∙ fromPathP (λ i → transport-filler (λ i → ⟦ p i ⟧T γ) (⟦ t ⟧t γ) (~ i))
+      [3] : PathP (λ i → ⟦ q i ⟧T γ) (transport (λ i₁ → ⟦ p i₁ ⟧T γ) (⟦ t ⟧t γ)) (⟦ t ⟧t γ)
+      [3] = toPathP [2]
 
   ⟦ [idS]t t i   ⟧t γ = ⟦ t ⟧t γ
   ⟦ [∘]t t σ τ i ⟧t γ = ⟦ t ⟧t (⟦ τ ⟧S (⟦ σ ⟧S γ))

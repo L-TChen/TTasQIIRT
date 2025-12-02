@@ -21,7 +21,7 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → tyOf (app t B p) ≡ B
       abs
         : (t : Tm (Γ  ,C A ))
-        → Tm Γ 
+        → Tm Γ
       tyOfabs
         : tyOf (abs t) ≡ Π A  (tyOf t)
       Π[]
@@ -45,14 +45,14 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         : (σ : Sub Γ Δ)
         → 𝔹 [ σ ]T ≡ 𝔹
       tt ff
-        : Tm Γ 
+        : Tm Γ
       tyOftt
         : tyOf {Γ} tt ≡ 𝔹 [ idS ]T
       tyOfff
         : tyOf {Γ} ff ≡ 𝔹 [ idS ]T
       tt[]
         : (σ : Sub Γ Δ)
-        → tt [ σ ]t  ≡ tt 
+        → tt [ σ ]t  ≡ tt
       ff[]
         : (σ : Sub Γ Δ)
         → ff [ σ ]t  ≡ ff
@@ -82,7 +82,7 @@ module _ (𝒞 : SC ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
         → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)
         → Tm Γ
       tyOfelim𝔹
-        : (P : Ty (Γ ,C 𝔹)) 
+        : (P : Ty (Γ ,C 𝔹))
         → (t : Tm Γ) (pt : tyOf t ≡ P [ idS , tt ∶[ tyOftt ] ]T)
         → (u : Tm Γ) (pu : tyOf u ≡ P [ idS , ff ∶[ tyOfff ] ]T)
         → (b : Tm Γ) (pb : tyOf b ≡ 𝔹 [ idS ]T)

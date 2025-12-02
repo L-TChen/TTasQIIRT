@@ -1,5 +1,3 @@
-{-# OPTIONS --hidden-argument-puns #-}
-
 open import Prelude
 
 module Theory.SC+Pi+B.QIIRT-tyOf.IxModel where

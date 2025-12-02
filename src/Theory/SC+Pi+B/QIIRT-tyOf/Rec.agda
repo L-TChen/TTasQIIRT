@@ -9,7 +9,6 @@ open import Prelude
 open import Theory.SC+Pi+B.QIIRT-tyOf.Model
 
 module Theory.SC+Pi+B.QIIRT-tyOf.Rec (M : SC+Pi+B ℓ₁ ℓ₂ ℓ₃ ℓ₄) where
--- module Theory.SC+Pi+B.QIIRT-tyOf.Rec (M : SC+Pi+B ℓ ℓ ℓ ℓ) where
 
 open SC+Pi+B M
 
@@ -89,19 +88,9 @@ recTm (S.βπ₂ σ t p _ i) =
   βπ₂ (recSub σ) (recTm t) (recTyOf t p) i
 recTm (S.[idS]t t i)    = [idS]t (recTm t) i
 recTm (S.[∘]t t σ τ i)  = [∘]t (recTm t) (recSub σ) (recSub τ) i
-
 recTm (S.app t B p)   = app (recTm t) (recTy B) (recTyOf t p)
 recTm (S.abs t)     = abs (recTm t)
 recTm (S.abs[] {A = A} σ t i) = recTmabs[] σ t i
-{- (
-  abs (recTm t) [ recSub σ ]t
-    ≡⟨ abs[] (recSub σ) (recTm t) ⟩
-  abs (recTm t [ recSub σ ↑ recTy A ]t)
-    ≡⟨ (λ i → abs (recTm t [ recSub↑≡↑recSub σ A (~ i) ]t)) ⟩ -- supposed to be definitional
-  abs (recTm t [ recSub (σ S.↑ A) ]t)
-    ∎) i
--}
-
 recTm (S.Πβ {Γ} {A = A} t p i) = (
   app (abs (recTm t)) (recTy (S.tyOf t)) (recTyOf (S.abs t) p)
     ≡⟨ cong₂ (app (abs (recTm t))) (sym $ recTyOf t refl )

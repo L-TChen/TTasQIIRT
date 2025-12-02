@@ -365,22 +365,6 @@ recTyElπ a pa b pb =
   Π (recTy (S.El a pa)) (recTy (S.El b pb))
     ∎
 
-{-
-recSub↑El : (σ : S.Sub Γ Δ){u : S.Tm Δ}{pu : S.tyOf u ≡ S.U}{pu' : S.tyOf (u S.[ σ ]) ≡ S.U}
-          → (q : (tyOf[]≡U (recTyOf u pu)) ≡ (recTyOf {A = S.U} (u S.[ σ ]) pu'))
-          → PathP (λ i → Sub (recCtx Γ ,C El (recTm u [ recSub σ ]t) (q i)) (recCtx Δ ,C El (recTm u) (recTyOf u pu))) (recSub σ ↑El) (recSub (σ S.↑El))
-recSub↑El σ {u} {pu} {pu'} q = λ i → (recSub σ ∘ π₁ idS) , π₂ idS ∶[ {!Ty-is-set _ _ (El[]₂ (recTm u) (λ i₁ → recTyOf u pu i₁)) ? i!} ]
-
-
--- Sub (recCtx Γ ,C El (recTm _u_3219 [ recSub σ ]t) (tyOf[] ∙ (λ i → recTyOf _u_3219 (λ _ → S.tyOf _u_3219) i [ recSub σ ]T) ∙ (λ i → recTy (_pu'_3221 i))))
---     (recCtx Δ ,C El (recTm _u_3219) (recTyOf _u_3219 _pu_3220))
-
--- Sub (recCtx Γ ,C El (u [ recSub σ ]t) (tyOf[]≡U pu))
---    (recCtx Δ ,C El u pu)
--}
-
-
-
 recSubidS,t≡idS,Subt t p q =
   cong (idS , recTm t ∶[_]) (Ty-is-set _ _ _ _)
 
