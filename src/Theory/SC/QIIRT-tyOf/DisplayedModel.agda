@@ -376,14 +376,3 @@ record SC∙ (ℓ₁ ℓ₂ ℓ₃ ℓ₄ : Level) : Set (ℓ-suc (ℓ₁' ⊔ �
       ≡Ty[ U[] ]⟨ U[]∙ ⟩
     U∙
       ∎
-
---    tyOf[] ∙ cong (λ A → A [ σ ]T) p ∙ U[]
-
--- {-
---   ≡Ty[-]⟨⟩-syntax
---     : {A B C : Ty Γ} {Γ∙ : Ctx∙ Γ} (p : A ≡ B) {q : B ≡ C}
---     → (A∙ : Ty∙ Γ∙ A) {B∙ : Ty∙ Γ∙ B} {C∙ : Ty∙ Γ∙ C}
---     → B∙ ≡Ty[ q ] C∙ → A∙ ≡Ty[ p ] B∙
---     → A∙ ≡Ty[ p ∙ q ] C∙
---   ≡Ty[-]⟨⟩-syntax A∙ p q∙ p∙ = p∙ ∙Ty[] q∙
---   -}

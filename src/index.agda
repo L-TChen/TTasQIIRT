@@ -29,7 +29,7 @@ import Theory.SC.QIIRT-tyOf.IxModel.NbEwithIsoReasoning
 import Theory.SC+El+Pi+B.QIIRT-tyOf.Syntax
 import Theory.SC+El+Pi+B.QIIRT-tyOf.Rec
 import Theory.SC+El+Pi+B.QIIRT-tyOf.Model
--- import Theory.SC+El+Pi+B.QIIRT-tyOf.DisplayedModel
+import Theory.SC+El+Pi+B.QIIRT-tyOf.DisplayedModel
 import Theory.SC+El+Pi+B.QIIRT-tyOf.Model.Set
 
 
