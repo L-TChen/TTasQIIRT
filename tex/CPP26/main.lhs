@@ -122,7 +122,8 @@
 %% allowing the author to define a "short title" to be used in page headers.
 %\title[Can Natural Model Simplify the Metatheory of Type Theory?]{Can Inspiration From Natural Models Simplify the Metatheory of Type Theory in Cubical Agda?}
 
-\title[Can we formalise type theory intrinsically without any compromise?]{Can we formalise type theory intrinsically without any compromise? A case study in \CA}
+\title{Can we formalise type theory intrinsically without any compromise?}
+\subtitle{A case study in \CA}
 %%
 %% The "author" command and its associated commands are used to define
 %% the authors and their affiliations.
@@ -1164,6 +1165,7 @@ While \Agda does support strict propositions~\cite{Gilbert2019}, this feature wa
 %\paragraph{The implementation of OTT or XTT}
 To formalise the metatheory of type theory using QIITs with as few transports as possible, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory offered by \CA.
 In particular, regularity and definitional UIP, supported by OTT (see \cite{Altenkirch2019,Pujet2024} for the discussion on regularity) and by its cubical variant XTT~\cite{Sterling2022}, would immediately simplify our standard model~(\Cref{sec:standard-model}) and make the strictification developed by Kaposi and Pujet available to use.
+\FNF[noinline]{Update this part}
 
 The use of QIITs in OTT~\cite{Kaposi2025} in \Agda requires the user themselves to implement the coercion rules for inductive types~\cite{Pujet2024} as well as their elimination principles.
 Quotient inductive types are not supported in the implementation of OTT in Rocq~\cite{Pujet2024a} and its theory is still being developed~\cite{Felicissimo2025a}.
