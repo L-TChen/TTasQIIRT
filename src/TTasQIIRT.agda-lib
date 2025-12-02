@@ -6,4 +6,4 @@ include:
 depend:
 
 flags:
-  --auto-inline --cubical=no-glue --exact-split --guardedness -WnoUnsupportedIndexedMatch 
+  --auto-inline --cubical --exact-split --guardedness -WnoUnsupportedIndexedMatch 
