@@ -265,6 +265,8 @@ We discuss proof assistant features and their helpfulness further towards the en
 \item We discuss pros and cons of our approach compared to other approaches, and which features of a proof assistant and its metatheory would make future formalisation more feasible (\cref{sec:discussion}).
 \end{itemize}
 
+\paragraph{Formalisation} Our formalisation can be found at \url{https://github.com/L-TChen/TTasQIIRT}, or archived with DOI \href{https://doi.org/10.5281/zenodo.17802827}{10.5281/zenodo.17802827}.
+
 \section{Setting and Metatheory}
 
 
@@ -1200,7 +1202,7 @@ We hope that the lessons learned here can help the design of future proof assist
   (EP/Y000455/2).
 
   All data underpinning this publication are openly available from
-  \href{https://archive.softwareheritage.org/swh:1:dir:e403ad5f13c4f758df6a40c7a2eb072a6b24f1b3;origin=https://github.com/L-TChen/TTasQIIRT;visit=swh:1:snp:cb2e64c8f15931cd5c5a9673aae3aacfc6add86e;anchor=swh:1:rev:1d92dcc6b37babf3b304b33470f288c230bf98bd}{swh:1:rev:1d92dcc6b37babf3b304b33470f288c230bf98bd}.
+  \href{https://doi.org/10.5281/zenodo.17802827}{doi:10.5281/zenodo.17802827}.
 \end{acks}
 
 %\IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
