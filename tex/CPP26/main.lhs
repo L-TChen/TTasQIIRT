@@ -404,8 +404,8 @@ data _ where
   _[_]T          : (A : Ty Δ)(σ : Sub Γ Δ) → Ty Γ
   _[_]t          : (t : Tm Δ)(σ : Sub Γ Δ) → Tm Γ
   ∅              : Sub Γ ∅
-  (HL(_,_∶[_]))  : (σ : Sub Γ Δ) (t : Tm Γ) (pt : tyOf t ≡ A [ σ ]T)
-    → Sub Γ (Δ , A)
+  (HL(_,_∶[_]))  : (σ : Sub Γ Δ) (t : Tm Γ)
+                 → (pt : tyOf t ≡ A [ σ ]T) → Sub Γ (Δ , A)
   idS            : Sub Γ Γ
   _∘_            : Sub Δ Θ → Sub Γ Δ → Sub Γ Θ
   π₁             : Sub Γ (Δ , A) → Sub Γ Δ
@@ -464,7 +464,8 @@ This situates our family of inductive types and their algebras within a well-stu
 We extend our object type theory with dependent function types.
 First we define the lifting of a substitution by a type as the following abbreviation:
 \begin{code}
-_↑_ : (σ : Sub Γ Δ) (A : Ty Δ) → Sub (Γ , A [ σ ]T) (Δ , A)
+_↑_  : (σ : Sub Γ Δ) (A : Ty Δ)
+     → Sub (Γ , A [ σ ]T) (Δ , A)
 _↑_ {Γ} σ A =  σ ∘ π₁ {Γ , A [ σ ]T} idS,
                π₂ (idS {Γ , A [ σ ]T}) ∶[ p ]
 \end{code}
@@ -477,8 +478,8 @@ Other constructors are introduced following the `Ford transformation', with diff
 \begin{code}
 data _ where
   Π            : (A : Ty Γ) (B : Ty (Γ , A)) → Ty Γ
-  (HL(app))    : (t : Tm Γ) (B : Ty (Γ , A)) (HL((pt : tyOf t ≡ Π A B)))
-    → Tm (Γ , A)
+  (HL(app))    : (t : Tm Γ) (B : Ty (Γ , A))
+               → (HL((pt : tyOf t ≡ Π A B))) → Tm (Γ , A)
   abs          : (t : Tm (Γ , A)) → Tm Γ
   Π[]          : (Π A B) [ σ ]T ≡ Π (A [ σ ]T) (B [ σ ↑ A ]T)
   (HL(abs[]))  : abs t [ σ ]t ≡ abs (t [ σ ↑ A ]t)
@@ -554,7 +555,8 @@ data _ where
     (pu₂ : tyOf (u [ σ ]t) ≡ P [ σ ↑𝔹 ]T [ idS , ff ∶[ [idS]T ] ]T)
     (pb₂ : tyOf (b [ σ ]t) ≡ 𝔹 [ idS ]T)
     (q :  P [ idS , b ∶[ pb ] ]T [ σ ]T
-          ≡ P [ σ ∘ wk , vz ∶[ 𝔹[]₂ ] ]T [ idS , b [ σ ]t ∶[ pb₂ ] ]T)
+          ≡ P [ σ ∘ wk , vz ∶[ 𝔹[]₂ ] ]T
+              [ idS , b [ σ ]t ∶[ pb₂ ] ]T)
     → (elim𝔹  P t pt u pu b pb) [ σ ]t
           ≡ elim𝔹 (P [ σ ↑𝔹 ]T)  (t [ σ ]t) pt₂ (u [ σ ]t) pu₂
                                  (b [ σ ]t) pb₂
@@ -706,8 +708,8 @@ Each clause is an application of the corresponding method from the |SC| record:
 \begin{code}
 recCtx S.∅                = ∅
 recCtx (Γ S., A)          = recCtx Γ ,C recTy A
-...
-recSub (σ S., t ∶[ pt ])  = recSub σ , recTm t ∶[ recTyOf t pt ]
+recSub (σ S., t ∶[ pt ])
+  = recSub σ , recTm t ∶[ recTyOf t pt ]
 ...
 \end{code}
 The most interesting case is perhaps |recTyOf|, which handles the translation of syntactic equations.
@@ -755,7 +757,8 @@ that each displayed operation is indexed by their underlying operation (leading 
     _,∙_     : Ctx∙ Γ → Ty∙ Γ∙ A → Ctx∙ (Γ ,C A)
     _[_]T∙   : Ty∙ Δ∙ A → Sub∙ Γ∙ Δ∙ σ → Ty∙ Γ∙ (A [ σ ]T)
     _[_]t∙   : Tm∙ Δ∙ t → Sub∙ Γ∙ Δ∙ σ → Tm∙ Γ∙ (t [ σ ]t)
-    tyOf[]∙  : tyOf∙  (t∙ [ σ∙ ]t∙) ≡Ty[ tyOf[] ] (tyOf∙ t∙ [ σ∙ ]T∙)
+    tyOf[]∙  : tyOf∙  (t∙ [ σ∙ ]t∙)
+                      ≡Ty[ tyOf[] ] (tyOf∙ t∙ [ σ∙ ]T∙)
     ...
     [idS]t∙  : t∙                    ≡Tm[ [idS]t ]  t∙ [ idS∙ ]t∙
     [∘]t∙    : t∙ [ τ∙ ]t∙ [ σ∙ ]t∙  ≡Tm[ [∘]t ]    t∙ [ τ∙ ∘∙ σ∙ ]t∙
@@ -784,13 +787,14 @@ For the coherence conditions in the definition of the eliminators, we may need a
 \begin{code}
 _∙P_ :  {x' : B x}{y' : B y}{z' : B z}
   → {p : x ≡ y}{q : y ≡ z}
-  → PathP (λ i → B (p i)) x' y' → PathP (λ i → B (q i)) y' z'
+  → PathP (λ i → B (p i)) x' y'
+  → PathP (λ i → B (q i)) y' z'
   → PathP (λ i → B ((HL((p ∙ q)))i)) x' z'
 \end{code}
 We also use set truncation to identify the highlighted |p ∙ q| with the desired underlying equation in special-purpose equational reasoning combinators such as the following:
 \begin{code}
-  beginSub[_]_
-    : ({p} q : σ ≡ τ) → σ∙ ≡Sub[ p ] τ∙ → σ∙ ≡Sub[ q ] τ∙
+  beginSub[_]_ : ({p} q : σ ≡ τ)
+    → σ∙ ≡Sub[ p ] τ∙ → σ∙ ≡Sub[ q ] τ∙
   beginSub[_]_ {σ∙} {τ∙} {p} q p∙ =
     subst (λ r → σ∙ ≡Sub[ r ] τ∙) (Sub-is-set p q) p∙
 \end{code}
@@ -956,7 +960,8 @@ As a result, the value |t γ| below must be transported along |p|, as highlighte
   std ._[_]t (A , t) σ  = (λ γ → A (σ γ)) , (λ γ → t (σ γ))
   std .tyOf[]           = refl
   ...
-  std ._,_∶[_] σ (A , t) p γ = (σ γ , (HL(transport (λ i → p i γ) (t γ))))
+  std ._,_∶[_] σ (A , t) p γ
+    = (σ γ , (HL(transport (λ i → p i γ) (t γ))))
 \end{code}
 
 To extend the standard model for the universe |U|, we define a Tarski universe of codes and its interpretation
