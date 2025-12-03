@@ -1,5 +1,6 @@
 \documentclass[sigplan,screen,natbib,balance]{acmart}
 
+%%%%% Article setup %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% The following is specific to CPP '26 and the paper
 %%% 'Can We Formalise Type Theory Intrinsically without Any Compromise? A Case Study in Cubical Agda'
 %%% by Liang-Ting Chen, Fredrik Nordvall Forsberg, and Tzu-Chun Tsai.
@@ -14,6 +15,7 @@
 \acmBooktitle{Proceedings of the 15th ACM SIGPLAN International Conference on Certified Programs and Proofs (CPP '26), January 12--13, 2026, Rennes, France}
 \received{2025-09-13}
 \received[accepted]{2025-11-13}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage[utf8]{inputenc}
@@ -150,14 +152,6 @@
   \country{Taiwan}
 }
 \email{gene0905@@icloud.com}
-
-%%
-%% By default, the full list of authors will be used in the page
-%% headers. Often, this list is too long, and will overlap
-%% other information printed in the page headers. This command allows
-%% the author to define a more concise list
-%% of authors' names for this purpose.
-%\renewcommand{\shortauthors}{Trovato et al.}
 
 \begin{abstract}
   We present an intrinsic representation of type theory in the proof assistant \CA, inspired by Awodey’s natural models of type theory.
