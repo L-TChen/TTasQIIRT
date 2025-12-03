@@ -244,7 +244,7 @@ We discuss proof assistant features and their helpfulness further towards the en
 \item We discuss pros and cons of our approach compared to other approaches, and which features of a proof assistant and its metatheory would make future formalisation more feasible (\cref{sec:discussion}).
 \end{itemize}
 
-\paragraph{Formalisation} Our formalisation can be found at \url{https://github.com/L-TChen/TTasQIIRT}, or archived with DOI \href{https://doi.org/10.5281/zenodo.17802827}{10.5281/zenodo.17802827}.
+\paragraph{Formalisation} Our formalisation~\cite{formalisation} can be found at \url{https://github.com/L-TChen/TTasQIIRT}, or archived with DOI \href{https://doi.org/10.5281/zenodo.17802827}{10.5281/zenodo.17802827}.
 
 \section{Setting and Metatheory}
 
@@ -1165,10 +1165,12 @@ We hope that the lessons learned here can help the design of future proof assist
   We are also grateful to Shu-Hung You for his comments on an early draft.
   The work is supported by the National Science and Technology Council of Taiwan under grant NSTC 114-2222-E-001-001-MY3, and the Engineering and Physical Sciences Research Council
   (EP/Y000455/2).
-
-  All data underpinning this publication are openly available from
-  \href{https://doi.org/10.5281/zenodo.17802827}{doi:10.5281/zenodo.17802827}.
 \end{acks}
+
+\section*{Data-Availability Statement}
+
+All data underpinning this publication are openly available from
+Zenodo~\cite{formalisation} with DOI \href{https://doi.org/10.5281/zenodo.17802827}{10.5281/zenodo.17802827}.
 
 \bibliography{ref}
 
