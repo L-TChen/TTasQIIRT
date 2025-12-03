@@ -23,7 +23,7 @@
 \RequirePackage[T1]{fontenc}
 \RequirePackage[utf8]{inputenc}
 \RequirePackage{amsfonts}
-\RequirePackage{newunicodechar}
+%\RequirePackage{newunicodechar}
 
 \providecommand\mathbbm{\mathbb}
 
@@ -54,29 +54,46 @@
 \DeclareUnicodeCharacter{03C0}{\ensuremath{\pi}}
 \DeclareUnicodeCharacter{03C3}{\ensuremath{\sigma}}
 \DeclareUnicodeCharacter{03C9}{\ensuremath{\omega}}
-\newunicodechar{β}{\ensuremath{\beta}}
-\newunicodechar{η}{\ensuremath{\eta}}
-\newunicodechar{Γ}{\ensuremath{\Gamma}}
-\newunicodechar{Δ}{\ensuremath{\Delta}}
-\newunicodechar{Θ}{\ensuremath{\Theta}}
-\newunicodechar{Ξ}{\ensuremath{\Xi}}
-\newunicodechar{Π}{\ensuremath{\Pi}}
-\newunicodechar{τ}{\ensuremath{\tau}}
-\newunicodechar{γ}{\ensuremath{\gamma}}
-\newunicodechar{δ}{\ensuremath{\delta}}
-\newunicodechar{∅}{\ensuremath{\emptyset}}
-\newunicodechar{≡}{\ensuremath{\equiv}}
-\newunicodechar{∘}{\ensuremath{\circ}}
-\newunicodechar{𝔹}{\ensuremath{\mathbb{B}}}
-\newunicodechar{𝕓}{\ensuremath{\mathbb{b}}}
-\newunicodechar{∎}{\ensuremath{\blacksquare}}
-\newunicodechar{∈}{\ensuremath{\in}}
-\newunicodechar{⋆}{\ensuremath{\star}}
-\newunicodechar{⌜}{\ensuremath{\ulcorner}}
-\newunicodechar{⌝}{\ensuremath{\urcorner}}
-\newunicodechar{ʸ}{\ensuremath{{}^y}}
-\newunicodechar{ⁿ}{\ensuremath{{}^n}}
-\newunicodechar{ᴾ}{\ensuremath{{}^P}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}}
+\DeclareUnicodeCharacter{03B7}{\ensuremath{\eta}}
+\DeclareUnicodeCharacter{0393}{\ensuremath{\Gamma}}
+\DeclareUnicodeCharacter{0394}{\ensuremath{\Delta}}
+\DeclareUnicodeCharacter{0398}{\ensuremath{\Theta}}
+\DeclareUnicodeCharacter{039E}{\ensuremath{\Xi}}
+\DeclareUnicodeCharacter{03A0}{\ensuremath{\Pi}}
+\DeclareUnicodeCharacter{03C4}{\ensuremath{\tau}}
+\DeclareUnicodeCharacter{03B3}{\ensuremath{\gamma}}
+\DeclareUnicodeCharacter{03B4}{\ensuremath{\delta}}
+\DeclareUnicodeCharacter{2205}{\ensuremath{\emptyset}}
+\DeclareUnicodeCharacter{2261}{\ensuremath{\equiv}}
+\DeclareUnicodeCharacter{2218}{\ensuremath{\circ}}
+\DeclareUnicodeCharacter{1D539}{\ensuremath{\mathbb{B}}}
+\DeclareUnicodeCharacter{1D553}{\ensuremath{\mathbb{b}}}
+\DeclareUnicodeCharacter{220E}{\ensuremath{\blacksquare}}
+\DeclareUnicodeCharacter{2208}{\ensuremath{\in}}
+\DeclareUnicodeCharacter{22C6}{\ensuremath{\star}}
+\DeclareUnicodeCharacter{231C}{\ensuremath{\ulcorner}}
+\DeclareUnicodeCharacter{231D}{\ensuremath{\urcorner}}
+\DeclareUnicodeCharacter{02B8}{\ensuremath{{}^y}}
+\DeclareUnicodeCharacter{207F}{\ensuremath{{}^n}}
+\DeclareUnicodeCharacter{1D3E}{\ensuremath{{}^P}}
+\DeclareUnicodeCharacter{2219}{\ensuremath{\cdot}}
 
 \DeclareUnicodeCharacter{2032}{\ensuremath{\prime}}
 \DeclareUnicodeCharacter{2113}{\ensuremath{\ell}}
@@ -89,7 +106,6 @@
 \DeclareUnicodeCharacter{22A5}{\ensuremath{\bot}}
 
 \DeclareUnicodeCharacter{1D57}{\ensuremath{^t}}
-\newunicodechar{∙}{\ensuremath{\cdot}}
 
 
 % TODO: This is in general not a good idea.

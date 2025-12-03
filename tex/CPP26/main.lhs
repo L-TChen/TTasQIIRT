@@ -18,7 +18,7 @@
 %%% Packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage[utf8]{inputenc}
 \usepackage[UKenglish]{babel}
-\usepackage{newunicodechar}
+%\usepackage{newunicodechar}
 \usepackage{xspace}
 \usepackage{xcolor}
 %\usepackage{natbib}
@@ -38,7 +38,6 @@
 %\newcommand{\FNF}[2][]{\todo[inline,author={Fred},caption={},#1]{#2}}
 
 \usepackage{microtype}
-\usepackage{newunicodechar} % [FIXME] Not supported by ACM, to be removed after updating agda.fmt
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Macros %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
