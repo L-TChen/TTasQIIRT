@@ -1,4 +1,4 @@
-\documentclass[sigplan,10pt,review]{acmart}
+\documentclass[sigplan,screen,natbib,pbalance]{acmart}
 \settopmatter{printfolios=true,printccs=false,printacmref=false}
 \setcopyright{acmlicensed}
 \copyrightyear{2025}
@@ -19,6 +19,8 @@
 \usepackage{newunicodechar}
 \usepackage{xspace}
 \usepackage{xcolor}
+%\usepackage{natbib}
+\setcitestyle{numbers,sort&compress}
 \usepackage{mathtools}
 \let\Bbbk\relax
 \usepackage{amsmath,amssymb,mathbbol}
@@ -120,10 +122,8 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-%\title[Can Natural Model Simplify the Metatheory of Type Theory?]{Can Inspiration From Natural Models Simplify the Metatheory of Type Theory in Cubical Agda?}
-
-\title{Can we formalise type theory intrinsically without any compromise?}
-\subtitle{A case study in \CA}
+\title{Can We Formalise Type Theory Intrinsically without Any Compromise?}
+\subtitle{A Case Study in \CA}
 %%
 %% The "author" command and its associated commands are used to define
 %% the authors and their affiliations.
@@ -199,10 +199,10 @@ The effort required is about the same whether or not the notion of natural model
 
 \section{Introduction}
 
-\LT[inline]{Clearly articulate what has been formalised and what has not, when appropriate? Ideally finish formalisation, otherwise scale back and discuss what has been done. (R1, R3)}
-\LT[inline]{TERMINATION checker? (R1, R3)}
-\FNF[inline]{Work further on the idea of strictification? (R2)}
+%\LT[inline]{Clearly articulate what has been formalised and what has not, when appropriate? Ideally finish formalisation, otherwise scale back and discuss what has been done. (R1, R3)}
 %\LT[inline]{Alternative formulation? E.g., \url{https://web.archive.org/web/20241004151846/https://lists.chalmers.se/pipermail/agda/2019/011176.html} (R2)}
+
+%\listoftodos
 
 % FNF (Fri 5 Sep)
 
@@ -281,7 +281,7 @@ We discuss proof assistant features and their helpfulness further towards the en
 % FNF (Sun 7 Sep)
 
 %\LT{Should we discharge this assumption in our formalisation, eg set-truncate where needed instead? (R1, R2)}
-Our formalisation is carried out in \CA without the use of the |Glue| type and, in particular, the univalence principle, by turning on the option \verb"--cubical=no-glue" available in the forthcoming \Agda 2.9.0.
+Our formalisation is carried out in \CA without the use of the |Glue| type and, in particular, the univalence principle, checked using the option \verb"--cubical=no-glue" available in the forthcoming \Agda 2.9.0.
 %
 We explicitly set-truncate the types we define.
 Therefore, the term \emph{set} is used interchangeably with type.
@@ -294,10 +294,10 @@ We believe that the cubical type theory XTT~\cite{Sterling2022}, which enjoys de
 \CA implements cubical type theory, and one of the important concepts therein is the interval type |I| with two distinguished endpoints |i0| and |i1|.
 %
 Propositional equality |x ≡ y| in a type |A| is given by \emph{paths} in |A|, i.e., by a functions |I → A|.
-More generally, dependent paths |PathP P a b| are given by dependent functions |(i : I) → P i| sending |i0| to |a : P i0| and |i1| to |b : P i1|.
+More generally, dependent paths |p : PathP P a b| are dependent functions |p : (i : I) → P i| sending |i0| to |a : P i0| and |i1| to |b : P i1|.
 Note that |P : I → Type| itself is a path in the universe |Type|, hence a witness that |P i0 ≡ P i1|, which the dependent path is \emph{over}, so paths are special cases of |PathP| with |P| being a constant path.
 %
-The constant path |refl = λ i → a| witnesses that equality is reflexive |a ≡ a|, and paths can be lifted to type families in the sense that there is a transport operation |subst : (P : A → Type) → x ≡ y → P x → P y|.
+The constant path |refl| defined as |λ _ → a| witnesses that equality is reflexive |a ≡ a|, and paths can be lifted to type families in the sense that there is a transport operation |subst : (P : A → Type) → x ≡ y → P x → P y|.
 %
 See the literature on cubical type theory for details~\cite{Vezzosi2021}.
 %
@@ -792,7 +792,8 @@ The elimination principle is stated similarly to the recursion principle but ind
 elimCtx   : (Γ :  S.Ctx)      → Ctx∙ Γ
 elimTy    : (A :  S.Ty Γ)     → Ty∙ (elimCtx Γ) A
 elimTm    : (t :  S.Tm Γ)     → Tm∙ (elimCtx Γ) t
-elimSub   : (σ :  S.Sub Γ Δ)  → Sub∙ (elimCtx Γ) (elimCtx Δ) σ
+elimSub   : (σ :  S.Sub Γ Δ)
+  → Sub∙ (elimCtx Γ) (elimCtx Δ) σ
 elimTyOf  : (t :  S.Tm Γ) (p : S.tyOf t ≡ A)
   →  tyOf∙ (elimTm t) ≡Ty[ p ] elimTy A
 \end{code}
@@ -827,6 +828,7 @@ beginSub[ ηπ ]
 with the steps |σ∙ ≡Sub[ p ]⟨ p∙ ⟩ τ∙| implemented using |_∙P_|.
 These steps give us an equation over |ηπ ∙ (refl ∙ refl) |, and |beginSub[ ηπ ]_| gives us an easy way to correct this to an equation over |ηπ| as desired instead.
 
+\FNF{Comment on the trick of including extra fields in the record type of models}
 
 \subsection{Practical workarounds for mutual definitions}  \label{sec:tt:mutual}
 
@@ -934,6 +936,7 @@ the subterm in the hole is accepted by \Agda, but refining it results an error, 
 In our formalisation, we fall back on forward declarations alone with coercions.
 We are still investigating the root cause of this behaviour, but it may point to a design flaw.
 
+\LT[inline]{TERMINATION checker? (R1, R3)}
 
 \section{Metatheory}\label{sec:meta}
 Having defined type theory as QIIRTs, we now turn to models of type theory as well as constructions of new models from existing ones.
@@ -1017,9 +1020,9 @@ stdPi .Π[] {Γ} {Δ} {A} σ B i γ =
   (a : A (σ γ)) → B (σ γ , transportRefl³ a) (~ i))
 \end{code}
 where |transportRefl³| amounts to using |transportRefl| three times.
-The case |π[]| above involves an equation over a transport of another transported term.
 If regularity were available, this would collapse to the trivial reflexivity proof.
-\LT[noinline]{try to finish it if we have time.}
+%The case |π[]| above involves an equation over a transport of another transported term.
+%\LT[noinline]{try to finish it if we have time.}
 
 \subsection{Normalisation by evaluation, and the logical predicate interpretation} \label{sec:nbe}
 We implement normalisation by evaluation (NbE) for the substitution calculus.
@@ -1051,6 +1054,7 @@ In short, NbE benefits directly from removing typing indices and avoids transpor
 We did not bother to finish all cases of the logical predicate interpretation, as Altenkirch and Kaposi~\cite{Altenkirch2016a} have already shown that such tedious use of transports is possible (but impractical) in theory.
 
 \subsection{Strictification} \label{sec:strictify}
+\FNF[inline]{Work further on the idea of strictification? (R2)}
 Instead, we turn our attention to \emph{strictification}~\cite{Donko2022,Kaposi2025}: given a model of type theory, certain equality constructors can be made strict (i.e., made to hold judgementally) to form a new model.
 A familiar analogy is the transition from lists to difference lists, where a list is represented by a list-appending function and list concatenation is function composition, which is associative judgementally.
 
@@ -1099,6 +1103,7 @@ Nevertheless, strictification does \emph{not} resolve our difficulties with the 
 In particular, the lack of strict propositions (or just definitional UIP) in \CA prevents |σ ≡ʸ σ'| from being strictly equal, since the paths between their properties must still be identified manually using set-truncation.
 Although \Agda provides a form of strict propositions |Prop|, it is not designed to work with \CA and interacts poorly with cubical primitives for now~\cite{Agda-issue2022}.
 As a consequence, coercions along equations identified by set-truncation remain unavoidable.
+
 
 \section{Discussion and conclusion}
 \label{sec:discussion}
@@ -1155,7 +1160,6 @@ Another challenge concerns interleaved mutual definitions.
 Since constructors of QIITs may be mutually interleaved, the elaboration from dependent pattern matching to eliminators need to take this into account.
 Our workaround, using forward declarations to lift function clauses to fix the dependency, sacrifices their computational behaviour.
 Furthermore, our definitions appear to reach the limits of the termination checker: even seemingly harmless functions when defining the recursion principle fail to pass termination checking.
-\LT{Clarify the termination issue in \Cref{sec:tt:elim}}
 
 % \paragraph{The need for strict propositions}
 \paragraph{Strict propositions, and observational type theory}
@@ -1164,8 +1168,7 @@ While \Agda does support strict propositions~\cite{Gilbert2019}, this feature wa
 %
 %\paragraph{The implementation of OTT or XTT}
 To formalise the metatheory of type theory using QIITs with as few transports as possible, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory offered by \CA.
-In particular, regularity and definitional UIP, supported by OTT (see \cite{Altenkirch2019,Pujet2024} for the discussion on regularity) and by its cubical variant XTT~\cite{Sterling2022}, would immediately simplify our standard model~(\Cref{sec:standard-model}) and make the strictification developed by Kaposi and Pujet available to use.
-\FNF[noinline]{Update this part}
+In particular, regularity and definitional UIP, supported by OTT (see \cite{Altenkirch2019,Pujet2024} for the discussion on regularity) and by its cubical variant XTT~\cite{Sterling2022}, would immediately simplify our standard model~(\Cref{sec:standard-model}) and make formalising metatheory more feasible using Kaposi and Pujet's strictification.
 
 The use of QIITs in OTT~\cite{Kaposi2025} in \Agda requires the user themselves to implement the coercion rules for inductive types~\cite{Pujet2024} as well as their elimination principles.
 Quotient inductive types are not supported in the implementation of OTT in Rocq~\cite{Pujet2024a} and its theory is still being developed~\cite{Felicissimo2025a}.
@@ -1188,14 +1191,14 @@ Without further advances in the technology of proof assistants, formalising type
 We hope that the lessons learned here can help the design of future proof assistants, so that one day we may implement a proof assistant within a proof assistant without (too much) sweat and tears.
 
 \begin{acks}
-  We appreciate the comments from the anonymous reviewers, in particular the pointers to alternative ways to formalising type theory that we overlooked initially.
+  We appreciate the constructive comments from the anonymous reviewers.
   Our syntax for displayed equations in \cref{sec:tt:elim} is inspired by the syntax of equational reasoning for displayed categories on 1Lab.\footnote{\url{https://1lab.dev/Cat.Displayed.Base.html}}
   We are also grateful to Shu-Hung You for his comments on the early draft.
   The work is supported by the National Science and Technology Council of Taiwan under grant NSTC 114-2222-E-001-001-MY3.
 \end{acks}
 
-\IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
-%\bibliography{ref}
+%\IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
+\bibliography{ref}
 
 \end{document}
 
