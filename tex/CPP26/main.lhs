@@ -953,7 +953,7 @@ the subterm in the hole is accepted by \Agda, but refining it results an error, 
 In our formalisation, we fall back on forward declarations along with coercions.
 We are still investigating the root cause of this behaviour, but it may point to a design flaw.
 
-\LT[inline]{TERMINATION checker? (R1, R3)}
+%\LT[inline]{TERMINATION checker? (R1, R3)}
 
 \section{Metatheory}\label{sec:meta}
 Having defined type theory as QIIRTs, we now turn to models of type theory as well as constructions of new models from existing ones.
