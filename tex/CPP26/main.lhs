@@ -31,14 +31,7 @@
 %\usepackage{mathbbol} % not supported by ACM
 \usepackage{bbold}
 \usepackage[inline]{enumitem}
-
-%% Remove the following if there are no todo items.
-%\setlength {\marginparwidth }{2cm}
-%\usepackage[obeyFinal,textsize=footnotesize]{todonotes}
 \usepackage[capitalise]{cleveref}
-%\newcommand{\LT}[2][]{\todo[inline,author={L-T},caption={},color={pink},#1]{#2}}
-%\newcommand{\FNF}[2][]{\todo[inline,author={Fred},caption={},#1]{#2}}
-
 \usepackage{microtype}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -115,8 +108,6 @@
 
 
 \renewcommand\Varid[1]{\mathord{\textsf{#1}}}
-%\let\Conid\Varid
-%\newcommand\Keyword[1]{\textsf{\textbf{#1}}}
 
 %% end of the preamble, start of the body of the document source.
 
@@ -177,23 +168,11 @@ The effort required is about the same whether or not the notion of natural model
 \ccsdesc[500]{Theory of computation~Type theory}
 
 \keywords{Proof Assistants, Formalisation, Cubical Agda, Quotient Inductive-Inductive-Recursive Type}
-%% A "teaser" image appears between the author and affiliation
-%% information and the body of the document, and typically spans the
-%% page.
-
-%\received{20 February 2007}
-%\received[revised]{12 March 2009}
-%\received[accepted]{5 June 2009}
 
 \maketitle
 \bibliographystyle{ACM-Reference-Format}
 
 \section{Introduction}
-
-%\LT[inline]{Clearly articulate what has been formalised and what has not, when appropriate? Ideally finish formalisation, otherwise scale back and discuss what has been done. (R1, R3)}
-%\LT[inline]{Alternative formulation? E.g., \url{https://web.archive.org/web/20241004151846/https://lists.chalmers.se/pipermail/agda/2019/011176.html} (R2)}
-
-%\listoftodos
 
 Internalising the syntax and semantics of type theory in type theory is a long-standing problem which stretches the limits of the theory~\cite{Dybjer1996,Danielsson2006,Chapman2009,McBride2010,Altenkirch2016a}.
 %
@@ -269,8 +248,6 @@ We discuss proof assistant features and their helpfulness further towards the en
 
 \section{Setting and Metatheory}
 
-
-%\LT{Should we discharge this assumption in our formalisation, eg set-truncate where needed instead? (R1, R2)}
 Our formalisation is carried out in \CA without the use of the |Glue| type and, in particular, the univalence principle, checked using the option \verb"--cubical=no-glue" available in the forthcoming \Agda 2.9.0. It also typechecks with \Agda version 2.8.0.
 %
 We explicitly set-truncate the types we define.
@@ -309,21 +286,15 @@ Similarly, we are ignoring universe levels, but they are all present in the form
 
 \section{Type Theory as Quotient Inductive Types} \label{sec:tt}
 
-%\FNF{Discuss ``another approach is staying completely indexed and always using PathP instead of transports'' here, or in Discussion (R2)}
-
 In this section, we explain why Altenkirch and Kaposi's representation~\cite{Altenkirch2016a} is hard to use in practice, and rejected by \CA due to transports in its definition.
 Then, we show how their representation can be transformed to a representation based on Awodey's natural models.
 This representation is accepted by \CA, since it is free from transports.
-
-%This section's aim is to exhibit that Altenkirch and Kaposi's representation, which contains the transport hells and violates the syntactic restriction imposed by \CA, can be transformed to a representation based on Awodey's natural model, which is free from transports and accepted by \CA.
-%Then, we will show how other type formers can be represented in this way.
-%In the reminder of this section, we will give its elimination principle and explain how these definitions are formalised in \CA.
 
 \subsection{Type Theory as the Initial CwF Model} \label{sec:tt:cwf}
 We briefly recall the QIIT representation given by Altenkirch and Kaposi.
 Each judgement therein is defined as an inductive type, each typing rule as a constructor, and each equality between types, terms, and substitutions as an \emph{equality constructor}.
 The inhabitants of these types are valid derivations in type theory, because their validity is enforced by typing constraints.
-The four types of judgements in type theory are represented inductive-inductively %and indexed by their context and by their types for terms
+The four types of judgements in type theory are represented inductive-inductively
 as
 \begin{code}
 data Ctx  : Set
@@ -350,7 +321,7 @@ data _ where
 Further, |idS| is the identity substitution, |_∘_| the constructor for substitution composition, and the second |_,_| the constructor for extending a substitution |σ| with a term |t| of type |A [ σ ]T| (making use of \Agda's support for overloaded constructor names).
 The equality constructor~|[∘]T| states that type substitution by |τ| followed by type substitution by |σ| is the same as a single substitution by the composition |τ ∘ σ|.
 
-When formulating the corresponding rule for the interaction between |_∘_| and |_,_|, we encounter a type mismatch that needs to be resolved by a transport (highlighted in \highlight{addition}{\text{green}}): %, leading to the transport hell when reasoning with this equality:
+When formulating the corresponding rule for the interaction between |_∘_| and |_,_|, we encounter a type mismatch that needs to be resolved by a transport (highlighted in \highlight{addition}{\text{green}}):
 \begin{code}
 ,∘  : (σ , t) ∘ τ ≡ (σ ∘ τ , (HL(subst (Tm Γ) [∘]T)) (t [ τ ]t))
 \end{code}
@@ -396,7 +367,6 @@ Similar to the Ford transformation, this problem can be overcome by asking for a
    → (σ , t ∶[ pt ]) ∘ τ ≡ (σ ∘ τ) , t [ τ ]t ∶[ (HL(qt)) ]
 \end{code}
 As |Sub| is a set, the additional argument is essentially unique, so this updated constructor does not require any additional information but only defers the proof obligation.
-%This redundant argument can be removed later when defining its eliminator (\Cref{sec:tt:elim}).
 
 Once the Ford transformation has been applied, the index |B| in |Tm Γ B| no longer plays the role of enforcing constraints.
 This opens the door to a simpler design: instead of carrying the index around, we can `Ford' all |Tm| constructors uniformly and remove the index entirely.
@@ -844,7 +814,6 @@ These steps give us an equation over |ηπ ∙ (refl ∙ refl) |, and |beginSub[
 
 So far, we have outlined how the recursion and elimination principles should be defined \emph{ideally}.
 In practice, however, limitations (and occasional mysterious bugs) of the proof assistant require us to adopt certain workarounds in order to implement the intended definitions.
-%This shows that the current design of \CA is not yet fully aligned with the theory of quotient inductive-inductive types~\cite{Kaposi2019}.
 
 \paragraph{Mutually Interleaved QIITs}
 Constructors of QIITs currently can not be interleaved in \CA~\cite{Agdaissue2021}, even within an |interleaved mutual| block.
@@ -908,7 +877,6 @@ tyOfπ₂ = refl
 This translation is valid as long as the computational behaviour of the interleaved function clauses is not needed up to judgemental equality.
 
 \paragraph{Mutually-Defined Functions}
-%\LT[noinline]{(Low) Create an Agda issue?}
 Since the constructors of QII(R)Ts can be mutually interleaved, their recursion and elimination principles also need to be given in the same vein.
 However, \Agda does not allow us to interleave clauses of different functions directly.
 One workaround is to use forward declarations as a lifting of the entire clause and then perform the necessary coercions along the corresponding equality proofs by hand.
@@ -946,13 +914,8 @@ the subterm in the hole is accepted by \Agda, but refining it results an error, 
 In our formalisation, we fall back on forward declarations along with coercions.
 We are still investigating the root cause of this behaviour, but it may point to a design flaw.
 
-%\LT[inline]{TERMINATION checker? (R1, R3)}
-
 \section{Metatheory}\label{sec:meta}
 Having defined type theory as QIIRTs, we now turn to models of type theory as well as constructions of new models from existing ones.
-
-%We find that reasoning with this definition \emph{per se} in \CA is hard even with substitution calculus: the lack of strict equalities in type theory is known to cause the transport hell~\cite{Altenkirch2016a} and even worse it cannot be mitigated by using custom rewriting rules~\cite{Cockx2020,Cockx2021} in \CA.
-%Nevertheless, programming with type theory seems doable, as normalisation can be
 
 \subsection{Term Model} \label{sec:meta:term}
 The term model is a self-interpretation of syntax, allowing displayed models to be instantiated over it and ensuring that the elimination rule computes.
@@ -1141,8 +1104,6 @@ Even though strictification turns most of the equality constructors about substi
 In \cref{sec:strictify}, we have sketched how also our notion of models can be strictified using a simpler idea.
 However, a proper strictification may require a different metatheory than `just' the support of QII(R)Ts (see below).
 
-% Untyped version might still be easiest to work with, with current proof assistant technology
-
 \paragraph{A Proper Syntax for HII(R)Ts}
 The syntax for declaring higher inductive-inductive types and QIITs in \CA falls short of their theoretical capabilities~\cite{Kaposi2020b,Kaposi2019}.
 As shown in \Cref{sec:tt:cwf}, the legitimate definition of type theory based on CwF with transports violates the syntactic restriction of strict positivity in \CA.
@@ -1171,7 +1132,6 @@ Furthermore, our definitions appear to reach the limits of the termination check
 The recent work on strictified syntax~\cite{Kaposi2025} addresses transport hell using observational type theory (OTT)~\cite{Pujet2022,Pujet2023,Pujet2024}, with strict propositions in the metatheory playing a central role.
 While \Agda does support strict propositions~\cite{Gilbert2019}, this feature was not designed to work with \CA~\cite{Agda-issue2022}.
 %
-%\paragraph{The implementation of OTT or XTT}
 To formalise the metatheory of type theory using QIITs with as few transports as possible, it seems inevitable to use a different metatheory rather than the off-the-shelf metatheory offered by \CA.
 In particular, regularity and definitional UIP --- supported by OTT (see Altenkirch, Boulier, Kaposi and Tabareau~\cite{Altenkirch2019} and Pujet and Tabareau~\cite{Pujet2024} for discussion of regularity) and by its cubical variant XTT~\cite{Sterling2022} --- would simplify our standard model in \Cref{sec:standard-model} considerably.
 
@@ -1205,12 +1165,9 @@ We hope that the lessons learned here can help the design of future proof assist
   \href{https://doi.org/10.5281/zenodo.17802827}{doi:10.5281/zenodo.17802827}.
 \end{acks}
 
-%\IfFileExists{./reference.bib}{\bibliography{reference}}{\bibliography{ref}}
 \bibliography{ref}
 
 \end{document}
-
-
 
 %%% Local Variables:
 %%% mode: latex
