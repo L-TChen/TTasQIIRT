@@ -436,8 +436,7 @@
 
 \begin{document}
 
-\title{Can We Formalise Type Theory Intrinsically without Any Compromise?}
-\subtitle{A Case Study in Cubical Agda}
+\title[Can We Formalise Type Theory Intrinsically without Any Compromise?]{Can We Formalise Type Theory Intrinsically without Any Compromise? A Case Study in Cubical Agda}
 
 \author{Liang-Ting Chen}
 \orcid{0000-0002-3250-1331}
@@ -1368,13 +1367,16 @@ Finally, we introduce the code \ensuremath{\Varid{π}} for \ensuremath{\Conid{Π
 \>[8]{}\mathbin{:}\;{}\<[11]%
 \>[11]{}(\Varid{a}\;\mathbin{:}\;\Conid{Tm}\;\Conid{Γ})\;\highlight{addition}{(\Varid{pa}\;\mathbin{:}\;\Varid{tyOf}\;\Varid{a}\;\mathop\equiv\;\Conid{U})}\;{}\<[E]%
 \\
-\>[11]{}(\Varid{b}\;\mathbin{:}\;\Conid{Tm}\;(\Conid{Γ}\;\Varid{,}\;\Conid{El}\;\Varid{a}\;\Varid{pa}))\;\highlight{addition}{(\Varid{pb}\;\mathbin{:}\;\Varid{tyOf}\;\Varid{b}\;\mathop\equiv\;\Conid{U})}\;\Varid{→}\;\Conid{Tm}\;\Conid{Γ}{}\<[E]%
+\>[8]{}\Varid{→}\;{}\<[11]%
+\>[11]{}(\Varid{b}\;\mathbin{:}\;\Conid{Tm}\;(\Conid{Γ}\;\Varid{,}\;\Conid{El}\;\Varid{a}\;\Varid{pa}))\;{}\<[E]%
 \\
+\>[8]{}\Varid{→}\;{}\<[11]%
+\>[11]{}\highlight{addition}{(\Varid{pb}\;\mathbin{:}\;\Varid{tyOf}\;\Varid{b}\;\mathop\equiv\;\Conid{U})}\;\Varid{→}\;\Conid{Tm}\;\Conid{Γ}{}\<[E]%
+\\[\blanklineskip]%
 \>[B]{}\hsindent{3}{}\<[3]%
 \>[3]{}\Varid{π[]}\;{}\<[8]%
 \>[8]{}\mathbin{:}\;{}\<[11]%
-\>[11]{}(\Varid{a}\;\mathbin{:}\;\Conid{Tm}\;\Conid{Γ})\;{}\<[35]%
-\>[35]{}\highlight{addition}{(\Varid{pa}\;\mathbin{:}\;\Varid{tyOf}\;\Varid{a}\;\mathop\equiv\;\Conid{U})}\;{}\<[E]%
+\>[11]{}(\Varid{a}\;\mathbin{:}\;\Conid{Tm}\;\Conid{Γ})\;\highlight{addition}{(\Varid{pa}\;\mathbin{:}\;\Varid{tyOf}\;\Varid{a}\;\mathop\equiv\;\Conid{U})}\;{}\<[E]%
 \\
 \>[8]{}\Varid{→}\;{}\<[11]%
 \>[11]{}(\Varid{b}\;\mathbin{:}\;\Conid{Tm}\;(\Conid{Γ}\;\Varid{,}\;\Conid{El}\;\Varid{a}\;\Varid{pa}))\;{}\<[35]%
@@ -1837,7 +1839,8 @@ For example, the coherence proof for \ensuremath{\Varid{ηπ}} is given by
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{3}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{71}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{25}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{38}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{beginSub[}\;\Varid{ηπ}\;\mskip1.5mu]\;{}\<[E]%
 \\
@@ -1854,8 +1857,11 @@ For example, the coherence proof for \ensuremath{\Varid{ηπ}} is given by
 \>[3]{}\Varid{π₂}^{\bullet}\;(\Varid{elimSub}\;\Varid{σ})\;\Varid{∶[}\;\Varid{refl}\;\Varid{,}\;\Varid{tyOfπ₂}^{\bullet}\;(\Varid{elimSub}\;\Varid{σ})\;\kern-1.5pt]^{\bullet}_{\text{t}}\;{}\<[E]%
 \\
 \>[3]{}\hsindent{2}{}\<[5]%
-\>[5]{}\Varid{≡Sub[}\;\Varid{refl}\;\Varid{]⟨}\;\Varid{cong}\;(\Varid{λ}\;\Varid{z}\;\Varid{→}\;\Varid{...}\;\Varid{,}\;\Varid{...}\;\Varid{∶[}\;\Varid{refl}\;\Varid{,}\;\Varid{z}\;\kern-1.5pt]^{\bullet}_{\text{t}})\;(\Conid{Ty∙-is-set}\;{}\<[71]%
-\>[71]{}\anonymous \;\anonymous )\;\Varid{⟩}\;{}\<[E]%
+\>[5]{}\Varid{≡Sub[}\;\Varid{refl}\;\Varid{]⟨}\;\Varid{cong}\;{}\<[25]%
+\>[25]{}(\Varid{λ}\;\Varid{z}\;\Varid{→}\;\Varid{...}\;\Varid{,}\;\Varid{...}\;\Varid{∶[}\;\Varid{refl}\;\Varid{,}\;\Varid{z}\;\kern-1.5pt]^{\bullet}_{\text{t}})\;{}\<[E]%
+\\
+\>[25]{}(\Conid{Ty∙-is-set}\;{}\<[38]%
+\>[38]{}\anonymous \;\anonymous )\;\Varid{⟩}\;{}\<[E]%
 \\
 \>[B]{}\hsindent{3}{}\<[3]%
 \>[3]{}\Varid{π₁}^{\bullet}\;(\Varid{elimSub}\;\Varid{σ})\;\Varid{,}\;{}\<[E]%

@@ -114,8 +114,7 @@
 
 \begin{document}
 
-\title{Can We Formalise Type Theory Intrinsically without Any Compromise?}
-\subtitle{A Case Study in Cubical Agda}
+\title[Can We Formalise Type Theory Intrinsically without Any Compromise?]{Can We Formalise Type Theory Intrinsically without Any Compromise? A Case Study in Cubical Agda}
 
 \author{Liang-Ting Chen}
 \orcid{0000-0002-3250-1331}
@@ -609,9 +608,11 @@ _↑El : (σ : Sub Γ Δ) {u : Tm Δ}
 Finally, we introduce the code |π| for |Π| and the type equality |Elπ| to complete our definition of type theory using QIIRT:
 \begin{code}
 data _ where
-  π    :  (a : Tm Γ) (HL((pa : tyOf a ≡ U)))
-          (b : Tm (Γ , El a pa)) (HL((pb : tyOf b ≡ U))) → Tm Γ
-  π[]  :  (a : Tm Γ)              (HL((pa : tyOf a ≡ U)))
+  π    :  (a : Tm Γ)(HL((pa : tyOf a ≡ U)))
+       →  (b : Tm (Γ , El a pa))
+       →  (HL((pb : tyOf b ≡ U))) → Tm Γ
+
+  π[]  :  (a : Tm Γ)(HL((pa : tyOf a ≡ U)))
        →  (b : Tm (Γ , El a pa))  (HL((pb : tyOf b ≡ U)))
        →  (HL((pa' : tyOf (a [ σ ]t) ≡ U)))
        →  (HL((pb' : tyOf (b [ σ ↑El ]t)  ≡ U)))
@@ -806,7 +807,8 @@ beginSub[ ηπ ]
     ≡Sub[ ηπ ]⟨ ηπ∙ (elimSub σ) ⟩
   π₁∙ (elimSub σ) ,
   π₂∙ (elimSub σ) ∶[ refl , tyOfπ₂∙ (elimSub σ) ]t∙
-    ≡Sub[ refl ]⟨ cong (λ z → ... , ... ∶[ refl , z ]t∙) (Ty∙-is-set  _ _) ⟩
+    ≡Sub[ refl ]⟨ cong  (λ z → ... , ... ∶[ refl , z ]t∙)
+                        (Ty∙-is-set  _ _) ⟩
   π₁∙ (elimSub σ) ,
   elimTm (π₂ σ) ∶[ refl , elimTyOf (π₂ σ) refl ]t∙
     ∎
